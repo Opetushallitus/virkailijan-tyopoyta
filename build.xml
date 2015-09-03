@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="deploy-to-remote-tomcat" basedir="." default="deploy-to-remote-tomcat">
+
+    <target name="deploy-to-remote-tomcat">
+
+        <property name="oph.name" value="virkailijan-tyopoyta"/>
+		<property name="pom.version" value="9.0-SNAPSHOT"/>
+
+        <property name="maven.repo" value="${user.home}/.m2/repository"/>
+        <property name="tomcat.name" value="tomcat_${oph.name}"/>
+        <property name="tomcat.home" value="/data00/oph/${oph.name}/tomcat"/>
+        <property name="ssh.keyfile" location="${user.home}/.ssh/id_rsa"/>
+        <property name="ssh.keypass" value=""/>
+
+        <echo>Stop Tomcat</echo>
+        <sshexec command="/data00/oph/tomcat/ophtomcat ${oph.name} stop"
+                 host="${tomcat-host}" username="tomcat" keyfile="${ssh.keyfile}"
+                 passphrase="${ssh.keypass}" trust="true" failonerror="false"/>
+
+        <echo>Wait Tomcat to stop...</echo>
+        <waitfor maxwait="30000" checkevery="500">
+            <not>
+                <socket server="${tomcat-host}" port="${tomcat-port}"/>
+            </not>
+        </waitfor>
+        <echo>Tomcat stopped.</echo>
+
+        <echo>Clean Tomcat</echo>
+        <sshexec command="rm -rf ${tomcat.home}/webapps/* ${tomcat.home}/work/* ${tomcat.home}/temp/*"
+                 host="${tomcat-host}" username="tomcat" keyfile="${ssh.keyfile}"
+                 passphrase="${ssh.keypass}" trust="true" failonerror="false"/>
+
+        <echo>Copy files to server...</echo>
+        <scp todir="tomcat@${tomcat-host}:${tomcat.home}/webapps/"
+             keyfile="${ssh.keyfile}" passphrase="${ssh.keypass}">
+            <fileset dir="${maven.repo}/fi/vm/sade/virkailijan-tyopoyta/virkailijan-stp-ui/${pom.version}">
+                <include name="*.war"/>
+            </fileset>  
+            <fileset dir="${maven.repo}/fi/vm/sade/virkailijan-tyopoyta/virkailijan-stp-service/${pom.version}">
+                <include name="*.war"/>
+            </fileset>
+        </scp>
+
+        <echo>unzip files to tomcat webapps-dir...</echo>
+        <sshexec command="
+				mkdir ${tomcat.home}/webapps/virkailijan-stp-ui;
+				mkdir ${tomcat.home}/webapps/virkailijan-stp-service;				
+				
+				unzip -qo -d${tomcat.home}/webapps/kela-service ${tomcat.home}/webapps/virkailijan-stp-ui-*.war;
+				unzip -qo -d${tomcat.home}/webapps/kela-service ${tomcat.home}/webapps/virkailijan-stp-service-*.war;
+				
+		rm -rf ${tomcat.home}/webapps/virkailijan-stp-ui-*.war;
+		rm -rf ${tomcat.home}/webapps/virkailijan-stp-service-*.war;
+
+                 host="${tomcat-host}" username="tomcat" keyfile="${ssh.keyfile}"
+                 passphrase="${ssh.keypass}" trust="true" failonerror="false"/>
+
+		<echo>Remove extra log4j config-files</echo>
+		<sshexec command="find ${tomcat.home} -name 'log4j.properties' -exec rm -rf {} \;"
+                 host="${tomcat-host}" username="tomcat" keyfile="${ssh.keyfile}"
+                 passphrase="${ssh.keypass}" trust="true" failonerror="false" />
+				 
+        <echo>Start Tomcat</echo>
+        <sshexec command="/data00/oph/tomcat/ophtomcat ${oph.name} start"
+                 host="${tomcat-host}" username="tomcat" keyfile="${ssh.keyfile}"
+                 passphrase="${ssh.keypass}" trust="true" failonerror="false"/>
+
+        <echo>Wait for service http-url</echo>
+        <waitfor maxwait="3000" checkevery="500">
+            <and>
+                <http url="http://${tomcat-host}:${tomcat-port}/virkailijan-stp-ui"/>
+                <http url="http://${tomcat-host}:${tomcat-port}/virkailijan-stp-service"/>
+            </and>
+        </waitfor>
+        <fail message="virkailijan-stp-ui -webapp did not come up.  Check your log files, fix and try again.  Good Luck :-).">
+            <condition>
+                <not>
+                    <http url="http://${tomcat-host}:${tomcat-port}/virkailijan-stp-ui"/>
+                </not>
+            </condition>
+        </fail>
+        <fail message="virkailijan-stp-service -webapp did not come up.  Check your log files, fix and try again.  Good Luck :-).">
+            <condition>
+                <not>
+                    <http url="http://${tomcat-host}:${tomcat-port}/virkailijan-stp-service"/>
+                </not>
+            </condition>
+        </fail>
+        <echo>Successfully deployed to ${tomcat-host}</echo>
+
+    </target>
+</project>
+
+
+
+
+
+

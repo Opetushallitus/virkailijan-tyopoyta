@@ -1,0 +1,47 @@
+<div>
+<table class="table">
+    <tbody>
+        <tr ng-if="announcementsmodel.ready && announcementsmodel.hasalerts()">
+            <td class="align-left">
+                <div class="row-fluid">
+                    <div class="span9">
+                        <alert ng-repeat="alert in announcementsmodel.alerts" type="alert.type"> <img style="margin-right: 10px;" src="../img/alert-icon28x29.png">{{alert.msg}}</alert>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr ng-repeat="announcement in announcementsmodel.rows | limitTo: announcementsmodel.maxlines" ng-if="announcementsmodel.ready">
+            <td class="align-left">
+                <div>
+                    <a href="#/etusivu/tiedote/{{announcement.id}}" title="{{'desktop.announcement.show.hint' | i18n}}"><h5><span ng-html-compile="announcement.title_plain_short"/></h5></a>
+                </div>
+                <div style="color: #999999">
+                    {{announcement.date | toFinnishDateTime}} {{announcement.author.name}}
+                </div>
+                <div>
+                    <span ng-repeat="tag in announcement.tags" class="tag">{{tag.title}}</span>
+                </div>
+            </td>
+        </tr>
+        <tr ng-if="announcementsmodel.ready && !announcementsmodel.hasalerts() && announcementsmodel.rows.length==0">
+            <td class="align-left">
+                <div style="color: #999999">
+                    {{'desktop.announcements.messages.noannoucemenets' | i18n}}
+                </div>
+            </td>
+        </tr>
+        <tr ng-if="!announcementsmodel.ready">
+            <td class="align-left">
+                <div style="color: #999999">
+                    {{'desktop.announcements.messages.fetchingannoucements' | i18n}}
+                </div>
+            </td>
+        </tr>
+        <tr ng-if="announcementsmodel.maxlines<announcementsmodel.rows.length">
+            <td>
+                <a ng-click="announcementsmodel.showmore()">&gt;&gt; {{'generic.showmore' | i18n}}</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</div>

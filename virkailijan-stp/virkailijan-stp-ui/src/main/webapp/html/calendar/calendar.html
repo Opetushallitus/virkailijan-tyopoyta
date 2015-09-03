@@ -1,0 +1,67 @@
+<div class="container">
+	<div stp-breadcrumb></div>
+	<div ng-include="'partials/userroles.html'"/>
+	<table style="width: 10%">
+		<tbody>
+			<tr>
+				<td>
+					<div class="eventcalendar">
+						<div style="display: inline-block;">
+							<datepicker min-date="dummyDate" starting-day="1"
+								date-disabled="isDateDisabled(mode, date)"
+								datepicker-mode="datepickerMode" ng-model="eventdate"
+								min-date="minDate" show-weeks="true" class="well">
+							</datepicker>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr ng-if="eventdatename">
+				<td style="width: 8%; vertical-align: top">
+					<table class="table" ng-repeat="event in model.events">
+						<tbody>
+							<tr>
+								<td class="align-left">
+									<hr/>
+								</td>
+							</tr>
+							<tr>
+        		 				<td class="align-left">
+        		 					<div>
+        		 						<h5>{{event.title}}</h5>
+        		 					</div>
+        		 				</td>
+        		 			</tr>
+        		 			<tr>
+        		 				<td>
+        		 					<div style="color: #999999">
+        		 						{{event.event_date_time.event_start_date | toFinnishDate}} {{event.event_date_time.event_start_time | limitTo:5 }} - {{event.event_date_time.event_end_date | toFinnishDate}} {{event.event_date_time.event_end_time | limitTo:5 }}
+        		 					</div>
+        		 				</td>
+        		 			</tr>
+        		 			<tr ng-if="event.event_location">
+        		 				<td>
+        		 					<div style="color: #999999">
+        		 						{{event.event_location }}
+        		 					</div>
+        		 				</td>
+        		 			</tr>        		 			
+							<tr>        		 											
+								<td class="align-left">
+									<span ng-html-compile="event.content"/>
+								</td>
+							</tr>								
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td class="align-left">
+					<hr />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+   	<div stp-goback/>
+</div>
+

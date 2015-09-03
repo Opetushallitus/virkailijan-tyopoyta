@@ -1,0 +1,54 @@
+<div>
+    <!-- categories -->
+    <table>
+        <tr ng-repeat="category in categoriesmodel.rows" ng-if="categoriesmodel.ready">
+            <td style="vertical-align: top;">
+                <input type="checkbox" ng-model="category.checked" ng-change="selectedcategoriesmodel.clicked(category)" />
+            </td>
+            <td style="padding-left: 5px;">{{category.title}}</td>
+        </tr>
+        <tr>
+            <td colspan="*">&nbsp;</td>
+        </tr>
+    </table>
+    <h6>{{'archive.text.filter_results_tag' | i18n}}</h6>
+    <!-- tags -->
+    <table>
+        <tr ng-repeat="tag in tagsmodel.rows" ng-if="tagsmodel.ready && tag.slug.length>0">
+            <td style="vertical-align: top; padding-left: 5px;">
+                <input type="checkbox" ng-model="tag.checked" ng-change="tagsmodel.clicked(tag)" />
+            </td>
+            <td style="padding-left: 5px;">{{tag.title}}</td>
+            <tr>
+                <td colspan="*">&nbsp;</td>
+            </tr>
+    </table>
+    <!-- calendar tree -->
+    <h6>{{'archive.text.filter_results_date' | i18n}}</h6>
+    <table ng-repeat="year in year_tree.years">
+        <tr>
+            <td ng-if="year.open">
+                <button type="button" ng-click="year.open = false" style="border: none; background: white;">
+                    <img src="../img/itemtree-collapse-sprite-down.png" />
+                </button>
+            </td>
+            <td ng-if="!year.open">
+                <button type="button" ng-click="year.open = true" style="border: none; background: white;">
+                    <img src="../img/itemtree-collapse-sprite-right.png" />
+                </button>
+            </td>
+            <td>
+                <input type="checkbox" style="vertical-align: center;" data-indeterminate-checkbox data-child-list="year.months" data-property="checked" data-ng-model="year.checked" ng-click="year_tree.clicked(year,0)" />
+                <!-- must be ng-click instead of ng-change (IE wont work otherwise) -->
+            </td>
+            <td style="padding-left: 5px;">{{year.name}}</td>
+        </tr>
+        <tr ng-repeat="month in year.months" ng-if="year.open">
+            <td>&nbsp;</td>
+            <td>
+                <input type="checkbox" style="vertical-align: top;" data-ng-model="month.checked" ng-change="year_tree.clicked(month,0)" />
+            </td>
+            <td>{{month.name}}</td>
+        </tr>
+    </table>
+</div>

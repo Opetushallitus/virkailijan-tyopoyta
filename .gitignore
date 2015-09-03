@@ -1,0 +1,13 @@
+target
+*/target
+*/*/target
+**/*~
+*~
+.project
+.settings
+.classpath
+nb-configuration.xml
+**/.project
+**/.settings
+**/.classpath
+**/nb-configuration.xml
