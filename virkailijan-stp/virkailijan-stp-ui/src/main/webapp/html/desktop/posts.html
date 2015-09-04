@@ -1,0 +1,43 @@
+<div class="container">
+	<div stp-breadcrumb></div>
+	<div ng-include="'partials/userroles.html'"/>
+	<div class="row-fluid" style="vertical-align: middle; line-height:60px">
+		<table>
+			<tr>
+				<td>
+				<form name="perusHakuForm" class="form-search ng-scope ng-pristine ng-valid">
+					<input type="text" ng-model="searchmodel.searchtext" style="margin-bottom: 0; height: 30px;" class="input-xxlarge" maxlength="50" placeholder="{{'desktop.search.placeholder' | i18n}}"/> 
+    				<button class="btn btn-primary ng-binding" ng-click="toArchive()" type="submit">{{'desktop.search' | i18n}}</button>
+				</form>
+				</td>
+			</tr>
+		</table>
+     </div>
+ 	 <table style="width: 100%">
+        <tbody>			
+    		<tr>
+	    		<td style="vertical-align: top">
+	    			 <a ng-click="announcementsmodel.refresh()" title="{{'desktop.announcements.title.hint' | i18n}}">
+	    			 <h2>{{'desktop.announcements.title' | i18n}}</h2></a>
+	    		</td>
+	    	 	<td style="vertical-align: top"> 
+	    		 	<a ng-click="eventsmodel.refresh()" title="{{'desktop.upcomingevents.title.hint' | i18n}}"><h2>{{'desktop.upcomingevents.title' | i18n}}</h2></a>
+	    		</td>
+	    		<td style="vertical-align: top">
+	    			<a ng-click="materialsmodel.refresh()" title="{{'desktop.materials.title.hint' | i18n}}"><h2>{{'desktop.newestmaterials.title' | i18n}}</h2></a>
+	    		</td>  
+    		</tr>
+    		<tr>
+ 	   			<td style="width: 40%; vertical-align: top">
+					<div ng-include="'desktop/announcementslist.html'"/>
+				</td>
+ 	   		 	<td style="width: 30%; vertical-align: top">
+ 					<div ng-include="'desktop/eventslist.html'"/>
+				</td>				
+				<td style="width: 30%; vertical-align: top">
+ 					<div ng-include="'desktop/materialslist.html'"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
