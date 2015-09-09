@@ -14,24 +14,10 @@ host.cas={{host_cas}}
 host.ilb={{host_ilb}}
 host.ldap={{host_ldap}}
 host.virkailija={{host_virkailija}}
-kela.ftp.username={{kela_ftp_username}}
-kela.ftp.password={{kela_ftp_password}}
-kela.ftp.host={{kela_ftp_host}}
-kela.ftp.port={{kela_ftp_port}}
-kela.ftp.protocol={{kela_ftp_protocol}}
-kela.ftp.path={{kela_ftp_path}}
 ldap.manager.password={{ldap_manager_password}}
 ldap.manager-password={{ldap_manager_password}}
 ldap.manager.userdn={{ldap_manager_userdn}}
 server.name={{ansible_hostname}}
-vtj.address={{vtj_address}}
-vtj.cert.alias={{vtj_cert_alias}}
-vtj.keystore.password={{vtj_keystore_password}}
-vtj.keystore.file={{vtj_keystore_file}}
-vtj.password={{vtj_password}}
-vtj.username={{vtj_username}}
-vtj.truststore.file={{vtj_truststore_file}}
-vtj.truststore.password={{vtj_truststore_password}}
 
 # Oletusarvoja
 accessRight.webservice.url.backend=https\://${host.virkailija}/authentication-service/services/accessRightService
