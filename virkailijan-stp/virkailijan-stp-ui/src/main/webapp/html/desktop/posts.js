@@ -5,11 +5,12 @@ app.factory('LatestAnnouncementsPopulator', function(LatestAnnouncements, $filte
 
 app.factory('LatestAnnouncementsUIModel', function(LatestAnnouncementsPopulator, $filter) {
 	var uiFilterModel = new  UIFilterModel(LatestAnnouncementsPopulator);
+	var transform_super = uiFilterModel.transform;
 	uiFilterModel.transform = function(rows) {
 		_(rows).forEach(function(row) {
 			row.title_plain_short = $filter('words')(row.title_plain, "8");
 		});
-    	return rows;
+    	return transform_super(rows);
     }
 	return uiFilterModel.setParams({});
 });
@@ -43,11 +44,12 @@ app.factory('TextSearchAnnoucementsPopulator', function(TextSearchAnnouncements,
 
 app.factory('ArchiveAnnouncementsUIModel', function(TextSearchAnnoucementsPopulator, $filter) {
 	var uiFilterModel = new  UIFilterModel(TextSearchAnnoucementsPopulator);
+	var transform_super = uiFilterModel.transform;
 	uiFilterModel.transform = function(rows) {
 		_(rows).forEach(function(row) {
 			row.title_plain_short = $filter('words')(row.title_plain, "8");
 		});
-    	return rows;
+    	return transform_super(rows);
     }
 	return uiFilterModel;
 });
@@ -58,11 +60,12 @@ app.factory('TextSearchMaterialsPopulator', function(TextSearchMaterials, $filte
 
 app.factory('ArchiveMaterialsUIModel', function(TextSearchMaterialsPopulator, $filter) {
 	var uiFilterModel = new  UIFilterModel(TextSearchMaterialsPopulator);
+	var transform_super = uiFilterModel.transform;
 	uiFilterModel.transform = function(rows) {
 		_(rows).forEach(function(row) {
 			row.title_plain_short = $filter('words')(row.title_plain, "8");
 		});
-    	return rows;
+    	return transform_super(rows);;
     }
 	return uiFilterModel;
 });
