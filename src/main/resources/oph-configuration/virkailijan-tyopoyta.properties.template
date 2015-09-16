@@ -65,6 +65,7 @@ koodi.public.webservice.url.backend=https://${host.virkailija}/koodisto-service/
 koodisto.public.webservice.url.backend=https://${host.virkailija}/koodisto-service/services/koodistoService
 organisaatio.webservice.url.backend=https://${host.virkailija}/organisaatio-service/services/organisaatioService
 organisaatio.api.rest.url=https://${host.virkailija}/organisaatio-service/rest
+organisaatio.solr.url={{ organisaatio_solr_url }}
 
 #Virkailijan sahkoinen tyopoyta
 cas.service.virkailijan-stp-service=https://${host.virkailija}/virkailijan-stp-service
