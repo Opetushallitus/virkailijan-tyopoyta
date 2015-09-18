@@ -17,7 +17,7 @@
                 <prop key="cas_key">virkailijanstp-app</prop>
                 <prop key="cas_service">${cas.service.virkailijan-stp-ui}</prop>
                 <prop key="cas_callback_url">${cas.callback.virkailijan-stp-ui}</prop>
-                <prop key="spring_security_default_access">permitAll</prop>
+                <prop key="spring_security_default_access">hasRole('ROLE_APP_OMATTIEDOT')</prop>
             </util:properties>
         </property>
     </bean>
