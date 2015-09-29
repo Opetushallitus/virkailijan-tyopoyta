@@ -43,7 +43,7 @@
         <custom-filter position="CAS_FILTER" ref="casFilter" />
     </http>
 
-    <http entry-point-ref="forbiddenEntryPoint" use-expressions="true" request-matcher="regex" pattern="/buildversion.txt|/healthcheck">
+    <http entry-point-ref="forbiddenEntryPoint" use-expressions="true" request-matcher="regex" pattern="/buildversion.txt|/healthcheck|/.*\.css">
         <intercept-url pattern="/**" access="permitAll"/>
     </http>
 
@@ -70,6 +70,7 @@
         <custom-filter ref="singleLogoutFilter" before="CAS_FILTER" />
         <custom-filter ref="casFilter" position="CAS_FILTER"/>
         <logout logout-success-url="/user/logout"/> <!-- huom! vain haku tarvitsee tata? -->
+        <access-denied-handler error-page="/html/403.html" />
     </http>
     <!--
         Workaround viestintapalvelun suojaamiseksi kunnes Guice-konteksti vaihdetaan Springiin ja tietoturva voidaan hoitaa samoin kuin muissa palveluissa!
@@ -99,6 +100,7 @@
         <custom-filter ref="urlRewriteFilter" before="CHANNEL_FILTER"/>
         <custom-filter ref="casFilter" position="CAS_FILTER"/>
         <logout logout-success-url="/user/logout"/> <!-- huom! vain haku tarvitsee tata? -->
+        <access-denied-handler error-page="/html/403.html" />
     </http>
 
     <!-- note: -->
