@@ -70,7 +70,7 @@
         <custom-filter ref="singleLogoutFilter" before="CAS_FILTER" />
         <custom-filter ref="casFilter" position="CAS_FILTER"/>
         <logout logout-success-url="/user/logout"/> <!-- huom! vain haku tarvitsee tata? -->
-        <access-denied-handler error-page="html/403.html" />
+        <access-denied-handler error-page="/html/403.html" />
     </http>
     <!--
         Workaround viestintapalvelun suojaamiseksi kunnes Guice-konteksti vaihdetaan Springiin ja tietoturva voidaan hoitaa samoin kuin muissa palveluissa!
@@ -100,7 +100,7 @@
         <custom-filter ref="urlRewriteFilter" before="CHANNEL_FILTER"/>
         <custom-filter ref="casFilter" position="CAS_FILTER"/>
         <logout logout-success-url="/user/logout"/> <!-- huom! vain haku tarvitsee tata? -->
-        <access-denied-handler error-page="html/403.html" />
+        <access-denied-handler error-page="/html/403.html" />
     </http>
 
     <!-- note: -->
