@@ -298,10 +298,8 @@ app.factory('SessionPoll', function($resource) {
 app.filter('naturalSort', function() {
     return function(arrInput, field, reverse) {
         var arr = arrInput.sort(function(a, b) {
-            var valueA = field ? "a." + field : "a";
-            var valueB = field ? "b." + field : "b";
-            valueA = eval(valueA);
-            valueB = eval(valueB);
+            var valueA = field ? a[field] : a;
+            var valueB = field ? b[field] : b;
             var aIsString = typeof valueA === 'string';
             var bIsString = typeof valueB === 'string';
             return naturalSort(aIsString ? valueA.trim().toLowerCase() : valueA, bIsString ? valueB.trim().toLowerCase() : valueB);
