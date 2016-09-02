@@ -141,8 +141,14 @@
             <groupId>fi.vm.sade.organisaatio</groupId>
             <artifactId>organisaatio-solr-client</artifactId>
             <version>${organisaatio.api.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>fi.vm.sade.generic</groupId>
             <artifactId>generic-test-support</artifactId>
@@ -191,7 +197,7 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -324,7 +330,7 @@
             <artifactId>spring-aspects</artifactId>
                <version>${spring-aspects.version}</version>
         </dependency>
-        
+
         <!-- CAS ticket cache replication-->
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -421,7 +427,7 @@
             <artifactId>spring-webmvc-portlet</artifactId>
             <version>${spring-webmvc-portlet.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -438,7 +444,7 @@
             <artifactId>spring-beans</artifactId>
             <version>${spring-beans.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
@@ -449,13 +455,13 @@
             <artifactId>spring-tx</artifactId>
             <version>${spring-tx.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>fi.vm.sade.generic</groupId>
             <artifactId>generic-common</artifactId>
             <version>${generic.version}</version>
         </dependency>
-        
+
          <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
