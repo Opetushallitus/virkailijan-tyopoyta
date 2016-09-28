@@ -11,3 +11,4 @@ nb-configuration.xml
 **/.settings
 **/.classpath
 **/nb-configuration.xml
+node_modules
