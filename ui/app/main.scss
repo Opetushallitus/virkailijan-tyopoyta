@@ -1,0 +1,307 @@
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap";
+@import "~draft-js/dist/Draft.css";
+@import '~react-datepicker/dist/react-datepicker.css';
+
+
+$activeElement:   #159ECB;
+$darkBlue:        #00526C;
+$backgroundGray:  #F6F4F0;
+$hoverElement:    #00B5EF;
+
+$successBackground: #E6FEC4;
+$successBorder:     #AFDC72;
+$errorBackground:   #FFE9E9;
+$errorBorder:       #E09191;
+
+
+textarea:active,
+input:active,
+textarea:focus,
+input:focus,
+button:focus
+{
+  outline:0px !important;
+  -webkit-appearance:none;
+}
+
+body{
+  background-color: $backgroundGray;
+  font-family: 'Open Sans', sans-serif;
+  padding: 20px;
+}
+
+
+.mainMenu{
+  display: inline-block;
+  width: 100%;
+  padding-bottom: 20px;
+  border-bottom: 1px solid black;
+  &:last-child{
+    float: right;
+  }
+}
+
+.editNotification {
+  padding-bottom: 20px;
+}
+
+.notificationTitle{
+  //display: flex;
+}
+
+.addNew{
+  text-align: right;
+  float:right;
+  padding-top: 20px;
+}
+
+.menu-content{
+  float:left;
+  padding-top: 20px;
+  margin-right: 20px;
+}
+
+.text-input{
+  height: 40px;
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #AEAEAE;
+  //box-shadow: inset 0 1px 4px 0 rgba(0,0,0,0.20);
+  border-radius: 2px;
+}
+
+.sideBySide{
+  width: 100%;
+  display: flex;
+}
+
+.section{
+  padding: 20px;
+  border-bottom: 1px solid #D8D8D8;
+}
+
+
+.notifications{
+  margin-right: 50px;
+  //flex-grow: 1;
+  //margin-top: 20px;
+}
+
+.notification{
+  background-color: white;
+  margin-bottom: 15px;
+}
+
+.searchControls{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.dates{
+  width: 100%;
+  display: flex;
+}
+
+.basicInfo{
+  flex-grow: 1;
+  max-width: 50%;
+  padding-right: 20px;
+}
+
+.basicInfo:last-child{
+  padding-right: 0;
+}
+
+
+.close{
+  text-align: right;
+  padding-right: 10px;
+}
+
+.textFieldLength{
+  float:right;
+  text-align: right;
+}
+
+.category-select{
+  background: #FFFFFF;
+  border: 2px solid #149ECB;
+  border-radius: 2px;
+  margin-right: 8px;
+  margin-top: 8px;
+  height: 40px;
+
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+  color: #149ECB;
+  letter-spacing: 0px;
+}
+
+.category-selected{
+  background: #159ECB;
+  border-radius: 2px;
+  border: 2px solid #149ECB;
+  margin-right: 8px;
+  margin-top: 8px;
+  height: 40px;
+
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+  color: white;
+  letter-spacing: 0px;
+}
+
+.type-select{
+  background: #FFFFFF;
+  border: 2px solid #149ECB;
+  border-radius: 2px;
+  margin-right: 8px;
+  margin-top: 8px;
+
+  display: inline-block;
+
+  padding: 5px;
+
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+  color: #149ECB;
+  letter-spacing: 0px;
+
+  button{
+    border: 0;
+    height: 40px;
+  }
+
+  .selection{
+    background-color: white;
+  }
+  .selected{
+    background-color: #159ECB;
+    color: white;
+  }
+}
+
+.date-select{
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.save{
+  text-align: center;
+  margin: 30px;
+
+  button{
+    background-color: $activeElement;
+    color: white;
+    width: 220px;
+    height: 50px;
+    border: 0;
+    border-radius: 2px;
+
+    font-family: 'Open Sans SemiBold', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0px;
+    line-height: 20px;
+  }
+}
+
+
+.foo{
+  position: fixed;
+  font-family: Arial, Helvetica, sans-serif;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 99999;
+  transition: opacity 1s ease-in;
+  pointer-events: auto;
+  overflow-y: auto;
+}
+
+.bar{
+  z-index: 99999;
+  width: 80%;
+  position: relative;
+  margin: 5% auto 10%;
+  padding: 0px;
+  background: rgb(255, 255, 255);
+  max-width: 1400px;
+}
+
+.RichEditor-controls{
+  display: flex;
+}
+
+
+.RichEditor-root {
+  background: #fff;
+  border: 1px solid #ddd;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  padding: 15px;
+  height: 330px;
+}
+
+.RichEditor-editor {
+  border-top: 1px solid #ddd;
+  cursor: text;
+  font-size: 16px;
+  margin-top: 10px;
+  height: 280px;
+}
+
+.RichEditor-editor .public-DraftEditorPlaceholder-root,
+.RichEditor-editor .public-DraftEditor-content {
+  margin: 0 -15px -15px;
+  padding: 15px;
+}
+
+.RichEditor-editor .public-DraftEditor-content {
+  min-height: 100px;
+}
+
+.RichEditor-hidePlaceholder .public-DraftEditorPlaceholder-root {
+  display: none;
+}
+
+.RichEditor-editor .RichEditor-blockquote {
+  border-left: 5px solid #eee;
+  color: #666;
+  font-family: 'Hoefler Text', 'Georgia', serif;
+  font-style: italic;
+  margin: 16px 0;
+  padding: 10px 20px;
+}
+
+.RichEditor-editor .public-DraftStyleDefault-pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-family: 'Inconsolata', 'Menlo', 'Consolas', monospace;
+  font-size: 16px;
+  padding: 20px;
+}
+
+.RichEditor-controls {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 14px;
+  margin-bottom: 5px;
+  user-select: none;
+}
+
+.RichEditor-styleButton {
+  color: #999;
+  cursor: pointer;
+  margin-right: 16px;
+  padding: 2px 0;
+  display: inline-block;
+}
+
+.public-DraftEditor-content{
+  max-height: 280px;
+  //overflow: auto;
+}
+.RichEditor-activeButton {
+  color: #5890ff;
+}
