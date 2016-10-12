@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import App from './components/App'
 import {initAppState, getController} from './appState.js'
 
-require('./main.scss');
+require('./resources/styles/main.scss');
 
 const appState = initAppState();
 const controller = getController();

@@ -2,10 +2,11 @@ import React from 'react'
 
 export default class CategorySelect extends React.Component{
 
-  constructor(){
+  constructor(props){
     super();
     this.categories = ['Perusopetus', 'Ammatillinen koulutus', 'Korkeakoulutus', 'Lukiokoulutus'];
     this.state = {selectedCategories: []};
+    this.className = (props.className ? props.className : '');
     this.renderCategory = this._renderCategory.bind(this)
   }
 
@@ -15,7 +16,7 @@ export default class CategorySelect extends React.Component{
     let isSelected = selectedCategories.indexOf(category) >= 0;
 
 
-    let className = isSelected ? "category-selected" : "category-select";
+    let className = "category "+ (isSelected ? "selected" : "");
 
     let toggleSelection = () => {
 
@@ -26,12 +27,13 @@ export default class CategorySelect extends React.Component{
       }
     };
 
-    return(<button className={className} onClick={toggleSelection}>{category}</button>)
+    return(<span className={className} onClick={toggleSelection}>
+      {isSelected ? <span className="icon-check"/> :''} {category}</span>)
   }
 
   render(){
     return(
-      <div>
+      <div className={this.className}>
         {this.categories.map(c => this.renderCategory(c))}
       </div>)
   }

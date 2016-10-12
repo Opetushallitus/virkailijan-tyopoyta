@@ -19,6 +19,10 @@ export default class Notifications extends React.Component {
       <div className="notifications">
         <div className="searchControls">
           <input className="text-input" placeholder="Hakusana" type="text" onChange={e => this.setState({filter: e.target.value})}/>
+          <div className="tag-list">
+            <span>Näytä</span>
+            {['ohje', 'materiaali', 'tiedote', 'hairiotiedote', 'aikataulupaatos'].map(t => <span className={"large-tag "+t}>{t}</span>)}
+          </div>
         </div>
         <div>
           {filtered.map(n => <Notification post={n}/>)}
@@ -27,6 +31,7 @@ export default class Notifications extends React.Component {
     )
   }
 }
+
 
 export class Notification extends React.Component{
 
@@ -37,16 +42,20 @@ export class Notification extends React.Component{
 
   render(){
     const post = this.props.post;
-    const shortPost = _.truncate(post.text);
+    const shortPost = _.truncate(post.text, {length: 100});
 
     return(
-      <div className="notification">
-        <div className="notificationTitle">
-          <h3>{post.title}</h3>
-          <a className="expandNotification" onClick={() => this.setState({expanded: !this.state.expanded})}>{this.state.expanded ? "collapse" : "expand"}</a>
+      <div className={"notification "+post.type}>
+        <div className="">
+          <span className="notificationTitle"> {post.title}</span>
+          <span className={"expandNotification " + (this.state.expanded ? "icon-angle-up" : "icon-angle-down")}
+                onClick={() => this.setState({expanded: !this.state.expanded})}/>
         </div>
         <p>{this.state.expanded ? post.text : shortPost}</p>
-        <div>{post.type} {post.tags}</div>
+        <div>
+          <span className={"small-tag "+post.type}>{_.upperCase(post.type)}</span>
+          {post.tags.map(t => <span className={"small-tag"}>{_.upperCase(t)}</span>)}
+        </div>
         <div> {post.created} {post.creator}</div>
       </div>
     )

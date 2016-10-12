@@ -1,19 +1,32 @@
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap";
-@import "~draft-js/dist/Draft.css";
-@import '~react-datepicker/dist/react-datepicker.css';
 
+@import "../../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "../../../node_modules/draft-js/dist/Draft.css";
+@import '../../../node_modules/react-datepicker/dist/react-datepicker.css';
+@import 'icons.scss';
 
 $activeElement:   #159ECB;
 $darkBlue:        #00526C;
 $backgroundGray:  #F6F4F0;
 $hoverElement:    #00B5EF;
 
+$headerText:      #149ECB;
+
 $successBackground: #E6FEC4;
 $successBorder:     #AFDC72;
 $errorBackground:   #FFE9E9;
 $errorBorder:       #E09191;
+$input-border:      1px solid #AEAEAE;
 
+$aikataulupaatos:   #937AF4;
+$hairio:            #FF7487;
+$tiedote:           #75CEDB;
+$materiaali:        #3D7ABC;
+$ohje:              #A7D361;
+
+$tag-background:    #9B9B9B;
+
+$off-black:         #2B2B2B 100%
 
 textarea:active,
 input:active,
@@ -46,19 +59,18 @@ body{
   padding-bottom: 20px;
 }
 
-.notificationTitle{
-  //display: flex;
-}
-
 .addNew{
   text-align: right;
   float:right;
-  padding-top: 20px;
+  //padding-top: 20px;
+  font-size: 16px;
+  color: $headerText;
+  cursor: pointer;
 }
 
 .menu-content{
   float:left;
-  padding-top: 20px;
+  //padding-top: 20px;
   margin-right: 20px;
 }
 
@@ -66,7 +78,7 @@ body{
   height: 40px;
   width: 100%;
   background: #FFFFFF;
-  border: 1px solid #AEAEAE;
+  border: $input-border;
   //box-shadow: inset 0 1px 4px 0 rgba(0,0,0,0.20);
   border-radius: 2px;
 }
@@ -84,18 +96,82 @@ body{
 
 .notifications{
   margin-right: 50px;
-  //flex-grow: 1;
+  flex-grow: 1;
+  max-width: 800px;
   //margin-top: 20px;
 }
 
 .notification{
   background-color: white;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.30);
+  border-radius: 2px;
+  padding: 15px;
+  &.hairiotiedote{
+    border-left: 5px solid $hairio;
+  }
+}
+
+.notificationTitle{
+  font-size: 15px;
+  font-family: 'Open Sans', sans-serif;
+  color: $headerText;
+}
+
+.expandNotification{
+  float: right;
+  color: $off-black;
+}
+
+.small-tag{
+  border: 0;
+  color: white;
+  margin-right: 4px;
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 10px;
+  line-height: 15px;
+
+  background-color: $tag-background;
+  &.ohje{background-color: $ohje}
+  &.hairiotiedote{background-color: $hairio}
+  &.tiedote{background-color: $tiedote}
+  &.materiaali{background-color: $materiaali}
+  &.aikataulupaatos{background-color: $aikataulupaatos}
+}
+
+.tag-list{
+  margin-top: 10px;
+  padding-left: 8px;
+}
+
+.large-tag{
+  border: 0;
+  color: white;
+  margin-right: 3px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: 15px;
+  border-radius: 2px;
+
+  background-color: $tag-background;
+  &.ohje{background-color: $ohje}
+  &.hairiotiedote{background-color: $hairio}
+  &.tiedote{background-color: $tiedote}
+  &.materiaali{background-color: $materiaali}
+  &.aikataulupaatos{background-color: $aikataulupaatos}
 }
 
 .searchControls{
   margin-top: 20px;
+  padding-bottom: 10px;
   margin-bottom: 20px;
+  border: $input-border;
+  input{
+    padding-left: 8px;
+    border: 0;
+    border-bottom: $input-border;
+  }
 }
 
 .dates{
@@ -114,9 +190,16 @@ body{
 }
 
 
-.close{
-  text-align: right;
+.closeDialog{
+  float:right;
   padding-right: 10px;
+  font-size: 16px;
+  padding-top: 10px;
+  color: $off-black;
+  cursor: pointer;
+  &:hover{
+    color: #707070;
+  }
 }
 
 .textFieldLength{
@@ -124,18 +207,23 @@ body{
   text-align: right;
 }
 
-.category-select{
+.category{
   background: #FFFFFF;
   border: 2px solid #149ECB;
   border-radius: 2px;
   margin-right: 8px;
   margin-top: 8px;
   height: 40px;
-
+  padding: 5px;
+  cursor: pointer;
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   color: #149ECB;
   letter-spacing: 0px;
+  &.selected{
+    color:white;
+    background: #159ECB;
+  }
 }
 
 .category-selected{
@@ -152,31 +240,39 @@ body{
   letter-spacing: 0px;
 }
 
+.category-wrapper{
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .type-select{
   background: #FFFFFF;
   border: 2px solid #149ECB;
   border-radius: 2px;
   margin-right: 8px;
   margin-top: 8px;
-
   display: inline-block;
 
-  padding: 5px;
+  padding: 8px 5px;
 
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   color: #149ECB;
   letter-spacing: 0px;
+}
 
-  button{
-    border: 0;
-    height: 40px;
-  }
 
-  .selection{
+.type-button{
+
+  padding: 5px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+
+  &.selection{
     background-color: white;
   }
-  .selected{
+  &.selected{
     background-color: #159ECB;
     color: white;
   }
@@ -238,7 +334,7 @@ body{
 
 .RichEditor-root {
   background: #fff;
-  border: 1px solid #ddd;
+  border: $input-border;
   font-family: 'Georgia', serif;
   font-size: 14px;
   padding: 15px;
@@ -251,6 +347,7 @@ body{
   font-size: 16px;
   margin-top: 10px;
   height: 280px;
+  overflow: auto;
 }
 
 .RichEditor-editor .public-DraftEditorPlaceholder-root,

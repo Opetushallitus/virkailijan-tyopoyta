@@ -26,9 +26,9 @@ export default class App extends React.Component {
     return (
       <div>
         <div className="mainMenu">
-          <div className="menu-content">Näytä</div>
-          <div style={{float: 'left'}}> <CategorySelect/></div>
-          <div className="addNew"><a  onClick={() => this.openModal()}>+ Luo uusi sisältö</a></div>
+          <span className="menu-content">Näytä</span>
+          <span style={{float: 'left'}}> <CategorySelect/></span>
+          <span className="addNew" onClick={() => this.openModal()}>+ Luo uusi sisältö</span>
         </div>
         <Modal show={this.state.modalOpen}>
           <EditNotification onClose={this.closeModal}/>

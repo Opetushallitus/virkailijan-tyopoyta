@@ -9,7 +9,7 @@ export default class EditNotification extends React.Component{
   render(){
     return(
       <div className="editNotification">
-        <div className="close" onClick={this.props.onClose}>x</div>
+        <span className="icon-close closeDialog" onClick={this.props.onClose}/>
         <div className="sideBySide section">
           <div className="basicInfo">
             <LimitedTextField title="Otsikko" name="title_fi"/>
@@ -41,7 +41,7 @@ export default class EditNotification extends React.Component{
         <div className="sideBySide section">
           <div className="basicInfo">
             <div>Kategoria(t)</div>
-            <CategorySelect/>
+            <CategorySelect className="category-wrapper"/>
             <TypeSelect/>
           </div>
           <div className="basicInfo">
@@ -98,9 +98,10 @@ export class TypeSelect extends React.Component{
   _renderType(type){
 
     let isSelected = this.state.selectedType === type;
-    let className = isSelected ? "selected" : "selection";
+    let className = "type-button";
+    className += isSelected ? " selected" : " selection";
 
-    return <button className={className} onClick={() => this.setState({selectedType: isSelected ? '' : type})}>{type}</button>
+    return <span className={className} onClick={() => this.setState({selectedType: isSelected ? '' : type})}>{type}</span>
   }
 
   render(){
@@ -147,6 +148,7 @@ export class DateSelect extends React.Component{
         <div>{this.props.title}</div>
         <DatePicker
           dateFormat="DD.MM.YYYY"
+          locale='fi'
           selected={this.state.startDate}
           onChange={date => this.setState({startDate:date})}
           filterDate={this.inFuture}

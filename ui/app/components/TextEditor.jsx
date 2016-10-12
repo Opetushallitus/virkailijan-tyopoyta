@@ -155,8 +155,8 @@ export default class TextEditor extends React.Component {
             onToggle={this.toggleBlockType}
           />
 
-          <LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()}/>
-          <LinkButton action={this.removeLink} label="Unlink"/>
+          <LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()} className="icon-link" />
+          <LinkButton action={this.removeLink} label="Unlink" className="icon-unlink"/>
         </div>
         {urlInput}
         <div className={className} onClick={this.focus}>
@@ -184,15 +184,15 @@ class StyleButton extends React.Component {
   }
 
   render() {
-    let className = 'RichEditor-styleButton';
-    if (this.props.active) {
-      className += ' RichEditor-activeButton';
-    }
+    let className = this.props.className ;
+    //'RichEditor-styleButton';
+    // if (this.props.active) {
+      className += ' RichEditor-styleButton';
+    // }
 
     return (
-      <span className={className} onMouseDown={this.onToggle}>
-              {this.props.label}
-            </span>
+      <span className={className} onMouseDown={this.onToggle}/>
+
     );
   }
 }
@@ -201,13 +201,13 @@ class LinkButton extends React.Component {
 
   render(){
 
-    let className = 'RichEditor-styleButton';
-    if (this.props.active) {
-      className += ' RichEditor-activeButton';
-    }
+    let className = this.props.className;
+    // if (this.props.active) {
+      className += ' RichEditor-styleButton';
+    // }
 
     return(
-      <span className={className} onMouseDown={this.props.action}>{this.props.label}</span>
+      <span className={className} onMouseDown={this.props.action}/>
     )
   }
 }
@@ -235,8 +235,8 @@ const Link = (props) => {
 };
 
 const BLOCK_TYPES = [
-  {label: 'UL', style: 'unordered-list-item'},
-  {label: 'OL', style: 'ordered-list-item'},
+  {label: 'UL', style: 'unordered-list-item', className: 'icon-list-ul'},
+  {label: 'OL', style: 'ordered-list-item', className: 'icon-list-ol'},
 ];
 
 const BlockStyleControls = (props) => {
@@ -256,6 +256,7 @@ const BlockStyleControls = (props) => {
           label={type.label}
           onToggle={props.onToggle}
           style={type.style}
+          className={type.className}
         />
       )}
     </div>
@@ -263,9 +264,9 @@ const BlockStyleControls = (props) => {
 };
 
 var INLINE_STYLES = [
-  {label: 'Bold', style: 'BOLD'},
-  {label: 'Italic', style: 'ITALIC'},
-  {label: 'Underline', style: 'UNDERLINE'}
+  {label: 'Bold', style: 'BOLD', className: 'icon-bold'},
+  {label: 'Italic', style: 'ITALIC', className: 'icon-italic'},
+  {label: 'Underline', style: 'UNDERLINE', className: 'icon-underline'}
 ];
 
 const InlineStyleControls = (props) => {
@@ -279,6 +280,7 @@ const InlineStyleControls = (props) => {
           label={type.label}
           onToggle={props.onToggle}
           style={type.style}
+          className={type.className}
         />
       )}
     </div>

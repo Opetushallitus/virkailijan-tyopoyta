@@ -4,13 +4,14 @@ const validate = require('webpack-validator');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 
-const webpack = require('webpack')
+const webpack = require('webpack');
 
 const PATHS = {
   webapp: path.join(__dirname, 'src/main/webapp/app'),
   app: path.join(__dirname, 'app'),
-  style: path.join(__dirname, 'app', 'main.scss'),
-  images: path.join(__dirname, 'app/resources/img')
+  style: path.join(__dirname, 'app/resources/styles'),
+  images: path.join(__dirname, 'app/resources/img'),
+  fonts: path.join(__dirname, 'app/resources/fonts')
 
 };
 
@@ -43,7 +44,7 @@ var config = {
         loader: "json-loader"
       },
       {
-        test: /\.woff2?$|\.ttf$|\.eot$|\.svg$/,
+        test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
         loader: "file"
       },
       {
@@ -54,11 +55,12 @@ var config = {
       {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract("style-loader", "css-loader"),
-        include: PATHS.app
+        // include: PATHS.style
       },
       {
         test: /\.scss/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
+        loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader"),
+        // include: PATHS.style
       }
     ]
   },

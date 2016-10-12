@@ -28,7 +28,7 @@ export function initAppState() {
     {
       title: "Häiriötiedote",
       text: "AIKU-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00",
-      type: "Hairiotiedote",
+      type: "hairiotiedote",
       tags: [],
       created: "23.5.2016 12:07",
       creator: "CS"
@@ -37,7 +37,7 @@ export function initAppState() {
       title: "Erityisopetuksena järjestettävän ammatillisen koulutuksen haun valinnat",
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum porttitor elit molestie urna dictum, ac accumsan felis pharetra. Morbi quis facilisis neque, sed imperdiet erat. Suspendisse potenti. Ut at consectetur enim. Praesent et sollicitudin tellus. Maecenas nec mauris massa. Quisque augue erat, cursus ac leo at, aliquam gravida lacus. Sed metus dolor, ultricies a malesuada porta, convallis quis dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. \
              Vestibulum aliquam nibh sed ante rutrum, a pulvinar risus dictum. Proin sit amet pharetra justo, eu eleifend erat. Curabitur vitae risus enim. Vestibulum purus justo, dignissim in scelerisque at, consectetur nec risus. Aliquam massa ligula, pretium eu massa eu, porta luctus nibh. Ut in ligula in magna tincidunt bibendum. Aliquam volutpat mollis imperdiet. Praesent porttitor ultricies velit eget maximus. Suspendisse neque purus, rhoncus sit amet viverra in, maximus vitae diam. In laoreet facilisis mi ut congue. Vivamus non justo laoreet, eleifend ante et, luctus ante. Aliquam erat volutpat.",
-      type: "Tiedote",
+      type: "tiedote",
       tags: ["perusopetus", "toinen aste", "valinnat"],
       created: "26.5.2016 12:07",
       creator: "CS"
@@ -45,7 +45,7 @@ export function initAppState() {
     {
       title: "Koetulokset ja harkintaan perustuvan valinnan päätökset sekä aloituspaikat tallennettavat...",
       text: "OPH:n tarkennetun aikataulun mukaisesti kevään yhteishaun koetulokset ja muut pisteet sekä harkintaan...",
-      type: "Tiedote",
+      type: "tiedote",
       tags: ["toinen aste", "ePerusteet", "valinnat"],
       created: "26.5.2016 12:07",
       creator: "CS"
@@ -53,7 +53,7 @@ export function initAppState() {
     {
       title: "Pääsy- ja soveltuvuuskoeaihiot 2016",
       text: "Pääsy-ja-soveltuvuuskokeiden-aihiot-kevät-2016",
-      type: "Materiaali",
+      type: "materiaali",
       tags: ["toinen aste","valinnat"],
       created: "26.5.2016 14:51",
       creator: "CS"
@@ -61,7 +61,7 @@ export function initAppState() {
     {
       title: "Versiopäivitys 23.5 klo 16.30-17.00",
       text: "Opintopolussa versiopäivitys tänään 23.5 klo 16:30-17:00. Hakemusten käsittely ja Oma Opintopolku-...",
-      type: "Tiedote",
+      type: "tiedote",
       tags: ["toinen aste","valinnat"],
       created: "26.5.2016 14:51",
       creator: "CS"
