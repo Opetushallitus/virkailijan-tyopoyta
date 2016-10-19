@@ -1,6 +1,10 @@
 import React from 'react'
+import fp from 'lodash/fp'
 import {Editor, EditorState, RichUtils, CompositeDecorator, ContentState, Entity} from 'draft-js';
+import {getEntityAtCursor} from './getEntityAtCursor'
 
+const _ = fp();
+// import _ from 'lodash';
 
 export default class TextEditor extends React.Component {
   constructor(props) {
@@ -28,8 +32,6 @@ export default class TextEditor extends React.Component {
     this.promptForLink = this._promptForLink.bind(this);
     this.confirmLink = this._confirmLink.bind(this);
     this.removeLink = this._removeLink.bind(this);
-
-    this.onLinkInputKeyDown = this._onLinkInputKeyDown.bind(this);
   }
 
   _handleKeyCommand(command) {
@@ -73,16 +75,15 @@ export default class TextEditor extends React.Component {
       this.setState({
         showURLInput: true,
         urlValue: '',
-      }, () => {
-        setTimeout(() => this.refs.url.focus(), 0);
       });
     }
   }
 
-  _confirmLink(e) {
-    e.preventDefault();
+  _confirmLink(url) {
+    console.log("Confirming link "+url);
+    // e.preventDefault();
     const {editorState, urlValue} = this.state;
-    const entityKey = Entity.create('LINK', 'MUTABLE', {url: urlValue});
+    const entityKey = Entity.create('LINK', 'MUTABLE', {url: url});
     this.setState({
       editorState: RichUtils.toggleLink(
         editorState,
@@ -100,6 +101,7 @@ export default class TextEditor extends React.Component {
     e.preventDefault();
     const {editorState} = this.state;
     const selection = editorState.getSelection();
+    console.log(JSON.stringify(selection));
     if (!selection.isCollapsed()) {
       this.setState({
         editorState: RichUtils.toggleLink(editorState, selection, null),
@@ -111,6 +113,13 @@ export default class TextEditor extends React.Component {
     if (e.which === 13) {
       this._confirmLink(e);
     }
+  }
+
+  _getEntityAtCursor(editorState) {
+    // let {editorState} = this.props;
+    console.log("getentityatcursor");
+    let entity = getEntityAtCursor(editorState);
+    return (entity == null) ? null : Entity.get(entity.entityKey);
   }
 
   render() {
@@ -126,22 +135,8 @@ export default class TextEditor extends React.Component {
       }
     }
 
-    let urlInput;
-    if (this.state.showURLInput) {
-      urlInput =
-        <div>
-          <input
-            onChange={this.onURLChange}
-            ref="url"
-            type="text"
-            value={this.state.urlValue}
-            onKeyDown={this.onLinkInputKeyDown}
-          />
-          <button onMouseDown={this.confirmLink}>
-            Confirm
-          </button>
-        </div>;
-    }
+    let entity = this._getEntityAtCursor(editorState);
+    let isCursorOnLink = (entity != null && entity.type == 'LINK');
 
     return (
       <div className="RichEditor-root">
@@ -156,9 +151,9 @@ export default class TextEditor extends React.Component {
           />
 
           <LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()} className="icon-link" />
-          <LinkButton action={this.removeLink} label="Unlink" className="icon-unlink"/>
+          <LinkButton action={this.removeLink} label="Unlink" active={isCursorOnLink} className="icon-unlink"/>
         </div>
-        {urlInput}
+        {this.state.showURLInput ? <UrlInput url={_.get(entity, 'data.url', '')} confirmLink={this.confirmLink }/> : ''}
         <div className={className} onClick={this.focus}>
           <Editor
             editorState={editorState}
@@ -185,14 +180,12 @@ class StyleButton extends React.Component {
 
   render() {
     let className = this.props.className ;
-    //'RichEditor-styleButton';
-    // if (this.props.active) {
-      className += ' RichEditor-styleButton';
-    // }
-
+    className += ' RichEditor-styleButton'
+    if (this.props.active) {
+      className += ' style-active';
+    }
     return (
       <span className={className} onMouseDown={this.onToggle}/>
-
     );
   }
 }
@@ -200,11 +193,14 @@ class StyleButton extends React.Component {
 class LinkButton extends React.Component {
 
   render(){
-
     let className = this.props.className;
-    // if (this.props.active) {
-      className += ' RichEditor-styleButton';
-    // }
+    className += ' RichEditor-styleButton link';
+
+    if (this.props.active) {
+      className += ' link-active';
+    } else{
+      className += ' link-inactive';
+    }
 
     return(
       <span className={className} onMouseDown={this.props.action}/>
@@ -235,8 +231,9 @@ const Link = (props) => {
 };
 
 const BLOCK_TYPES = [
+  {label: 'Header', style: 'header-two', className: 'icon-header'},
   {label: 'UL', style: 'unordered-list-item', className: 'icon-list-ul'},
-  {label: 'OL', style: 'ordered-list-item', className: 'icon-list-ol'},
+  {label: 'OL', style: 'ordered-list-item', className: 'icon-list-ol'}
 ];
 
 const BlockStyleControls = (props) => {
@@ -288,34 +285,38 @@ const InlineStyleControls = (props) => {
 };
 
 const styles = {
-  root: {
-    fontFamily: '\'Georgia\', serif',
-    padding: 20,
-    width: 600,
-  },
-  buttons: {
-    marginBottom: 10,
-  },
-  urlInputContainer: {
-    marginBottom: 10,
-  },
-  urlInput: {
-    fontFamily: '\'Georgia\', serif',
-    marginRight: 10,
-    padding: 3,
-  },
-  editor: {
-    border: '1px solid #ccc',
-    cursor: 'text',
-    minHeight: 80,
-    padding: 10,
-  },
-  button: {
-    marginTop: 10,
-    textAlign: 'center',
-  },
   link: {
     color: '#3b5998',
-    textDecoration: 'underline',
+    textDecoration: 'underline'
   },
 };
+
+export class UrlInput extends React.Component{
+  constructor(props){
+    super();
+    this.state = {url: props.url};
+    this.onURLChange = this._onURLChange.bind(this);
+    this.confirmLink = props.confirmLink;
+  }
+
+  _onURLChange(e){
+    this.setState({url: e.target.value})
+  }
+
+  render(){
+    return(
+    <div>
+      <input
+        onChange={this.onURLChange}
+        ref="url"
+        autoFocus="autoFocus"
+        type="text"
+        value={this.state.url}
+        onKeyDown={this.onURLChange}
+      />
+      <button onMouseDown={() => this.confirmLink(this.state.url)}>
+        Confirm
+      </button>
+    </div>)
+  }
+}

@@ -27,7 +27,7 @@ export default class CategorySelect extends React.Component{
       }
     };
 
-    return(<span className={className} onClick={toggleSelection}>
+    return(<span key={category} className={className} onClick={toggleSelection}>
       {isSelected ? <span className="icon-check"/> :''} {category}</span>)
   }
 

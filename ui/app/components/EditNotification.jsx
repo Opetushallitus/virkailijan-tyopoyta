@@ -1,5 +1,5 @@
 import React from 'react'
-import TextEditor from './TextEditor'
+import TextEditor from './editor/TextEditor'
 import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import CategorySelect from './CategorySelect'
@@ -23,7 +23,7 @@ export default class EditNotification extends React.Component{
           </div>
         </div>
         <div className="section">
-          <input id="c1" className="checkbox" type="checkbox"/> Näytä aikajanalla
+          <input type="checkbox"/> Näytä aikajanalla
           <div className="sideBySide">
             <div className="basicInfo">
           <LimitedTextField title="Aikajanan teksti" name="timeline_text_fi"/>
@@ -67,23 +67,30 @@ export class LimitedTextField extends React.Component{
   constructor(){
     super();
     this.state = {text: ""}
+    this.maxLength = 200;
+    this.updateText = this._updateText.bind(this);
+  }
+
+  _updateText(text){
+    if(text.length <= this.maxLength){
+      this.setState({text: text})
+    }
   }
 
   render(){
-    const maxLength = 200;
     const title = this.props.title;
     const name = this.props.name;
     return(
       <div className="limitedTextField">
         <text className="textFieldTitle">{title} </text>
-        <text className="textFieldLength">{maxLength - this.state.text.length} merkkiä jäljellä</text>
-        <input type="text" className="text-input" name={name} onChange={e => this.setState({text: e.target.value})}/>
+        <text className="textFieldLength">{this.maxLength - this.state.text.length} merkkiä jäljellä</text>
+        <input type="text" className="text-input" name={name}
+               value={this.state.text}
+               onChange={e => this.updateText(e.target.value)}/>
       </div>
     )
   }
 }
-
-
 
 export class TypeSelect extends React.Component{
 
