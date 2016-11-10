@@ -15,7 +15,6 @@ export default class CategorySelect extends React.Component{
     let selectedCategories = this.state.selectedCategories;
     let isSelected = selectedCategories.indexOf(category) >= 0;
 
-
     let className = "category "+ (isSelected ? "selected" : "");
 
     let toggleSelection = () => {

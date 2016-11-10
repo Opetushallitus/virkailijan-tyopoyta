@@ -4,124 +4,119 @@ import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import CategorySelect from './CategorySelect'
 
-export default class EditNotification extends React.Component{
+const EditNotification = ({document, controller, onClose}) => {
 
-  render(){
-    return(
-      <div className="editNotification">
-        <span className="icon-close closeDialog" onClick={this.props.onClose}/>
-        <div className="sideBySide section">
+  return(
+    <div className="editNotification">
+      <span className="icon-close closeDialog" onClick={onClose}/>
+      <div className="sideBySide section">
+        <div className="basicInfo">
+          <LimitedTextField title="Otsikko"
+                            text={document.content.fi.title}
+                            onChange={controller.updateDocumentContent('fi', 'title')}
+          />
+          <text>Kuvaus</text>
+          <TextEditor data={document.content.fi.text}
+                      save={controller.updateDocumentContent('fi', 'text')}/>
+        </div>
+        <div className="basicInfo">
+          <LimitedTextField title="Otsikko ruotsiksi"
+                            text={document.content.sv.title}
+                            onChange={controller.updateDocumentContent('sv', 'title')}/>
+          <text>Kuvaus ruotsiksi</text>
+          <TextEditor data={document.content.sv.text}
+                      save={controller.updateDocumentContent('sv', 'text')}/>
+        </div>
+      </div>
+      <div className="section">
+        <input type="checkbox"/> Näytä aikajanalla
+        <div className="sideBySide">
           <div className="basicInfo">
-            <LimitedTextField title="Otsikko" name="title_fi"/>
-            <text>Kuvaus</text>
-            <TextEditor/>
+            <LimitedTextField title="Aikajanan teksti" name="timeline_text_fi"
+                              onChange={controller.updateDocumentContent('fi', 'timelineText')}
+                              text={document.content.fi.timelineText}/>
           </div>
           <div className="basicInfo">
-            <LimitedTextField title="Otsikko ruotsiksi" name="title_sv"/>
-            <text>Kuvaus ruotsiksi</text>
-            <TextEditor/>
+            <LimitedTextField title="Aikajanan teksti ruotsiksi"
+                              name="timeline_tefxt_sv"
+                              onChange={controller.updateDocumentContent('sv', 'timelineText')}
+                              text={document.content.sv.timelineText}/>
           </div>
         </div>
-        <div className="section">
-          <input type="checkbox"/> Näytä aikajanalla
+        <DateSelect
+          id="date_input"
+          title="Tapahtumapäivämäärä aikajanaa varten"
+          onChange={controller.updateDocument('timelineDate')}
+          />
+      </div>
+      <div className="sideBySide section">
+        <div className="basicInfo">
+          <div>Kategoria(t)</div>
+          <CategorySelect
+            className="category-wrapper"
+            onChange={controller.updateDocument('categories')}/>
+          <TypeSelect selectedType={document.type} onChange={controller.updateDocument('type')}/>
+        </div>
+        <div className="basicInfo">
+          <KeywordSelect/>
           <div className="sideBySide">
-            <div className="basicInfo">
-          <LimitedTextField title="Aikajanan teksti" name="timeline_text_fi"/>
-              </div>
-            <div className="basicInfo">
-          <LimitedTextField title="Aikajanan teksti ruotsiksi" name="timeline_text_sv"/>
-              </div>
-          </div>
           <DateSelect
-            id="date_input"
-            title="Tapahtumapäivämäärä aikajanaa varten"
-            onDateChange={() => {}}
-            onFocusChange={this.onFocusChange}/>
-        </div>
-        <div className="sideBySide section">
-          <div className="basicInfo">
-            <div>Kategoria(t)</div>
-            <CategorySelect className="category-wrapper"/>
-            <TypeSelect/>
-          </div>
-          <div className="basicInfo">
-            <KeywordSelect/>
-            <div className="sideBySide">
-            <DateSelect
-              title="Julkaisupäivämäärä"
-              initialDate={moment()}/>
-            <DateSelect title="Poistumispäivämäärä"/>
-            </div>
+            title="Julkaisupäivämäärä"
+            onChange={controller.updateDocument('publishDate')}
+            date={document.publishDate}
+            />
+          <DateSelect
+            title="Poistumispäivämäärä"
+            onChange={controller.updateDocument('expiryDate')}
+            date={document.expiryDate}
+          />
           </div>
         </div>
-        <div className="save">
-          <button>Tallenna sisältö</button>
-          </div>
       </div>
-    )
-  }
-}
+      <div className="save">
+        <button onClick={controller.saveDocument}>Tallenna sisältö</button>
+        </div>
+    </div>
+  )
+};
 
-export class LimitedTextField extends React.Component{
+export default EditNotification;
 
-  constructor(){
-    super();
-    this.state = {text: ""}
-    this.maxLength = 200;
-    this.updateText = this._updateText.bind(this);
-  }
+const LimitedTextField = ({title, text, onChange}) => {
 
-  _updateText(text){
-    if(text.length <= this.maxLength){
-      this.setState({text: text})
-    }
-  }
+  const maxLength = 200;
 
-  render(){
-    const title = this.props.title;
-    const name = this.props.name;
-    return(
-      <div className="limitedTextField">
-        <text className="textFieldTitle">{title} </text>
-        <text className="textFieldLength">{this.maxLength - this.state.text.length} merkkiä jäljellä</text>
-        <input type="text" className="text-input" name={name}
-               value={this.state.text}
-               onChange={e => this.updateText(e.target.value)}/>
-      </div>
-    )
-  }
-}
+  return(
+    <div className="limitedTextField">
+      <text className="textFieldTitle">{title} </text>
+      <text className="textFieldLength">{maxLength - text.length} merkkiä jäljellä</text>
+      <input maxLength = {maxLength} type="text" className="text-input"
+             value={text}
+             onChange={e => onChange(e.target.value)}/>
+    </div>
+  )
+};
 
-export class TypeSelect extends React.Component{
+const TypeSelect = ({selectedType, onChange}) => {
 
-  constructor(){
-    super();
-    this.state = {selectedType: ''}
-    this.types = ['Aikataulupäätös', 'Ohje', 'Materiaali', 'Tiedote', 'Häiriötiedote']
-    this.renderType = this._renderType.bind(this);
-  }
+  const types = ['Aikataulupäätös', 'Ohje', 'Materiaali', 'Tiedote', 'Häiriötiedote'];
 
+  const renderType = (type) => {
 
-  _renderType(type){
+    const isSelected = selectedType === type;
+    const className = "type-button" + (isSelected ? " selected" : " selection");
 
-    let isSelected = this.state.selectedType === type;
-    let className = "type-button";
-    className += isSelected ? " selected" : " selection";
+    return <span key={type} className={className} onClick={() => onChange(isSelected ? '' : type)}>{type}</span>
+  };
 
-    return <span className={className} onClick={() => this.setState({selectedType: isSelected ? '' : type})}>{type}</span>
-  }
+  return(
+    <div>
+      <div>Tyyppi</div>
+      <div className="type-select">{types.map(t => renderType(t))}</div>
+    </div>)
+};
 
-  render(){
-    return(
-      <div>
-        <div>Tyyppi</div>
-        <div className="type-select">{this.types.map(t => this.renderType(t))}</div>
-      </div>)
-  }
-}
-
-export class KeywordSelect extends React.Component{
-  render(){
+const KeywordSelect = () => {
     return(
       <div>
         <div>Avainsanat</div>
@@ -131,36 +126,23 @@ export class KeywordSelect extends React.Component{
         </div>
       </div>
     )
-  }
-}
+};
 
-export class DateSelect extends React.Component{
+const DateSelect = ({date, onChange, title, initialDate}) => {
 
-  constructor(){
-    super();
-    this.state = {startDate: moment()};
-    this.inFuture = this._inFuture.bind(this);
-  }
+  const lowerLimit = initialDate ? moment(initialDate) : moment();
 
-  _inFuture(date){
-    if(this.props.initialDate){
-      return (this.props.initialDate).isBefore(date);
-    }
-    return true;
-  }
+  const inFuture = (date) => lowerLimit.isBefore(date);
 
-  render(){
-    return(
-      <div className="date-select">
-        <div>{this.props.title}</div>
-        <DatePicker
-          dateFormat="DD.MM.YYYY"
-          locale='fi'
-          selected={this.state.startDate}
-          onChange={date => this.setState({startDate:date})}
-          filterDate={this.inFuture}
-        />
-
-      </div>)
-  }
-}
+  return(
+    <div className="date-select">
+      <div>{title}</div>
+      <DatePicker
+        dateFormat="DD.MM.YYYY"
+        locale='fi'
+        selected={date ? moment(date, "DD.MM.YYYY") : lowerLimit}
+        onChange={date => onChange(date.format("DD.MM.YYYY"))}
+        filterDate={inFuture}
+      />
+    </div>)
+};

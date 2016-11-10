@@ -1,7 +1,8 @@
 import React from 'react'
 import fp from 'lodash/fp'
 import {Editor, EditorState, RichUtils, CompositeDecorator, ContentState, Entity} from 'draft-js';
-import {getEntityAtCursor} from './getEntityAtCursor'
+import {getEntityAtCursor} from './getEntityAtCursor';
+import {convertToHTML} from 'draft-convert';
 
 const _ = fp();
 // import _ from 'lodash';
@@ -17,7 +18,8 @@ export default class TextEditor extends React.Component {
       },
     ]);
 
-    this.state = {editorState: EditorState.createEmpty(decorator),
+    this.state = {
+      editorState: EditorState.createEmpty(decorator),
       showURLInput: false};
 
     this.focus = () => this.refs.editor.focus();
@@ -32,6 +34,13 @@ export default class TextEditor extends React.Component {
     this.promptForLink = this._promptForLink.bind(this);
     this.confirmLink = this._confirmLink.bind(this);
     this.removeLink = this._removeLink.bind(this);
+    this.save = this._save.bind(this);
+  }
+
+  _save() {
+    const html = convertToHTML(this.state.editorState.getCurrentContent());
+    console.log(html);
+    this.props.save(html);
   }
 
   _handleKeyCommand(command) {
@@ -159,6 +168,7 @@ export default class TextEditor extends React.Component {
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}
             onChange={this.onChange}
+            onBlur={this.save}
             onTab={this.onTab}
             ref="editor"
             spellCheck={true}

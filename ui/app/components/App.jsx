@@ -2,61 +2,33 @@ import React from 'react'
 import Notifications from './Notifications'
 import EditNotification from './EditNotification'
 import CategorySelect from './CategorySelect'
-// import Modal from 'simple-react-modal'
 import placeholder from '../resources/img/placeholder.png'
 
-export default class App extends React.Component {
+const App = ({state, controller}) => {
+  return (
+    <div>
+      <div className="mainMenu">
+        <span className="menu-content">Näytä</span>
+        <span style={{float: 'left'}}> <CategorySelect/></span>
+        <span className="addNew" onClick={() => controller.toggleEditor(true)}>+ Luo uusi sisältö</span>
+      </div>
+      {state.editor.visible ?
+        <Modal>
+          <EditNotification document={state.editor.document} controller={controller} onClose={() => controller.toggleEditor(false)}/>
+        </Modal> : ""
+      }
+      <div className="sideBySide">
+        <Notifications notifications={state.notifications} filter={state.filter} expandedNotifications={state.expandedNotifications} controller={controller}/>
+        <img src={placeholder}/>
+      </div>
+    </div>)
+};
 
-  constructor(){
-    super();
-    this.state = {modalOpen: false}
-    this.closeModal = this._closeModal.bind(this)
-  }
+export default App;
 
-  openModal(){
-    this.setState({modalOpen: true})
-  }
-
-  _closeModal() {
-    this.setState({modalOpen: false })
-  }
-
-  render(){
-
-    return (
-      <div>
-        <div className="mainMenu">
-          <span className="menu-content">Näytä</span>
-          <span style={{float: 'left'}}> <CategorySelect/></span>
-          <span className="addNew" onClick={() => this.openModal()}>+ Luo uusi sisältö</span>
-        </div>
-        <Modal show={this.state.modalOpen}>
-          <EditNotification onClose={this.closeModal}/>
-        </Modal>
-        <div className="sideBySide">
-          <Notifications posts={this.props.state.posts}/>
-          <img src={placeholder}/>
-        </div>
-      </div>)
-  }
-}
-
-class Modal extends React.Component {
-  render() {
-    if (this.props.show === false)
-      return null
-
-    return (
-        <div className="foo" data-modal="true">
-          <div className="bar" onClick={e => this.close(e)}>{this.props.children}</div>
-        </div>)
-  }
-
-  close(e) {
-    e.preventDefault()
-
-    if (this.props.onClose) {
-      this.props.onClose()
-    }
-  }
-}
+const Modal = ({children}) => {
+  return (
+    <div className="editor-modal" data-modal="true">
+      <div className="modal-children">{children}</div>
+    </div>)
+};

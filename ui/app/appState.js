@@ -1,19 +1,22 @@
 import Bacon from 'baconjs'
-import Promise from 'bluebird'
 import Dispatcher from './dispatcher'
-import axios from 'axios'
 import {initController} from './controller'
+import Immutable from 'seamless-immutable'
+import {EditorState} from 'draft-js'
+import * as testData from './resources/test/testData.json'
 
-
-const ax = Promise.promisifyAll(axios);
-const dispatcher = new Dispatcher;
-const noticeUrl = 'api/notifications';
+const dispatcher = new Dispatcher();
 
 const events = {
   addNotification: 'addNotification',
   deleteNotification: 'deleteNotification',
-  showEdit: 'showEdit',
-  updateNotifications : 'updateNotifications'
+  toggleEditor: 'showEdit',
+  updateNotifications : 'updateNotifications',
+  updateDocument : 'updateDocument',
+  updateDocumentContent : 'updateDocumentContent',
+  saveDocument : 'saveDocument',
+  updateSearch : 'updateSearch',
+  toggleNotification: 'toggleNotification'
 };
 
 const controller = initController(dispatcher, events);
@@ -22,51 +25,78 @@ export function getController(){
   return controller;
 }
 
+function updateDocument(state, {prop, value}){
+  console.log(`updating document: ${prop} = ${value}`);
+  return state.setIn(['editor', 'document', prop], value);
+}
+
+function updateContent(state, {prop, lang, value}){
+  console.log(`updating state: editor.content.${lang}.${prop} = ${value}`);
+  return state.setIn(['editor', 'document', 'content', lang,  prop], value);
+}
+
+function toggleEditor(state, visible){
+  return state.setIn(['editor', 'visible'], visible);
+}
+
+function saveDocument(state){
+  console.log("Saving document");
+  console.log(JSON.stringify(state.editor.document));
+  return state;
+}
+
+function updateSearch(state, {search}){
+  return state.set('filter', search)
+}
+
+function toggleNotification(state, {id}){
+  const idx = state.expandedNotifications.indexOf(id);
+  if(idx >= 0){
+    return state.set('expandedNotifications', state.expandedNotifications.filter(n =>( n != id)))
+  }
+  return state.set('expandedNotifications', state.expandedNotifications.concat(id))
+}
+
+function emptyContent(lang){
+  return {
+    title: "",
+    text: "",
+    timelineText: "",
+    language: lang,
+  }
+}
+
+function emptyDocument(){
+  return{
+    type: '',
+    publishDate: null,
+    expiryDate: null,
+    content: {
+      fi: emptyContent('fi'),
+      sv: emptyContent('sv')
+    },
+    tags: []
+  }
+}
+
 export function initAppState() {
 
-  const initialState = {posts: [
-    {
-      title: "Häiriötiedote",
-      text: "AIKU-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00",
-      type: "hairiotiedote",
-      tags: [],
-      created: "23.5.2016 12:07",
-      creator: "CS"
-    },
-    {
-      title: "Erityisopetuksena järjestettävän ammatillisen koulutuksen haun valinnat",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum porttitor elit molestie urna dictum, ac accumsan felis pharetra. Morbi quis facilisis neque, sed imperdiet erat. Suspendisse potenti. Ut at consectetur enim. Praesent et sollicitudin tellus. Maecenas nec mauris massa. Quisque augue erat, cursus ac leo at, aliquam gravida lacus. Sed metus dolor, ultricies a malesuada porta, convallis quis dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. \
-             Vestibulum aliquam nibh sed ante rutrum, a pulvinar risus dictum. Proin sit amet pharetra justo, eu eleifend erat. Curabitur vitae risus enim. Vestibulum purus justo, dignissim in scelerisque at, consectetur nec risus. Aliquam massa ligula, pretium eu massa eu, porta luctus nibh. Ut in ligula in magna tincidunt bibendum. Aliquam volutpat mollis imperdiet. Praesent porttitor ultricies velit eget maximus. Suspendisse neque purus, rhoncus sit amet viverra in, maximus vitae diam. In laoreet facilisis mi ut congue. Vivamus non justo laoreet, eleifend ante et, luctus ante. Aliquam erat volutpat.",
-      type: "tiedote",
-      tags: ["perusopetus", "toinen aste", "valinnat"],
-      created: "26.5.2016 12:07",
-      creator: "CS"
-    },
-    {
-      title: "Koetulokset ja harkintaan perustuvan valinnan päätökset sekä aloituspaikat tallennettavat...",
-      text: "OPH:n tarkennetun aikataulun mukaisesti kevään yhteishaun koetulokset ja muut pisteet sekä harkintaan...",
-      type: "tiedote",
-      tags: ["toinen aste", "ePerusteet", "valinnat"],
-      created: "26.5.2016 12:07",
-      creator: "CS"
-    },
-    {
-      title: "Pääsy- ja soveltuvuuskoeaihiot 2016",
-      text: "Pääsy-ja-soveltuvuuskokeiden-aihiot-kevät-2016",
-      type: "materiaali",
-      tags: ["toinen aste","valinnat"],
-      created: "26.5.2016 14:51",
-      creator: "CS"
-    },
-    {
-      title: "Versiopäivitys 23.5 klo 16.30-17.00",
-      text: "Opintopolussa versiopäivitys tänään 23.5 klo 16:30-17:00. Hakemusten käsittely ja Oma Opintopolku-...",
-      type: "tiedote",
-      tags: ["toinen aste","valinnat"],
-      created: "26.5.2016 14:51",
-      creator: "CS"
-    }
-  ]};
+  const initialState = Immutable({
+    notifications: testData.notifications,
+    expandedNotifications: [],
+    filter: '',
 
-  return Bacon.update(initialState)
+    editor: {
+      visible: false,
+      document: emptyDocument()
+    }});
+
+  return Bacon.update(initialState,
+    [dispatcher.stream(events.toggleEditor)], toggleEditor,
+    [dispatcher.stream(events.updateDocument)], updateDocument,
+    [dispatcher.stream(events.updateDocumentContent)], updateContent,
+    [dispatcher.stream(events.saveDocument)], saveDocument,
+    [dispatcher.stream(events.updateSearch)], updateSearch,
+    [dispatcher.stream(events.toggleNotification)], toggleNotification
+  )
 }

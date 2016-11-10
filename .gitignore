@@ -12,3 +12,4 @@ nb-configuration.xml
 **/.classpath
 **/nb-configuration.xml
 node_modules
+.idea

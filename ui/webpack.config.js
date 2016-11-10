@@ -7,12 +7,11 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
 
 const PATHS = {
-  webapp: path.join(__dirname, 'src/main/webapp/app'),
+  build: path.join(__dirname, 'build'),
   app: path.join(__dirname, 'app'),
   style: path.join(__dirname, 'app/resources/styles'),
   images: path.join(__dirname, 'app/resources/img'),
   fonts: path.join(__dirname, 'app/resources/fonts')
-
 };
 
 var config = {
@@ -20,7 +19,7 @@ var config = {
     app: PATHS.app
   },
   output: {
-    path: PATHS.webapp,
+    path: PATHS.build,
     filename: '[name].js',
     chunkFilename: '[id].js'
   },
@@ -74,7 +73,7 @@ var config = {
   plugins: [
     //new LiveReloadPlugin({appendScriptTag:true}),
     new ExtractTextPlugin("[name].css"),
-    new CleanWebpackPlugin([PATHS.webapp], {
+    new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()
     }),
     new HtmlWebpackPlugin({

@@ -1,59 +1,45 @@
 import React from 'react'
 import _ from 'lodash'
 
-export default class Notifications extends React.Component {
+const Notifications = ({notifications, filter, controller, expandedNotifications}) => {
 
-  constructor(){
-    super();
-    this.state = {filter: ""}
-  }
+  const filtered = notifications.filter(n => n.text.indexOf(filter) !== -1);
 
-  render(){
-    const notifications = this.props.posts;
-    const filtered = notifications.filter(n => n.text.indexOf(this.state.filter) !== -1);
-
-    return(
-      <div className="notifications">
-        <div className="searchControls">
-          <input className="text-input" placeholder="Hakusana" type="text" onChange={e => this.setState({filter: e.target.value})}/>
-          <div className="tag-list">
-            <span>Näytä</span>
-            {['ohje', 'materiaali', 'tiedote', 'hairiotiedote', 'aikataulupaatos'].map(t => <span key={t} className={"large-tag "+t}>{t}</span>)}
-          </div>
-        </div>
-        <div>
-          {filtered.map(n => <Notification key={n.id} post={n}/>)}
+  return(
+    <div className="notifications">
+      <div className="searchControls">
+        <input className="text-input" value={filter} placeholder="Hakusana" type="text" onChange={e => controller.updateSearch(e.target.value)}/>
+        <div className="tag-list">
+          <span>Näytä</span>
+          {['ohje', 'materiaali', 'tiedote', 'hairiotiedote', 'aikataulupaatos'].map(t => <span key={t} className={"large-tag "+t}>{t}</span>)}
         </div>
       </div>
-    )
-  }
-}
-
-export class Notification extends React.Component{
-
-  constructor(props){
-    super();
-    this.state = {expanded : false}
-  }
-
-  render(){
-    const post = this.props.post;
-    const shortPost = _.truncate(post.text, {length: 100});
-
-    return(
-      <div className={"notification "+post.type}>
-        <div className="">
-          <span className="notificationTitle"> {post.title}</span>
-          <span className={"expandNotification " + (this.state.expanded ? "icon-angle-up" : "icon-angle-down")}
-                onClick={() => this.setState({expanded: !this.state.expanded})}/>
-        </div>
-        <p>{this.state.expanded ? post.text : shortPost}</p>
-        <div>
-          <span key={post.id} className={"small-tag "+post.type}>{_.upperCase(post.type)}</span>
-          {post.tags.map(t => <span key={post.id+'.'+t} className={"small-tag"}>{_.upperCase(t)}</span>)}
-        </div>
-        <div> {post.created} {post.creator}</div>
+      <div>
+        {filtered.map(n => <Notification key={n.id} notification={n} expandedNotifications={expandedNotifications} controller={controller}/>)}
       </div>
-    )
-  }
+    </div>
+  )
+};
+
+export default Notifications;
+
+const Notification = ({notification, expandedNotifications, controller}) => {
+  const shortPost = _.truncate(notification.text, {length: 100});
+  const expanded = expandedNotifications.indexOf(notification.id) > -1;
+
+  return(
+    <div className={"notification "+notification.type}>
+      <div className="">
+        <span className="notificationTitle"> {notification.title}</span>
+        <span className={"expandNotification " + (expanded ? "icon-angle-up" : "icon-angle-down")}
+              onClick={() => controller.toggleNotification(notification.id)}/>
+      </div>
+      <p>{expanded ? notification.text : shortPost}</p>
+      <div>
+        <span key={notification.id} className={"small-tag "+notification.type}>{_.upperCase(notification.type)}</span>
+        {notification.tags.map(t => <span key={notification.id+'.'+t} className={"small-tag"}>{_.upperCase(t)}</span>)}
+      </div>
+      <div> {notification.created} {notification.creator}</div>
+    </div>
+  )
 }
