@@ -1,10 +1,15 @@
 import React from 'react'
+import R from 'ramda'
 import TextEditor from './editor/TextEditor'
 import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import CategorySelect from './CategorySelect'
 
-const EditNotification = ({document, controller, onClose}) => {
+const EditRelease = ({release, controller, onClose}) => {
+
+  const notification = release.notification;
+  console.log("Release: "+ JSON.stringify(release))
+  const timelineItem = R.head(release.timeline);
 
   return(
     <div className="editNotification">
@@ -12,63 +17,62 @@ const EditNotification = ({document, controller, onClose}) => {
       <div className="sideBySide section">
         <div className="basicInfo">
           <LimitedTextField title="Otsikko"
-                            text={document.content.fi.title}
-                            onChange={controller.updateDocumentContent('fi', 'title')}
+                            text={notification.content.fi.title}
+                            onChange={controller.updateNotificationContent('fi', 'title')}
           />
           <text>Kuvaus</text>
-          <TextEditor data={document.content.fi.text}
-                      save={controller.updateDocumentContent('fi', 'text')}/>
+          <TextEditor data={notification.content.fi.text}
+                      save={controller.updateNotificationContent('fi', 'text')}/>
         </div>
         <div className="basicInfo">
           <LimitedTextField title="Otsikko ruotsiksi"
-                            text={document.content.sv.title}
-                            onChange={controller.updateDocumentContent('sv', 'title')}/>
+                            text={notification.content.sv.title}
+                            onChange={controller.updateNotificationContent('sv', 'title')}/>
           <text>Kuvaus ruotsiksi</text>
-          <TextEditor data={document.content.sv.text}
-                      save={controller.updateDocumentContent('sv', 'text')}/>
+          <TextEditor data={notification.content.sv.text}
+                      save={controller.updateNotificationContent('sv', 'text')}/>
         </div>
       </div>
       <div className="section">
-        <input type="checkbox"/> Näytä aikajanalla
         <div className="sideBySide">
           <div className="basicInfo">
             <LimitedTextField title="Aikajanan teksti" name="timeline_text_fi"
-                              onChange={controller.updateDocumentContent('fi', 'timelineText')}
-                              text={document.content.fi.timelineText}/>
+                              onChange={controller.updateTimelineContent(0, 'fi', 'text')}
+                              text={timelineItem.content.fi.text}/>
           </div>
           <div className="basicInfo">
             <LimitedTextField title="Aikajanan teksti ruotsiksi"
-                              name="timeline_tefxt_sv"
-                              onChange={controller.updateDocumentContent('sv', 'timelineText')}
-                              text={document.content.sv.timelineText}/>
+                              onChange={controller.updateTimelineContent(0, 'sv', 'text')}
+                              text={timelineItem.content.sv.text}/>
           </div>
         </div>
         <DateSelect
           id="date_input"
           title="Tapahtumapäivämäärä aikajanaa varten"
-          onChange={controller.updateDocument('timelineDate')}
+          onChange={controller.updateTimeline(0, 'date')}
+          date={timelineItem.date}
           />
       </div>
       <div className="sideBySide section">
         <div className="basicInfo">
           <div>Kategoria(t)</div>
           <CategorySelect
+            selectedCategories={release.categories}
             className="category-wrapper"
-            onChange={controller.updateDocument('categories')}/>
-          <TypeSelect selectedType={document.type} onChange={controller.updateDocument('type')}/>
+            toggleCategory={controller.toggleEditorCategory}/>
         </div>
         <div className="basicInfo">
           <KeywordSelect/>
           <div className="sideBySide">
           <DateSelect
             title="Julkaisupäivämäärä"
-            onChange={controller.updateDocument('publishDate')}
-            date={document.publishDate}
+            onChange={controller.updateNotification('publishDate')}
+            date={notification.publishDate}
             />
           <DateSelect
             title="Poistumispäivämäärä"
-            onChange={controller.updateDocument('expiryDate')}
-            date={document.expiryDate}
+            onChange={controller.updateNotification('expiryDate')}
+            date={notification.expiryDate}
           />
           </div>
         </div>
@@ -80,7 +84,7 @@ const EditNotification = ({document, controller, onClose}) => {
   )
 };
 
-export default EditNotification;
+export default EditRelease;
 
 const LimitedTextField = ({title, text, onChange}) => {
 
@@ -95,25 +99,6 @@ const LimitedTextField = ({title, text, onChange}) => {
              onChange={e => onChange(e.target.value)}/>
     </div>
   )
-};
-
-const TypeSelect = ({selectedType, onChange}) => {
-
-  const types = ['Aikataulupäätös', 'Ohje', 'Materiaali', 'Tiedote', 'Häiriötiedote'];
-
-  const renderType = (type) => {
-
-    const isSelected = selectedType === type;
-    const className = "type-button" + (isSelected ? " selected" : " selection");
-
-    return <span key={type} className={className} onClick={() => onChange(isSelected ? '' : type)}>{type}</span>
-  };
-
-  return(
-    <div>
-      <div>Tyyppi</div>
-      <div className="type-select">{types.map(t => renderType(t))}</div>
-    </div>)
 };
 
 const KeywordSelect = () => {

@@ -1,64 +1,134 @@
 {
-  "notifications": [
+  "releases": [
     {
       "id": 1,
-      "title": "Häiriötiedote",
-      "text": "AIKU-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00",
-      "type": "hairiotiedote",
-      "tags": [],
-      "created": "23.5.2016 12:07",
-      "creator": "CS"
+      "notification":
+      {
+        "id": 1,
+        "releaseId": 1,
+        "content": {
+          "fi": {
+            "title": "Häiriötiedote",
+            "text": "<p><strong>AIKU</strong>-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00</p>"
+          }
+        },
+        "tags": [],
+        "created": "23.5.2016 12:07",
+        "creator": "CS"
+      },
+      "timeline": [
+        {
+          "id": 1,
+          "releaseId": 1,
+          "date": "23.5.2016",
+          "content": {
+            "fi": {
+              "text": "AIKU-palvelussa käyttökatko"
+            }
+          }
+        }]
     },
     {
       "id": 2,
-      "title": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haun valinnat",
-      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum porttitor elit molestie urna dictum, ac accumsan felis pharetra. Morbi quis facilisis neque, sed imperdiet erat. Suspendisse potenti. Ut at consectetur enim. Praesent et sollicitudin tellus. Maecenas nec mauris massa. Quisque augue erat, cursus ac leo at, aliquam gravida lacus. Sed metus dolor, ultricies a malesuada porta, convallis quis dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum aliquam nibh sed ante rutrum, a pulvinar risus dictum. Proin sit amet pharetra justo, eu eleifend erat. Curabitur vitae risus enim. Vestibulum purus justo, dignissim in scelerisque at, consectetur nec risus. Aliquam massa ligula, pretium eu massa eu, porta luctus nibh. Ut in ligula in magna tincidunt bibendum. Aliquam volutpat mollis imperdiet. Praesent porttitor ultricies velit eget maximus. Suspendisse neque purus, rhoncus sit amet viverra in, maximus vitae diam. In laoreet facilisis mi ut congue. Vivamus non justo laoreet, eleifend ante et, luctus ante. Aliquam erat volutpat.",
-      "type": "tiedote",
-      "tags": [
-        "perusopetus",
-        "toinen aste",
-        "valinnat"
-      ],
-      "created": "26.5.2016 12:07",
-      "creator": "CS"
+      "notification":
+      {
+        "id": 2,
+        "releaseId": 2,
+        "content": {
+          "fi": {
+            "title": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haun valinnat",
+            "text": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum porttitor elit molestie urna dictum, ac accumsan felis pharetra. Morbi quis facilisis neque, sed imperdiet erat. </p> <h3>Suspendisse potenti.</h3> <p>Ut at consectetur enim. Praesent et sollicitudin tellus. Maecenas nec mauris massa. Quisque augue erat, cursus ac leo at, aliquam gravida lacus. Sed metus dolor, ultricies a malesuada porta, convallis quis dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum aliquam nibh sed ante rutrum, a pulvinar risus dictum. Proin sit amet pharetra justo, eu eleifend erat. Curabitur vitae risus enim. Vestibulum purus justo, dignissim in scelerisque at, consectetur nec risus. Aliquam massa ligula, pretium eu massa eu, porta luctus nibh. Ut in ligula in magna tincidunt bibendum. Aliquam volutpat mollis imperdiet. Praesent porttitor ultricies velit eget maximus. Suspendisse neque purus, rhoncus sit amet viverra in, maximus vitae diam. In laoreet facilisis mi ut congue. Vivamus non justo laoreet, eleifend ante et, luctus ante. Aliquam erat volutpat.</p>"
+          }
+        },
+        "tags": [
+          {"id": 1, "name_fi": "perusopetus"},
+          {"id": 2, "name_fi": "toinen aste"},
+          {"id": 3, "name_fi": "valinnat"}],
+        "created": "23.5.2016 12:07",
+        "creator": "CS"
+      },
+      "timeline": []
     },
     {
       "id": 3,
-      "title": "Koetulokset ja harkintaan perustuvan valinnan päätökset sekä aloituspaikat tallennettavat...",
-      "text": "OPH:n tarkennetun aikataulun mukaisesti kevään yhteishaun koetulokset ja muut pisteet sekä harkintaan...",
-      "type": "tiedote",
-      "tags": [
-        "toinen aste",
-        "ePerusteet",
-        "valinnat"
-      ],
-      "created": "26.5.2016 12:07",
-      "creator": "CS"
-
+      "notification":
+      {
+        "id": 3,
+        "releaseId": 3,
+        "content": {
+          "fi": {
+            "title": "Koetulokset ja harkintaan perustuvan valinnan päätökset sekä aloituspaikat tallennettavat",
+            "text": "<p>OPH:n tarkennetun aikataulun mukaisesti kevään yhteishaun koetulokset ja muut pisteet sekä harkintaan</p>"
+          }
+        },
+        "tags": [
+          {"id": 2, "name_fi": "toinen aste"},
+          {"id": 4, "name_fi": "ePerusteet"},
+          {"id": 3, "name_fi": "valinnat"}],
+        "created": "23.5.2016 12:07",
+        "creator": "CS"
+      },
+      "timeline": [
+        {
+          "id": 2,
+          "releaseId": 3,
+          "date": "26.5.2016",
+          "content": {
+            "fi": {
+              "text": "Koetulokset"
+            }
+          }
+        }]
     },
     {
       "id": 4,
-      "title": "Pääsy- ja soveltuvuuskoeaihiot 2016",
-      "text": "Pääsy-ja-soveltuvuuskokeiden-aihiot-kevät-2016",
-      "type": "materiaali",
-      "tags": [
-        "toinen aste",
-        "valinnat"
-      ],
-      "created": "26.5.2016 14:51",
-      "creator": "CS"
+      "notification":
+      {
+        "id": 4,
+        "releaseId": 4,
+        "content": {
+          "fi": {
+            "title": "Pääsy- ja soveltuvuuskoeaihiot 2016",
+            "text": "<p>Pääsy-ja-soveltuvuuskokeiden-aihiot-kevät-2016</p>"
+          }
+        },
+        "tags": [
+          {"id": 2, "name_fi": "toinen aste"},
+          {"id": 3, "name_fi": "valinnat"}],
+        "created": "23.5.2016 12:07",
+        "creator": "CS"
+      },
+      "timeline": []
     },
     {
       "id": 5,
-      "title": "Versiopäivitys 23.5 klo 16.30-17.00",
-      "text": "Opintopolussa versiopäivitys tänään 23.5 klo 16:30-17:00. Hakemusten käsittely ja Oma Opintopolku-...",
-      "type": "tiedote",
-      "tags": [
-        "toinen aste",
-        "valinnat"
-      ],
-      "created": "26.5.2016 14:51",
-      "creator": "CS"
+      "notification":
+      {
+        "id": 5,
+        "releaseId": 5,
+        "content": {
+          "fi": {
+            "title": "Versiopäivitys 23.5 klo 16.30-17.00",
+            "text": "<p>Opintopolussa versiopäivitys tänään 23.5 klo 16:30-17:00. Hakemusten käsittely ja Oma Opintopolku alhaalla</p>"
+          }
+        },
+        "tags": [
+          {"id": 2, "name_fi": "toinen aste"},
+          {"id": 3, "name_fi": "valinnat"}],
+        "created": "23.5.2016 12:07",
+        "creator": "CS"
+      },
+      "timeline": [
+        {
+          "id": 4,
+          "releaseId": 5,
+          "date": "26.5.2016",
+          "content": {
+            "fi": {
+              "text": "Opintopolussa versiopäivitys"
+            }
+          }
+        }]
     }
   ]
 }

@@ -3,9 +3,8 @@ import fp from 'lodash/fp'
 import {Editor, EditorState, RichUtils, CompositeDecorator, ContentState, Entity} from 'draft-js';
 import {getEntityAtCursor} from './getEntityAtCursor';
 import {convertToHTML} from 'draft-convert';
+import R from 'ramda'
 
-const _ = fp();
-// import _ from 'lodash';
 
 export default class TextEditor extends React.Component {
   constructor(props) {
@@ -162,7 +161,7 @@ export default class TextEditor extends React.Component {
           <LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()} className="icon-link" />
           <LinkButton action={this.removeLink} label="Unlink" active={isCursorOnLink} className="icon-unlink"/>
         </div>
-        {this.state.showURLInput ? <UrlInput url={_.get(entity, 'data.url', '')} confirmLink={this.confirmLink }/> : ''}
+        {this.state.showURLInput ? <UrlInput url={R.pathOr('', ['data', 'url'], entity)} confirmLink={this.confirmLink }/> : ''}
         <div className={className} onClick={this.focus}>
           <Editor
             editorState={editorState}
@@ -270,14 +269,14 @@ const BlockStyleControls = (props) => {
   );
 };
 
-var INLINE_STYLES = [
+const INLINE_STYLES = [
   {label: 'Bold', style: 'BOLD', className: 'icon-bold'},
   {label: 'Italic', style: 'ITALIC', className: 'icon-italic'},
   {label: 'Underline', style: 'UNDERLINE', className: 'icon-underline'}
 ];
 
 const InlineStyleControls = (props) => {
-  var currentStyle = props.editorState.getCurrentInlineStyle();
+  const currentStyle = props.editorState.getCurrentInlineStyle();
   return (
     <div className="RichEditor-controls">
       {INLINE_STYLES.map(type =>

@@ -1,39 +1,21 @@
 import React from 'react'
 
-export default class CategorySelect extends React.Component{
 
-  constructor(props){
-    super();
-    this.categories = ['Perusopetus', 'Ammatillinen koulutus', 'Korkeakoulutus', 'Lukiokoulutus'];
-    this.state = {selectedCategories: []};
-    this.className = (props.className ? props.className : '');
-    this.renderCategory = this._renderCategory.bind(this)
-  }
+const CategorySelect = ({selectedCategories, className, toggleCategory}) => {
+  const categories = ['Perusopetus', 'Ammatillinen koulutus', 'Korkeakoulutus', 'Lukiokoulutus'];
 
-  _renderCategory(category){
+  const renderCategory = category => {
+    const isSelected = selectedCategories.indexOf(category) >= 0;
+    const selectionClass = "category "+ (isSelected ? "selected" : "");
 
-    let selectedCategories = this.state.selectedCategories;
-    let isSelected = selectedCategories.indexOf(category) >= 0;
-
-    let className = "category "+ (isSelected ? "selected" : "");
-
-    let toggleSelection = () => {
-
-      if(isSelected){
-        this.setState({selectedCategories: selectedCategories.filter(c => c != category)});
-      } else {
-        this.setState({selectedCategories: selectedCategories.concat(category)});
-      }
-    };
-
-    return(<span key={category} className={className} onClick={toggleSelection}>
+    return(<span key={category} className={selectionClass} onClick={() => toggleCategory(category, !isSelected)}>
       {isSelected ? <span className="icon-check"/> :''} {category}</span>)
-  }
+  };
 
-  render(){
-    return(
-      <div className={this.className}>
-        {this.categories.map(c => this.renderCategory(c))}
-      </div>)
-  }
-}
+  return(
+    <div className={className}>
+      {categories.map(c => renderCategory(c))}
+    </div>)
+};
+
+export default CategorySelect
