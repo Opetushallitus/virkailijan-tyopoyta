@@ -1,18 +1,26 @@
-export function initController(dispatcher, events){
+export function initController (dispatcher, events) {
+  // EDITOR
 
-  function togleEditor(visible){
-    dispatcher.push(events.toggleEditor, visible);
-  }
+  const toggleEditor = (isVisible, releaseId) => dispatcher.push(events.toggleEditor, { isVisible, releaseId })
 
-  const updateNotification = prop => value => dispatcher.push(events.updateNotification, {prop: prop, value: value});
+  const toggleEditorTab = selectedTab => dispatcher.push(events.toggleEditorTab, selectedTab)
 
-  const  updateNotificationContent = (lang, prop) => value => dispatcher.push(events.updateNotificationContent, {lang: lang, prop: prop, value: value});
+  const updateRelease = prop => value => dispatcher.push(events.updateRelease, {prop: prop, value: value});
 
-  const updateSearch = search => dispatcher.push(events.updateSearch, {search: search});
+  const toggleReleaseCategory = category =>
+    dispatcher.push(events.toggleReleaseCategory, category)
 
-  const saveDocument = () => dispatcher.push(events.saveDocument);
+  const updateNotification = (prop, value) => dispatcher.push(events.updateNotification, {prop: prop, value: value});
+
+  const updateNotificationTags = value => dispatcher.push(events.updateNotificationTags, value);
+
+  const updateNotificationContent = (lang, prop) => value =>
+    dispatcher.push(events.updateNotificationContent, {lang: lang, prop: prop, value: value});
 
   const toggleNotification = id => dispatcher.push(events.toggleNotification, {id: id});
+
+  const addTimelineItem = release =>
+    dispatcher.push(events.addTimelineItem, release)
 
   const updateTimelineContent = (id, lang, prop) => value =>
     dispatcher.push(events.updateTimelineContent, {id: id, lang: lang, prop: prop, value: value});
@@ -20,21 +28,55 @@ export function initController(dispatcher, events){
   const updateTimeline = (id, prop) => value =>
     dispatcher.push(events.updateTimeline, {id: id, prop:prop, value:value});
 
-  const updateRelease = prop => value => dispatcher.push(events.updateRelease, {prop: prop, value: value});
+  const saveDocument = () => dispatcher.push(events.saveDocument);
 
-  const toggleEditorCategory = (category, selected) =>
-    dispatcher.push(events.toggleEditorCategory, {category: category, selected: selected});
+  // MENU
+
+  const toggleMenu = isVisible => dispatcher.push(events.toggleMenu, isVisible);
+
+  // NOTIFICATIONS
+
+  const getNotifications = page => dispatcher.push(events.getNotifications, page)
+
+  const lazyLoadNotifications = page => dispatcher.push(events.lazyLoadNotifications, page)
+
+  const updateSearch = search => dispatcher.push(events.updateSearch, {search: search});
+
+  const setSelectedNotificationTags = value => {
+    console.log('Tag selected', value)
+
+    dispatcher.push(events.setSelectedNotificationTags, value)
+  }
+
+  const toggleNotificationTag = value => {
+    console.log('Toggled tag with value', value)
+
+    dispatcher.push(events.toggleNotificationTag, value)
+  }
 
   return {
-    toggleEditor: togleEditor,
+    // Editor
+    toggleEditor: toggleEditor,
+    toggleEditorTab: toggleEditorTab,
+    updateRelease: updateRelease,
+    toggleReleaseCategory: toggleReleaseCategory,
     updateNotification: updateNotification,
+    updateNotificationTags: updateNotificationTags,
     updateNotificationContent: updateNotificationContent,
+    addTimelineItem: addTimelineItem,
+    updateTimelineContent: updateTimelineContent,
+    updateTimeline: updateTimeline,
     saveDocument: saveDocument,
+
+    // Menu
+    toggleMenu: toggleMenu,
+
+    // Notifications
+    getNotifications: getNotifications,
+    lazyLoadNotifications: lazyLoadNotifications,
     updateSearch: updateSearch,
-    toggleNotification : toggleNotification,
-    updateTimelineContent : updateTimelineContent,
-    updateTimeline : updateTimeline,
-    updateRelease : updateRelease,
-    toggleEditorCategory : toggleEditorCategory
+    toggleNotificationTag: toggleNotificationTag,
+    setSelectedNotificationTags: setSelectedNotificationTags,
+    toggleNotification : toggleNotification
   }
 }

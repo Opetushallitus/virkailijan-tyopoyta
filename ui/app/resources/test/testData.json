@@ -10,9 +10,16 @@
           "fi": {
             "title": "Häiriötiedote",
             "text": "<p><strong>AIKU</strong>-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00</p>"
+          },
+          "sv": {
+            "title": "Häiriötiedote",
+            "text": "<p><strong>AIKU</strong>-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00</p>"
           }
         },
-        "tags": [],
+        "startDate": "23.5.2016",
+        "endDate": "23.7.2016",
+        "initialStartDate": "23.5.2016",
+        "tags": [1, 2],
         "created": "23.5.2016 12:07",
         "creator": "CS"
       },
@@ -21,12 +28,18 @@
           "id": 1,
           "releaseId": 1,
           "date": "23.5.2016",
+          "initialDate": "23.5.2016",
           "content": {
             "fi": {
               "text": "AIKU-palvelussa käyttökatko"
+            },
+            "sv": {
+              "text": "AIKU-palvelussa käyttökatko"
             }
           }
-        }]
+        }
+      ],
+      "categories": [1, 2]
     },
     {
       "id": 2,
@@ -36,99 +49,59 @@
         "releaseId": 2,
         "content": {
           "fi": {
-            "title": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haun valinnat",
-            "text": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum porttitor elit molestie urna dictum, ac accumsan felis pharetra. Morbi quis facilisis neque, sed imperdiet erat. </p> <h3>Suspendisse potenti.</h3> <p>Ut at consectetur enim. Praesent et sollicitudin tellus. Maecenas nec mauris massa. Quisque augue erat, cursus ac leo at, aliquam gravida lacus. Sed metus dolor, ultricies a malesuada porta, convallis quis dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum aliquam nibh sed ante rutrum, a pulvinar risus dictum. Proin sit amet pharetra justo, eu eleifend erat. Curabitur vitae risus enim. Vestibulum purus justo, dignissim in scelerisque at, consectetur nec risus. Aliquam massa ligula, pretium eu massa eu, porta luctus nibh. Ut in ligula in magna tincidunt bibendum. Aliquam volutpat mollis imperdiet. Praesent porttitor ultricies velit eget maximus. Suspendisse neque purus, rhoncus sit amet viverra in, maximus vitae diam. In laoreet facilisis mi ut congue. Vivamus non justo laoreet, eleifend ante et, luctus ante. Aliquam erat volutpat.</p>"
+            "title": "Hakuaika alkaa",
+            "text": "<p>Kevään ensimmäinen hakuaika alkaa. Haku koskee vieraskielisiä ammattikorkeakoulututkintoon johtavia koulutuksia ja vieraskielisiä yliopistojen pelkästään alempaan korkeakoulututkintoon...</p>"
+          },
+          "sv": {
+            "title": "Hakuaika alkaa",
+            "text": "<p>Kevään ensimmäinen hakuaika alkaa. Haku koskee vieraskielisiä ammattikorkeakoulututkintoon johtavia koulutuksia ja vieraskielisiä yliopistojen pelkästään alempaan korkeakoulututkintoon...</p>"
           }
         },
-        "tags": [
-          {"id": 1, "name_fi": "perusopetus"},
-          {"id": 2, "name_fi": "toinen aste"},
-          {"id": 3, "name_fi": "valinnat"}],
+        "startDate": "1.6.2016",
+        "endDate": "1.7.2016",
+        "initialStartDate": "1.6.2016",
+        "tags": [3],
         "created": "23.5.2016 12:07",
         "creator": "CS"
       },
-      "timeline": []
+      "timeline": [],
+      "categories": [3]
+    }
+  ],
+  "notificationTags": [
+    {
+      "id": 1,
+      "name_fi": "Perusopetus",
+      "isQuickTag": true
+    },
+    {
+      "id": 2,
+      "name_fi": "Toinen aste",
+      "isQuickTag": false
     },
     {
       "id": 3,
-      "notification":
-      {
-        "id": 3,
-        "releaseId": 3,
-        "content": {
-          "fi": {
-            "title": "Koetulokset ja harkintaan perustuvan valinnan päätökset sekä aloituspaikat tallennettavat",
-            "text": "<p>OPH:n tarkennetun aikataulun mukaisesti kevään yhteishaun koetulokset ja muut pisteet sekä harkintaan</p>"
-          }
-        },
-        "tags": [
-          {"id": 2, "name_fi": "toinen aste"},
-          {"id": 4, "name_fi": "ePerusteet"},
-          {"id": 3, "name_fi": "valinnat"}],
-        "created": "23.5.2016 12:07",
-        "creator": "CS"
-      },
-      "timeline": [
-        {
-          "id": 2,
-          "releaseId": 3,
-          "date": "26.5.2016",
-          "content": {
-            "fi": {
-              "text": "Koetulokset"
-            }
-          }
-        }]
+      "name_fi": "Valinnat",
+      "isQuickTag": false
     },
     {
       "id": 4,
-      "notification":
-      {
-        "id": 4,
-        "releaseId": 4,
-        "content": {
-          "fi": {
-            "title": "Pääsy- ja soveltuvuuskoeaihiot 2016",
-            "text": "<p>Pääsy-ja-soveltuvuuskokeiden-aihiot-kevät-2016</p>"
-          }
-        },
-        "tags": [
-          {"id": 2, "name_fi": "toinen aste"},
-          {"id": 3, "name_fi": "valinnat"}],
-        "created": "23.5.2016 12:07",
-        "creator": "CS"
-      },
-      "timeline": []
+      "name_fi": "ePerusteet",
+      "isQuickTag": true
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name_fi": "Perusopetus"
     },
     {
-      "id": 5,
-      "notification":
-      {
-        "id": 5,
-        "releaseId": 5,
-        "content": {
-          "fi": {
-            "title": "Versiopäivitys 23.5 klo 16.30-17.00",
-            "text": "<p>Opintopolussa versiopäivitys tänään 23.5 klo 16:30-17:00. Hakemusten käsittely ja Oma Opintopolku alhaalla</p>"
-          }
-        },
-        "tags": [
-          {"id": 2, "name_fi": "toinen aste"},
-          {"id": 3, "name_fi": "valinnat"}],
-        "created": "23.5.2016 12:07",
-        "creator": "CS"
-      },
-      "timeline": [
-        {
-          "id": 4,
-          "releaseId": 5,
-          "date": "26.5.2016",
-          "content": {
-            "fi": {
-              "text": "Opintopolussa versiopäivitys"
-            }
-          }
-        }]
+      "id": 2,
+      "name_fi": "Toinen aste"
+    },
+    {
+      "id": 3,
+      "name_fi": "Korkeakoulutus"
     }
   ]
 }

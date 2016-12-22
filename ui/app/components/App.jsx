@@ -1,40 +1,107 @@
 import React from 'react'
-import Notifications from './Notifications'
-import EditRelease from './EditNotification'
-import CategorySelect from './CategorySelect'
-import Timeline from './Timeline'
-import placeholder from '../resources/img/placeholder.png'
 
-const App = ({state, controller}) => {
-  console.log("t:" + JSON.stringify(state.timeline))
+// Components
+import Modal from './Modal'
+import Button from './Button'
+import Icon from './Icon'
+import Menu from './menu/Menu'
+import Notifications from './notifications/Notifications'
+import Timeline from './timeline/Timeline'
+import EditRelease from './editor/EditRelease'
+
+function App ({ state, controller }) {
   return (
     <div>
-      <div className="mainMenu">
-        <span className="menu-content">Näytä</span>
-        <span style={{float: 'left'}}>
-          <CategorySelect
-            selectedCategories={[]}
-            toggleCategory={(category, selected) => {}}/></span>
-        <span className="addNew" onClick={() => controller.toggleEditor(true)}>+ Luo uusi sisältö</span>
-      </div>
-      {state.editor.visible ?
-        <Modal>
-          <EditRelease release={state.editor.document} controller={controller} onClose={() => controller.toggleEditor(false)}/>
-        </Modal> : ""
-      }
-      <div className="sideBySide">
-        <Notifications notifications={state.notifications} filter={state.activeFilter} expandedNotifications={state.expandedNotifications} controller={controller}/>
-        <Timeline timeline={state.timeline}/>
+      <div className="container flex flex-wrap mx-auto">
+        {/*Menu*/}
+        <Menu
+          controller={controller}
+          isVisible={state.menu.isVisible}
+          hasUnpublishedReleases={state.hasUnpublishedReleases}
+        />
+
+        {/*Tabs for tablet and mobile*/}
+        {/*<label className="md-hide lg-hide" htmlFor="tab1">*/}
+          {/*Tiedotteet*/}
+        {/*</label>*/}
+        {/*<input className="md-hide lg-hide" type="radio" id="tab1" name="tabs" />*/}
+
+        {/*<label className="md-hide lg-hide" htmlFor="tab2">*/}
+          {/*Aikajana*/}
+        {/*</label>*/}
+        {/*<input className="md-hide lg-hide" type="radio" id="tab2" name="tabs" />*/}
+
+        {/*Notifications*/}
+        <section className="col-12 md-col-7 mt3 md-pr2">
+          <Notifications
+            controller={controller}
+            locale={state.locale}
+            nextPage={state.nextPage}
+            notifications={state.notifications}
+            expandedNotifications={state.expandedNotifications}
+            notificationTags={state.notificationTags}
+            selectedNotificationTags={state.selectedNotificationTags}
+          />
+        </section>
+
+        {/*Timeline*/}
+        <section className="col-12 md-col-5 mt3 md-pl2">
+          <Timeline />
+        </section>
+
+        {/*Modals*/}
+        <div className={`overlay ${state.editor.isVisible ? 'overlay-is-visible' : ''}`}>
+          {/*Editor*/}
+          {
+            state.editor.isVisible
+              ?
+                <div className="modal modal-lg">
+                  <div className="modal-dialog">
+                    {/*Close button*/}
+                    <Button
+                      classList="modal-close-button button-link absolute top-0 right-0"
+                      onClick={() => controller.toggleEditor(false)}
+                      title="Sulje"
+                    >
+                      &times;
+                      <span className="sr-only">Sulje</span>
+                    </Button>
+
+                    <EditRelease
+                      controller={controller}
+                      locale={state.locale}
+                      selectedTab={state.editor.selectedTab}
+                      release={state.editor.document}
+                      categories={state.categories}
+                      notificationTags={state.notificationTags}
+                    />
+                  </div>
+                </div>
+            : null
+          }
+
+          {/*Unpublished releases*/}
+        </div>
 
       </div>
-    </div>)
-};
+    </div>
 
-export default App;
+    // <div>
+    //  <div className="mainMenu">
+    //    <span className="menu-content">Näytä</span>
+    //    <span style={{float: 'left'}}>
+    //      <CategorySelect
+    //        selectedCategories={[]}
+    //        toggleCategory={(category, selected) => {}}/></span>
+    //    <span className="addNew" onClick={() => controller.toggleEditor(true)}>+ Luo uusi sisältö</span>
+    //  </div>
+    //  <div className="sideBySide">
+    //    <Notifications notifications={state.notifications} filter={state.activeFilter} expandedNotifications={state.expandedNotifications} controller={controller}/>
+    //    <Timeline timeline={state.timeline}/>
+    //
+    //  </div>
+    //</div>
+  )
+}
 
-const Modal = ({children}) => {
-  return (
-    <div className="editor-modal" data-modal="true">
-      <div className="modal-children">{children}</div>
-    </div>)
-};
+export default App

@@ -1,10 +1,13 @@
 import React from 'react'
-import fp from 'lodash/fp'
-import {Editor, EditorState, RichUtils, CompositeDecorator, ContentState, Entity} from 'draft-js';
-import {getEntityAtCursor} from './getEntityAtCursor';
-import {convertToHTML} from 'draft-convert';
 import R from 'ramda'
+import { Editor, EditorState, RichUtils, CompositeDecorator, ContentState, Entity } from 'draft-js';
+import { convertToHTML, convertFromHTML } from 'draft-convert';
 
+import { getEntityAtCursor } from './getEntityAtCursor';
+
+// Components
+import Button from '../Button'
+import Icon from '../Icon'
 
 export default class TextEditor extends React.Component {
   constructor(props) {
@@ -18,8 +21,10 @@ export default class TextEditor extends React.Component {
     ]);
 
     this.state = {
-      editorState: EditorState.createEmpty(decorator),
-      showURLInput: false};
+      //editorState: EditorState.createEmpty(decorator),
+      editorState: EditorState.createWithContent(convertFromHTML(this.props.data)),
+      showURLInput: false
+    };
 
     this.focus = () => this.refs.editor.focus();
     this.onChange = (editorState) => this.setState({editorState});
@@ -148,7 +153,7 @@ export default class TextEditor extends React.Component {
 
     return (
       <div className="RichEditor-root">
-        <div className="RichEditor-controls">
+        <div className="RichEditor-controls-container">
           <InlineStyleControls
             editorState={editorState}
             onToggle={this.toggleInlineStyle}
@@ -158,8 +163,8 @@ export default class TextEditor extends React.Component {
             onToggle={this.toggleBlockType}
           />
 
-          <LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()} className="icon-link" />
-          <LinkButton action={this.removeLink} label="Unlink" active={isCursorOnLink} className="icon-unlink"/>
+          {/*<LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()} icon="link" />*/}
+          {/*<LinkButton action={this.removeLink} label="Unlink" active={isCursorOnLink} icon="unlink"/>*/}
         </div>
         {this.state.showURLInput ? <UrlInput url={R.pathOr('', ['data', 'url'], entity)} confirmLink={this.confirmLink }/> : ''}
         <div className={className} onClick={this.focus}>
@@ -188,31 +193,45 @@ class StyleButton extends React.Component {
   }
 
   render() {
-    let className = this.props.className ;
-    className += ' RichEditor-styleButton'
+    let className = 'button-link RichEditor-styleButton'
+
     if (this.props.active) {
-      className += ' style-active';
+      className += ' button-link-is-active'
     }
+
     return (
-      <span className={className} onMouseDown={this.onToggle}/>
-    );
+      <Button
+        classList={className}
+        onMouseDown={this.onToggle}
+        title={this.props.label}
+      >
+        <Icon name={this.props.icon} />
+        <span className="sr-only">{this.props.label}</span>
+      </Button>
+    )
   }
 }
 
 class LinkButton extends React.Component {
 
   render(){
-    let className = this.props.className;
-    className += ' RichEditor-styleButton link';
+    let className = 'button-link RichEditor-styleButton'
 
     if (this.props.active) {
-      className += ' link-active';
+      className += ' button-link-is-active';
     } else{
-      className += ' link-inactive';
+      className += ' button-link-is-inactive';
     }
 
     return(
-      <span className={className} onMouseDown={this.props.action}/>
+      <Button
+        classList={className}
+        onMouseDown={this.props.action}
+        title={this.props.label}
+      >
+        <Icon name={this.props.icon} />
+        <span className="sr-only">{this.props.label}</span>
+      </Button>
     )
   }
 }
@@ -240,9 +259,8 @@ const Link = (props) => {
 };
 
 const BLOCK_TYPES = [
-  {label: 'Header', style: 'header-two', className: 'icon-header'},
-  {label: 'UL', style: 'unordered-list-item', className: 'icon-list-ul'},
-  {label: 'OL', style: 'ordered-list-item', className: 'icon-list-ol'}
+  {label: 'Unordered list', style: 'unordered-list-item', icon: 'list-ul'},
+  {label: 'Ordered list', style: 'ordered-list-item', icon: 'list-ol'}
 ];
 
 const BlockStyleControls = (props) => {
@@ -254,7 +272,7 @@ const BlockStyleControls = (props) => {
     .getType();
 
   return (
-    <div className="RichEditor-controls">
+    <span className="RichEditor-controls">
       {BLOCK_TYPES.map((type) =>
         <StyleButton
           key={type.label}
@@ -262,23 +280,23 @@ const BlockStyleControls = (props) => {
           label={type.label}
           onToggle={props.onToggle}
           style={type.style}
-          className={type.className}
+          icon={type.icon}
         />
       )}
-    </div>
+    </span>
   );
 };
 
 const INLINE_STYLES = [
-  {label: 'Bold', style: 'BOLD', className: 'icon-bold'},
-  {label: 'Italic', style: 'ITALIC', className: 'icon-italic'},
-  {label: 'Underline', style: 'UNDERLINE', className: 'icon-underline'}
+  {label: 'Bold', style: 'BOLD', icon: 'bold'},
+  {label: 'Italic', style: 'ITALIC', icon: 'italic'},
+  {label: 'Underline', style: 'UNDERLINE', icon: 'underline'}
 ];
 
 const InlineStyleControls = (props) => {
   const currentStyle = props.editorState.getCurrentInlineStyle();
   return (
-    <div className="RichEditor-controls">
+    <span className="RichEditor-controls">
       {INLINE_STYLES.map(type =>
         <StyleButton
           key={type.label}
@@ -286,10 +304,10 @@ const InlineStyleControls = (props) => {
           label={type.label}
           onToggle={props.onToggle}
           style={type.style}
-          className={type.className}
+          icon={type.icon}
         />
       )}
-    </div>
+    </span>
   );
 };
 

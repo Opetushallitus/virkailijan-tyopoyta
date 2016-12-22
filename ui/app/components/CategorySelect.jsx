@@ -1,21 +1,43 @@
 import React from 'react'
 
+import CheckboxButton from './CheckboxButton'
 
-const CategorySelect = ({selectedCategories, className, toggleCategory}) => {
-  const categories = ['Perusopetus', 'Ammatillinen koulutus', 'Korkeakoulutus', 'Lukiokoulutus'];
+const classList = [
+  "mb1",
+  "mr1",
+  "lg-mb0",
+  "p1"
+]
 
-  const renderCategory = category => {
-    const isSelected = selectedCategories.indexOf(category) >= 0;
-    const selectionClass = "category "+ (isSelected ? "selected" : "");
+const isChecked = (selectedCategories, id) => {
+  return selectedCategories.indexOf(id) >= 0
+}
 
-    return(<span key={category} className={selectionClass} onClick={() => toggleCategory(category, !isSelected)}>
-      {isSelected ? <span className="icon-check"/> :''} {category}</span>)
-  };
+function CategorySelect (props) {
+  const {
+    locale,
+    categories,
+    selectedCategories,
+    toggleCategory
+  } = props
 
-  return(
-    <div className={className}>
-      {categories.map(c => renderCategory(c))}
-    </div>)
-};
+  return (
+    <div>
+      {
+        categories.map((category, index) =>
+          <CheckboxButton
+            key={category.id}
+            id={`category.${category.id}`}
+            classList={classList.join(' ')}
+            label={category[`name_${locale}`]}
+            toggleCategory={toggleCategory}
+            isChecked={isChecked(selectedCategories, category.id)}
+            onChange={() => toggleCategory(category.id)}
+          />
+        )
+      }
+    </div>
+  )
+}
 
 export default CategorySelect

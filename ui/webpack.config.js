@@ -53,14 +53,15 @@ var config = {
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader"),
-        // include: PATHS.style
-      },
-      {
-        test: /\.scss/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader"),
-        // include: PATHS.style
+        loader: 'style!css!postcss-loader',
+        include: PATHS.style
       }
+    ]
+  },
+  postcss: function (webpack) {
+    return [
+      require("postcss-smart-import")({ addDependencyTo: webpack }),
+      require("postcss-cssnext")()
     ]
   },
   devServer: {
@@ -71,7 +72,6 @@ var config = {
   },
 
   plugins: [
-    //new LiveReloadPlugin({appendScriptTag:true}),
     new ExtractTextPlugin("[name].css"),
     new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()
