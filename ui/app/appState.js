@@ -1,11 +1,10 @@
 import Bacon from 'baconjs'
 import R from 'ramda'
 import moment from 'moment'
-import {EditorState} from 'draft-js'
 
 import Dispatcher from './dispatcher'
 import {initController} from './controller'
-
+import {EditorState} from 'draft-js'
 import * as testData from './resources/test/testData.json'
 
 const dispatcher = new Dispatcher()
@@ -37,7 +36,7 @@ const events = {
   toggleNotification: 'toggleNotification'
 }
 
-const notificationsUrl = "http://localhost:9000/virkailijan-tyopoyta"
+const notificationsUrl = "/virkailijan-tyopoyta/api/releases";
 
 const controller = initController(dispatcher, events)
 
@@ -46,7 +45,7 @@ export function getController(){
 }
 
 function onReleasesReceived(state, response){
-  //console.log("received releases: "+JSON.stringify(response) );
+  console.log("received releases: "+JSON.stringify(response) );
 
   return R.assoc('releases', response, state)
 }
@@ -191,11 +190,11 @@ function saveDocument (state) {
   console.log("Saving document");
   console.log(JSON.stringify(state.editor.document));
 
-  fetch(notificationsUrl+"/addRelease", {
+  fetch(notificationsUrl, {
     method: 'POST',
     dataType: 'json',
     headers: {
-      "Content-type": "text/json; charset=UTF-8"
+      "Content-type": "application/json"
     },
     body: JSON.stringify(state.editor.document),
   });
@@ -306,8 +305,7 @@ function toggleNotification (state, {id}) {
 }
 
 export function initAppState() {
-  // const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()));
-  const releasesS = Bacon.fromArray(testData.releases)
+  const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()));
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
 
@@ -319,12 +317,12 @@ export function initAppState() {
     currentPage: 1,
     nextPage: 2,
     categories: testData.categories,
-    releases: testData.releases,
+    releases: [],
     hasUnpublishedReleases: false,
-    notifications: testData.releases.map(r => r.notification),
-    notificationTags: testData.notificationTags,
+    notifications: [],
+    notificationTags: [],
     selectedNotificationTags: [],
-    timeline: R.chain(r => r.timeline, testData.releases),
+    timeline: [],
     expandedNotifications: [],
     activeFilter: '',
     menu: {
@@ -363,8 +361,8 @@ export function initAppState() {
     [dispatcher.stream(events.setSelectedNotificationTags)], setSelectedNotificationTags,
     [dispatcher.stream(events.toggleNotification)], toggleNotification,
 
-    //[releasesS], onReleasesReceived,
-    //[notificationsS], onNotificationsReceived,
-    //[timelineS], onTimelineReceived
+    [releasesS], onReleasesReceived,
+    [notificationsS], onNotificationsReceived,
+    [timelineS], onTimelineReceived
   )
 }
