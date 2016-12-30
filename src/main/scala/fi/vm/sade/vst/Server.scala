@@ -29,7 +29,4 @@ object Server extends App {
 
   handler.failed.foreach {case ex : Exception => println(ex, "Failed to bind to port")}
 
-  StdIn.readLine(s"\nHTTP server running on port $port, press any key to stop")
-  handler.flatMap(_.unbind()).onComplete(_ => system.terminate())
-
 }
