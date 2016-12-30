@@ -14,7 +14,7 @@ import scala.io.StdIn
 object Server extends App {
 
   private lazy val homeDir = sys.props.getOrElse("user.home", "")
-  lazy val confFile: File = Paths.get(homeDir, "/oph-configuration/virkailijan-tyopoyta.conf").toFile
+  lazy val confFile: File = Paths.get(homeDir, "/oph-configuration/common.properties").toFile
 
   println("Reading configuration from " + confFile.toString)
   val config = ConfigFactory.parseFile(confFile)
