@@ -1,0 +1,5 @@
+{
+  "cas.myroles": "/cas/myroles",
+  "cas.login": "/cas/login?service=",
+  "lokalisointi.localisation":"/lokalisointi/cxf/rest/v1/localisation?category=virkailijantyopoyta&locale="
+}
