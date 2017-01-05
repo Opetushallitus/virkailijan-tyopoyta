@@ -23,7 +23,6 @@ object Routes extends Directives with ResponseUtils with JsonSupport{
   }
 
   val routes: Route = {
-    get{getFromResourceDirectory("ui")} ~
     pathPrefix("virkailijan-tyopoyta"){
       get {
        pathEndOrSingleSlash { getFromResource("ui/index.html") } ~

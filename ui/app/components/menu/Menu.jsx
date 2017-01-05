@@ -5,8 +5,6 @@ import MobileMenu from './MobileMenu'
 import TimePeriod from './TimePeriod'
 import CategorySelect from '../CategorySelect'
 import Button from '../Button'
-import Translation from '../Translations';
-
 
 function Menu (props) {
   const {
@@ -53,7 +51,8 @@ function Menu (props) {
           classList="button-link h3 bold px0"
           onClick={() => controller.toggleEditor(true)}
         >
-          <Translation trans="lisaauusi"/>
+          <span aria-hidden>+ </span>
+          Luo uusi sisältö
         </Button>
 
         <br />
@@ -65,7 +64,6 @@ function Menu (props) {
               <Button
                 classList="button-link px0"
               >
-                <Translation trans={"julkaisemattomat"}/>
                 Julkaisemattomat tiedotteet
               </Button>
             : null
