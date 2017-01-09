@@ -1,0 +1,31 @@
+[
+  {
+    "accesscount": 0,
+    "id": 15440,
+    "category": "virkajatyopoyta",
+    "accessed": 1465386022305,
+    "created": 1465386022305,
+    "createdBy": "1.2.246.562.24.94392457652",
+    "modified": 1465386022305,
+    "modifiedBy": "1.2.246.562.24.94392457652",
+    "force": false,
+    "key": "lisaauusi",
+    "locale": "fi",
+    "value": " Luo uusi sisältö"
+  },
+  {
+  "key": "julktiedotteet",
+  "locale": "fi",
+  "value": "Julkaisemattomat tiedotteet"
+  },
+  {
+    "key": "alkaen",
+    "locale": "fi",
+    "value": "alkaen"
+  },
+  {
+    "key": "loppuen",
+    "locale": "fi",
+    "value": "loppuen"
+  }
+]
