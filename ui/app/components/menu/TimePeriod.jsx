@@ -8,7 +8,7 @@ function TimePeriod (props) {
       <div className="md-inline-block flex justify-center items-center md-col-9 lg-ml2">
         {/*Start date*/}
         <div className="md-inline-block col-6 sm-col-4 md-col-3 lg-col-5 pr1">
-          <label className="hide" htmlFor="startDate">Alkaen</label>
+          <label className="hide" htmlFor="startDate"><Translation trans="alkaen"/></label>
           <input className="input" name="startDate" type="text" placeholder="Alkaen" />
         </div>
 
@@ -16,7 +16,7 @@ function TimePeriod (props) {
 
         {/*End date*/}
         <div className="md-inline-block col-6 sm-col-4 md-col-3 lg-col-5 pl1">
-          <label className="hide" htmlFor="endDate">Loppuen</label>
+          <label className="hide" htmlFor="endDate"><Translation trans="loppuen"/></label>
           <input className="input" name="endDate" type="text" placeholder="Loppuen" />
         </div>
       </div>
