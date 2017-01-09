@@ -122,39 +122,41 @@ export default class App extends React.Component {
               <Timeline />
             </section>
 
-            {/*Modals*/}
-            <div className={`overlay ${state.editor.isVisible ? 'overlay-is-visible' : ''}`}>
-              {/*Editor*/}
-              {
-                state.editor.isVisible
-                    ?
-                    <div className="modal modal-lg">
-                      <div className="modal-dialog">
-                        {/*Close button*/}
-                        <Button
-                            classList="modal-close-button button-link absolute top-0 right-0"
-                            onClick={() => controller.toggleEditor(false)}
-                            title="Sulje"
-                        >
-                          &times;
-                          <span className="sr-only">Sulje</span>
-                        </Button>
+        {/*Modals*/}
+        <div className={`overlay ${state.editor.isVisible ? 'overlay-is-visible' : ''}`}>
+          {/*Editor*/}
+          {
+            state.editor.isVisible
+              ?
+                <div className="modal modal-lg">
+                  <div className="modal-dialog">
+                    {/*Close button*/}
+                    <Button
+                      classList="modal-close-button button-link absolute top-0 right-0"
+                      onClick={() => controller.toggleEditor(false)}
+                      title="Sulje"
+                    >
+                      &times;
+                      <span className="hide">Sulje</span>
+                    </Button>
 
-                        <EditRelease
-                            controller={controller}
-                            locale={state.locale}
-                            selectedTab={state.editor.selectedTab}
-                            release={state.editor.document}
-                            categories={state.categories}
-                            notificationTags={state.notificationTags}
-                        />
-                      </div>
-                    </div>
-                    : null
-              }
+                    <EditRelease
+                      controller={controller}
+                      locale={state.locale}
+                      dateFormat={state.dateFormat}
+                      selectedTab={state.editor.selectedTab}
+                      isPreviewed={state.editor.isPreviewed}
+                      release={state.editor.document}
+                      categories={state.categories}
+                      notificationTags={state.notificationTags}
+                    />
+                  </div>
+                </div>
+              : null
+          }
 
-              {/*Unpublished releases*/}
-            </div>
+          {/*Unpublished releases*/}
+          </div>
 
           </div>
         </div>

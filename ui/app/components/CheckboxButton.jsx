@@ -17,7 +17,7 @@ function CheckboxButton (props) {
     id,
     classList,
     label,
-    isChecked,
+    checked,
     onChange
   } = props
 
@@ -30,13 +30,12 @@ function CheckboxButton (props) {
         id={id}
         className="hide"
         type="checkbox"
-        checked={isChecked}
+        checked={checked}
         onChange={onChange}
       />
 
       <span className={`${defaultClassList.join(' ')} ${classList}`}>
-        <Icon classList="checkbox-button-icon-is-not-checked mr1" name="square-o" />
-        <Icon classList="checkbox-button-icon-is-checked mr1" name="check-square-o" />
+        <Icon classList="mr1" name={`${checked ? 'check-' : ''}square-o`} />
 
         {label}
       </span>

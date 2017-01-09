@@ -23,8 +23,7 @@ const renderQuickTag = (option, locale, selectedOptions, controller) => {
       />
 
       <span className="checkbox-button-text button-small center mr1 mb1 md-mb0 px1 inline-block border border-widen-1 border-primary rounded bg-white primary">
-        <Icon classList="checkbox-button-icon-is-not-checked mr1" name="square-o" />
-        <Icon classList="checkbox-button-icon-is-checked mr1" name="check-square-o" />
+        <Icon classList="mr1" name={`${isChecked(selectedOptions, option.id) ? 'check-' : ''}square-o`} />
 
         {text}
       </span>

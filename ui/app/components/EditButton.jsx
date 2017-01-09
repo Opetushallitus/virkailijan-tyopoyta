@@ -16,7 +16,7 @@ function EditButton (props) {
       onClick={onClick}
     >
       <Icon name="pencil" />
-      <span className="sr-only">Muokkaa</span>
+      <span className="hide">Muokkaa</span>
     </Button>
   )
 }

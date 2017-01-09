@@ -1,10 +1,11 @@
 import Bacon from 'baconjs'
 import R from 'ramda'
-import moment from 'moment'
+import { EditorState } from 'draft-js'
 
 import Dispatcher from './dispatcher'
 import {initController} from './controller'
 import {EditorState} from 'draft-js'
+import { validate, rules } from './validation'
 import * as testData from './resources/test/testData.json'
 
 const dispatcher = new Dispatcher()
@@ -16,12 +17,15 @@ const events = {
   toggleEditor: 'toggleEditor',
   toggleEditorTab: 'toggleEditorTab',
   toggleReleaseCategory : 'toggleReleaseCategory',
+  updateRelease: 'updateRelease',
   updateNotification: 'updateNotification',
   updateNotificationTags: 'updateNotificationTags',
-  updateNotificationContent : 'updateDocumentContent',
+  updateNotificationContent: 'updateDocumentContent',
+  validateNotification: 'validateNotification',
   addTimelineItem: 'addTimelineItem',
   updateTimeline: 'updateTimeline',
   updateTimelineContent: 'updateTimelineContent',
+  toggleDocumentPreview: 'toggleDocumentPreview',
   saveDocument: 'saveDocument',
 
   // Menu
@@ -37,10 +41,9 @@ const events = {
 }
 
 const notificationsUrl = "/virkailijan-tyopoyta/api/releases";
-
 const controller = initController(dispatcher, events)
 
-export function getController(){
+export function getController () {
   return controller;
 }
 
@@ -64,25 +67,29 @@ function onTimelineReceived(state, response){
 
 // EDITOR
 
-function toggleEditor (state, { isVisible, releaseId = -1 }) {
-  const newState = R.assocPath(['editor', 'isVisible'], isVisible, state);
+function toggleEditor (state, { isVisible, releaseId = -1, selectedTab = 'edit-notification' }) {
+  const newState = R.assocPath(['editor', 'isVisible'], isVisible, state)
 
-  // Clear editor when closing
+  // Toggle preview mode off and clear editor when closing
   if (!isVisible) {
     console.log('Closing editor')
 
-    return clearEditor(newState)
+    const stateWithClearedEditor = clearEditor(newState)
+
+    return toggleDocumentPreview(stateWithClearedEditor, false)
   }
-  // Display first tab or notification/timeline tab when opening
+  // Display correct tab depending if user edits a notification or a timeline item.
   else if (releaseId > -1) {
     console.log('Toggling editor with release id', releaseId)
-    const selectedRelease = state.releases.filter(release => release.id === releaseId)[0];
 
+    const selectedRelease = state.releases.filter(release => release.id === releaseId)[0];
     const stateWithRelease = R.assocPath(['editor', 'document'], selectedRelease, newState)
+
     return toggleEditorTab(stateWithRelease, 'edit-notification')
   }
+  // Display notification tab when creating a new release
   else {
-    return toggleEditorTab(newState, 'edit-notification')
+    return toggleEditorTab(newState, selectedTab)
   }
 }
 
@@ -95,30 +102,108 @@ function clearEditor (state) {
 function toggleEditorTab (state, selectedTab) {
   console.log('Toggling editor tab', selectedTab)
 
-  return R.assocPath(['editor', 'selectedTab'], selectedTab, state);
+  return R.assocPath(['editor', 'selectedTab'], selectedTab, state)
 }
 
-function updateRelease (state, {prop, value}) {
+function toggleDocumentPreview (state, isPreviewed) {
+  console.log('Toggling document preview', isPreviewed)
+
+  return R.assocPath(['editor', 'isPreviewed'], isPreviewed, state)
+}
+
+function saveDocument (state) {
+  console.log('Saving document', JSON.stringify(state.editor.document))
+
+  fetch(notificationsUrl + '/addRelease', {
+    method: 'POST',
+    dataType: 'json',
+    headers: {
+      'Content-type': 'text/json; charset=UTF-8'
+    },
+    body: JSON.stringify(state.editor.document),
+  });
+
+  return state
+}
+
+// RELEASE
+
+function emptyRelease () {
+  return {
+    id: -1,
+    sendEmail: false,
+    notification: emptyNotification(),
+    timeline: [newTimelineItem(-1, [])],
+    categories: [],
+    validationState: 'empty'
+  }
+}
+
+function updateRelease (state, { prop, value }) {
   console.log('Updating release', prop, value)
 
-  return R.assocPath(['editor', 'document', prop], value, state);
+  const path = ['editor', 'document']
+  const newState = R.assocPath(R.append(prop, path), value, state)
+
+  // Validate release
+  const validatedRelease = validate(R.path(path, newState), rules['release']);
+
+  return R.assocPath(path, validatedRelease, state)
 }
 
 function toggleReleaseCategory (state, category) {
   console.log('Toggling release category', category);
 
   const categories = state.editor.document.categories;
-  const newCategories =  R.contains(category, categories)
+  const newCategories = R.contains(category, categories)
     ? R.reject((c => c === category), categories)
     : R.append(category, categories)
 
-  return R.assocPath(['editor', 'document', 'categories'], newCategories, state);
+  return updateRelease(state, { prop: 'categories', value: newCategories })
+}
+
+// NOTIFICATION
+
+function emptyContent (id ,lang) {
+  return {
+    notificationId: id,
+    text: "",
+    title: "",
+    language: lang,
+  }
+}
+
+function emptyNotification () {
+  return {
+    id: -1,
+    releaseId: -1,
+    startDate: null,
+    initialStartDate: null,
+    endDate: null,
+    content: {
+      fi: emptyContent(-1, 'fi'),
+      sv: emptyContent(-1, 'sv')
+    },
+    tags: [],
+    validationState: 'empty'
+  }
 }
 
 function updateNotification (state, {prop, value}) {
   console.log('Updating notification', prop, value)
 
-  return R.assocPath(['editor', 'document', 'notification', prop], value, state)
+  // Concatenate path and prop
+  let path = ['editor', 'document', 'notification']
+  const concatenatedPath = R.is(Array, prop)
+    ? path.concat(prop)
+    : R.append(prop, path)
+
+  const newState = R.assocPath(concatenatedPath, value, state)
+
+  // Validate notification
+  const validatedNotification = validate(R.path(path, newState), rules['notification'])
+
+  return R.assocPath(path, validatedNotification, state)
 }
 
 function updateNotificationTags (state, value) {
@@ -130,30 +215,30 @@ function updateNotificationTags (state, value) {
     newTags = state.editor.document.notification.tags.filter(tag => (tag !== value))
   }
 
-  console.log('Updating notification tags', newTags)
-
-  return R.assocPath(['editor', 'document', 'notification', 'tags'], newTags, state)
+  return updateNotification(state, { prop: 'tags', value: newTags })
 }
 
-function updateNotificationContent (state, {prop, lang, value}) {
-  return R.assocPath(['editor', 'document', 'notification', 'content', lang,  prop], value, state);
+function updateNotificationContent (state, { prop, lang, value }) {
+  return updateNotification(state, { prop: ['content', lang, prop], value: value })
 }
 
-const newTimelineId = R.compose(R.dec, R.apply(Math.min), R.map(R.prop('id')));
+// TIMELINE
+
+const newTimelineId = R.compose(R.dec, R.apply(Math.min), R.map(R.prop('id')))
 
 function newTimelineItem (releaseId, timeline) {
   //const id = Math.min(newTimelineId(timeline), 0);
-  const id = Math.floor(Math.random() * (10000 - 1) + 1);
+  const id = Math.floor(Math.random() * (10000 - 1) + 1)
 
   return {
     id: id,
     releaseId: releaseId,
     date: null,
-    initialDate: null,
     content: {
       fi: {timelineId: id, language: 'fi', text: ''},
       sv: {timelineId: id, language: 'sv', text: ''}
-    }
+    },
+    validationState: 'empty'
   }
 }
 
@@ -163,27 +248,31 @@ function addTimelineItem (state, release) {
 
   console.log('Adding new timeline item with id', item.id)
 
-  return updateRelease(state, { prop: 'timeline', value: newTimeline });
+  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
 }
 
-function updateTimeline (state, {id, prop, value}) {
-  //console.log("Updating timeline item "+id);
+function updateTimeline (state, { id, prop, value }) {
+  console.log('Updating timeline item', id, prop, value);
 
-  const timeline = state.editor.document.timeline;
-  const index = R.findIndex(R.propEq('id', id), timeline);
-  const newTimeline = R.adjust(R.assoc(prop, value), index, timeline);
+  const timeline = state.editor.document.timeline
+  const index = R.findIndex(R.propEq('id', id), timeline)
+  const item = R.find(R.propEq('id', id), timeline)
 
-  //console.log("new timeline:"+ newTimeline);
+  const newTimelineItem = R.is(Array, prop)
+    ? R.assocPath(prop, value, item)
+    : R.assoc(prop, value, item)
 
-  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state);
+  const newTimeline = [
+    ...timeline.slice(0, index),
+    validate(newTimelineItem, rules['timelineItem']),
+    ...timeline.slice(index + 1)
+  ]
+
+  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
 }
 
-function updateTimelineContent (state, {id, lang, prop, value}) {
-  const timeline = state.editor.document.timeline;
-  const idx = R.findIndex(R.propEq('id', id), timeline);
-  const newTimeline = R.adjust(R.assocPath(['content', lang, prop], value), idx, timeline);
-
-  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state);
+function updateTimelineContent (state, { id, lang, prop, value }) {
+  return updateTimeline(state, {id, prop: ['content', lang, prop], value})
 }
 
 function saveDocument (state) {
@@ -245,7 +334,6 @@ function toggleMenu (state, isVisible) {
 }
 
 // NOTIFICATIONS
-
 
 function getNotifications (state, value) {
   console.log('Get notifications from page')
@@ -330,6 +418,7 @@ export function initAppState() {
     },
     editor: {
       isVisible: false,
+      isPreviewed: false,
       document: emptyRelease(),
       selectedTab: 'edit-notification'
     }
@@ -341,6 +430,7 @@ export function initAppState() {
     // Editor
     [dispatcher.stream(events.toggleEditor)], toggleEditor,
     [dispatcher.stream(events.toggleEditorTab)], toggleEditorTab,
+    [dispatcher.stream(events.updateRelease)], updateRelease,
     [dispatcher.stream(events.updateNotification)], updateNotification,
     [dispatcher.stream(events.updateNotificationTags)], updateNotificationTags,
     [dispatcher.stream(events.updateNotificationContent)], updateNotificationContent,
@@ -348,6 +438,7 @@ export function initAppState() {
     [dispatcher.stream(events.updateTimeline)], updateTimeline,
     [dispatcher.stream(events.updateTimelineContent)], updateTimelineContent,
     [dispatcher.stream(events.toggleReleaseCategory)], toggleReleaseCategory,
+    [dispatcher.stream(events.toggleDocumentPreview)], toggleDocumentPreview,
     [dispatcher.stream(events.saveDocument)], saveDocument,
 
     // Menu

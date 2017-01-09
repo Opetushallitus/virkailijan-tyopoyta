@@ -26,7 +26,7 @@ object Routes extends Directives with ResponseUtils with JsonSupport{
     pathPrefix("virkailijan-tyopoyta"){
       get {
        pathEndOrSingleSlash { getFromResource("ui/index.html") } ~
-       getFromResourceDirectory("ui")
+       encodeResponse { getFromResourceDirectory("ui") }
       } ~
       pathPrefix("api") {apiRoutes}
     }

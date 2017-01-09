@@ -1,0 +1,168 @@
+/* Project styles */
+
+/* Semantic UI Dropdown */
+.semantic-ui .label:after {
+  content: "";
+}
+
+/* Draft.js */
+.RichEditor-root {
+  position: relative;
+  padding: 0 var(--input-padding-x);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow-inner);
+}
+
+.RichEditor-root:hover {
+  border-color: var(--border-color-hover);
+}
+
+.RichEditor-controls-container {
+  border-bottom: 1px solid var(--gray-lighten-3);
+}
+
+.DraftEditor-editorContainer {
+  font-size: var(--base-font-size);
+  min-height: 15rem;
+  padding: var(--space-2) 0;
+}
+
+/* React Datepicker */
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+/* Menu */
+.menu {
+  display: none;
+
+@media (--breakpoint-md) {
+  display: block;
+}
+}
+
+.menu-is-visible {
+  display: block;
+}
+
+/* Notifications */
+.notifications {
+  height: 80vh;
+}
+
+.notification-is-expandable:hover {
+  cursor: pointer;
+}
+
+.notification-is-expandable:hover .notification-heading {
+  color: var(--link-color-hover);
+}
+
+/* Timeline */
+.timeline {
+  height: 80vh;
+}
+
+/* Timeline axis line */
+.timeline-axis {
+  clear: both;
+}
+
+.timeline-axis:after {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  content: "";
+  border-left: 2px solid var(--blue-darken);
+
+/* Small and large viewpoints */
+@media (--sm-and-lg) {
+  left: 50%;
+}
+}
+
+.timeline-heading {
+  margin-left: calc(var(--space-2) + var(--space-1));
+  padding: var(--space-05) var(--space-1);
+
+/* Small and large viewpoints */
+@media (--sm-and-lg) {
+  margin-left: 0;
+}
+}
+
+/* Pointers for timeline days */
+.timeline-day:before {
+  position: absolute;
+  content: "";
+  top: calc(var(--space-3) - 8px);
+  left: 10px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 16px 14px 0;
+  border-color: transparent var(--blue) transparent transparent;
+}
+
+.timeline-day:nth-of-type(odd):before {
+@media (--sm-and-lg) {
+  left: auto;
+  right: 10px;
+  border-width: 14px 0 14px 16px;
+  border-color: transparent transparent transparent var(--blue);
+}
+}
+
+/* Dots for timeline days */
+.timeline-day:after {
+  position: absolute;
+  top: var(--space-3);
+  left: 0;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-4px);
+  content: "";
+  border-radius: 50%;
+  background: var(--blue-darken);
+}
+
+.timeline-day:nth-of-type(odd):after {
+@media (--sm-and-lg) {
+  left: auto;
+  right: 0;
+  transform: translateX(6px);
+}
+}
+
+/* Timeline days */
+.timeline-day:nth-of-type(even) {
+@media (--sm-and-lg) {
+  margin-top: -var(--space-4);
+  align-self: flex-end;
+}
+}
+
+.timeline-day:nth-of-type(odd) {
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+
+@media (--sm-and-lg) {
+  margin-bottom: 0;
+}
+}
+
+.timeline-day:nth-of-type(even) .timeline-event {
+  margin-left: calc(var(--space-2) + var(--space-1));
+}
+
+.timeline-day:nth-of-type(odd) .timeline-event {
+  margin-left: calc(var(--space-2) + var(--space-1));
+
+@media (--sm-and-lg) {
+  margin-left: 0;
+  margin-right: calc(var(--space-2) + var(--space-1));
+}
+}

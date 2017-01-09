@@ -12,7 +12,7 @@ const classList = [
   "bg-gray-lighten-1"
 ]
 
-function Tag(props) {
+function Tag (props) {
   return (
     <span className={classList.join(' ')}>
       {props.text}
@@ -20,4 +20,4 @@ function Tag(props) {
   )
 }
 
-export default Tag;
+export default Tag

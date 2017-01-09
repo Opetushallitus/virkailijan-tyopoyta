@@ -5,34 +5,36 @@ export function initController (dispatcher, events) {
 
   const toggleEditorTab = selectedTab => dispatcher.push(events.toggleEditorTab, selectedTab)
 
-  const updateRelease = prop => value => dispatcher.push(events.updateRelease, {prop: prop, value: value});
+  const updateRelease = (prop, value) => dispatcher.push(events.updateRelease, {prop: prop, value: value})
 
   const toggleReleaseCategory = category =>
     dispatcher.push(events.toggleReleaseCategory, category)
 
-  const updateNotification = (prop, value) => dispatcher.push(events.updateNotification, {prop: prop, value: value});
+  const updateNotification = (prop, value) => dispatcher.push(events.updateNotification, {prop: prop, value: value})
 
-  const updateNotificationTags = value => dispatcher.push(events.updateNotificationTags, value);
+  const updateNotificationTags = value => dispatcher.push(events.updateNotificationTags, value)
 
   const updateNotificationContent = (lang, prop) => value =>
-    dispatcher.push(events.updateNotificationContent, {lang: lang, prop: prop, value: value});
+    dispatcher.push(events.updateNotificationContent, {lang: lang, prop: prop, value: value})
 
-  const toggleNotification = id => dispatcher.push(events.toggleNotification, {id: id});
+  const toggleNotification = id => dispatcher.push(events.toggleNotification, {id: id})
 
   const addTimelineItem = release =>
     dispatcher.push(events.addTimelineItem, release)
 
   const updateTimelineContent = (id, lang, prop) => value =>
-    dispatcher.push(events.updateTimelineContent, {id: id, lang: lang, prop: prop, value: value});
+    dispatcher.push(events.updateTimelineContent, {id: id, lang: lang, prop: prop, value: value})
 
-  const updateTimeline = (id, prop) => value =>
-    dispatcher.push(events.updateTimeline, {id: id, prop:prop, value:value});
+  const updateTimeline = (id, prop, value) =>
+    dispatcher.push(events.updateTimeline, {id: id, prop:prop, value:value})
 
-  const saveDocument = () => dispatcher.push(events.saveDocument);
+  const toggleDocumentPreview = isPreviewed => dispatcher.push(events.toggleDocumentPreview, isPreviewed)
+
+  const saveDocument = () => dispatcher.push(events.saveDocument)
 
   // MENU
 
-  const toggleMenu = isVisible => dispatcher.push(events.toggleMenu, isVisible);
+  const toggleMenu = isVisible => dispatcher.push(events.toggleMenu, isVisible)
 
   // NOTIFICATIONS
 
@@ -40,7 +42,7 @@ export function initController (dispatcher, events) {
 
   const lazyLoadNotifications = page => dispatcher.push(events.lazyLoadNotifications, page)
 
-  const updateSearch = search => dispatcher.push(events.updateSearch, {search: search});
+  const updateSearch = search => dispatcher.push(events.updateSearch, {search: search})
 
   const setSelectedNotificationTags = value => {
     console.log('Tag selected', value)
@@ -66,6 +68,7 @@ export function initController (dispatcher, events) {
     addTimelineItem: addTimelineItem,
     updateTimelineContent: updateTimelineContent,
     updateTimeline: updateTimeline,
+    toggleDocumentPreview: toggleDocumentPreview,
     saveDocument: saveDocument,
 
     // Menu
