@@ -4,7 +4,6 @@ import { EditorState } from 'draft-js'
 
 import Dispatcher from './dispatcher'
 import {initController} from './controller'
-import {EditorState} from 'draft-js'
 import { validate, rules } from './validation'
 import * as testData from './resources/test/testData.json'
 
