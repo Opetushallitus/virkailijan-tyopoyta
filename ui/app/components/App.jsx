@@ -64,13 +64,15 @@ function App ({ state, controller }) {
                       title="Sulje"
                     >
                       &times;
-                      <span className="sr-only">Sulje</span>
+                      <span className="hide">Sulje</span>
                     </Button>
 
                     <EditRelease
                       controller={controller}
                       locale={state.locale}
+                      dateFormat={state.dateFormat}
                       selectedTab={state.editor.selectedTab}
+                      isPreviewed={state.editor.isPreviewed}
                       release={state.editor.document}
                       categories={state.categories}
                       notificationTags={state.notificationTags}
