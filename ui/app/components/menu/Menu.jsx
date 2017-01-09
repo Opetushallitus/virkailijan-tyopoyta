@@ -30,7 +30,7 @@ function Menu (props) {
         {/*Categories*/}
         {/*<div className="mb1 lg-mb0 lg-inline-block">*/}
           {/*<div className="inline-block lg-inline md-col-1 mb1 lg-mb0">Näytä</div>*/}
-          {/*<span className="sr-only">Kategoriat</span>*/}
+          {/*<span className="hide">Kategoriat</span>*/}
 
           {/*<div className="md-inline-block lg-ml2">*/}
             {/*/!*<CategorySelect />*!/*/}

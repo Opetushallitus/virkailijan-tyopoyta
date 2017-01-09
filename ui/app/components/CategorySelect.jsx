@@ -31,7 +31,7 @@ function CategorySelect (props) {
             classList={classList.join(' ')}
             label={category[`name_${locale}`]}
             toggleCategory={toggleCategory}
-            isChecked={isChecked(selectedCategories, category.id)}
+            checked={isChecked(selectedCategories, category.id)}
             onChange={() => toggleCategory(category.id)}
           />
         )

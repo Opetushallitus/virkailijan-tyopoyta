@@ -1,6 +1,7 @@
 import React from 'react'
 import R from 'ramda'
 import moment from 'moment'
+import renderHTML from 'react-render-html'
 import DatePicker from 'react-datepicker'
 import { Dropdown } from 'semantic-ui-react';
 import mapDropdownOptions  from '../utils/mapDropdownOptions';
@@ -56,8 +57,8 @@ function LimitedTextField (props) {
     label,
     name,
     value,
+    validation,
     maxLength,
-    inputClassName,
     isRequired,
     onChange
   } = props;
@@ -67,6 +68,7 @@ function LimitedTextField (props) {
       isRequired={isRequired}
       label={label}
       name={name}
+      validation={validation}
     >
       <div className="muted md-right mb1 md-mb0">{maxLength - value.length} merkkiä jäljellä</div>
 
@@ -87,12 +89,12 @@ function LimitedTextField (props) {
   Updates endDate if startDate > endDate
 */
 const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) => {
-  const newDate = date ? date.format(dateFormat) : null
+  const newDate = getDate(date, dateFormat)
 
   updateFunction('startDate', newDate)
 
-  // Only update endDate if startDate exists and is before endDate
-  if (newDate && item.startDate && date.isAfter(moment(item.endDate, dateFormat))) {
+  // Update endDate if it's before startDate
+  if (newDate && date.isAfter(moment(item.endDate, dateFormat))) {
     updateFunction('endDate', date.add(1, 'days').format(dateFormat))
   }
 }
@@ -102,11 +104,11 @@ const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) 
   Updates startDate if endDate < startDate
 */
 const handleChangeEndDate = (item, updateFunction, date, minDate, dateFormat) => {
-  const newDate = date ? date.format(dateFormat) : null
+  const newDate = getDate(date, dateFormat)
 
   updateFunction('endDate', newDate)
 
-  // No need to update startDate if endDate has been removed
+  // No need to update startDate if endDate is null
   if (!newDate) {
     return
   }
@@ -118,32 +120,57 @@ const handleChangeEndDate = (item, updateFunction, date, minDate, dateFormat) =>
     newStartDate = minDate
   }
 
-  // Only update startDate if endDate exists and is before startDate
-  if (newDate && item.endDate && date.isBefore(moment(item.startDate, dateFormat))) {
+  // Update startDate if it's before endDate
+  if (newDate && date.isBefore(moment(item.startDate, dateFormat))) {
     updateFunction('startDate', newStartDate.format(dateFormat))
   }
+}
+
+const handleChangeTimelineItemDate = (id, updateFunction, dateFormat, date) => {
+  const newDate = getDate(date, dateFormat)
+
+  updateFunction(id, 'date', newDate)
+}
+
+const getNotificationMinDate = (initialDate, dateFormat) => {
+  // Notification is published (has initialDate) = minDate is initialDate
+  let minDate = moment(initialDate, dateFormat)
+
+  // Notification is a draft (no initialDate) = minDate is today
+  // Notification is unpublished (initialDate is after today) = minDate is today
+  if (!initialDate || initialDate && moment(initialDate, dateFormat).isAfter(moment())) {
+    minDate = moment()
+  }
+
+  return getMinDate(minDate)
+}
+
+// Returns formatted date or null
+const getDate = (date, dateFormat) => {
+  return date ? date.format(dateFormat) : null
+}
+
+// Returns minDate + 2 hours for first days of months, otherwise the previous days are also selectable
+const getMinDate = (date, dateFormat) => {
+  return moment(date, dateFormat).add(2, 'hours')
 }
 
 function DateField (props) {
   const {
     className,
     locale,
+    dateFormat,
     label,
     name,
     date,
     isRequired,
-    initialDate,
+    minDate,
     selectsStart,
     selectsEnd,
     startDate,
     endDate,
     onChange
   } = props
-
-  const dateFormat = 'D.M.YYYY'
-
-  // Add 2 hours to minDate for first days of months, otherwise the previous days are also selectable
-  const minDate = initialDate ? moment(initialDate, dateFormat).add(2, 'hours') : moment().add(2, 'hours')
 
   return(
     <Field
@@ -176,17 +203,75 @@ function DateField (props) {
   )
 }
 
-const handleSubmit = (event, submitFunction) => {
-  event.preventDefault();
+const handleTabItemClick = (event, action, tab) => {
+  event.preventDefault()
 
-  submitFunction();
+  action(tab)
 }
+
+const handleSubmit = (event, controller, isPreviewed) => {
+  event.preventDefault()
+
+  if (isPreviewed) {
+    controller.saveDocument()
+  }
+  else {
+    controller.toggleDocumentPreview(true)
+  }
+}
+
+// Returns a string representing the notification's publication state
+const getNotificationPublicationState = (initialStartDate, dateFormat) => {
+  // No initialStartDate = a draft
+  if (!initialStartDate) {
+    return 'Luonnos'
+  }
+
+  // initialStartDate is after today = unpublished
+  if (moment(initialStartDate, dateFormat).isAfter(moment())) {
+    return 'Julkaisematon'
+  }
+
+  // initialStartDate is before today = published
+  if (moment(initialStartDate, dateFormat).isBefore(moment())) {
+    return 'Julkaistu'
+  }
+}
+
+// Returns a string representing the notification's validation state
+const getNotificationValidationStateString = state => {
+  if (state === 'empty') {
+    return 'Ei sisältöä'
+  }
+
+  if (state === 'incomplete') {
+    return 'Kesken'
+  }
+
+  if (state === 'complete') {
+    return 'Valmis'
+  }
+}
+
+// Returns timeline items with defined state(s)
+const getTimelineItems = (state, timeline) => {
+  const hasState = item => {
+    item.validationState = item.validationState || 'complete'
+
+    return R.contains(item.validationState, state)
+  }
+
+  return R.filter(hasState, timeline)
+}
+
 
 function EditRelease (props) {
   const {
     controller,
     locale,
+    dateFormat,
     selectedTab,
+    isPreviewed,
     release,
     notificationTags,
     categories
@@ -194,39 +279,54 @@ function EditRelease (props) {
 
   const notification = release.notification
   const timeline = release.timeline
-  const timelineItem = R.head(release.timeline)
+
+  // Set default release and notification validation states for unpublished/published releases
+  release.validationState = release.validationState || 'valid'
+
+  notification.validationState = notification
+    ? notification.validationState || 'complete'
+    : 'empty'
 
   return (
-    <form onSubmit={(event) => handleSubmit(event, controller.saveDocument)}>
+    <form noValidate onSubmit={(event) => handleSubmit(event, controller, isPreviewed)}>
       <h2 className="hide">Luo uusi sisältö</h2>
 
-      {/*Tabs and state*/}
+      {/*Tabs and release's state*/}
       <div className="flex flex-wrap px3">
-        <div className="tabs col-12">
+        <div className="tabs col-12 sm-col-6">
           <a
             className={`tab-item ${selectedTab === 'edit-notification' ? 'tab-item-is-active' : ''}`}
-            onClick={() => controller.toggleEditorTab('edit-notification')}
+            onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-notification')}
             href="#notification"
           >
             Tiedote
+            <span className="lowercase">
+              &nbsp;({getNotificationValidationStateString(notification.validationState)})
+            </span>
           </a>
           <a
-            className={`tab-item ${selectedTab === 'edit-events' ? 'tab-item-is-active' : ''}`}
-            onClick={() => controller.toggleEditorTab('edit-events')}
-            href="#events"
+            className={`tab-item ${selectedTab === 'edit-timeline' ? 'tab-item-is-active' : ''}`}
+            onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-timeline')}
+            href="#timeline"
           >
             Aikajana
+            <span className="lowercase">
+              &nbsp;({
+                getTimelineItems(['complete'], timeline).length
+                  ? getTimelineItems(['complete'], timeline).length
+                  : 'Ei sisältöä'
+              })
+            </span>
           </a>
         </div>
 
-        {/*State*/}
-        {/*<div*/}
-          {/*className="h5 caps muted sm-flex items-center justify-end col-12 sm-col-6*/}
-            {/*mt2 sm-mt0 sm-border-bottom border-gray-lighten-2"*/}
-        {/*>*/}
-          {/*Tila:*/}
-          {/*{release.state === 'DRAFT' ? ' Luonnos' : ''}*/}
-        {/*</div>*/}
+        {/*Publication state*/}
+        <div
+          className="h5 caps muted sm-flex items-center justify-end col-12 sm-col-6
+            mt2 sm-mt0 sm-border-bottom border-gray-lighten-2"
+        >
+          Tila: {getNotificationPublicationState(notification.initialStartDate, dateFormat)}
+        </div>
       </div>
 
       {/*Editor*/}
@@ -258,6 +358,7 @@ function EditRelease (props) {
               />
             </div>
 
+            {/*Is a fault notification?*/}
             {/*<Checkbox className="mb2" label="Häiriötiedote" />*/}
           </div>
 
@@ -321,12 +422,14 @@ function EditRelease (props) {
                 className="md-col-6 lg-col-4 md-pr2"
                 label="Julkaisupäivämäärä"
                 name="notification-start-date"
-                isRequired
+                dateFormat={dateFormat}
                 date={notification.startDate}
+                minDate={getNotificationMinDate(notification.initialStartDate, dateFormat)}
                 initialDate={notification.initialStartDate}
                 selectsStart
                 startDate={notification.startDate}
                 endDate={notification.endDate}
+                isRequired
                 onChange={handleChangeStartDate.bind(this, notification, controller.updateNotification)}
               />
 
@@ -335,8 +438,9 @@ function EditRelease (props) {
                 className="md-col-6 lg-col-4 md-pl2"
                 label="Poistumispäivämäärä"
                 name="notification-end-date"
+                dateFormat={dateFormat}
                 date={notification.endDate}
-                initialDate={notification.initialStartDate}
+                minDate={getNotificationMinDate(notification.initialStartDate, dateFormat)}
                 selectsEnd
                 startDate={notification.startDate}
                 endDate={notification.endDate}
@@ -346,11 +450,11 @@ function EditRelease (props) {
           </div>
         </section>
 
-        {/*Events*/}
-        <section className={`tab-pane ${selectedTab === 'edit-events' ? 'tab-pane-is-active' : ''}`}>
-          <h2 className="sr-only">Muokkaa tapahtumia</h2>
+        {/*Timeline*/}
+        <section className={`tab-pane ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
+          <h3 className="hide">Muokkaa aikajanan tapahtumia</h3>
 
-          {timeline.map((item) =>
+          {timeline.map(item =>
             <div key={item.id}>
               {/*Info*/}
               <div className="flex flex-wrap">
@@ -383,10 +487,10 @@ function EditRelease (props) {
                 className="sm-col-6 lg-col-3 sm-pr2"
                 label="Tapahtumapäivämäärä aikajanaa varten"
                 name={`timeline-item-${item.id}-date`}
-                isRequired
+                dateFormat={dateFormat}
                 date={item.date}
-                initialDate={item.initialDate}
-                onChange={controller.updateTimeline(item.id, 'date')}
+                isRequired
+                onChange={handleChangeTimelineItemDate.bind(this, item.id, controller.updateTimeline, dateFormat)}
               />
             </div>
           )}
@@ -401,7 +505,7 @@ function EditRelease (props) {
 
       {/*Categories and user groups*/}
       <section className="py2 px3 border-top border-bottom border-gray-lighten-2">
-        <h2 className="sr-only">Julkaisun kategoria(t) ja kohdekäyttäjäryhmät</h2>
+        <h2 className="hide">Julkaisun kategoria(t) ja kohdekäyttäjäryhmät</h2>
 
         <div className="flex flex-wrap">
           {/*Categories*/}
@@ -432,17 +536,105 @@ function EditRelease (props) {
               />
             </Field>
 
-            <Checkbox name="release-send-email" label="Lähetä sähköposti valituille käyttäjäryhmille välittömästi" />
+            <Checkbox
+              name="release-send-email"
+              label="Lähetä sähköposti valituille käyttäjäryhmille välittömästi"
+              checked={release.sendEmail}
+              onChange={() => controller.updateRelease('sendEmail', !release.sendEmail)}
+            />
           </div>
         </div>
       </section>
+
+      {/*Preview*/}
+      { isPreviewed
+        ?
+          <section className="p3 border-bottom border-gray-lighten-2">
+            <h2 className="h3 center mb3">Olet julkaisemassa seuraavia sisältöjä</h2>
+
+            <div className="flex flex-wrap">
+              {/*Notification*/}
+              <div className="flex col-12 md-col-6 md-pr2 mb3 md-mb0">
+                <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-silver">
+                  <h3 className="h4">Tiedote</h3>
+
+                  {
+                    notification.validationState === 'empty'
+                      ? <div>Ei tiedotetta</div>
+                      :
+                        <div>
+                          <div className="mb2">
+                            <span className="italic">Otsikko: </span>
+                            {notification.content[locale].title || 'Tyhjä'}
+                          </div>
+
+                          <div className="mb2">
+                            <span className="italic">Tiedote: </span>
+                            {renderHTML(notification.content[locale].text) || 'Tyhjä'}
+                          </div>
+
+                          <div className="flex flex-wrap">
+                            <div className="italic col-12 sm-col-4 md-col-7 lg-col-5">Julkaisupäivämäärä:</div>
+                            <div className="col-5 mb2 sm-mb0">{notification.startDate || '–'}</div>
+
+                            <div className="italic col-12 sm-col-4 md-col-7 lg-col-5">Poistumispäivämäärä:</div>
+                            <div className="col-5">{notification.endDate || '–'}</div>
+                          </div>
+                        </div>
+                  }
+
+                </div>
+              </div>
+
+              {/*Timeline*/}
+              <div className="flex col-12 md-col-6 md-pl2">
+                <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-silver">
+                  <h3 className="h4">Aikajanan tapahtuma(t)</h3>
+
+                  {getTimelineItems(['incomplete', 'complete'], timeline).length
+                    ?
+                      <div>
+                        {getTimelineItems(['incomplete', 'complete'], timeline).map((item) =>
+                          <div key={item.id} className="mb2">
+                            <span className="italic">{item.date ? item.date : 'Ei päivämäärää'}: </span>
+                            {item.content[locale].text || 'Tyhjä'}
+                          </div>
+                        )}
+
+                        Aikajanan tapahtumat julkaistaan heti.
+                      </div>
+                    : <div>Ei tapahtumia</div>
+                  }
+                </div>
+              </div>
+            </div>
+          </section>
+        : null
+      }
+
+      <div className="px3">
+        <p>notification content state: {notification.validationState}</p>
+        <p>
+          timeline items: {timeline.length},
+          complete: {getTimelineItems(['complete'], timeline).length},
+          incomplete: {getTimelineItems(['incomplete'], timeline).length},
+          empty: {getTimelineItems(['empty'], timeline).length}
+        </p>
+        <p>release: {release.validationState}</p>
+      </div>
 
       {/*Form actions*/}
       <div className="center pt3 px3">
         <input
           className="button button-primary button-lg"
           type="submit"
-          value="Julkaise"
+          disabled={
+            release.validationState !== 'complete'
+              || (notification.validationState === 'empty' && getTimelineItems(['empty'], timeline).length === timeline.length)
+              || notification.validationState === 'incomplete'
+              || getTimelineItems(['incomplete'], timeline).length
+          }
+          value={isPreviewed ? 'Julkaise' : 'Esikatsele ja julkaise'}
         />
       </div>
     </form>

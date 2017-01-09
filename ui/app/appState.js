@@ -201,7 +201,7 @@ function updateNotification (state, {prop, value}) {
   const newState = R.assocPath(concatenatedPath, value, state)
 
   // Validate notification
-  const validatedNotification = validate(R.path(path, newState), rules['notification']);
+  const validatedNotification = validate(R.path(path, newState), rules['notification'])
 
   return R.assocPath(path, validatedNotification, state)
 }
@@ -224,11 +224,11 @@ function updateNotificationContent (state, { prop, lang, value }) {
 
 // TIMELINE
 
-const newTimelineId = R.compose(R.dec, R.apply(Math.min), R.map(R.prop('id')));
+const newTimelineId = R.compose(R.dec, R.apply(Math.min), R.map(R.prop('id')))
 
 function newTimelineItem (releaseId, timeline) {
   //const id = Math.min(newTimelineId(timeline), 0);
-  const id = Math.floor(Math.random() * (10000 - 1) + 1);
+  const id = Math.floor(Math.random() * (10000 - 1) + 1)
 
   return {
     id: id,

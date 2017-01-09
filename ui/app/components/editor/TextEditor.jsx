@@ -1,6 +1,6 @@
 import React from 'react'
 import R from 'ramda'
-import { Editor, EditorState, RichUtils, CompositeDecorator, ContentState, Entity } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, ContentState, SelectionState, Entity } from 'draft-js';
 import { convertToHTML, convertFromHTML } from 'draft-convert';
 
 import { getEntityAtCursor } from './getEntityAtCursor';
@@ -11,40 +11,62 @@ import Icon from '../Icon'
 
 export default class TextEditor extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     const decorator = new CompositeDecorator([
       {
         strategy: findLinkEntities,
         component: Link,
       },
-    ]);
+    ])
 
     this.state = {
-      //editorState: EditorState.createEmpty(decorator),
-      editorState: EditorState.createWithContent(convertFromHTML(this.props.data)),
+      editorState: EditorState.createWithContent(convertFromHTML(this.props.data), decorator),
       showURLInput: false
-    };
+    }
 
-    this.focus = () => this.refs.editor.focus();
-    this.onChange = (editorState) => this.setState({editorState});
+    this.focus = () => this.refs.editor.focus()
 
-    this.handleKeyCommand = (command) => this._handleKeyCommand(command);
-    this.onTab = (e) => this._onTab(e);
+    this.onChange = (editorState) => {
+      this.setState({editorState})
+    }
+
+    this.handleKeyCommand = (command) => this._handleKeyCommand(command)
+    this.onTab = (e) => this._onTab(e)
     this.toggleBlockType = (type) => this._toggleBlockType(type);
-    this.toggleInlineStyle = (style) => this._toggleInlineStyle(style);
-    this.onURLChange = (e) => this.setState({urlValue: e.target.value});
+    this.toggleInlineStyle = (style) => this._toggleInlineStyle(style)
+    this.onURLChange = (e) => this.setState({urlValue: e.target.value})
 
-    this.promptForLink = this._promptForLink.bind(this);
-    this.confirmLink = this._confirmLink.bind(this);
-    this.removeLink = this._removeLink.bind(this);
-    this.save = this._save.bind(this);
+    this.promptForLink = this._promptForLink.bind(this)
+    this.confirmLink = this._confirmLink.bind(this)
+    this.removeLink = this._removeLink.bind(this)
+    this.save = this._save.bind(this)
+    this.getSelectedText = this._getSelectedText.bind(this)
   }
 
   _save() {
-    const html = convertToHTML(this.state.editorState.getCurrentContent());
-    console.log(html);
-    this.props.save(html);
+    const content = this.state.editorState.getCurrentContent()
+
+    // Only save HTML if the content contains more than line breaks or empty spaces
+    const plainText = content.getPlainText().trim()
+
+    if (plainText.length === 0) {
+      this.props.save('')
+    }
+    else {
+      const html = convertToHTML({
+        entityToHTML: (entity, originalText) => {
+          if (entity.type === 'LINK') {
+            return <a href={entity.data.url}>{originalText}</a>
+          }
+          return originalText
+        }
+      })(content)
+
+      console.log(html)
+
+      this.props.save(html)
+    }
   }
 
   _handleKeyCommand(command) {
@@ -82,25 +104,55 @@ export default class TextEditor extends React.Component {
 
   _promptForLink(e) {
     e.preventDefault();
+
     const {editorState} = this.state;
-    const selection = editorState.getSelection();
-    if (!selection.isCollapsed()) {
-      this.setState({
-        showURLInput: true,
-        urlValue: '',
-      });
+
+    // Update link's text with text from editor's content
+    const entity = getEntityAtCursor(editorState)
+    const isCursorOnLink = (this._getEntityAtCursor(editorState) !== null
+      && this._getEntityAtCursor(editorState).type === 'LINK')
+
+    if (isCursorOnLink) {
+      const text = editorState
+        .getCurrentContent()
+        .getBlockForKey(entity.blockKey)
+        .getText()
+        .slice(entity.startOffset, entity.endOffset)
+
+      Entity.mergeData(entity.entityKey, { text: text })
     }
+
+    this.setState({
+      showURLInput: !this.state.showURLInput,
+      urlValue: '',
+    });
   }
 
-  _confirmLink(url) {
-    console.log("Confirming link "+url);
+  _confirmLink(url, text) {
+    console.log("Confirming link", url, text);
+
     // e.preventDefault();
     const {editorState, urlValue} = this.state;
-    const entityKey = Entity.create('LINK', 'MUTABLE', {url: url});
+
+    const previousLink = getEntityAtCursor(editorState)
+    let selection = editorState.getSelection()
+
+    // Create SelectionState from previous link's text
+    if (previousLink) {
+      selection = new SelectionState({
+        anchorKey: previousLink.blockKey,
+        anchorOffset: previousLink.startOffset,
+        focusKey: previousLink.blockKey,
+        focusOffset: previousLink.endOffset
+      })
+    }
+
+    const entityKey = Entity.create('LINK', 'MUTABLE', {url: url, text: text});
+
     this.setState({
       editorState: RichUtils.toggleLink(
         editorState,
-        editorState.getSelection(),
+        selection,
         entityKey
       ),
       showURLInput: false,
@@ -113,19 +165,41 @@ export default class TextEditor extends React.Component {
   _removeLink(e) {
     e.preventDefault();
     const {editorState} = this.state;
-    const selection = editorState.getSelection();
-    console.log(JSON.stringify(selection));
-    if (!selection.isCollapsed()) {
-      this.setState({
-        editorState: RichUtils.toggleLink(editorState, selection, null),
-      });
-    }
+
+    const link = getEntityAtCursor(editorState)
+
+    // Create SelectionState from link's text
+    const selection = new SelectionState({
+      anchorKey: link.blockKey,
+      anchorOffset: link.startOffset,
+      focusKey: link.blockKey,
+      focusOffset: link.endOffset
+    })
+
+    this.setState({
+      editorState: RichUtils.toggleLink(editorState, selection, null),
+      showURLInput: false
+    });
   }
 
   _onLinkInputKeyDown(e) {
     if (e.which === 13) {
-      this._confirmLink(e);
+      this._confirmLink(e)
     }
+  }
+
+  _getSelectedText (selection, content) {
+    const start = selection.getStartOffset()
+    const end = selection.getEndOffset()
+    const startKey = selection.getStartKey()
+
+    const selectedText = content
+      .getBlockForKey(startKey)
+      .getText()
+      .slice(start, end)
+      .trim()
+
+    return selectedText
   }
 
   _getEntityAtCursor(editorState) {
@@ -148,11 +222,15 @@ export default class TextEditor extends React.Component {
       }
     }
 
+    let selection = editorState.getSelection();
     let entity = this._getEntityAtCursor(editorState);
     let isCursorOnLink = (entity != null && entity.type == 'LINK');
 
+    const selectedText = this.getSelectedText(editorState.getSelection(), contentState)
+    const hasSelectedText = this.getSelectedText(editorState.getSelection(), contentState).length
+
     return (
-      <div className="RichEditor-root">
+      <div className='RichEditor-root'>
         <div className="RichEditor-controls-container">
           <InlineStyleControls
             editorState={editorState}
@@ -163,10 +241,45 @@ export default class TextEditor extends React.Component {
             onToggle={this.toggleBlockType}
           />
 
-          {/*<LinkButton action={this.promptForLink} label="Link" active={!editorState.getSelection().isCollapsed()} icon="link" />*/}
-          {/*<LinkButton action={this.removeLink} label="Unlink" active={isCursorOnLink} icon="unlink"/>*/}
+          <LinkButton
+            label={isCursorOnLink ? 'Muokkaa linkkiä' : 'Lisää linkki'}
+            icon="link"
+            active={this.state.showURLInput}
+            disabled={!isCursorOnLink && !hasSelectedText}
+            action={this.promptForLink}
+          />
+
+          <LinkButton
+            action={this.removeLink}
+            icon="unlink"
+            label="Poista linkki"
+            disabled={!isCursorOnLink}
+          />
+
+          <h3 className={this.state.showURLInput ? 'hide' : 'display-none'}>Lisää linkki</h3>
+
+          {/*Cancel add link*/}
+          <Button
+            classList={`button-link h1 absolute top-0 right-0 z3 ${this.state.showURLInput ? '' : 'display-none'}`}
+            onClick={this.promptForLink}
+            title="Peruuta"
+          >
+            &times;
+            <span className="hide">Peruuta</span>
+          </Button>
+
+          {this.state.showURLInput
+            ?
+              <UrlInput
+                url={R.pathOr('', ['data', 'url'], entity)}
+                selectedLinkText={R.pathOr('', ['data', 'text'], entity)}
+                selectedText={selectedText}
+                confirmLink={this.confirmLink}
+              />
+            : ''
+          }
         </div>
-        {this.state.showURLInput ? <UrlInput url={R.pathOr('', ['data', 'url'], entity)} confirmLink={this.confirmLink }/> : ''}
+
         <div className={className} onClick={this.focus}>
           <Editor
             editorState={editorState}
@@ -206,31 +319,29 @@ class StyleButton extends React.Component {
         title={this.props.label}
       >
         <Icon name={this.props.icon} />
-        <span className="sr-only">{this.props.label}</span>
+        <span className="hide">{this.props.label}</span>
       </Button>
     )
   }
 }
 
 class LinkButton extends React.Component {
-
   render(){
     let className = 'button-link RichEditor-styleButton'
 
     if (this.props.active) {
-      className += ' button-link-is-active';
-    } else{
-      className += ' button-link-is-inactive';
+      className += ' button-link-is-active'
     }
 
     return(
       <Button
         classList={className}
-        onMouseDown={this.props.action}
         title={this.props.label}
+        disabled={this.props.disabled}
+        onClick={this.props.action}
       >
         <Icon name={this.props.icon} />
-        <span className="sr-only">{this.props.label}</span>
+        <span className="hide">{this.props.label}</span>
       </Button>
     )
   }
@@ -252,15 +363,15 @@ function findLinkEntities(contentBlock, callback) {
 const Link = (props) => {
   const {url} = Entity.get(props.entityKey).getData();
   return (
-    <a href={url} style={styles.link}>
+    <a href={url} title={url}>
       {props.children}
     </a>
   );
 };
 
 const BLOCK_TYPES = [
-  {label: 'Unordered list', style: 'unordered-list-item', icon: 'list-ul'},
-  {label: 'Ordered list', style: 'ordered-list-item', icon: 'list-ol'}
+  {label: 'Järjestämätön lista', style: 'unordered-list-item', icon: 'list-ul'},
+  {label: 'Järjestetty lista', style: 'ordered-list-item', icon: 'list-ol'}
 ];
 
 const BlockStyleControls = (props) => {
@@ -288,9 +399,9 @@ const BlockStyleControls = (props) => {
 };
 
 const INLINE_STYLES = [
-  {label: 'Bold', style: 'BOLD', icon: 'bold'},
-  {label: 'Italic', style: 'ITALIC', icon: 'italic'},
-  {label: 'Underline', style: 'UNDERLINE', icon: 'underline'}
+  {label: 'Lihavoi', style: 'BOLD', icon: 'bold'},
+  {label: 'Kursivoi', style: 'ITALIC', icon: 'italic'},
+  {label: 'Alleviivaa', style: 'UNDERLINE', icon: 'underline'}
 ];
 
 const InlineStyleControls = (props) => {
@@ -311,13 +422,6 @@ const InlineStyleControls = (props) => {
   );
 };
 
-const styles = {
-  link: {
-    color: '#3b5998',
-    textDecoration: 'underline'
-  },
-};
-
 export class UrlInput extends React.Component{
   constructor(props){
     super();
@@ -330,20 +434,42 @@ export class UrlInput extends React.Component{
     this.setState({url: e.target.value})
   }
 
-  render(){
-    return(
-    <div>
-      <input
-        onChange={this.onURLChange}
-        ref="url"
-        autoFocus="autoFocus"
-        type="text"
-        value={this.state.url}
-        onKeyDown={this.onURLChange}
-      />
-      <button onMouseDown={() => this.confirmLink(this.state.url)}>
-        Confirm
-      </button>
-    </div>)
+  render() {
+    const {
+      selectedText,
+      selectedLinkText
+    } = this.props
+
+    return (
+      <div className="absolute top-0 right-0 bottom-0 left-0 z2 m2 bg-white">
+        <div className="field flex flex-wrap">
+          <div className="md-col-3 pr2">Linkin teksti</div>
+          <div className="md-col-8 muted">{selectedLinkText ? selectedLinkText : selectedText}</div>
+        </div>
+
+        <div className="input-group col-12">
+          <label className="hide" htmlFor="notification-url">Linkin osoite</label>
+
+          <input
+            ref="url"
+            className="input"
+            type="url"
+            name="notification-url"
+            autoFocus
+            autoCapitalize={false}
+            value={this.state.url}
+            placeholder="Linkin osoite"
+            onChange={this.onURLChange}
+          />
+          <Button
+            classList="button-primary input-group-button"
+            disabled={!this.state.url}
+            onClick={() => this.confirmLink(this.state.url, selectedText)}
+          >
+            Tallenna
+          </Button>
+        </div>
+      </div>
+    )
   }
 }
