@@ -3,9 +3,9 @@ import R from 'ramda'
 import { EditorState } from 'draft-js'
 
 import Dispatcher from './dispatcher'
-import { initController } from './controller'
+import {initController} from './controller'
+import {EditorState} from 'draft-js'
 import { validate, rules } from './validation'
-
 import * as testData from './resources/test/testData.json'
 
 const dispatcher = new Dispatcher()
@@ -40,8 +40,7 @@ const events = {
   toggleNotification: 'toggleNotification'
 }
 
-const notificationsUrl = 'http://localhost:9000/virkailijan-tyopoyta'
-
+const notificationsUrl = "/virkailijan-tyopoyta/api/releases";
 const controller = initController(dispatcher, events)
 
 export function getController () {
@@ -49,7 +48,7 @@ export function getController () {
 }
 
 function onReleasesReceived(state, response){
-  //console.log("received releases: "+JSON.stringify(response) );
+  console.log("received releases: "+JSON.stringify(response) );
 
   return R.assoc('releases', response, state)
 }
@@ -273,7 +272,59 @@ function updateTimeline (state, { id, prop, value }) {
 }
 
 function updateTimelineContent (state, { id, lang, prop, value }) {
-  return updateTimeline(state, { id, prop: ['content', lang, prop], value })
+  return updateTimeline(state, {id, prop: ['content', lang, prop], value})
+}
+
+function saveDocument (state) {
+  console.log("Saving document");
+  console.log(JSON.stringify(state.editor.document));
+
+  fetch(notificationsUrl, {
+    method: 'POST',
+    dataType: 'json',
+    headers: {
+      "Content-type": "application/json"
+    },
+    body: JSON.stringify(state.editor.document),
+  });
+
+  return state;
+}
+
+function emptyContent (id ,lang) {
+  return {
+    notificationId: id,
+    text: "",
+    title: "",
+    language: lang,
+  }
+}
+
+function emptyNotification () {
+  return{
+    id: -1,
+    releaseId: -1,
+    startDate: null,
+    initialStartDate: null,
+    endDate: null,
+    content: {
+      fi: emptyContent(-1, 'fi'),
+      sv: emptyContent(-1, 'sv')
+    },
+    tags: []
+  }
+}
+
+function emptyRelease () {
+  return {
+    id: -1,
+    sendEmail: false,
+    notification: emptyNotification(),
+    timeline: [newTimelineItem(-1, [])],
+    categories: [],
+    // Draft/unpublished/published
+    state: 'DRAFT'
+  }
 }
 
 // MENU
@@ -342,8 +393,7 @@ function toggleNotification (state, {id}) {
 }
 
 export function initAppState() {
-  // const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()));
-  const releasesS = Bacon.fromArray(testData.releases)
+  const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()));
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
 
@@ -355,12 +405,12 @@ export function initAppState() {
     currentPage: 1,
     nextPage: 2,
     categories: testData.categories,
-    releases: testData.releases,
+    releases: [],
     hasUnpublishedReleases: false,
-    notifications: testData.releases.map(r => r.notification),
-    notificationTags: testData.notificationTags,
+    notifications: [],
+    notificationTags: [],
     selectedNotificationTags: [],
-    timeline: R.chain(r => r.timeline, testData.releases),
+    timeline: [],
     expandedNotifications: [],
     activeFilter: '',
     menu: {
@@ -402,8 +452,8 @@ export function initAppState() {
     [dispatcher.stream(events.setSelectedNotificationTags)], setSelectedNotificationTags,
     [dispatcher.stream(events.toggleNotification)], toggleNotification,
 
-    //[releasesS], onReleasesReceived,
-    //[notificationsS], onNotificationsReceived,
-    //[timelineS], onTimelineReceived
+    [releasesS], onReleasesReceived,
+    [notificationsS], onNotificationsReceived,
+    [timelineS], onTimelineReceived
   )
 }

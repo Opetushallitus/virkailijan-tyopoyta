@@ -13,3 +13,7 @@ nb-configuration.xml
 **/nb-configuration.xml
 node_modules
 .idea
+src/main/resources/ui
+dependency-reduced-pom.xml
+.gradle
+build
