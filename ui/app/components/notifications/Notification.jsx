@@ -63,7 +63,7 @@ function Notification(props) {
       {isExpandable
         ?
         <Button
-          classList="button-link muted absolute top-0 right-0 z2"
+          classList="button-link absolute top-0 right-0 z2 gray-lighten-1"
           title={expandedNotification ? 'Näytä vain katkelma' : 'Näytä koko tiedote'}
           onClick={() => controller.toggleNotification(notification.id)}
         >
@@ -80,13 +80,13 @@ function Notification(props) {
 
       {/*Edit button*/}
       <EditButton
-        className="muted absolute bottom-0 right-0 z2"
+        className="absolute bottom-0 right-0 z2 gray-lighten-1"
         onClick={() => controller.toggleEditor(true, notification.releaseId)}
       />
 
       <div className={classList.join(' ')} onClick={() => controller.toggleNotification(notification.id)}>
         {/*Displayed title*/}
-        <h3 className="notification-heading h4 primary bold inline-block mb2" aria-hidden>
+        <h3 className="notification-heading h4 primary bold inline-block mb2 mr2" aria-hidden>
           {content.title}
         </h3>
 
@@ -106,7 +106,7 @@ function Notification(props) {
         </span>
 
         {/*Tags*/}
-        <span className="ml2">
+        <span className="mx2">
           {tags.filter(tag => { return notification.tags.indexOf(tag.id) >= 0 }).map(tag =>
             <Tag
               key={`notification.id.${tag.id}`}

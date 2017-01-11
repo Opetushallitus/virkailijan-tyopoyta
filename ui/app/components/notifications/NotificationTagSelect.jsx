@@ -20,8 +20,9 @@ function NotificationTagSelect (props) {
 
   return (
     <div>
-      <label className="hide" htmlFor="notification-tags">Hae tunnisteita</label>
+      <label className="hide" htmlFor="notification-tags-search">Hae tunnisteita</label>
       <Dropdown
+        className="semantic-ui notification-tag-select"
         name="notifications-tags"
         fluid
         multiple

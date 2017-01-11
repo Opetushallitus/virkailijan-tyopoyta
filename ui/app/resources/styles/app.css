@@ -1,15 +1,119 @@
-/* Project external dependencies */
+/* External components */
 @import "draft-js/dist/Draft.css";
 @import "react-datepicker";
 @import "semantic-ui-css/components/dropdown";
+@import "semantic-ui-css/components/transition";
+@import "font-awesome";
 
-/* Common styles */
+/* Common */
 @import "src/index.css";
+
+/* Basscss */
+@import "basscss";
+@import "basscss-responsive-type-scale";
+@import "basscss-responsive-typography";
+@import "basscss-responsive-margin";
+@import "basscss-responsive-padding";
+@import "basscss-responsive-layout";
 
 /* Project styles */
 @import "project.css";
 
+/* Variables */
+/* Naming: component-property-modifier */
+
 :root {
+  /* Typography */
+
+  --base-font-family: "Open Sans", "Helvetica", sans-sefif;
+  --base-font-size:   15px;
+
+  --font-weight-bold: 600;
+
+  /* Readable height of ~1.428 */
+  --base-line-height: calc(1 * (20/14));
+
+  /* Layout */
+
+  --container-width: 90rem;
+  --space-05:        .25rem;
+
+  /* Z-index */
+  --z1: 1;
+  --z2: 2;
+  --z3: 3;
+  --z4: 4;
+  --z5: 5;
+  --z6: 6;
+
+  /* Colors */
+
+  --black:          #2a2a2a;
+
+  --white:          #fdfdfd;
+
+  --gray:           #2b2b2b;
+  --gray-lighten-1: #666;
+  --gray-lighten-2: #9b9b9b;
+  --gray-lighten-3: #aeaeae;
+  --gray-lighten-4: #ccc;
+  --gray-lighten-5: #f6f4f0;
+
+  --red:            #e44e4e;
+  --red-lighten-1:  #e09191;
+  --red-lighten-2:  #ffe9e9;
+
+  --blue-darken:    #00526c;
+  --blue:           #0a789c;
+  --blue-lighten-1: #159ecb;
+  --blue-lighten-2: #00b5f0;
+  --blue-lighten-3: #a6dcee;
+  --blue-lighten-4: #def2ff;
+
+  --green:          #99d740;
+  --green-lighten:  #e6ffc1;
+
+  --yellow:         #ffd024;
+  --yellow-lighten: #fff7bc;
+
+  --primary:            var(--blue-lighten-1);
+  --muted:              var(--gray-lighten-2);
+  --body-copy-color:    var(--gray);
+  --link-color:         var(--blue-lighten-1);
+  --link-color-hover:   var(--blue-lighten-2);
+  --border-color:       var(--gray-lighten-3);
+  --border-color-hover: var(--gray-lighten-1);
+
+  --bg-color-warning:     var(--yellow-lighten);
+  --border-color-warning: var(--yellow);
+
+  /* Borders */
+
+  --border-radius:  2px;
+  --border-widen-1: 2px;
+
+  /* Miscellaneous */
+
+  --box-shadow:       0 1px 4px rgba(0, 0, 0, .2);
+  --box-shadow-inner: inset var(--box-shadow);
+
+  /* Modals */
+
+  --modal-width: calc(var(--container-width) / 2);
+
+  /* Forms */
+
+  --input-padding-x: var(--space-2);
+  --input-padding-y: var(--space-1);
+
+  /* Media queries */
+
+  @custom-media --breakpoint-sm (min-width: 40em);
+  @custom-media --breakpoint-md (min-width: 52em);
+  @custom-media --breakpoint-lg (min-width: 64em);
+
+  @custom-media --viewport-sm (max-width: 52em);
+
   /* Small and large viewports */
   @custom-media --sm-and-lg (--breakpoint-sm) and (max-width: 51.999em), (--breakpoint-lg);
 }

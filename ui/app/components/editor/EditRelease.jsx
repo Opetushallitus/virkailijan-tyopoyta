@@ -89,6 +89,11 @@ function LimitedTextField (props) {
   Updates endDate if startDate > endDate
 */
 const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) => {
+  if (date.isBefore(minDate)) {
+    console.log('is before mindate')
+  }
+
+
   const newDate = getDate(date, dateFormat)
 
   updateFunction('startDate', newDate)
@@ -136,8 +141,10 @@ const getNotificationMinDate = (initialDate, dateFormat) => {
   // Notification is published (has initialDate) = minDate is initialDate
   let minDate = moment(initialDate, dateFormat)
 
-  // Notification is a draft (no initialDate) = minDate is today
-  // Notification is unpublished (initialDate is after today) = minDate is today
+  /*
+    Notification is a draft (no initialDate) = minDate is today
+    Notification is unpublished (initialDate is after today) = minDate is today
+  */
   if (!initialDate || initialDate && moment(initialDate, dateFormat).isAfter(moment())) {
     minDate = moment()
   }
@@ -169,6 +176,8 @@ function DateField (props) {
     selectsEnd,
     startDate,
     endDate,
+    popoverAttachment,
+    popoverTargetAttachment,
     onChange
   } = props
 
@@ -189,15 +198,14 @@ function DateField (props) {
         locale="fi"
         onChange={date => onChange(date, minDate, dateFormat)}
         placeholderText="p.k.vvvv"
-        popoverAttachment="bottom center"
-        popoverTargetAttachment="top center"
         selected={date ? moment(date, dateFormat) : null}
         selectsStart={selectsStart ? true : false}
         selectsEnd={selectsEnd ? true : false}
         startDate={moment(startDate, dateFormat)}
         endDate={moment(endDate, dateFormat)}
         showMonthDropdown
-        showWeekNumbers
+        popoverAttachment={popoverAttachment}
+        popoverTargetAttachment={popoverTargetAttachment}
       />
     </Field>
   )
@@ -264,7 +272,6 @@ const getTimelineItems = (state, timeline) => {
   return R.filter(hasState, timeline)
 }
 
-
 function EditRelease (props) {
   const {
     controller,
@@ -281,11 +288,13 @@ function EditRelease (props) {
   const timeline = release.timeline
 
   // Set default release and notification validation states for unpublished/published releases
-  release.validationState = release.validationState || 'valid'
+  release.validationState = release.id > 0
+    ? release.validationState || 'complete'
+    : release.validationState
 
-  notification.validationState = notification
+  notification.validationState = notification.id > 0
     ? notification.validationState || 'complete'
-    : 'empty'
+    : notification.validationState
 
   return (
     <form noValidate onSubmit={(event) => handleSubmit(event, controller, isPreviewed)}>
@@ -419,7 +428,7 @@ function EditRelease (props) {
             <div className="md-flex flex-wrap col-12 sm-col-6 sm-pl2">
               {/*Publish date*/}
               <DateField
-                className="md-col-6 lg-col-4 md-pr2"
+                className="md-col-6 lg-col-5 md-pr2"
                 label="Julkaisupäivämäärä"
                 name="notification-start-date"
                 dateFormat={dateFormat}
@@ -435,7 +444,7 @@ function EditRelease (props) {
 
               {/*Expiry date*/}
               <DateField
-                className="md-col-6 lg-col-4 md-pl2"
+                className="md-col-6 lg-col-5 md-pl2"
                 label="Poistumispäivämäärä"
                 name="notification-end-date"
                 dateFormat={dateFormat}
@@ -444,6 +453,8 @@ function EditRelease (props) {
                 selectsEnd
                 startDate={notification.startDate}
                 endDate={notification.endDate}
+                popoverAttachment="top right"
+                popoverTargetAttachment="bottom right"
                 onChange={handleChangeEndDate.bind(this, notification, controller.updateNotification)}
               />
             </div>
@@ -454,8 +465,8 @@ function EditRelease (props) {
         <section className={`tab-pane ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
           <h3 className="hide">Muokkaa aikajanan tapahtumia</h3>
 
-          {timeline.map(item =>
-            <div key={item.id}>
+          {timeline.map((item, index) =>
+            <div key={item.id} className="timeline-item-form">
               {/*Info*/}
               <div className="flex flex-wrap">
                 <div className="col-12 sm-col-6 sm-pr2">
@@ -524,6 +535,7 @@ function EditRelease (props) {
           <div className="col-12 sm-col-6 sm-pl2">
             <Field name="release-usergroups" label="Julkaisun kohdekäyttäjäryhmät">
               <Dropdown
+                className="semantic-ui"
                 fluid
                 multiple
                 name="release-usergroups"
@@ -555,7 +567,7 @@ function EditRelease (props) {
             <div className="flex flex-wrap">
               {/*Notification*/}
               <div className="flex col-12 md-col-6 md-pr2 mb3 md-mb0">
-                <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-silver">
+                <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
                   <h3 className="h4">Tiedote</h3>
 
                   {
@@ -588,7 +600,7 @@ function EditRelease (props) {
 
               {/*Timeline*/}
               <div className="flex col-12 md-col-6 md-pl2">
-                <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-silver">
+                <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
                   <h3 className="h4">Aikajanan tapahtuma(t)</h3>
 
                   {getTimelineItems(['incomplete', 'complete'], timeline).length
@@ -611,17 +623,6 @@ function EditRelease (props) {
           </section>
         : null
       }
-
-      <div className="px3">
-        <p>notification content state: {notification.validationState}</p>
-        <p>
-          timeline items: {timeline.length},
-          complete: {getTimelineItems(['complete'], timeline).length},
-          incomplete: {getTimelineItems(['incomplete'], timeline).length},
-          empty: {getTimelineItems(['empty'], timeline).length}
-        </p>
-        <p>release: {release.validationState}</p>
-      </div>
 
       {/*Form actions*/}
       <div className="center pt3 px3">

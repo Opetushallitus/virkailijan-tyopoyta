@@ -73,12 +73,14 @@ class Notifications extends React.Component {
           controller={controller}
         />
 
-        <QuickTagSelect
-          locale={locale}
-          options={quickTags}
-          selectedOptions={selectedNotificationTags}
-          controller={controller}
-        />
+        <div className="notification-tag-select-container p2 border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right">
+          <QuickTagSelect
+            locale={locale}
+            options={quickTags}
+            selectedOptions={selectedNotificationTags}
+            controller={controller}
+          />
+        </div>
 
         {notifications.map(notification => <Notification
           key={notification.id}

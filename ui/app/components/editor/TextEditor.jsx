@@ -306,10 +306,10 @@ class StyleButton extends React.Component {
   }
 
   render() {
-    let className = 'button-link RichEditor-styleButton'
+    let className = 'button-link gray-lighten-1 RichEditor-styleButton'
 
     if (this.props.active) {
-      className += ' button-link-is-active'
+      className += ' blue-lighten-1'
     }
 
     return (

@@ -1,6 +1,8 @@
 /* Buttons */
 
 .button {
+  font-size: var(--base-font-size);
+  font-family: var(--base-font-family);
   line-height: 1.125rem;
   padding: var(--space-2);
   border: 1px solid transparent;
@@ -13,10 +15,12 @@
 .button:disabled:focus {
   border-color: var(--gray-lighten-3);
   background-color: var(--gray-lighten-3);
+  cursor: not-allowed;
 }
 
 .button:hover {
   text-decoration: none;
+  cursor: pointer;
 }
 
 .button:focus {
@@ -40,13 +44,13 @@
   background-color: var(--link-color-hover);
 }
 
+.button-link {
+  color: var(--link-color);
+}
+
 .button-link:hover,
 .button-link:focus {
   color: var(--link-color-hover);
-}
-
-.button-link-is-active {
-  color: var(--link-color);
 }
 
 .button-link:disabled,
