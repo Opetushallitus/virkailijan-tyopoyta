@@ -1,6 +1,5 @@
 import Bacon from 'baconjs'
 import R from 'ramda'
-import { EditorState } from 'draft-js'
 
 import Dispatcher from './dispatcher'
 import {initController} from './controller'
