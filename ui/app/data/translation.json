@@ -14,6 +14,11 @@
     "value": " Luo uusi sisältö"
   },
   {
+    "key": "rajaahakua",
+    "locale": "fi",
+    "value": "Rajaa hakua"
+  },
+  {
   "key": "julktiedotteet",
   "locale": "fi",
   "value": "Julkaisemattomat tiedotteet"
@@ -27,5 +32,310 @@
     "key": "loppuen",
     "locale": "fi",
     "value": "loppuen"
+  },
+  {
+    "key": "tapahtumat",
+    "locale": "fi",
+    "value": "Tapahtumat"
+  },
+  {
+    "key": "tiedotteet",
+    "locale": "fi",
+    "value": "Tiedotteet"
+  },
+  {
+    "key": "naytakatkelma",
+    "locale": "fi",
+    "value": "Näytä vain katkelma"
+  },
+  {
+    "key": "naytatiedote",
+    "locale": "fi",
+    "value": "Näytä koko tiedote"
+  },
+  {
+    "key": "hakusana",
+    "locale": "fi",
+    "value": "Hakusana"
+  },
+  {
+    "key": "eitunnisteita",
+    "locale": "fi",
+    "value": "Ei tunnisteita"
+  },
+  {
+    "key": "merkkiajaljella",
+    "locale": "fi",
+    "value": " merkkiä jäljellä"
+  },
+  {
+    "key": "luonnos",
+    "locale": "fi",
+    "value": "Luonnos"
+  },
+  {
+    "key": "julkaisematon",
+    "locale": "fi",
+    "value": "Julkaisematon"
+  },
+  {
+    "key": "julkaistu",
+    "locale": "fi",
+    "value": "Julkaistu"
+  },
+  {
+    "key": "eisisaltoa",
+    "locale": "fi",
+    "value": "Ei sisältöä"
+  },
+  {
+    "key": "kesken",
+    "locale": "fi",
+    "value": "Kesken"
+  },
+  {
+    "key": "valmis",
+    "locale": "fi",
+    "value": "Valmis"
+  },
+  {
+    "key": "muokkaatiedotteita",
+    "locale": "fi",
+    "value": "Muokkaa tiedotetta"
+  },
+  {
+    "key": "otsikko",
+    "locale": "fi",
+    "value": "Otsikko"
+  },
+  {
+    "key": "otsikkoSV",
+    "locale": "fi",
+    "value": "Otsikko ruotsiksi"
+  },
+  {
+    "key": "kuvaus",
+    "locale": "fi",
+    "value": "Kuvaus"
+  },
+  {
+    "key": "kuvausSV",
+    "locale": "fi",
+    "value": "Kuvaus ruotsiksi"
+  },
+  {
+    "key": "tiedotteenavainsanat",
+    "locale": "fi",
+    "value": "Tiedotteen avainsanat"
+  },
+  {
+    "key": "eiavainsanoja",
+    "locale": "fi",
+    "value": "Ei avainsanoja"
+  },
+  {
+    "key": "lisaaavainsanoja",
+    "locale": "fi",
+    "value": "Ei avainsanoja"
+  },
+  {
+    "key": "julkaisupvm",
+    "locale": "fi",
+    "value": "Julkaisupäivämäärä"
+  },
+  {
+    "key": "poistumispvm",
+    "locale": "fi",
+    "value": "Poistumispäivämäärä"
+  },
+  {
+    "key": "muokkaaaikajanantapahtumia",
+    "locale": "fi",
+    "value": "Muokkaa aikajanan tapahtumia"
+  },
+  {
+    "key": "aikajanateksti",
+    "locale": "fi",
+    "value": "Aikajanalla näytettävä teksti"
+  },
+  {
+    "key": "tekstiSV",
+    "locale": "fi",
+    "value": "Teksti ruotsiksi"
+  },
+  {
+    "key": "tapahtumapvmaikajanaavarten",
+    "locale": "fi",
+    "value": "Tapahtumapäivämäärä aikajanaa varten"
+  },
+  {
+    "key": "lisaauusitapahtuma",
+    "locale": "fi",
+    "value": "Tapahtumapäivämäärä aikajanaa varten"
+  },
+  {
+    "key": "julkkategoriaryhma",
+    "locale": "fi",
+    "value": "Julkaisun kategoria(t) ja kohdekäyttäjäryhmät"
+  },
+  {
+    "key": "julkkategoria",
+    "locale": "fi",
+    "value": "Julkaisun kategoria(t)"
+  },
+  {
+    "key": "julkryhma",
+    "locale": "fi",
+    "value": "Julkaisun kohdekäyttäjäryhmät"
+  },
+  {
+    "key": "eiryhma",
+    "locale": "fi",
+    "value": "Ei käyttäjäryhmiä"
+  },
+  {
+    "key": "lisaaryhma",
+    "locale": "fi",
+    "value": "Lisää käyttäjäryhmä"
+  },
+  {
+    "key": "lahetasahkoposti",
+    "locale": "fi",
+    "value": "Lähetä sähköposti valituille käyttäjäryhmille välittömästi"
+  },
+  {
+    "key": "oletjulkaisemassa",
+    "locale": "fi",
+    "value": "Olet julkaisemassa seuraavia sisältöjä"
+  },
+  {
+    "key": "tiedote",
+    "locale": "fi",
+    "value": "Tiedote"
+  },
+  {
+    "key": "eitiedote",
+    "locale": "fi",
+    "value": "Ei tiedotetta"
+  },
+  {
+    "key": "otsikko",
+    "locale": "fi",
+    "value": "Otsikko"
+  },
+  {
+    "key": "tyhja",
+    "locale": "fi",
+    "value": "Tyhjä"
+  },
+  {
+    "key": "aikajanatapahtuma",
+    "locale": "fi",
+    "value": "Aikajanan tapahtuma(t)"
+  },
+  {
+    "key": "eipvm",
+    "locale": "fi",
+    "value": "Ei päivämäärää"
+  },
+  {
+    "key": "aikajanatapahtumatjulk",
+    "locale": "fi",
+    "value": "Aikajanan tapahtumat julkaistaan heti."
+  },
+  {
+    "key": "eitapahtuma",
+    "locale": "fi",
+    "value": "Ei tapahtumia"
+  },
+  {
+    "key": "julkaise",
+    "locale": "fi",
+    "value": "Julkaise"
+  },
+  {
+    "key": "esikatselejulkaise",
+    "locale": "fi",
+    "value": "Esikatsele ja julkaise"
+  },
+  {
+    "key": "muokkaalinkki",
+    "locale": "fi",
+    "value": "Muokkaa linkkiä"
+  },
+  {
+    "key": "lisaalinkki",
+    "locale": "fi",
+    "value": "Lisää linkkiä"
+  },
+  {
+    "key": "poistalinkki",
+    "locale": "fi",
+    "value": "Lisää linkkiä"
+  },
+  {
+    "key": "linkkiteksti",
+    "locale": "fi",
+    "value": "Linkin teksti"
+  },
+  {
+    "key": "linkkiosoite",
+    "locale": "fi",
+    "value": "Linkin osoite"
+  },
+  {
+    "key": "peruuta",
+    "locale": "fi",
+    "value": "Peruuta"
+  },
+  {
+    "key": "tallenna",
+    "locale": "fi",
+    "value": "Tallenna"
+  },
+  {
+    "key": "järjestamatonlista",
+    "locale": "fi",
+    "value": "Järjestämätön lista"
+  },
+  {
+    "key": "jarjestettylista",
+    "locale": "fi",
+    "value": "Järjestetty lista"
+  },
+  {
+    "key": "lihavoi",
+    "locale": "fi",
+    "value": "Lihavoi"
+  },
+  {
+    "key": "kursivoi",
+    "locale": "fi",
+    "value": "Kursivoi"
+  },
+  {
+    "key": "alleviivaa",
+    "locale": "fi",
+    "value": "Alleviivaa"
+  },
+  {
+    "key": "muokkaa",
+    "locale": "fi",
+    "value": "Muokkaa"
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ]

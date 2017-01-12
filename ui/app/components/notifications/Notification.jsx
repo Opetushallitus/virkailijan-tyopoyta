@@ -7,6 +7,7 @@ import Tag from '../Tag'
 import Icon from '../Icon'
 import Button from '../Button'
 import EditButton from '../EditButton'
+import Translation from '../Translations'
 
 const truncate = len => R.when(
   R.propSatisfies(R.gt(R.__, len), 'length'),
@@ -64,14 +65,14 @@ function Notification(props) {
         ?
         <Button
           classList="button-link muted absolute top-0 right-0 z2"
-          title={expandedNotification ? 'Näytä vain katkelma' : 'Näytä koko tiedote'}
+          title={expandedNotification ? <Translation trans="naytakatkelma"/> : <Translation trans="naytatiedote"/>}
           onClick={() => controller.toggleNotification(notification.id)}
         >
           <Icon name={expandedNotification ? 'chevron-up' : 'chevron-down'} />
           <span className="hide">
               { expandedNotification
-                ? 'Näytä vain katkelma'
-                : 'Näytä koko tiedote'
+                ? <Translation trans="naytakatkelma"/>
+                : <Translation trans="naytatiedote"/>
               }
             </span>
         </Button>

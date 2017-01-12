@@ -1,4 +1,5 @@
 import React from 'react'
+import Translation from '../Translations'
 
 function TimePeriod (props) {
   return (
@@ -9,7 +10,7 @@ function TimePeriod (props) {
         {/*Start date*/}
         <div className="md-inline-block col-6 sm-col-4 md-col-3 lg-col-5 pr1">
           <label className="hide" htmlFor="startDate"><Translation trans="alkaen"/></label>
-          <input className="input" name="startDate" type="text" placeholder="Alkaen" />
+          <input className="input" name="startDate" type="text" placeholder={<Translation trans="alkaen"/>} />
         </div>
 
         <span className="muted" aria-hidden>–</span>
@@ -17,7 +18,7 @@ function TimePeriod (props) {
         {/*End date*/}
         <div className="md-inline-block col-6 sm-col-4 md-col-3 lg-col-5 pl1">
           <label className="hide" htmlFor="endDate"><Translation trans="loppuen"/></label>
-          <input className="input" name="endDate" type="text" placeholder="Loppuen" />
+          <input className="input" name="endDate" type="text" placeholder={<Translation trans="loppuen"/>} />
         </div>
       </div>
     </div>
