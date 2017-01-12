@@ -1,7 +1,7 @@
 import React from 'react'
 import { Dropdown } from 'semantic-ui-react'
 import mapDropdownOptions from '../utils/mapDropdownOptions'
-import Translation from '../Translations'
+import {translate} from '../Translations'
 
 const handleOnChange = (controller, event, { value }) => {
   controller.setSelectedNotificationTags(value)
@@ -27,11 +27,11 @@ function NotificationTagSelect (props) {
         name="notifications-tags"
         fluid
         multiple
-        noResultsMessage={<Translation trans="eitunnisteita"/>}
+        noResultsMessage={translate("eitunnisteita")}
         onChange={handleOnChange.bind(null, controller)}
         onLabelClick={handleOnLabelClick.bind(null, controller)}
         options={mapDropdownOptions(options, locale)}
-        placeholder={<Translation trans="hakusana"/>}
+        placeholder={translate("hakusana")}
         search
         selection
         scrolling
