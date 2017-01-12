@@ -53,7 +53,7 @@ function Menu (props) {
           classList="button-link h3 bold px0"
           onClick={() => controller.toggleEditor(true)}
         >
-          <Icon classList="mr0" name="plus" />
+          +
           <Translation trans="lisaauusi"/>
         </Button>
 

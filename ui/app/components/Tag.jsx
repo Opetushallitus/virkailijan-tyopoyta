@@ -4,7 +4,7 @@ const classList = [
   "h6",
   "caps",
   "inline-block",
-  "mr2",
+  "mr1",
   "mb1",
   "px1",
   "rounded",

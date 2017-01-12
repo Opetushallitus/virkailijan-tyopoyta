@@ -15,7 +15,7 @@ function MobileMenu (props) {
   return (
     <div className="md-hide lg-hide flex justify-center col-12">
       <Button
-        classList={`button-link h5 caps ${isVisible ? 'primary' : 'muted'}`}
+        classList={`button-link h5 caps ${isVisible ? 'primary' : 'gray'}`}
         onClick={() => controller.toggleMenu(!isVisible)}
       >
         <Icon classList="mr1" name="sliders" />
@@ -23,7 +23,7 @@ function MobileMenu (props) {
       </Button>
 
       <Button
-        classList="button-link h5 caps muted"
+        classList="button-link h5 caps gray"
         onClick={() => controller.toggleEditor(true)}
       >
         <Icon classList="mr1" name="plus" />
@@ -33,7 +33,7 @@ function MobileMenu (props) {
       {
         hasUnpublishedReleases
           ?
-            <Button classList="button-link h5 caps muted">
+            <Button classList="button-link h5 caps gray">
               <Icon classList="mr1" name="files-o" />
               <Translation trans="julktiedotteet"/>
             </Button>

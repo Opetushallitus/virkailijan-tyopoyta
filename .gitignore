@@ -17,3 +17,4 @@ src/main/resources/ui
 dependency-reduced-pom.xml
 .gradle
 build
+**/.DS_Store

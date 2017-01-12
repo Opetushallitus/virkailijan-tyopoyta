@@ -33,7 +33,7 @@ const renderQuickTag = (option, locale, selectedOptions, controller) => {
 
 function QuickTagSelect (props) {
   return (
-    <div className="p2 border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right">
+    <div>
       <div className="mb1 md-mb0 md-mr2 md-inline-block">Pikavalinta</div>
 
       {props.options.map(option => {

@@ -2,7 +2,7 @@ import Bacon from 'baconjs'
 import R from 'ramda'
 
 import Dispatcher from './dispatcher'
-import {initController} from './controller'
+import { initController } from './controller'
 import { validate, rules } from './validation'
 import * as testData from './resources/test/testData.json'
 
@@ -273,17 +273,24 @@ function updateTimelineContent (state, { id, lang, prop, value }) {
   return updateTimeline(state, {id, prop: ['content', lang, prop], value})
 }
 
+function removeDocumentProperties (key, value) {
+  if (key === 'validationState') {
+    return undefined
+  }
+
+  return value
+}
+
 function saveDocument (state) {
-  console.log("Saving document");
-  console.log(JSON.stringify(state.editor.document));
+  console.log('Saving document')
 
   fetch(notificationsUrl, {
     method: 'POST',
     dataType: 'json',
     headers: {
-      "Content-type": "application/json"
+      'Content-type': 'application/json'
     },
-    body: JSON.stringify(state.editor.document),
+    body: JSON.stringify(state.editor.document, state.editor.onSave)
   });
 
   return state;
@@ -309,7 +316,8 @@ function emptyNotification () {
       fi: emptyContent(-1, 'fi'),
       sv: emptyContent(-1, 'sv')
     },
-    tags: []
+    tags: [],
+    validationState: 'empty'
   }
 }
 
@@ -320,8 +328,7 @@ function emptyRelease () {
     notification: emptyNotification(),
     timeline: [newTimelineItem(-1, [])],
     categories: [],
-    // Draft/unpublished/published
-    state: 'DRAFT'
+    validationState: 'empty'
   }
 }
 
@@ -392,6 +399,7 @@ function toggleNotification (state, {id}) {
 
 export function initAppState() {
   const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()));
+  //const releasesS = testData.releases
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
 
@@ -403,10 +411,10 @@ export function initAppState() {
     currentPage: 1,
     nextPage: 2,
     categories: testData.categories,
-    releases: [],
+    releases: releasesS,
     hasUnpublishedReleases: false,
-    notifications: [],
-    notificationTags: [],
+    notifications: notificationsS,
+    notificationTags: testData.notificationTags,
     selectedNotificationTags: [],
     timeline: [],
     expandedNotifications: [],
@@ -418,7 +426,8 @@ export function initAppState() {
       isVisible: false,
       isPreviewed: false,
       document: emptyRelease(),
-      selectedTab: 'edit-notification'
+      selectedTab: 'edit-notification',
+      onSave: removeDocumentProperties
     }
   }
 
