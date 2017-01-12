@@ -16,8 +16,8 @@ export default class TextEditor extends React.Component {
     const decorator = new CompositeDecorator([
       {
         strategy: findLinkEntities,
-        component: Link,
-      },
+        component: Link
+      }
     ])
 
     this.state = {
@@ -47,10 +47,10 @@ export default class TextEditor extends React.Component {
   _save() {
     const content = this.state.editorState.getCurrentContent()
 
-    // Only save HTML if the content contains more than line breaks or empty spaces
-    const plainText = content.getPlainText().trim()
+    const plainText = content.getPlainText()
 
-    if (plainText.length === 0) {
+    // Only save HTML if the content contains more than line breaks or empty spaces
+    if (plainText.trim().length === 0) {
       this.props.save('')
     }
     else {
@@ -62,8 +62,6 @@ export default class TextEditor extends React.Component {
           return originalText
         }
       })(content)
-
-      console.log(html)
 
       this.props.save(html)
     }
@@ -129,10 +127,12 @@ export default class TextEditor extends React.Component {
   }
 
   _confirmLink(url, text) {
-    console.log("Confirming link", url, text);
+    console.log('Confirming link', url, text)
 
-    // e.preventDefault();
-    const {editorState, urlValue} = this.state;
+    const {
+      editorState,
+      urlValue
+    } = this.state
 
     const previousLink = getEntityAtCursor(editorState)
     let selection = editorState.getSelection()
@@ -147,7 +147,7 @@ export default class TextEditor extends React.Component {
       })
     }
 
-    const entityKey = Entity.create('LINK', 'MUTABLE', {url: url, text: text});
+    const entityKey = Entity.create('LINK', 'MUTABLE', { url: url, text: text })
 
     this.setState({
       editorState: RichUtils.toggleLink(
@@ -158,8 +158,8 @@ export default class TextEditor extends React.Component {
       showURLInput: false,
       urlValue: '',
     }, () => {
-      setTimeout(() => this.refs.editor.focus(), 0);
-    });
+      setTimeout(() => this.refs.editor.focus(), 0)
+    })
   }
 
   _removeLink(e) {
@@ -182,12 +182,6 @@ export default class TextEditor extends React.Component {
     });
   }
 
-  _onLinkInputKeyDown(e) {
-    if (e.which === 13) {
-      this._confirmLink(e)
-    }
-  }
-
   _getSelectedText (selection, content) {
     const start = selection.getStartOffset()
     const end = selection.getEndOffset()
@@ -203,14 +197,16 @@ export default class TextEditor extends React.Component {
   }
 
   _getEntityAtCursor(editorState) {
-    // let {editorState} = this.props;
-    console.log("getentityatcursor");
     let entity = getEntityAtCursor(editorState);
     return (entity == null) ? null : Entity.get(entity.entityKey);
   }
 
   render() {
-    const {editorState} = this.state;
+    const {
+      controls
+    } = this.props
+
+    const { editorState } = this.state;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -226,17 +222,19 @@ export default class TextEditor extends React.Component {
     let entity = this._getEntityAtCursor(editorState);
     let isCursorOnLink = (entity != null && entity.type == 'LINK');
 
-    const selectedText = this.getSelectedText(editorState.getSelection(), contentState)
-    const hasSelectedText = this.getSelectedText(editorState.getSelection(), contentState).length
+    const selectedText = this.getSelectedText(selection, contentState)
+    const hasSelectedText = this.getSelectedText(selection, contentState).length
 
     return (
-      <div className='RichEditor-root'>
+      <div className={`RichEditor-root ${this.state.showURLInput ? 'editor-has-link-form' : ''}`}>
         <div className="RichEditor-controls-container">
           <InlineStyleControls
+            controls={controls}
             editorState={editorState}
             onToggle={this.toggleInlineStyle}
           />
           <BlockStyleControls
+            controls={controls}
             editorState={editorState}
             onToggle={this.toggleBlockType}
           />
@@ -260,7 +258,7 @@ export default class TextEditor extends React.Component {
 
           {/*Cancel add link*/}
           <Button
-            classList={`button-link h1 absolute top-0 right-0 z3 ${this.state.showURLInput ? '' : 'display-none'}`}
+            classList={`button-link h1 absolute top-0 right-0 z3 gray-lighten-1 ${this.state.showURLInput ? '' : 'display-none'}`}
             onClick={this.promptForLink}
             title="Peruuta"
           >
@@ -296,6 +294,10 @@ export default class TextEditor extends React.Component {
   }
 }
 
+TextEditor.defaultProps = {
+  controls: []
+}
+
 class StyleButton extends React.Component {
   constructor() {
     super();
@@ -327,7 +329,7 @@ class StyleButton extends React.Component {
 
 class LinkButton extends React.Component {
   render(){
-    let className = 'button-link RichEditor-styleButton'
+    let className = 'button-link gray-lighten-1 RichEditor-styleButton'
 
     if (this.props.active) {
       className += ' button-link-is-active'
@@ -375,16 +377,23 @@ const BLOCK_TYPES = [
 ];
 
 const BlockStyleControls = (props) => {
-  const {editorState} = props;
+  const {
+    editorState,
+    controls
+  } = props
+
   const selection = editorState.getSelection();
   const blockType = editorState
     .getCurrentContent()
     .getBlockForKey(selection.getStartKey())
     .getType();
 
+  // Get types from BLOCK_TYPES whose style is defined in props.controls
+  const types = R.filter(type => R.contains(type.style, controls), BLOCK_TYPES)
+
   return (
     <span className="RichEditor-controls">
-      {BLOCK_TYPES.map((type) =>
+      {types.map((type) =>
         <StyleButton
           key={type.label}
           active={type.style === blockType}
@@ -406,9 +415,13 @@ const INLINE_STYLES = [
 
 const InlineStyleControls = (props) => {
   const currentStyle = props.editorState.getCurrentInlineStyle();
+
+  // Get styles from INLINE_STYLES whose style is defined in props.controls
+  const styles = R.filter(type => R.contains(type.style, props.controls), INLINE_STYLES)
+
   return (
     <span className="RichEditor-controls">
-      {INLINE_STYLES.map(type =>
+      {styles.map(type =>
         <StyleButton
           key={type.label}
           active={currentStyle.has(type.style)}
@@ -427,7 +440,21 @@ export class UrlInput extends React.Component{
     super();
     this.state = {url: props.url};
     this.onURLChange = this._onURLChange.bind(this);
+    this.onLinkInputKeyDown = this._onLinkInputKeyDown.bind(this)
     this.confirmLink = props.confirmLink;
+  }
+
+  _onLinkInputKeyDown(options) {
+    const {
+      event,
+      text,
+      url,
+      callback
+    } = options
+
+    if (event.which === 13) {
+      callback(url, text)
+    }
   }
 
   _onURLChange(e){
@@ -442,13 +469,13 @@ export class UrlInput extends React.Component{
 
     return (
       <div className="absolute top-0 right-0 bottom-0 left-0 z2 m2 bg-white">
-        <div className="field flex flex-wrap">
-          <div className="md-col-3 pr2">Linkin teksti</div>
-          <div className="md-col-8 muted">{selectedLinkText ? selectedLinkText : selectedText}</div>
+        <div className="field">
+          <div className="mb1">Linkin teksti</div>
+          <div className="muted">{selectedLinkText ? selectedLinkText : selectedText}</div>
         </div>
 
-        <div className="input-group col-12">
-          <label className="hide" htmlFor="notification-url">Linkin osoite</label>
+        <div className="field">
+          <label className="inline-block mb1" htmlFor="notification-url">Linkin osoite</label>
 
           <input
             ref="url"
@@ -458,17 +485,23 @@ export class UrlInput extends React.Component{
             autoFocus
             autoCapitalize={false}
             value={this.state.url}
-            placeholder="Linkin osoite"
             onChange={this.onURLChange}
+            onKeyDown={(event) => this.onLinkInputKeyDown({
+              event,
+              url: this.state.url,
+              text: selectedText,
+              callback: this.confirmLink
+            })}
           />
-          <Button
-            classList="button-primary input-group-button"
-            disabled={!this.state.url}
-            onClick={() => this.confirmLink(this.state.url, selectedText)}
-          >
-            Tallenna
-          </Button>
         </div>
+
+        <Button
+          classList="button-primary"
+          disabled={!this.state.url}
+          onClick={() => this.confirmLink(this.state.url, selectedText)}
+        >
+          Tallenna
+        </Button>
       </div>
     )
   }

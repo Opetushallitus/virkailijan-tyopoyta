@@ -12,6 +12,7 @@ import Field from '../Field'
 import Fieldset from '../Fieldset'
 import Checkbox from '../Checkbox'
 import Button from '../Button'
+import Icon from '../Icon'
 
 const handleOnChange = (controller, event, { value }) => {
   controller.updateNotificationTags(value);
@@ -89,12 +90,7 @@ function LimitedTextField (props) {
   Updates endDate if startDate > endDate
 */
 const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) => {
-  if (date.isBefore(minDate)) {
-    console.log('is before mindate')
-  }
-
-
-  const newDate = getDate(date, dateFormat)
+  const newDate = getFormattedDate({ date, minDate, dateFormat })
 
   updateFunction('startDate', newDate)
 
@@ -109,7 +105,7 @@ const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) 
   Updates startDate if endDate < startDate
 */
 const handleChangeEndDate = (item, updateFunction, date, minDate, dateFormat) => {
-  const newDate = getDate(date, dateFormat)
+  const newDate = getFormattedDate({ date, minDate, dateFormat })
 
   updateFunction('endDate', newDate)
 
@@ -132,7 +128,7 @@ const handleChangeEndDate = (item, updateFunction, date, minDate, dateFormat) =>
 }
 
 const handleChangeTimelineItemDate = (id, updateFunction, dateFormat, date) => {
-  const newDate = getDate(date, dateFormat)
+  const newDate = getFormattedDate({ date, dateFormat })
 
   updateFunction(id, 'date', newDate)
 }
@@ -153,11 +149,25 @@ const getNotificationMinDate = (initialDate, dateFormat) => {
 }
 
 // Returns formatted date or null
-const getDate = (date, dateFormat) => {
-  return date ? date.format(dateFormat) : null
+const getFormattedDate = options => {
+  const {
+    date,
+    minDate,
+    dateFormat,
+  } = options
+
+  if (date) {
+    // React DatePicker allows selecting invalid dates (before minDate) with keyboard, force minDate to prevent it
+    return minDate && date.isBefore(minDate)
+      ? minDate.format(dateFormat)
+      : date.format(dateFormat)
+  }
+  else {
+    return null
+  }
 }
 
-// Returns minDate + 2 hours for first days of months, otherwise the previous days are also selectable
+// Returns minDate + 2 hours for first days of months, otherwise the previous months' last days are also selectable
 const getMinDate = (date, dateFormat) => {
   return moment(date, dateFormat).add(2, 'hours')
 }
@@ -381,6 +391,7 @@ function EditRelease (props) {
               >
                 <TextEditor
                   data={notification.content.fi.text}
+                  controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
                   save={controller.updateNotificationContent('fi', 'text')}
                 />
               </Field>
@@ -393,6 +404,7 @@ function EditRelease (props) {
               >
                 <TextEditor
                   data={notification.content.sv.text}
+                  controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
                   save={controller.updateNotificationContent('sv', 'text')}
                 />
               </Field>
@@ -470,39 +482,61 @@ function EditRelease (props) {
               {/*Info*/}
               <div className="flex flex-wrap">
                 <div className="col-12 sm-col-6 sm-pr2">
-                  <LimitedTextarea
+                  <Field
                     label="Aikajanalla näytettävä teksti"
                     name={`timeline-item-${item.id}-text-fi`}
-                    value={item.content.fi.text}
-                    rows="4"
-                    maxLength={200}
                     isRequired
-                    onChange={controller.updateTimelineContent(item.id, 'fi', 'text')}
-                  />
+                  >
+                    <TextEditor
+                      data={item.content.fi.text}
+                      save={controller.updateTimelineContent(item.id, 'fi', 'text')}
+                    />
+                  </Field>
                 </div>
 
                 <div className="col-12 sm-col-6 sm-pl2">
-                  <LimitedTextarea
+                  <Field
                     label="Teksti ruotsiksi"
                     name={`timeline-item-${item.id}-text-sv`}
-                    value={item.content.sv.text}
-                    rows="4"
-                    maxLength={200}
-                    onChange={controller.updateTimelineContent(item.id, 'sv', 'text')}
-                  />
+                    isRequired
+                  >
+                    <TextEditor
+                      data={item.content.fi.text}
+                      save={controller.updateTimelineContent(item.id, 'sv', 'text')}
+                    />
+                  </Field>
                 </div>
               </div>
 
-              {/*Date*/}
-              <DateField
-                className="sm-col-6 lg-col-3 sm-pr2"
-                label="Tapahtumapäivämäärä aikajanaa varten"
-                name={`timeline-item-${item.id}-date`}
-                dateFormat={dateFormat}
-                date={item.date}
-                isRequired
-                onChange={handleChangeTimelineItemDate.bind(this, item.id, controller.updateTimeline, dateFormat)}
-              />
+              <div className="flex flex-wrap mb1">
+                {/*Date*/}
+                <DateField
+                  className="col-10 sm-col-6 lg-col-3 sm-pr2 mb0"
+                  label="Tapahtumapäivämäärä aikajanaa varten"
+                  name={`timeline-item-${item.id}-date`}
+                  dateFormat={dateFormat}
+                  date={item.date}
+                  isRequired
+                  onChange={handleChangeTimelineItemDate.bind(this, item.id, controller.updateTimeline, dateFormat)}
+                />
+
+                {/*Remove event*/}
+                {
+                  item.initialDate
+                    ? null
+                    :
+                      <div className="flex-auto flex items-end justify-end">
+                        <Button
+                          classList="button-link h3 pt3 pr0 pb0 pl3 gray-lighten-1"
+                          title="Poista tapahtuma"
+                          onClick={() => controller.removeTimelineItem(item.id)}
+                        >
+                          <Icon name="trash" />
+                          <span className="hide">Poista tapahtuma</span>
+                        </Button>
+                      </div>
+                }
+              </div>
             </div>
           )}
 
@@ -609,7 +643,7 @@ function EditRelease (props) {
                         {getTimelineItems(['incomplete', 'complete'], timeline).map((item) =>
                           <div key={item.id} className="mb2">
                             <span className="italic">{item.date ? item.date : 'Ei päivämäärää'}: </span>
-                            {item.content[locale].text || 'Tyhjä'}
+                            {renderHTML(item.content[locale].text) || 'Tyhjä'}
                           </div>
                         )}
 
