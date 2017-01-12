@@ -271,7 +271,7 @@
   {
     "key": "poistalinkki",
     "locale": "fi",
-    "value": "Lisää linkkiä"
+    "value": "Poista linkki"
   },
   {
     "key": "linkkiteksti",
@@ -322,6 +322,11 @@
     "key": "muokkaa",
     "locale": "fi",
     "value": "Muokkaa"
+  },
+  {
+    "key": "aikajana",
+    "locale": "fi",
+    "value": "Aikajana"
   }
 
 

@@ -8,7 +8,7 @@ import { getEntityAtCursor } from './getEntityAtCursor';
 // Components
 import Button from '../Button'
 import Icon from '../Icon'
-import Translation from '../Translations'
+import Translation,{translate} from '../Translations'
 
 export default class TextEditor extends React.Component {
   constructor(props) {
@@ -230,6 +230,59 @@ export default class TextEditor extends React.Component {
     const selectedText = this.getSelectedText(editorState.getSelection(), contentState)
     const hasSelectedText = this.getSelectedText(editorState.getSelection(), contentState).length
 
+    const INLINE_STYLES = [
+      {label: translate("lihavoi"), style: 'BOLD', icon: 'bold'},
+      {label: translate("kursivoi"), style: 'ITALIC', icon: 'italic'},
+      {label: translate("alleviivaa"), style: 'UNDERLINE', icon: 'underline'}
+    ];
+
+    const InlineStyleControls = (props) => {
+      const currentStyle = props.editorState.getCurrentInlineStyle();
+      return (
+          <span className="RichEditor-controls">
+      {INLINE_STYLES.map(type =>
+          <StyleButton
+              key={type.label}
+              active={currentStyle.has(type.style)}
+              label={type.label}
+              onToggle={props.onToggle}
+              style={type.style}
+              icon={type.icon}
+          />
+      )}
+    </span>
+      );
+    };
+
+    const BLOCK_TYPES = [
+      {label: translate("järjestamatonlista"), style: 'unordered-list-item', icon: 'list-ul'},
+      {label: translate("jarjestettylista"), style: 'ordered-list-item', icon: 'list-ol'}
+    ];
+
+    const BlockStyleControls = (props) => {
+      const {editorState} = props;
+      const selection = editorState.getSelection();
+      const blockType = editorState
+          .getCurrentContent()
+          .getBlockForKey(selection.getStartKey())
+          .getType();
+
+      return (
+          <span className="RichEditor-controls">
+      {BLOCK_TYPES.map((type) =>
+          <StyleButton
+              key={type.label}
+              active={type.style === blockType}
+              label={type.label}
+              onToggle={props.onToggle}
+              style={type.style}
+              icon={type.icon}
+          />
+      )}
+    </span>
+      );
+    };
+
     return (
       <div className='RichEditor-root'>
         <div className="RichEditor-controls-container">
@@ -243,8 +296,8 @@ export default class TextEditor extends React.Component {
           />
 
           <LinkButton
-            label={isCursorOnLink ? <Translation trans="muokkaalinkki"/> : <Translation trans="lisaalinkki"/>}
-            icon="link"
+            label={isCursorOnLink ? translate("muokkaalinkki") : translate("lisaalinkki")}
+          icon="link"
             active={this.state.showURLInput}
             disabled={!isCursorOnLink && !hasSelectedText}
             action={this.promptForLink}
@@ -253,7 +306,7 @@ export default class TextEditor extends React.Component {
           <LinkButton
             action={this.removeLink}
             icon="unlink"
-            label={<Translation trans="poistalinkki"/>}
+            label={translate("poistalinkki")}
             disabled={!isCursorOnLink}
           />
 
@@ -370,59 +423,6 @@ const Link = (props) => {
   );
 };
 
-const BLOCK_TYPES = [
-  {label: <Translation trans="järjestamatonlista"/>, style: 'unordered-list-item', icon: 'list-ul'},
-  {label: <Translation trans="jarjestettylista"/>, style: 'ordered-list-item', icon: 'list-ol'}
-];
-
-const BlockStyleControls = (props) => {
-  const {editorState} = props;
-  const selection = editorState.getSelection();
-  const blockType = editorState
-    .getCurrentContent()
-    .getBlockForKey(selection.getStartKey())
-    .getType();
-
-  return (
-    <span className="RichEditor-controls">
-      {BLOCK_TYPES.map((type) =>
-        <StyleButton
-          key={type.label}
-          active={type.style === blockType}
-          label={type.label}
-          onToggle={props.onToggle}
-          style={type.style}
-          icon={type.icon}
-        />
-      )}
-    </span>
-  );
-};
-
-const INLINE_STYLES = [
-  {label: <Translation trans="lihavoi"/>, style: 'BOLD', icon: 'bold'},
-  {label: <Translation trans="kursivoi"/>, style: 'ITALIC', icon: 'italic'},
-  {label: <Translation trans="alleviivaa"/>, style: 'UNDERLINE', icon: 'underline'}
-];
-
-const InlineStyleControls = (props) => {
-  const currentStyle = props.editorState.getCurrentInlineStyle();
-  return (
-    <span className="RichEditor-controls">
-      {INLINE_STYLES.map(type =>
-        <StyleButton
-          key={type.label}
-          active={currentStyle.has(type.style)}
-          label={type.label}
-          onToggle={props.onToggle}
-          style={type.style}
-          icon={type.icon}
-        />
-      )}
-    </span>
-  );
-};
-
 export class UrlInput extends React.Component{
   constructor(props){
     super();
@@ -459,7 +459,7 @@ export class UrlInput extends React.Component{
             autoFocus
             autoCapitalize={false}
             value={this.state.url}
-            placeholder={<Translation trans="linkkiosoite"/>}
+            placeholder={translate("linkkiosoite")}
             onChange={this.onURLChange}
           />
           <Button

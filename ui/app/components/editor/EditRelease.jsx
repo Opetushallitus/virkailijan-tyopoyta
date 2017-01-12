@@ -12,7 +12,7 @@ import Field from '../Field'
 import Fieldset from '../Fieldset'
 import Checkbox from '../Checkbox'
 import Button from '../Button'
-import Translation from '../Translations'
+import Translation,{translate} from '../Translations'
 
 const handleOnChange = (controller, event, { value }) => {
   controller.updateNotificationTags(value);
@@ -276,19 +276,19 @@ function EditRelease (props) {
     release,
     notificationTags,
     categories
-  } = props
+  } = props;
 
-  const notification = release.notification
-  const timeline = release.timeline
+  const notification = release.notification;
+  const timeline = release.timeline;
 
   // Set default release and notification validation states for unpublished/published releases
-  release.validationState = release.validationState || 'valid'
+  release.validationState = release.validationState || 'valid';
 
   notification.validationState = notification
     ? notification.validationState || 'complete'
-    : 'empty'
+    : 'empty';
 
-  )
+
 return (
     <form noValidate onSubmit={(event) => handleSubmit(event, controller, isPreviewed)}>
       <h2 className="hide"><Translation trans="lisaauusi"/></h2>
@@ -301,7 +301,7 @@ return (
               onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-notification')}
               href="#notification"
           >
-            Tiedote
+            <Translation trans="tiedote"/>
             <span className="lowercase">
               &nbsp;({getNotificationValidationStateString(notification.validationState)})
             </span>
@@ -311,7 +311,7 @@ return (
               onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-timeline')}
               href="#timeline"
           >
-            Aikajana
+            <Translation trans="aikajana"/>
             <span className="lowercase">
               &nbsp;({
               getTimelineItems(['complete'], timeline).length
@@ -341,18 +341,18 @@ return (
           <div className="flex flex-wrap">
             <div className="col-12 sm-col-6 sm-pr2">
               <LimitedTextField
-                  label=<Translation trans="otsikko"/>
-              name="notification-title-fi"
-              value={notification.content.fi.title}
-              maxLength={200}
-              isRequired
-              onChange={controller.updateNotificationContent('fi', 'title')}
+                  label={<Translation trans="otsikko"/>}
+                  name="notification-title-fi"
+                  value={notification.content.fi.title}
+                  maxLength={200}
+                  isRequired
+                  onChange={controller.updateNotificationContent('fi', 'title')}
               />
             </div>
 
             <div className="col-12 sm-col-6 sm-pl2">
               <LimitedTextField
-                  label=<Translation trans="otsikkoSV"/>
+                  label={<Translation trans="otsikkoSV"/>}
               name="notification-title-sv"
               value={notification.content.sv.title}
               maxLength={200}
@@ -636,10 +636,11 @@ return (
               || notification.validationState === 'incomplete'
               || getTimelineItems(['incomplete'], timeline).length
             }
-            value={isPreviewed ? <Translation trans="julkaise"/> : <Translation trans="esikatselejulkaise"/>}
+            value={isPreviewed ? translate("julkaise") : translate("esikatselejulkaise")}
         />
       </div>
     </form>
+)
 }
 
 export default EditRelease
