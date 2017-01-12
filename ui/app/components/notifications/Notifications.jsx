@@ -5,6 +5,7 @@ import Bacon from 'baconjs'
 import NotificationTagSelect from './NotificationTagSelect'
 import QuickTagSelect from './QuickTagSelect'
 import Notification from './Notification'
+import Translation from '../Translations'
 
 class Notifications extends React.Component {
   constructor(props) {
@@ -60,7 +61,7 @@ class Notifications extends React.Component {
         className="notifications autohide-scrollbar"
         ref={notifications => { this.notifications = notifications }}
       >
-        <h2 className="hide">Tiedotteet</h2>
+        <h2 className="hide"><Translation trans="tiedotteet"/></h2>
 
         <div className="alert alert-warning mb3">
           Haku ei ole vielä toiminnassa

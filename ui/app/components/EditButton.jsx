@@ -2,6 +2,8 @@ import React from 'react'
 
 import Button from './Button'
 import Icon from './Icon'
+import Translation from '../Translations'
+
 
 function EditButton (props) {
   const {
@@ -16,7 +18,7 @@ function EditButton (props) {
       onClick={onClick}
     >
       <Icon name="pencil" />
-      <span className="hide">Muokkaa</span>
+      <span className="hide"><Translation trans="muokkaa"/></span>
     </Button>
   )
 }

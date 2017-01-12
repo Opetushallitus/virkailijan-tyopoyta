@@ -3,6 +3,7 @@ import React from 'react'
 // Components
 import Button from '../Button'
 import Icon from '../Icon'
+import Translation from '../Translations'
 
 function MobileMenu (props) {
   const {
@@ -18,7 +19,7 @@ function MobileMenu (props) {
         onClick={() => controller.toggleMenu(!isVisible)}
       >
         <Icon classList="mr1" name="sliders" />
-        Rajaa hakua
+        <Translation trans="rajaahakua"/>
       </Button>
 
       <Button
@@ -26,7 +27,7 @@ function MobileMenu (props) {
         onClick={() => controller.toggleEditor(true)}
       >
         <Icon classList="mr1" name="plus" />
-        Uusi tiedote
+        <Translation trans="lisaauusi"/>
       </Button>
 
       {
@@ -34,7 +35,7 @@ function MobileMenu (props) {
           ?
             <Button classList="button-link h5 caps gray">
               <Icon classList="mr1" name="files-o" />
-              Julkaisemattomat
+              <Translation trans="julktiedotteet"/>
             </Button>
           : null
       }

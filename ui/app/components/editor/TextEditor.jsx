@@ -8,6 +8,7 @@ import { getEntityAtCursor } from './getEntityAtCursor';
 // Components
 import Button from '../Button'
 import Icon from '../Icon'
+import Translation,{translate} from '../Translations'
 
 export default class TextEditor extends React.Component {
   constructor(props) {
@@ -240,8 +241,8 @@ export default class TextEditor extends React.Component {
           />
 
           <LinkButton
-            label={isCursorOnLink ? 'Muokkaa linkkiä' : 'Lisää linkki'}
-            icon="link"
+            label={isCursorOnLink ? translate("muokkaalinkki") : translate("lisaalinkki")}
+          icon="link"
             active={this.state.showURLInput}
             disabled={!isCursorOnLink && !hasSelectedText}
             action={this.promptForLink}
@@ -250,20 +251,20 @@ export default class TextEditor extends React.Component {
           <LinkButton
             action={this.removeLink}
             icon="unlink"
-            label="Poista linkki"
+            label={translate("poistalinkki")}
             disabled={!isCursorOnLink}
           />
 
-          <h3 className={this.state.showURLInput ? 'hide' : 'display-none'}>Lisää linkki</h3>
+          <h3 className={this.state.showURLInput ? 'hide' : 'display-none'}><Translation trans="lisaalinkki"/></h3>
 
           {/*Cancel add link*/}
           <Button
             classList={`button-link h1 absolute top-0 right-0 z3 gray-lighten-1 ${this.state.showURLInput ? '' : 'display-none'}`}
             onClick={this.promptForLink}
-            title="Peruuta"
+            title={<Translation trans="peruuta"/>}
           >
             &times;
-            <span className="hide">Peruuta</span>
+            <span className="hide"><Translation trans="peruuta"/></span>
           </Button>
 
           {this.state.showURLInput
@@ -372,9 +373,9 @@ const Link = (props) => {
 };
 
 const BLOCK_TYPES = [
-  {label: 'Järjestämätön lista', style: 'unordered-list-item', icon: 'list-ul'},
-  {label: 'Järjestetty lista', style: 'ordered-list-item', icon: 'list-ol'}
-];
+  {label: translate('järjestamatonlista'), style: 'unordered-list-item', icon: 'list-ul'},
+  {label: translate('jarjestettylista'), style: 'ordered-list-item', icon: 'list-ol'}
+]
 
 const BlockStyleControls = (props) => {
   const {
@@ -408,10 +409,10 @@ const BlockStyleControls = (props) => {
 };
 
 const INLINE_STYLES = [
-  {label: 'Lihavoi', style: 'BOLD', icon: 'bold'},
-  {label: 'Kursivoi', style: 'ITALIC', icon: 'italic'},
-  {label: 'Alleviivaa', style: 'UNDERLINE', icon: 'underline'}
-];
+  {label: translate('lihavoi'), style: 'BOLD', icon: 'bold'},
+  {label: translate('kursivoi'), style: 'ITALIC', icon: 'italic'},
+  {label: translate('alleviivaa'), style: 'UNDERLINE', icon: 'underline'}
+]
 
 const InlineStyleControls = (props) => {
   const currentStyle = props.editorState.getCurrentInlineStyle();
@@ -470,12 +471,17 @@ export class UrlInput extends React.Component{
     return (
       <div className="absolute top-0 right-0 bottom-0 left-0 z2 m2 bg-white">
         <div className="field">
-          <div className="mb1">Linkin teksti</div>
+          <div className="mb1">
+            <Translation trans="linkkiteksti"/>
+          </div>
+
           <div className="muted">{selectedLinkText ? selectedLinkText : selectedText}</div>
         </div>
 
         <div className="field">
-          <label className="inline-block mb1" htmlFor="notification-url">Linkin osoite</label>
+          <label className="hide" htmlFor="notification-url">
+            <Translation trans="linkkiosoite"/>
+          </label>
 
           <input
             ref="url"
@@ -485,6 +491,7 @@ export class UrlInput extends React.Component{
             autoFocus
             autoCapitalize={false}
             value={this.state.url}
+            placeholder={translate("linkkiosoite")}
             onChange={this.onURLChange}
             onKeyDown={(event) => this.onLinkInputKeyDown({
               event,
@@ -493,15 +500,15 @@ export class UrlInput extends React.Component{
               callback: this.confirmLink
             })}
           />
-        </div>
 
-        <Button
-          classList="button-primary"
-          disabled={!this.state.url}
-          onClick={() => this.confirmLink(this.state.url, selectedText)}
-        >
-          Tallenna
-        </Button>
+          <Button
+            classList="button-primary input-group-button"
+            disabled={!this.state.url}
+            onClick={() => this.confirmLink(this.state.url, selectedText)}
+          >
+            <Translation trans="tallenna"/>
+          </Button>
+        </div>
       </div>
     )
   }

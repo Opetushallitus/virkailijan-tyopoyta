@@ -3,11 +3,12 @@ import React from 'react'
 import TimelineHeading from './TimelineHeading'
 import TimelineDay from './TimelineDay'
 import EditButton from '../EditButton'
+import Translation from '../Translations'
 
 function Timeline ({ timeline }) {
   return (
     <div className="timeline timeline-axis autohide-scrollbar relative">
-      <h2 className="hide">Tapahtumat</h2>
+      <h2 className="hide"><Translation trans="tapahtumat"/></h2>
 
       <div className="alert alert-warning mb3">
         Testidataa, ei muokattavissa

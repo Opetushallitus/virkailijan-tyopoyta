@@ -13,6 +13,7 @@ import Fieldset from '../Fieldset'
 import Checkbox from '../Checkbox'
 import Button from '../Button'
 import Icon from '../Icon'
+import Translation,{translate} from '../Translations'
 
 const handleOnChange = (controller, event, { value }) => {
   controller.updateNotificationTags(value);
@@ -39,7 +40,7 @@ function LimitedTextarea (props) {
       label={label}
       name={name}
     >
-      <div className="muted md-right mb1 md-mb0">{maxLength - value.length} merkkiä jäljellä</div>
+      <div className="muted md-right mb1 md-mb0">{maxLength - value.length}<Translation trans="merkkiajaljella"/></div>
 
       <textarea
         className="input"
@@ -71,7 +72,7 @@ function LimitedTextField (props) {
       name={name}
       validation={validation}
     >
-      <div className="muted md-right mb1 md-mb0">{maxLength - value.length} merkkiä jäljellä</div>
+      <div className="muted md-right mb1 md-mb0">{maxLength - value.length}<Translation trans="merkkiajaljella"/></div>
 
       <input
         className="input"
@@ -242,32 +243,32 @@ const handleSubmit = (event, controller, isPreviewed) => {
 const getNotificationPublicationState = (initialStartDate, dateFormat) => {
   // No initialStartDate = a draft
   if (!initialStartDate) {
-    return 'Luonnos'
+    return <Translation trans="luonnos"/>
   }
 
   // initialStartDate is after today = unpublished
   if (moment(initialStartDate, dateFormat).isAfter(moment())) {
-    return 'Julkaisematon'
+    return <Translation trans="julkaisematon"/>
   }
 
   // initialStartDate is before today = published
   if (moment(initialStartDate, dateFormat).isBefore(moment())) {
-    return 'Julkaistu'
+    return <Translation trans="julkaistu"/>
   }
 }
 
 // Returns a string representing the notification's validation state
 const getNotificationValidationStateString = state => {
   if (state === 'empty') {
-    return 'Ei sisältöä'
+    return <Translation trans="eisisaltoa"/>
   }
 
   if (state === 'incomplete') {
-    return 'Kesken'
+    return <Translation trans="kesken"/>
   }
 
   if (state === 'complete') {
-    return 'Valmis'
+    return <Translation trans="valmis"/>
   }
 }
 
@@ -292,10 +293,10 @@ function EditRelease (props) {
     release,
     notificationTags,
     categories
-  } = props
+  } = props;
 
-  const notification = release.notification
-  const timeline = release.timeline
+  const notification = release.notification;
+  const timeline = release.timeline;
 
   // Set default release and notification validation states for unpublished/published releases
   release.validationState = release.id > 0
@@ -306,42 +307,42 @@ function EditRelease (props) {
     ? notification.validationState || 'complete'
     : notification.validationState
 
-  return (
+return (
     <form noValidate onSubmit={(event) => handleSubmit(event, controller, isPreviewed)}>
-      <h2 className="hide">Luo uusi sisältö</h2>
+      <h2 className="hide"><Translation trans="lisaauusi"/></h2>
 
       {/*Tabs and release's state*/}
       <div className="flex flex-wrap px3">
         <div className="tabs col-12 sm-col-6">
           <a
-            className={`tab-item ${selectedTab === 'edit-notification' ? 'tab-item-is-active' : ''}`}
-            onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-notification')}
-            href="#notification"
+              className={`tab-item ${selectedTab === 'edit-notification' ? 'tab-item-is-active' : ''}`}
+              onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-notification')}
+              href="#notification"
           >
-            Tiedote
+            <Translation trans="tiedote"/>
             <span className="lowercase">
               &nbsp;({getNotificationValidationStateString(notification.validationState)})
             </span>
           </a>
           <a
-            className={`tab-item ${selectedTab === 'edit-timeline' ? 'tab-item-is-active' : ''}`}
-            onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-timeline')}
-            href="#timeline"
+              className={`tab-item ${selectedTab === 'edit-timeline' ? 'tab-item-is-active' : ''}`}
+              onClick={(event) => handleTabItemClick(event, controller.toggleEditorTab, 'edit-timeline')}
+              href="#timeline"
           >
-            Aikajana
+            <Translation trans="aikajana"/>
             <span className="lowercase">
               &nbsp;({
-                getTimelineItems(['complete'], timeline).length
+              getTimelineItems(['complete'], timeline).length
                   ? getTimelineItems(['complete'], timeline).length
-                  : 'Ei sisältöä'
-              })
+                  : <Translation trans="eisisaltoa"/>
+            })
             </span>
           </a>
         </div>
 
         {/*Publication state*/}
         <div
-          className="h5 caps muted sm-flex items-center justify-end col-12 sm-col-6
+            className="h5 caps muted sm-flex items-center justify-end col-12 sm-col-6
             mt2 sm-mt0 sm-border-bottom border-gray-lighten-2"
         >
           Tila: {getNotificationPublicationState(notification.initialStartDate, dateFormat)}
@@ -352,28 +353,28 @@ function EditRelease (props) {
       <div className="tab-content px3">
         {/*Notification*/}
         <section className={`tab-pane ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
-          <h3 className="hide">Muokkaa tiedotetta</h3>
+          <h3 className="hide"><Translation trans="muokkaatiedotteita"/></h3>
 
           {/*Title*/}
           <div className="flex flex-wrap">
             <div className="col-12 sm-col-6 sm-pr2">
               <LimitedTextField
-                label="Otsikko"
-                name="notification-title-fi"
-                value={notification.content.fi.title}
-                maxLength={200}
-                isRequired
-                onChange={controller.updateNotificationContent('fi', 'title')}
+                  label={<Translation trans="otsikko"/>}
+                  name="notification-title-fi"
+                  value={notification.content.fi.title}
+                  maxLength={200}
+                  isRequired
+                  onChange={controller.updateNotificationContent('fi', 'title')}
               />
             </div>
 
             <div className="col-12 sm-col-6 sm-pl2">
               <LimitedTextField
-                label="Otsikko ruotsiksi"
-                name="notification-title-sv"
-                value={notification.content.sv.title}
-                maxLength={200}
-                onChange={controller.updateNotificationContent('sv', 'title')}
+                  label={<Translation trans="otsikkoSV"/>}
+              name="notification-title-sv"
+              value={notification.content.sv.title}
+              maxLength={200}
+              onChange={controller.updateNotificationContent('sv', 'title')}
               />
             </div>
 
@@ -385,7 +386,7 @@ function EditRelease (props) {
           <div className="flex flex-wrap">
             <div className="col-12 sm-col-6 sm-pr2">
               <Field
-                label="Kuvaus"
+                label={<Translation trans="kuvaus"/>}
                 name="notification-description-fi"
                 isRequired
               >
@@ -399,7 +400,7 @@ function EditRelease (props) {
 
             <div className="col-12 sm-col-6 sm-pl2">
               <Field
-                label="Kuvaus ruotsiksi"
+                label={<Translation trans="kuvausSV"/>}
                 name="notification-description-sv"
               >
                 <TextEditor
@@ -415,23 +416,23 @@ function EditRelease (props) {
             {/*Tags*/}
             <div className="col-12 sm-col-6 sm-pr2">
               <Field
-                label="Tiedotteen avainsanat"
-                name="notification-tags"
-                isRequired
+                  label={<Translation trans="tiedotteenavainsanat"/>}
+                  name="notification-tags"
+                  isRequired
               >
                 <Dropdown
-                  className="semantic-ui"
-                  fluid
-                  multiple
-                  name="notification-tags"
-                  noResultsMessage="Ei avainsanoja"
-                  onChange={handleOnChange.bind(null, controller)}
-                  onLabelClick={handleOnLabelClick.bind(null, controller)}
-                  options={mapDropdownOptions(notificationTags, locale)}
-                  placeholder="Lisää avainsana"
-                  search
-                  selection
-                  value={release.notification.tags}
+                    className="semantic-ui"
+                    fluid
+                    multiple
+                    name="notification-tags"
+                    noResultsMessage={<Translation trans="eiavainsanoja"/>}
+                    onChange={handleOnChange.bind(null, controller)}
+                    onLabelClick={handleOnLabelClick.bind(null, controller)}
+                    options={mapDropdownOptions(notificationTags, locale)}
+                    placeholder={<Translation trans="lisaaavainsanoja"/>}
+                    search
+                    selection
+                    value={release.notification.tags}
                 />
               </Field>
             </div>
@@ -441,7 +442,7 @@ function EditRelease (props) {
               {/*Publish date*/}
               <DateField
                 className="md-col-6 lg-col-5 md-pr2"
-                label="Julkaisupäivämäärä"
+                label={<Translation trans="julkaisupvm"/>}
                 name="notification-start-date"
                 dateFormat={dateFormat}
                 date={notification.startDate}
@@ -457,7 +458,7 @@ function EditRelease (props) {
               {/*Expiry date*/}
               <DateField
                 className="md-col-6 lg-col-5 md-pl2"
-                label="Poistumispäivämäärä"
+                label={<Translation trans="poistumispvm"/>}
                 name="notification-end-date"
                 dateFormat={dateFormat}
                 date={notification.endDate}
@@ -475,7 +476,7 @@ function EditRelease (props) {
 
         {/*Timeline*/}
         <section className={`tab-pane ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
-          <h3 className="hide">Muokkaa aikajanan tapahtumia</h3>
+          <h3 className="hide"><Translation trans="muokkaaaikajanantapahtumia"/></h3>
 
           {timeline.map((item, index) =>
             <div key={item.id} className="timeline-item-form">
@@ -483,7 +484,7 @@ function EditRelease (props) {
               <div className="flex flex-wrap">
                 <div className="col-12 sm-col-6 sm-pr2">
                   <Field
-                    label="Aikajanalla näytettävä teksti"
+                    label={<Translation trans="aikajanateksti"/>}
                     name={`timeline-item-${item.id}-text-fi`}
                     isRequired
                   >
@@ -496,7 +497,7 @@ function EditRelease (props) {
 
                 <div className="col-12 sm-col-6 sm-pl2">
                   <Field
-                    label="Teksti ruotsiksi"
+                    label={<Translation trans="tekstiSV"/>}
                     name={`timeline-item-${item.id}-text-sv`}
                     isRequired
                   >
@@ -512,7 +513,7 @@ function EditRelease (props) {
                 {/*Date*/}
                 <DateField
                   className="col-10 sm-col-6 lg-col-3 sm-pr2 mb0"
-                  label="Tapahtumapäivämäärä aikajanaa varten"
+                  label={<Translation trans="tapahtumapvmaikajanaavarten"/>}
                   name={`timeline-item-${item.id}-date`}
                   dateFormat={dateFormat}
                   date={item.date}
@@ -543,19 +544,19 @@ function EditRelease (props) {
           {/*Add new event*/}
           <Button classList="button-link primary px0" onClick={() => controller.addTimelineItem(release)}>
             <span aria-hidden>+ </span>
-            Lisää uusi tapahtuma
+            <Translation trans="lisaauusitapahtuma"/>
           </Button>
         </section>
       </div>
 
       {/*Categories and user groups*/}
       <section className="py2 px3 border-top border-bottom border-gray-lighten-2">
-        <h2 className="hide">Julkaisun kategoria(t) ja kohdekäyttäjäryhmät</h2>
+        <h2 className="hide"><Translation trans="julkkategoriaryhma"/></h2>
 
         <div className="flex flex-wrap">
           {/*Categories*/}
           <div className="col-12 sm-col-6 sm-pr2">
-            <Fieldset isRequired legend="Julkaisun kategoria(t)">
+            <Fieldset isRequired legend={<Translation trans="julkkategoria"/>}>
               <CategorySelect
                 locale={locale}
                 categories={categories}
@@ -567,15 +568,15 @@ function EditRelease (props) {
 
           {/*User groups*/}
           <div className="col-12 sm-col-6 sm-pl2">
-            <Field name="release-usergroups" label="Julkaisun kohdekäyttäjäryhmät">
+            <Field name="release-usergroups" label={<Translation trans="julkryhma"/>}>
               <Dropdown
                 className="semantic-ui"
                 fluid
                 multiple
                 name="release-usergroups"
-                noResultsMessage="Ei käyttäjäryhmiä"
+                noResultsMessage={<Translation trans="eiryhma"/>}
                 options={[]}
-                placeholder="Lisää käyttäjäryhmä"
+                placeholder={<Translation trans="lisaaryhma"/>}
                 search
                 selection
                 value={[]}
@@ -583,10 +584,10 @@ function EditRelease (props) {
             </Field>
 
             <Checkbox
-              name="release-send-email"
-              label="Lähetä sähköposti valituille käyttäjäryhmille välittömästi"
-              checked={release.sendEmail}
-              onChange={() => controller.updateRelease('sendEmail', !release.sendEmail)}
+                name="release-send-email"
+                label={<Translation trans="lahetasahkoposti"/>}
+                checked={release.sendEmail}
+                onChange={() => controller.updateRelease('sendEmail', !release.sendEmail)}
             />
           </div>
         </div>
@@ -594,36 +595,36 @@ function EditRelease (props) {
 
       {/*Preview*/}
       { isPreviewed
-        ?
+          ?
           <section className="p3 border-bottom border-gray-lighten-2">
-            <h2 className="h3 center mb3">Olet julkaisemassa seuraavia sisältöjä</h2>
+            <h2 className="h3 center mb3"><Translation trans="oletjulkaisemassa"/></h2>
 
             <div className="flex flex-wrap">
               {/*Notification*/}
               <div className="flex col-12 md-col-6 md-pr2 mb3 md-mb0">
                 <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
-                  <h3 className="h4">Tiedote</h3>
+                    <h3 className="h4"><Translation trans="tiedote"/></h3>
 
                   {
                     notification.validationState === 'empty'
-                      ? <div>Ei tiedotetta</div>
-                      :
+                        ? <div><Translation trans="eitiedote"/></div>
+                        :
                         <div>
                           <div className="mb2">
-                            <span className="italic">Otsikko: </span>
-                            {notification.content[locale].title || 'Tyhjä'}
+                            <span className="italic"><Translation trans="otsikko"/>: </span>
+                            {notification.content[locale].title || <Translation trans="tyhja"/>}
                           </div>
 
                           <div className="mb2">
-                            <span className="italic">Tiedote: </span>
-                            {renderHTML(notification.content[locale].text) || 'Tyhjä'}
+                            <span className="italic"><Translation trans="tiedote"/>: </span>
+                            {renderHTML(notification.content[locale].text) || <Translation trans="tyhja"/>}
                           </div>
 
                           <div className="flex flex-wrap">
-                            <div className="italic col-12 sm-col-4 md-col-7 lg-col-5">Julkaisupäivämäärä:</div>
+                            <div className="italic col-12 sm-col-4 md-col-7 lg-col-5"><Translation trans="julkaisupvm"/>:</div>
                             <div className="col-5 mb2 sm-mb0">{notification.startDate || '–'}</div>
 
-                            <div className="italic col-12 sm-col-4 md-col-7 lg-col-5">Poistumispäivämäärä:</div>
+                            <div className="italic col-12 sm-col-4 md-col-7 lg-col-5"><Translation trans="poistumispvm"/>:</div>
                             <div className="col-5">{notification.endDate || '–'}</div>
                           </div>
                         </div>
@@ -635,45 +636,45 @@ function EditRelease (props) {
               {/*Timeline*/}
               <div className="flex col-12 md-col-6 md-pl2">
                 <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
-                  <h3 className="h4">Aikajanan tapahtuma(t)</h3>
+                    <h3 className="h3"><Translation trans="aikajanatapahtuma"/></h3>
 
                   {getTimelineItems(['incomplete', 'complete'], timeline).length
-                    ?
+                      ?
                       <div>
                         {getTimelineItems(['incomplete', 'complete'], timeline).map((item) =>
                           <div key={item.id} className="mb2">
                             <span className="italic">{item.date ? item.date : 'Ei päivämäärää'}: </span>
-                            {renderHTML(item.content[locale].text) || 'Tyhjä'}
+                            {renderHTML(item.content[locale].text) || <Translation trans="tyhja"/>}
                           </div>
                         )}
 
-                        Aikajanan tapahtumat julkaistaan heti.
+                        <Translation trans="aikajanatapahtumatjulk"/>
                       </div>
-                    : <div>Ei tapahtumia</div>
+                      : <div><Translation trans="eitapahtuma"/></div>
                   }
                 </div>
               </div>
             </div>
           </section>
-        : null
+          : null
       }
 
       {/*Form actions*/}
       <div className="center pt3 px3">
         <input
-          className="button button-primary button-lg"
-          type="submit"
-          disabled={
-            release.validationState !== 'complete'
+            className="button button-primary button-lg"
+            type="submit"
+            disabled={
+              release.validationState !== 'complete'
               || (notification.validationState === 'empty' && getTimelineItems(['empty'], timeline).length === timeline.length)
               || notification.validationState === 'incomplete'
               || getTimelineItems(['incomplete'], timeline).length
-          }
-          value={isPreviewed ? 'Julkaise' : 'Esikatsele ja julkaise'}
+            }
+            value={isPreviewed ? translate("julkaise") : translate("esikatselejulkaise")}
         />
       </div>
     </form>
-  )
+)
 }
 
 export default EditRelease

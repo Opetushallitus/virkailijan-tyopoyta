@@ -1,5 +1,5 @@
 
-import urls from 'data/virkailijan-tyopoyta-urls.json'
+import urls from './data/virkailijan-tyopoyta-urls.json'
 
 module.exports = function() {
 
