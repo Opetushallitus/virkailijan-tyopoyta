@@ -894,5 +894,14 @@
     "locale": "fi",
     "key": "lisaauusitapahtuma",
     "value": "Lisää uusi tapahtuma"
+  },{
+    "locale": "fi",
+    "key": "kategoriat",
+    "value": "Kategoriat"
+  },{
+    "locale": "fi",
+    "key": "nayta",
+    "value": "Näytä"
   }
+
 ]
