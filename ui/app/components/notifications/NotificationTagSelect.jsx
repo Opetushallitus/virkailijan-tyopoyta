@@ -17,9 +17,9 @@ function NotificationTagSelect (props) {
     locale,
     options,
     selectedOptions
-  } = props
-
+  } = props;
   return (
+
     <div>
       <label className="hide" htmlFor="notification-tags-search">Hae tunnisteita</label>
       <Dropdown

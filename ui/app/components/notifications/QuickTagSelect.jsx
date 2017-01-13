@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Icon from '../Icon'
-
+import Translation from '../Translations'
 const isChecked = (selectedNotificationTags, value) => selectedNotificationTags.indexOf(value) >= 0
 
 const toggleNotificationTag = (controller, value) => controller.toggleNotificationTag(value)
@@ -34,7 +34,7 @@ const renderQuickTag = (option, locale, selectedOptions, controller) => {
 function QuickTagSelect (props) {
   return (
     <div>
-      <div className="mb1 md-mb0 md-mr2 md-inline-block">Pikavalinta</div>
+      <div className="mb1 md-mb0 md-mr2 md-inline-block"><Translation trans="pikavalinta"/></div>
 
       {props.options.map(option => {
         return renderQuickTag(option, props.locale, props.selectedOptions, props.controller)

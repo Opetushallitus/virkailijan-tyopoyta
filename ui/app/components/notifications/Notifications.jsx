@@ -5,7 +5,7 @@ import Bacon from 'baconjs'
 import NotificationTagSelect from './NotificationTagSelect'
 import QuickTagSelect from './QuickTagSelect'
 import Notification from './Notification'
-import Translation from '../Translations'
+import Translation,{translate} from '../Translations'
 
 class Notifications extends React.Component {
   constructor(props) {

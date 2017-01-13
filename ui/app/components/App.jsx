@@ -8,7 +8,7 @@ import Menu from './menu/Menu'
 import Notifications from './notifications/Notifications'
 import Timeline from './timeline/Timeline'
 import EditRelease from './editor/EditRelease'
-import Translations from './Translations'
+import Translations,{setTranslations} from './Translations'
 import roles from '../data/myroles.json';
 import translation from '../data/translation.json';
 import urls from '../data/virkailijan-tyopoyta-urls.json'
@@ -65,11 +65,14 @@ export default class App extends React.Component {
     fetch(urls["lokalisointi.localisation"] + lang, {
       credentials: 'include'
     })
-        .then(response => response.json)
-        .then(data => Translations.setTranslations(data))
+        .then(response => response.json())
+        .then(data => {
+          setTranslations(data);
+        })
         .catch(error => {
           if (location.host.indexOf('localhost') === 0 || location.host.indexOf('10.0.2.2') === 0) { // dev mode (copypaste from upper)
-            Translations.setTranslations(translation);
+            setTranslations(translation);
+
           } else { // real usage
             if (window.location.href.indexOf('ticket=') > 0) { // to prevent strange cyclic cas login problems (atm related to sticky sessions)
               alert('Problems with login, please reload page or log out and try again');
@@ -77,7 +80,8 @@ export default class App extends React.Component {
               window.location.href = urls["cas.login"] + location.href;
             }
           }
-        });
+        })
+        .then(() => {this.forceUpdate()});
 
   }
 
