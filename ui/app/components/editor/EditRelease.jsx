@@ -12,6 +12,7 @@ import Field from '../Field'
 import Fieldset from '../Fieldset'
 import Checkbox from '../Checkbox'
 import Button from '../Button'
+import Icon from '../Icon'
 import Translation,{translate} from '../Translations'
 
 const handleOnChange = (controller, event, { value }) => {
@@ -90,12 +91,7 @@ function LimitedTextField (props) {
   Updates endDate if startDate > endDate
 */
 const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) => {
-  if (date.isBefore(minDate)) {
-    console.log('is before mindate')
-  }
-
-
-  const newDate = getDate(date, dateFormat)
+  const newDate = getFormattedDate({ date, minDate, dateFormat })
 
   updateFunction('startDate', newDate)
 
@@ -110,7 +106,7 @@ const handleChangeStartDate = (item, updateFunction, date, minDate, dateFormat) 
   Updates startDate if endDate < startDate
 */
 const handleChangeEndDate = (item, updateFunction, date, minDate, dateFormat) => {
-  const newDate = getDate(date, dateFormat)
+  const newDate = getFormattedDate({ date, minDate, dateFormat })
 
   updateFunction('endDate', newDate)
 
@@ -133,7 +129,7 @@ const handleChangeEndDate = (item, updateFunction, date, minDate, dateFormat) =>
 }
 
 const handleChangeTimelineItemDate = (id, updateFunction, dateFormat, date) => {
-  const newDate = getDate(date, dateFormat)
+  const newDate = getFormattedDate({ date, dateFormat })
 
   updateFunction(id, 'date', newDate)
 }
@@ -154,11 +150,25 @@ const getNotificationMinDate = (initialDate, dateFormat) => {
 }
 
 // Returns formatted date or null
-const getDate = (date, dateFormat) => {
-  return date ? date.format(dateFormat) : null
+const getFormattedDate = options => {
+  const {
+    date,
+    minDate,
+    dateFormat,
+  } = options
+
+  if (date) {
+    // React DatePicker allows selecting invalid dates (before minDate) with keyboard, force minDate to prevent it
+    return minDate && date.isBefore(minDate)
+      ? minDate.format(dateFormat)
+      : date.format(dateFormat)
+  }
+  else {
+    return null
+  }
 }
 
-// Returns minDate + 2 hours for first days of months, otherwise the previous days are also selectable
+// Returns minDate + 2 hours for first days of months, otherwise the previous months' last days are also selectable
 const getMinDate = (date, dateFormat) => {
   return moment(date, dateFormat).add(2, 'hours')
 }
@@ -376,25 +386,27 @@ return (
           <div className="flex flex-wrap">
             <div className="col-12 sm-col-6 sm-pr2">
               <Field
-                  label={<Translation trans="kuvaus"/>}
-                  name="notification-description-fi"
-                  isRequired
+                label={<Translation trans="kuvaus"/>}
+                name="notification-description-fi"
+                isRequired
               >
                 <TextEditor
-                    data={notification.content.fi.text}
-                    save={controller.updateNotificationContent('fi', 'text')}
+                  data={notification.content.fi.text}
+                  controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
+                  save={controller.updateNotificationContent('fi', 'text')}
                 />
               </Field>
             </div>
 
             <div className="col-12 sm-col-6 sm-pl2">
               <Field
-                  label={<Translation trans="kuvausSV"/>}
-                  name="notification-description-sv"
+                label={<Translation trans="kuvausSV"/>}
+                name="notification-description-sv"
               >
                 <TextEditor
-                    data={notification.content.sv.text}
-                    save={controller.updateNotificationContent('sv', 'text')}
+                  data={notification.content.sv.text}
+                  controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
+                  save={controller.updateNotificationContent('sv', 'text')}
                 />
               </Field>
             </div>
@@ -471,40 +483,62 @@ return (
               {/*Info*/}
               <div className="flex flex-wrap">
                 <div className="col-12 sm-col-6 sm-pr2">
-                  <LimitedTextarea
+                  <Field
                     label={<Translation trans="aikajanateksti"/>}
                     name={`timeline-item-${item.id}-text-fi`}
-                    value={item.content.fi.text}
-                    rows="4"
-                    maxLength={200}
                     isRequired
-                    onChange={controller.updateTimelineContent(item.id, 'fi', 'text')}
-                  />
-                </div>
-
-                  <div className="col-12 sm-col-6 sm-pl2">
-                    <LimitedTextarea
-                        label={<Translation trans="tekstiSV"/>}
-                        name={`timeline-item-${item.id}-text-sv`}
-                        value={item.content.sv.text}
-                        rows="4"
-                        maxLength={200}
-                        onChange={controller.updateTimelineContent(item.id, 'sv', 'text')}
+                  >
+                    <TextEditor
+                      data={item.content.fi.text}
+                      save={controller.updateTimelineContent(item.id, 'fi', 'text')}
                     />
-                  </div>
+                  </Field>
                 </div>
 
+                <div className="col-12 sm-col-6 sm-pl2">
+                  <Field
+                    label={<Translation trans="tekstiSV"/>}
+                    name={`timeline-item-${item.id}-text-sv`}
+                    isRequired
+                  >
+                    <TextEditor
+                      data={item.content.fi.text}
+                      save={controller.updateTimelineContent(item.id, 'sv', 'text')}
+                    />
+                  </Field>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap mb1">
                 {/*Date*/}
                 <DateField
-                    className="sm-col-6 lg-col-3 sm-pr2"
-                    label={<Translation trans="tapahtumapvmaikajanaavarten"/>}
-                    name={`timeline-item-${item.id}-date`}
-                    dateFormat={dateFormat}
-                    date={item.date}
-                    isRequired
-                    onChange={handleChangeTimelineItemDate.bind(this, item.id, controller.updateTimeline, dateFormat)}
+                  className="col-10 sm-col-6 lg-col-3 sm-pr2 mb0"
+                  label={<Translation trans="tapahtumapvmaikajanaavarten"/>}
+                  name={`timeline-item-${item.id}-date`}
+                  dateFormat={dateFormat}
+                  date={item.date}
+                  isRequired
+                  onChange={handleChangeTimelineItemDate.bind(this, item.id, controller.updateTimeline, dateFormat)}
                 />
+
+                {/*Remove event*/}
+                {
+                  item.initialDate
+                    ? null
+                    :
+                      <div className="flex-auto flex items-end justify-end">
+                        <Button
+                          classList="button-link h3 pt3 pr0 pb0 pl3 gray-lighten-1"
+                          title="Poista tapahtuma"
+                          onClick={() => controller.removeTimelineItem(item.id)}
+                        >
+                          <Icon name="trash" />
+                          <span className="hide">Poista tapahtuma</span>
+                        </Button>
+                      </div>
+                }
               </div>
+            </div>
           )}
 
           {/*Add new event*/}
@@ -524,10 +558,10 @@ return (
           <div className="col-12 sm-col-6 sm-pr2">
             <Fieldset isRequired legend={<Translation trans="julkkategoria"/>}>
               <CategorySelect
-                  locale={locale}
-                  categories={categories}
-                  selectedCategories={release.categories}
-                  toggleCategory={controller.toggleReleaseCategory}
+                locale={locale}
+                categories={categories}
+                selectedCategories={release.categories}
+                toggleCategory={controller.toggleReleaseCategory}
               />
             </Fieldset>
           </div>
@@ -608,10 +642,10 @@ return (
                       ?
                       <div>
                         {getTimelineItems(['incomplete', 'complete'], timeline).map((item) =>
-                            <div key={item.id} className="mb2">
-                              <span className="italic">{item.date ? item.date : <Translation trans="eipvm"/>}: </span>
-                              {item.content[locale].text || <Translation trans="tyhja"/>}
-                            </div>
+                          <div key={item.id} className="mb2">
+                            <span className="italic">{item.date ? item.date : 'Ei päivämäärää'}: </span>
+                            {renderHTML(item.content[locale].text) || <Translation trans="tyhja"/>}
+                          </div>
                         )}
 
                         <Translation trans="aikajanatapahtumatjulk"/>
