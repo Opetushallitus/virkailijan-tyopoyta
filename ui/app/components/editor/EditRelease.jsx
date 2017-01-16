@@ -533,7 +533,7 @@ return (
                           onClick={() => controller.removeTimelineItem(item.id)}
                         >
                           <Icon name="trash" />
-                          <span className="hide">Poista tapahtuma</span>
+                          <span className="hide"><Translation trans="poistatapahtuma"/></span>
                         </Button>
                       </div>
                 }

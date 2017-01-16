@@ -902,6 +902,10 @@
     "locale": "fi",
     "key": "nayta",
     "value": "Näytä"
+  },{
+    "locale": "fi",
+    "key": "poistatapahtuma",
+    "value": "Poista tapahtuma"
   }
 
 ]

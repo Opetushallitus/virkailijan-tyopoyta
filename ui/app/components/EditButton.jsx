@@ -2,7 +2,7 @@ import React from 'react'
 
 import Button from './Button'
 import Icon from './Icon'
-import Translation from '../Translations'
+import Translation,{translate} from './Translations'
 
 
 function EditButton (props) {
@@ -14,7 +14,7 @@ function EditButton (props) {
   return (
     <Button
       classList={`button-link ${className}`}
-      title="Muokkaa"
+      title={translate("muokkaa")}
       onClick={onClick}
     >
       <Icon name="pencil" />
