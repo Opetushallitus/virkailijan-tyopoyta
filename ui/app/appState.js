@@ -427,7 +427,7 @@ export function initAppState() {
     currentPage: 1,
     nextPage: 2,
     categories: testData.categories,
-    releases: releasesS,
+    releases: testData.releases,
     hasUnpublishedReleases: false,
     notifications: testData.releases.map(r => r.notification),
     notificationTags: testData.notificationTags,
