@@ -14,13 +14,14 @@ const events = {
   deleteNotification: 'deleteNotification',
   toggleEditor: 'toggleEditor',
   toggleEditorTab: 'toggleEditorTab',
-  toggleReleaseCategory : 'toggleReleaseCategory',
+  toggleReleaseCategory: 'toggleReleaseCategory',
   updateRelease: 'updateRelease',
   updateNotification: 'updateNotification',
   updateNotificationTags: 'updateNotificationTags',
   updateNotificationContent: 'updateDocumentContent',
   validateNotification: 'validateNotification',
   addTimelineItem: 'addTimelineItem',
+  removeTimelineItem: 'removeTimelineItem',
   updateTimeline: 'updateTimeline',
   updateTimelineContent: 'updateTimelineContent',
   toggleDocumentPreview: 'toggleDocumentPreview',
@@ -65,25 +66,25 @@ function onTimelineReceived(state, response){
 
 // EDITOR
 
-function toggleEditor (state, { isVisible, releaseId = -1, selectedTab = 'edit-notification' }) {
-  const newState = R.assocPath(['editor', 'isVisible'], isVisible, state)
+function toggleEditor (state, { releaseId = -1, selectedTab = 'edit-notification' }) {
+  const newState = R.assocPath(['editor', 'isVisible'], !state.editor.isVisible, state)
 
   // Toggle preview mode off and clear editor when closing
-  if (!isVisible) {
+  if (state.editor.isVisible) {
     console.log('Closing editor')
 
     const stateWithClearedEditor = clearEditor(newState)
 
     return toggleDocumentPreview(stateWithClearedEditor, false)
   }
-  // Display correct tab depending if user edits a notification or a timeline item.
+  // Display correct tab depending if user edits a notification or a timeline item
   else if (releaseId > -1) {
     console.log('Toggling editor with release id', releaseId)
 
     const selectedRelease = state.releases.filter(release => release.id === releaseId)[0];
     const stateWithRelease = R.assocPath(['editor', 'document'], selectedRelease, newState)
 
-    return toggleEditorTab(stateWithRelease, 'edit-notification')
+    return toggleEditorTab(stateWithRelease, selectedTab)
   }
   // Display notification tab when creating a new release
   else {
@@ -231,6 +232,7 @@ function newTimelineItem (releaseId, timeline) {
   return {
     id: id,
     releaseId: releaseId,
+    initialDate: null,
     date: null,
     content: {
       fi: {timelineId: id, language: 'fi', text: ''},
@@ -245,6 +247,20 @@ function addTimelineItem (state, release) {
   const newTimeline = R.append(item, release.timeline.slice())
 
   console.log('Adding new timeline item with id', item.id)
+
+  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
+}
+
+function removeTimelineItem (state, id) {
+  console.log('Removing new timeline item with id', id)
+
+  const timeline = state.editor.document.timeline
+  const index = R.findIndex(R.propEq('id', id), timeline)
+
+  const newTimeline = [
+    ...timeline.slice(0, index),
+    ...timeline.slice(index + 1)
+  ]
 
   return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
 }
@@ -334,8 +350,8 @@ function emptyRelease () {
 
 // MENU
 
-function toggleMenu (state, isVisible) {
-  return R.assocPath(['menu', 'isVisible'], isVisible, state)
+function toggleMenu (state) {
+  return R.assocPath(['menu', 'isMobileMenuVisible'], !state.menu.isMobileMenuVisible, state)
 }
 
 // NOTIFICATIONS
@@ -398,7 +414,7 @@ function toggleNotification (state, {id}) {
 }
 
 export function initAppState() {
-  const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()));
+  const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()))
   //const releasesS = testData.releases
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
@@ -411,16 +427,16 @@ export function initAppState() {
     currentPage: 1,
     nextPage: 2,
     categories: testData.categories,
-    releases: releasesS,
-    hasUnpublishedReleases: false,
-    notifications: notificationsS,
+    releases: testData.releases,
+    notifications: testData.releases.map(r => r.notification),
+    unpublished: [],
     notificationTags: testData.notificationTags,
     selectedNotificationTags: [],
-    timeline: [],
+    timeline: testData.timeline,
     expandedNotifications: [],
     activeFilter: '',
     menu: {
-      isVisible: false
+      isMobileMenuVisible: false
     },
     editor: {
       isVisible: false,
@@ -442,6 +458,7 @@ export function initAppState() {
     [dispatcher.stream(events.updateNotificationTags)], updateNotificationTags,
     [dispatcher.stream(events.updateNotificationContent)], updateNotificationContent,
     [dispatcher.stream(events.addTimelineItem)], addTimelineItem,
+    [dispatcher.stream(events.removeTimelineItem)], removeTimelineItem,
     [dispatcher.stream(events.updateTimeline)], updateTimeline,
     [dispatcher.stream(events.updateTimelineContent)], updateTimelineContent,
     [dispatcher.stream(events.toggleReleaseCategory)], toggleReleaseCategory,

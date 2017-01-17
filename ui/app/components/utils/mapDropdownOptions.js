@@ -1,6 +1,6 @@
 /*
 
-  Map options to Semantic UI Dropdown's options:
+  Map options to React Semantic UI Dropdown's options:
   [
     {
       value: [options' id],

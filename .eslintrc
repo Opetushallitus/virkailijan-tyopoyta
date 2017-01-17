@@ -1,0 +1,9 @@
+{
+  // Rule documentation for Airbnb config in node_modules/eslint-config-airbnb/rules/react.js
+  "extends": ["standard", "airbnb/rules/react"],
+  "rules": {
+    // Disable rule regarding spaces in comments, since IntelliJ doesn't support adding spaces to
+    // inserted JSX line comments
+    "spaced-comment": "off"
+  }
+}

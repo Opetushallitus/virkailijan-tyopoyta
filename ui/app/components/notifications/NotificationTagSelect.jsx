@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
 import { Dropdown } from 'semantic-ui-react'
+
+import { translate } from '../common/Translations'
+
 import mapDropdownOptions from '../utils/mapDropdownOptions'
-import {translate} from '../Translations'
 
-const handleOnChange = (controller, event, { value }) => {
-  controller.setSelectedNotificationTags(value)
-}
-
-const handleOnLabelClick = (controller, event, { value }) => {
-  controller.toggleNotificationTag(value)
+const propTypes = {
+  controller: PropTypes.object.isRequired,
+  locale: PropTypes.string.isRequired,
+  options: PropTypes.array.isRequired,
+  selectedOptions: PropTypes.array.isRequired
 }
 
 function NotificationTagSelect (props) {
@@ -19,6 +20,14 @@ function NotificationTagSelect (props) {
     selectedOptions
   } = props
 
+  const handleOnChange = (event, { value }) => {
+    controller.setSelectedNotificationTags(value)
+  }
+
+  const handleOnLabelClick = (event, { value }) => {
+    controller.toggleNotificationTag(value)
+  }
+
   return (
     <div>
       <label className="hide" htmlFor="notification-tags-search">Hae tunnisteita</label>
@@ -27,11 +36,11 @@ function NotificationTagSelect (props) {
         name="notifications-tags"
         fluid
         multiple
-        noResultsMessage={translate("eitunnisteita")}
-        onChange={handleOnChange.bind(null, controller)}
-        onLabelClick={handleOnLabelClick.bind(null, controller)}
+        noResultsMessage={translate('eitunnisteita')}
+        onChange={handleOnChange}
+        onLabelClick={handleOnLabelClick}
         options={mapDropdownOptions(options, locale)}
-        placeholder={translate("hakusana")}
+        placeholder={translate('hakusana')}
         search
         selection
         scrolling
@@ -40,5 +49,7 @@ function NotificationTagSelect (props) {
     </div>
   )
 }
+
+NotificationTagSelect.propTypes = propTypes
 
 export default NotificationTagSelect

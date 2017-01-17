@@ -12,6 +12,7 @@
   padding-right: 1rem;
   padding-left: 1rem;
   border-color: var(--border-color);
+  border-radius: var(--border-radius);
   box-shadow: var(--box-shadow-inner);
 }
 
@@ -156,6 +157,9 @@
 }
 
 .react-datepicker__month-dropdown {
+  max-height: 20rem;
+  overflow-y: scroll;
+  overflow-x: hidden;
   padding: .5rem 0;
   border-color: var(--border-color);
   background-color: var(--white);
@@ -236,7 +240,7 @@
   width: 14%;
   max-width: var(--space-4);
   margin: 0;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-05) var(--space-2);
 }
 
 .react-datepicker__current-month,
@@ -261,6 +265,17 @@
 
 .react-datepicker__day.react-datepicker__day--in-range {
   background-color: var(--blue-lighten-1);
+}
+
+.react-datepicker__day--selected.react-datepicker__day--disabled.react-datepicker__day--in-range,
+.react-datepicker__day--disabled.react-datepicker__day--in-range {
+  background-color: var(--white);
+  color: var(--blue-lighten-1);
+}
+
+.react-datepicker__day--selected.react-datepicker__day--disabled.react-datepicker__day--in-range:hover,
+.react-datepicker__day--disabled.react-datepicker__day--in-range:hover {
+  color: var(--blue-lighten-1);
 }
 
 .react-datepicker__day.react-datepicker__day--in-selecting-range:not(.react-datepicker__day--in-range) {
@@ -462,11 +477,11 @@
   }
 }
 
-.timeline-day:nth-of-type(even) .timeline-event {
+.timeline-day:nth-of-type(even) .timeline-item {
   margin-left: calc(var(--space-2) + var(--space-1));
 }
 
-.timeline-day:nth-of-type(odd) .timeline-event {
+.timeline-day:nth-of-type(odd) .timeline-item {
   margin-left: calc(var(--space-2) + var(--space-1));
 
   @media (--sm-and-lg) {
@@ -475,7 +490,21 @@
   }
 }
 
+/* TODO: Contrast */
+.timeline-item a {
+  color: var(--blue-lighten-3);
+}
+
+.timeline-item a:hover,
+.timeline-item a:focus {
+  color: var(--blue-lighten-4);
+}
+
 /* Editor */
+
+.editor-has-link-form {
+  min-height: 15rem;
+}
 
 .timeline-item-form {
   margin-top: var(--space-2);
@@ -490,4 +519,12 @@
 .timeline-item-form:last-of-type {
   border-bottom: 0;
   padding-bottom: 0;
+}
+
+.timeline-item-form .DraftEditor-editorContainer {
+  min-height: 6rem;
+}
+
+.border-widen-1 {
+  border-width: var(--border-widen-1) ;
 }

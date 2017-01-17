@@ -1,4 +1,8 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
+
+const propTypes = {
+  text: PropTypes.string.isRequired
+}
 
 const classList = [
   'timeline-heading',
@@ -21,5 +25,7 @@ function TimelineHeading (props) {
     </h2>
   )
 }
+
+TimelineHeading.propTypes = propTypes
 
 export default TimelineHeading
