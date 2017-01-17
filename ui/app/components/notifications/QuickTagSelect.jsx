@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react'
 
 import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
+import Translation from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
@@ -19,7 +20,7 @@ function QuickTagSelect (props) {
 
   return (
     <div>
-      <div className="mb1 md-mb0 md-mr2 md-inline-block">Pikavalinta</div>
+      <div className="mb1 md-mb0 md-mr2 md-inline-block"><Translation trans="pikavalinta" /></div>
 
       <div className="md-inline-block">
         <CheckboxButtonGroup

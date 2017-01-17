@@ -29,9 +29,9 @@ function Menu (props) {
       <div className={`menu center md-left-align flex-auto mb2 md-mb0 ${isMobileMenuVisible ? 'menu-is-visible' : ''}`}>
         {/*Categories*/}
         <div className="mb1 lg-mb0 lg-inline-block display-none">
-          <div className="inline-block lg-inline md-col-1 mb1 lg-mb0">Näytä</div>
+          <div className="inline-block lg-inline md-col-1 mb1 lg-mb0"><Translation trans="nayta" /></div>
 
-          <span className="hide">Kategoriat</span>
+          <span className="hide"><Translation trans="kategoriat" /></span>
 
           <div className="md-inline-block lg-ml2" />
         </div>
@@ -49,7 +49,7 @@ function Menu (props) {
           className="button-link h3 bold px0"
           onClick={controller.toggleEditor}
         >
-          +
+          +&nbsp;
           <Translation trans="lisaauusi" />
         </Button>
 

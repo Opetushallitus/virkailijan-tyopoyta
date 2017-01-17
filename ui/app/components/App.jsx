@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import R from 'ramda'
 
 // Data
 import roles from '../data/myroles.json'
@@ -11,7 +12,7 @@ import Menu from './menu/Menu'
 import Notifications from './notifications/Notifications'
 import Timeline from './timeline/Timeline'
 import EditRelease from './editor/EditRelease'
-import Translations from './common/Translations'
+import { setTranslations } from './common/Translations'
 
 const propTypes = {
   state: PropTypes.object.isRequired,
@@ -69,10 +70,18 @@ class App extends React.Component {
       credentials: 'include'
     })
       .then(response => response.json)
-      .then(data => Translations.setTranslations(data))
+      .then(data => {
+        let json = data
+
+        if (!R.is(Array, data)) {
+          json = translation
+        }
+
+        setTranslations(json)
+      })
       .catch(() => {
         if (window.location.host.indexOf('localhost') === 0 || window.location.host.indexOf('10.0.2.2') === 0) { // dev mode (copypaste from upper)
-          Translations.setTranslations(translation)
+          setTranslations(translation)
         } else { // real usage
           if (window.location.href.indexOf('ticket=') > 0) { // to prevent strange cyclic cas login problems (atm related to sticky sessions)
             window.alert('Problems with login, please reload page or log out and try again')
@@ -81,6 +90,7 @@ class App extends React.Component {
           }
         }
       })
+      .then(() => { this.forceUpdate() })
   }
 
   render () {

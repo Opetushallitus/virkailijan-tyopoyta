@@ -91,7 +91,7 @@ function EditTimelineItem (props) {
               >
                 <Icon name="trash" />
                 <span className="hide">
-                  <Translation trans="poistatapahtuma"/>
+                  <Translation trans="poistatapahtuma" />
                 </span>
               </Button>
             </div>
