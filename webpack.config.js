@@ -27,10 +27,6 @@ const config = {
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
-  eslint: {
-    formatter: esLintFriendlyFormatter,
-    failOnError: true
-  },
   devtool: 'source-map',
   module: {
     loaders: [
@@ -74,6 +70,10 @@ const config = {
       require('postcss-smart-import')({ addDependencyTo: webpack }),
       require('postcss-cssnext')()
     ]
+  },
+  eslint: {
+    formatter: esLintFriendlyFormatter,
+    failOnError: true
   },
   devServer: {
     historyApiFallback: true,
