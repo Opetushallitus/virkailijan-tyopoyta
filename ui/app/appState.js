@@ -413,7 +413,7 @@ export function initAppState() {
     categories: testData.categories,
     releases: releasesS,
     hasUnpublishedReleases: false,
-    notifications: notificationsS,
+    notifications: testData.releases.map(r => r.notification),
     notificationTags: testData.notificationTags,
     selectedNotificationTags: [],
     timeline: [],
