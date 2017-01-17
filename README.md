@@ -6,6 +6,7 @@ Opintopolun virkailijan työpöytä, jossa mm. tiedotteet ja aikajana.
 JS-koodi validoidaan [ESLint](http://eslint.org/)-työkalulla.
 
 JS-säännöt: [JS Standard Style](http://standardjs.com/)
+
 React/JSX-säännöt: [Airbnb React/JSX Style Guide](https://github.com/airbnb/javascript/tree/master/react) 
 
 Poikkeukset lisätään projektin juuressa sijaitsevaan .eslintrc-tiedostoon.
