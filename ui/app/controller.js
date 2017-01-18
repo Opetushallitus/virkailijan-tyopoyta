@@ -1,7 +1,8 @@
 export function initController (dispatcher, events) {
   // EDITOR
 
-  const toggleEditor = (isVisible, releaseId) => dispatcher.push(events.toggleEditor, { isVisible, releaseId })
+  const toggleEditor = (releaseId, selectedTab) =>
+    dispatcher.push(events.toggleEditor, { releaseId, selectedTab: selectedTab })
 
   const toggleEditorTab = selectedTab => dispatcher.push(events.toggleEditorTab, selectedTab)
 
@@ -19,8 +20,9 @@ export function initController (dispatcher, events) {
 
   const toggleNotification = id => dispatcher.push(events.toggleNotification, {id: id})
 
-  const addTimelineItem = release =>
-    dispatcher.push(events.addTimelineItem, release)
+  const addTimelineItem = release => dispatcher.push(events.addTimelineItem, release)
+
+  const removeTimelineItem = id => dispatcher.push(events.removeTimelineItem, id)
 
   const updateTimelineContent = (id, lang, prop) => value =>
     dispatcher.push(events.updateTimelineContent, {id: id, lang: lang, prop: prop, value: value})
@@ -34,7 +36,7 @@ export function initController (dispatcher, events) {
 
   // MENU
 
-  const toggleMenu = isVisible => dispatcher.push(events.toggleMenu, isVisible)
+  const toggleMenu = () => dispatcher.push(events.toggleMenu)
 
   // NOTIFICATIONS
 
@@ -66,6 +68,7 @@ export function initController (dispatcher, events) {
     updateNotificationTags: updateNotificationTags,
     updateNotificationContent: updateNotificationContent,
     addTimelineItem: addTimelineItem,
+    removeTimelineItem: removeTimelineItem,
     updateTimelineContent: updateTimelineContent,
     updateTimeline: updateTimeline,
     toggleDocumentPreview: toggleDocumentPreview,

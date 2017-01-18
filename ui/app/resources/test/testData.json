@@ -16,9 +16,9 @@
             "text": "<p><strong>AIKU</strong>-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00</p>"
           }
         },
-        "startDate": "31.12.2016",
+        "startDate": "1.1.2017",
         "endDate": "23.7.2017",
-        "initialStartDate": "31.12.2016",
+        "initialDate": "1.1.2017",
         "tags": [1, 2],
         "created": "23.5.2016 12:07",
         "creator": "CS"
@@ -27,20 +27,8 @@
         {
           "id": 1,
           "releaseId": 1,
-          "date": "23.5.2016",
-          "content": {
-            "fi": {
-              "text": "AIKU-palvelussa käyttökatko"
-            },
-            "sv": {
-              "text": "AIKU-palvelussa käyttökatko"
-            }
-          }
-        },
-        {
-          "id": 2,
-          "releaseId": 1,
-          "date": "31.12.2016",
+          "initialDate": "23.11.2016",
+          "date": "23.11.2016",
           "content": {
             "fi": {
               "text": "AIKU-palvelussa käyttökatko"
@@ -51,9 +39,12 @@
           }
         }
       ],
+
       "categories": [1, 2],
       "sendEmail": true
-    },
+    }
+  ],
+  "unpublished": [
     {
       "id": 2,
       "notification":
@@ -72,7 +63,7 @@
         },
         "startDate": "1.6.2017",
         "endDate": "1.7.2017",
-        "initialStartDate": "1.6.2017",
+        "initialDate": "1.6.2017",
         "tags": [3],
         "created": "23.5.2016 12:07",
         "creator": "CS"
@@ -80,6 +71,22 @@
       "timeline": [],
       "categories": [3],
       "sendEmail": false
+    }
+  ],
+  "timeline": [
+    {
+      "id": 1,
+      "releaseId": 1,
+      "initialDate": "23.11.2016",
+      "date": "23.11.2016",
+      "content": {
+        "fi": {
+          "text": "<p>AIKU-palvelussa <a href='test'>käyttökatko</a></p>"
+        },
+        "sv": {
+          "text": "<p>AIKU-palvelussa käyttökatko</p>"
+        }
+      }
     }
   ],
   "notificationTags": [

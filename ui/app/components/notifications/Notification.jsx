@@ -1,27 +1,43 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
 import R from 'ramda'
 import renderHTML from 'react-render-html'
 
 // Components
-import Tag from '../Tag'
-import Icon from '../Icon'
-import Button from '../Button'
-import EditButton from '../EditButton'
-import Translation from '../Translations'
+import Tag from '../common/Tag'
+import Icon from '../common/Icon'
+import Button from '../common/buttons/Button'
+import EditButton from '../common/buttons/EditButton'
+import Translation from '../common/Translations'
 
-const truncate = len => R.when(
-  R.propSatisfies(R.gt(R.__, len), 'length'),
-  R.pipe(R.take(len), R.append('…'), R.join(''))
-)
+const propTypes = {
+  locale: PropTypes.string.isRequired,
+  controller: PropTypes.object.isRequired,
+  notification: PropTypes.object.isRequired,
+  tags: PropTypes.array.isRequired,
+  expandedNotifications: PropTypes.array.isRequired
+}
 
-function Notification(props) {
-  const { 
+function Notification (props) {
+  const {
     locale,
+    controller,
     notification,
     tags,
-    expandedNotifications,
-    controller
+    expandedNotifications
   } = props
+
+  const handleOnNotificationClick = () => {
+    controller.toggleNotification(notification.id)
+  }
+
+  const handleOnEditButtonClick = () => {
+    controller.toggleEditor(notification.releaseId)
+  }
+
+  const truncate = length => R.when(
+    R.propSatisfies(R.gt(R.__, length), 'length'),
+    R.pipe(R.take(length), R.append('…'), R.join(''))
+  )
 
   const content = notification.content[locale]
 
@@ -29,27 +45,26 @@ function Notification(props) {
   // TODO: do not use regex
   const parsedText = content.text.replace(/(<([^>]+)>)/ig, '')
 
-  const excerptLength = 100;
+  const excerptLength = 100
   const excerpt = truncate(excerptLength)(parsedText)
 
-  const isExpandable = parsedText.length > excerptLength;
-  const expandedNotification = expandedNotifications.indexOf(notification.id) > -1
+  const isExpandable = parsedText.length > excerptLength
+  const isExpanded = expandedNotifications.indexOf(notification.id) > -1
 
   const classList = [
-    'notification',
     `notification-${notification.type}`,
     `${isExpandable ? 'notification-is-expandable' : ''}`,
-    "relative",
-    "mt3",
-    "pt2",
-    "px2",
-    "pb1",
-    "z1",
-    "border",
-    "border-gray-lighten-3",
-    "rounded",
-    "bg-white",
-    "box-shadow"
+    'relative',
+    'mt3',
+    'pt2',
+    'px2',
+    'pb1',
+    'z1',
+    'border',
+    'border-gray-lighten-3',
+    'rounded',
+    'bg-white',
+    'box-shadow'
   ]
 
   return (
@@ -62,19 +77,23 @@ function Notification(props) {
       {/*'Show more/less' button*/}
       {/*Display button if text is longer than excerpt length*/}
       {isExpandable
-        ?
-        <Button
-          classList="button-link absolute top-0 right-0 z2 gray-lighten-1"
-          title={expandedNotification ? <Translation trans="naytakatkelma"/> : <Translation trans="naytatiedote"/>}
-          onClick={() => controller.toggleNotification(notification.id)}
+        ? <Button
+          className="button-link absolute top-0 right-0 z2 gray-lighten-1"
+          title={
+            isExpanded
+              ? <Translation trans="naytakatkelma" />
+              : <Translation trans="naytatiedote" />
+          }
+          onClick={handleOnNotificationClick}
         >
-          <Icon name={expandedNotification ? 'chevron-up' : 'chevron-down'} />
+          <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
+
           <span className="hide">
-              { expandedNotification
-                ? <Translation trans="naytakatkelma"/>
-                : <Translation trans="naytatiedote"/>
-              }
-            </span>
+            { isExpanded
+              ? <Translation trans="naytakatkelma" />
+              : <Translation trans="naytatiedote" />
+            }
+          </span>
         </Button>
         : null
       }
@@ -82,11 +101,11 @@ function Notification(props) {
       {/*Edit button*/}
       <EditButton
         className="absolute bottom-0 right-0 z2 gray-lighten-1"
-        onClick={() => controller.toggleEditor(true, notification.releaseId)}
+        onClick={handleOnEditButtonClick}
       />
 
-      <div className={classList.join(' ')} onClick={() => controller.toggleNotification(notification.id)}>
-        {/*Displayed title*/}
+      <div className={classList.join(' ')} onClick={handleOnNotificationClick}>
+        {/*Title*/}
         <h3 className="notification-heading h4 primary bold inline-block mb2 mr2" aria-hidden>
           {content.title}
         </h3>
@@ -94,14 +113,14 @@ function Notification(props) {
         {/*Content*/}
         <div className="mb2">
           {
-            expandedNotification || !isExpandable
+            isExpanded || !isExpandable
               ? renderHTML(content.text)
               : excerpt
           }
         </div>
 
         {/*Publish date and publisher's initials*/}
-        <span className={`h6 mb1 muted ${!notification.tags.length ? "inline-block" : ""}`}>
+        <span className={`h6 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
           <time className="mr1">{notification.created}</time>
           {notification.creator}
         </span>
@@ -119,5 +138,7 @@ function Notification(props) {
     </div>
   )
 }
+
+Notification.propTypes = propTypes
 
 export default Notification

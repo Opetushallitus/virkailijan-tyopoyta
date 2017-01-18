@@ -1,10 +1,11 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const validate = require('webpack-validator');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const validate = require('webpack-validator')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const esLintFriendlyFormatter = require('eslint-friendly-formatter')
 
-const webpack = require('webpack');
+const webpack = require('webpack')
 
 const PATHS = {
   build: path.join(__dirname, 'src/main/resources/ui'),
@@ -12,7 +13,7 @@ const PATHS = {
   style: path.join(__dirname, 'ui/app/resources/styles'),
   images: path.join(__dirname, 'ui/app/resources/img'),
   fonts: path.join(__dirname, 'ui/app/resources/fonts')
-};
+}
 
 const config = {
   entry: {
@@ -21,8 +22,7 @@ const config = {
   output: {
     path: PATHS.build,
     filename: '[name].js',
-    chunkFilename: '[id].js',
-    publicPath: "/virkailijan-tyopoyta/"
+    chunkFilename: '[id].js'
   },
   resolve: {
     extensions: ['', '.js', '.jsx']
@@ -35,17 +35,23 @@ const config = {
         exclude: /(node_modules|bower_components)/,
         loader: 'babel',
         query: {
-          presets:['es2015', 'react'],
-          plugins: ["transform-object-rest-spread"]
+          presets: ['es2015', 'react'],
+          plugins: ['transform-object-rest-spread']
         }
       },
       {
+        test: /\.jsx?$/,
+        loader: 'eslint',
+        include: PATHS.app + '/components',
+        exclude: /(node_modules|bower_components)/
+      },
+      {
         test: /\.json$/,
-        loader: "json-loader"
+        loader: 'json-loader'
       },
       {
         test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-        loader: "file"
+        loader: 'file'
       },
       {
         test: /\.(jpg|png|gif)$/,
@@ -61,19 +67,23 @@ const config = {
   },
   postcss: function (webpack) {
     return [
-      require("postcss-smart-import")({ addDependencyTo: webpack }),
-      require("postcss-cssnext")()
+      require('postcss-smart-import')({ addDependencyTo: webpack }),
+      require('postcss-cssnext')()
     ]
+  },
+  eslint: {
+    formatter: esLintFriendlyFormatter,
+    failOnError: true
   },
   devServer: {
     historyApiFallback: true,
     hot: true,
     inline: true,
-    stats: 'errors-only',
+    stats: 'errors-only'
   },
 
   plugins: [
-    new ExtractTextPlugin("[name].css"),
+    new ExtractTextPlugin('[name].css'),
     new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()
     }),
@@ -87,6 +97,6 @@ const config = {
       multiStep: true
     })
   ]
-};
+}
 
-module.exports = validate(config);
+module.exports = validate(config)

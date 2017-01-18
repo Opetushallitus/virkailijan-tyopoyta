@@ -1,26 +1,37 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
 
 import TimelineItem from './TimelineItem'
-import Button from '../Button'
-import Icon from '../Icon'
 
-function TimelineDay ({ day }) {
+const propTypes = {
+  controller: PropTypes.object.isRequired,
+  locale: PropTypes.string.isRequired,
+  dateFormat: PropTypes.string.isRequired,
+  items: PropTypes.array.isRequired
+}
+
+function TimelineDay (props) {
+  const {
+    controller,
+    locale,
+    dateFormat,
+    items
+  } = props
+
+  const item = items[0]
+
   return (
     <div className="timeline-day relative col-12 sm-col-6 md-col-12 lg-col-6">
-      <TimelineItem />
-
-      <div className="timeline-event break-word left-align mt1 p2 relative rounded white bg-blue">
-        {/*Description*/}
-        <div className="h5 pr2">Ylempään ammattikorkeakoulututkintoon ja yliopistojen pelkkään ylempään korkeakoulututkintoon
-          johtavien koulutusten osalta...</div>
-
-        {/*Edit button*/}
-        {/*<EditButton*/}
-          {/*className="absolute top-0 right-0"*/}
-        {/*/>*/}
-      </div>
+      <TimelineItem
+        controller={controller}
+        dateFormat={dateFormat}
+        releaseId={item.releaseId}
+        date={item.date}
+        text={item.content[locale].text}
+      />
     </div>
   )
 }
 
-export default TimelineDay;
+TimelineDay.propTypes = propTypes
+
+export default TimelineDay
