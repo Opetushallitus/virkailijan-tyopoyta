@@ -3,7 +3,7 @@ import urls from './data/virkailijan-tyopoyta-urls.json'
 
 module.exports = function() {
 
-  getRoles = function (){
+  const getRoles = function (){
     fetch(urls["cas.myroles"],{
       credentials: 'include'
     })
@@ -33,7 +33,7 @@ module.exports = function() {
       });
   }
 
-  getTranslate = function(){
+  const getTranslate = function(){
 
     let lang='fi';
 

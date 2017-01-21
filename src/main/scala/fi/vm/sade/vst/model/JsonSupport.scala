@@ -1,16 +1,15 @@
-package fi.vm.sade.vst.routes
+package fi.vm.sade.vst.model
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import fi.vm.sade.vst.model._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
 
 trait JsonSupport {
 
   implicit val dateWrites: Writes[LocalDate] = Writes.temporalWrites[LocalDate, DateTimeFormatter](DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-  implicit val dateReads: Reads[LocalDate] = Reads.localDateReads("dd.MM.yyyy")
+  implicit val dateReads: Reads[LocalDate] = Reads.localDateReads("d.M.yyyy")
 
   implicit val notificationContentWrites: Writes[NotificationContent] = (
     (JsPath \ "notificationId").write[Long] and
@@ -21,29 +20,30 @@ trait JsonSupport {
 
   implicit val tagWrites: Writes[Tag] = (
     (JsPath \ "id").write[Long] and
-      (JsPath \ "name").write[String]
+    (JsPath \ "name_fi").write[String]
     )(unlift(Tag.unapply))
 
   implicit val notificationWrites: Writes[Notification] = (
     (JsPath \ "id").write[Long] and
-      (JsPath \ "releaseId").write[Long] and
-      (JsPath \ "publishDate").write[LocalDate] and
-      (JsPath \ "expiryDate").write[Option[LocalDate]] and
-      (JsPath \ "content").write[Map[String, NotificationContent]] and
-      (JsPath \ "tags").write[List[Tag]]
+    (JsPath \ "releaseId").write[Long] and
+    (JsPath \ "startDate").write[LocalDate] and
+    (JsPath \ "endDate").write[Option[LocalDate]] and
+    (JsPath \ "initialStartDate").write[Option[LocalDate]] and
+    (JsPath \ "content").write[Map[String, NotificationContent]] and
+    (JsPath \ "tags").write[List[Int]]
     ) (unlift(Notification.unapply))
 
   implicit val timelineContentWrites: Writes[TimelineContent] = (
     (JsPath \ "timelineId").write[Long] and
-      (JsPath \ "language").write[String] and
-      (JsPath \ "text").write[String]
+    (JsPath \ "language").write[String] and
+    (JsPath \ "text").write[String]
     )(unlift(TimelineContent.unapply))
 
   implicit val timelineItemWrites: Writes[TimelineItem] = (
     (JsPath \ "id").write[Long] and
-      (JsPath \ "releaseId").write[Long] and
-      (JsPath \ "date").write[LocalDate] and
-      (JsPath \ "content").write[Map[String, TimelineContent]]
+    (JsPath \ "releaseId").write[Long] and
+    (JsPath \ "date").write[LocalDate] and
+    (JsPath \ "content").write[Map[String, TimelineContent]]
     )(unlift(TimelineItem.unapply))
 
   implicit val releaseWrites: Writes[Release] = (
@@ -55,9 +55,9 @@ trait JsonSupport {
 
   implicit val notificationContentReads: Reads[NotificationContent] = (
     (JsPath \ "notificationId").read[Long] and
-      (JsPath \ "language").read[String] and
-      (JsPath \ "title").read[String] and
-      (JsPath \ "text").read[String]
+    (JsPath \ "language").read[String] and
+    (JsPath \ "title").read[String] and
+    (JsPath \ "text").read[String]
     )(NotificationContent.apply _)
 
   implicit val tagReads: Reads[Tag] = (
@@ -67,11 +67,12 @@ trait JsonSupport {
 
   implicit val NotificationReads: Reads[Notification] = (
     (JsPath \ "id").read[Long] and
-      (JsPath \ "releaseId").read[Long] and
-      (JsPath \ "publishDate").read[LocalDate] and
-      (JsPath \ "expiryDate").readNullable[LocalDate] and
-      (JsPath \ "content").read[Map[String, NotificationContent]] and
-      (JsPath \ "tags").read[List [Tag]]
+    (JsPath \ "releaseId").read[Long] and
+    (JsPath \ "startDate").read[LocalDate] and
+    (JsPath \ "endDate").readNullable[LocalDate] and
+    (JsPath \ "initialStartDate").readNullable[LocalDate] and
+    (JsPath \ "content").read[Map[String, NotificationContent]] and
+    (JsPath \ "tags").read[List [Int]]
     )(Notification.apply _)
 
   implicit val timelineContentReads: Reads[TimelineContent] = (
@@ -94,10 +95,19 @@ trait JsonSupport {
       (JsPath \ "timeline").read[List[TimelineItem]]
     )(Release.apply _)
 
+  implicit val userWrites: Writes[User] = (
+    (JsPath \ "name").write[String] and
+    (JsPath \ "language").write[String] and
+    (JsPath \ "roles").write[Seq[String]]
+  )(unlift(User.unapply))
+
   def parseRelease(jsString: String): Option[Release] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseReads)
-    val either = result.asEither
     result.asOpt
+  }
+
+  def serialize[T](obj: T)(implicit tjs: Writes[T]): String ={
+    Json.toJson[T](obj).toString()
   }
 }

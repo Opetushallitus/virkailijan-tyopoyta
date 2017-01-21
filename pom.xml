@@ -9,7 +9,7 @@
         <name>fi.vm.sade</name>
     </organization>
     <properties>
-        <scala.version>2.12.0</scala.version>
+        <scala.version>2.11.8</scala.version>
         <akkahttp.version>10.0.0</akkahttp.version>
         <circe.version>0.6.1</circe.version>
     </properties>
@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http_2.12</artifactId>
+            <artifactId>akka-http_2.11</artifactId>
             <version>${akkahttp.version}</version>
         </dependency>
         <dependency>
@@ -31,13 +31,39 @@
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.12</artifactId>
+            <artifactId>play-json_2.11</artifactId>
             <version>2.6.0-M1</version>
         </dependency>
         <dependency>
-            <groupId>com.github.nscala-time</groupId>
-            <artifactId>nscala-time_2.12</artifactId>
-            <version>2.14.0</version>
+            <groupId>com.softwaremill.akka-http-session</groupId>
+            <artifactId>core_2.11</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>fi.vm.sade</groupId>
+            <artifactId>scala-ldap-client_2.11</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>fi.vm.sade</groupId>
+            <artifactId>scala-cas_2.11</artifactId>
+            <version>0.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.softwaremill.macwire</groupId>
+            <artifactId>macros_2.11</artifactId>
+            <version>2.2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cb372</groupId>
+            <artifactId>scalacache-guava_2.11</artifactId>
+            <version>0.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-native_2.11</artifactId>
+            <version>3.5.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -94,7 +120,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm run build</id>
+                        <id>npm run dist</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -111,7 +137,7 @@
                 <configuration>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>fi.vm.sade.vst.Server</mainClass>
+                            <mainClass>fi.vm.sade.vst.Main</mainClass>
                         </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                             <resource>reference.conf</resource>
