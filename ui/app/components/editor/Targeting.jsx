@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react'
+import R from 'ramda'
 import { Dropdown } from 'semantic-ui-react'
 
+import UserGroupButton from './UserGroupButton'
 import Field from '../common/form/Field'
 import Fieldset from '../common/form/Fieldset'
 import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
@@ -11,9 +13,9 @@ import mapDropdownOptions from '../utils/mapDropdownOptions'
 const propTypes = {
   locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
-  categories: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired,
-  notificationTags: PropTypes.array.isRequired
+  categories: PropTypes.array.isRequired,
+  userGroups: PropTypes.array.isRequired
 }
 
 function Targeting (props) {
@@ -21,16 +23,22 @@ function Targeting (props) {
     locale,
     controller,
     categories,
-    notificationTags,
+    userGroups,
     release
   } = props
 
-  const handleOnTagsChange = (event, { value }) => {
-    controller.updateNotificationTags(value)
+  const handleOnUserGroupsChange = (event, { value }) => {
+    controller.toggleReleaseUserGroup(value)
   }
 
-  const handleOnTagClick = (event, { value }) => {
-    controller.updateNotificationTags(value)
+  /* Get unselected user groups for Dropdown options */
+  const selectableUserGroups = R.reject(
+    group => R.contains(group.id, release.userGroups),
+    userGroups
+  )
+
+  const getUserGroupName = (id, userGroups, locale) => {
+    return R.find(R.propEq('id', id))(userGroups)[`name_${locale}`]
   }
 
   return (
@@ -55,20 +63,31 @@ function Targeting (props) {
         <div className="col-12 sm-col-6 sm-pr2">
           <Field name="release-usergroups" label={translate('julkryhma')}>
             <Dropdown
-              className="semantic-ui editor-select-usergroups"
+              className="semantic-ui"
               fluid
               multiple
               name="release-usergroups"
               noResultsMessage={translate('eiryhma')}
-              onChange={handleOnTagsChange}
-              onLabelClick={handleOnTagClick}
-              options={mapDropdownOptions(notificationTags, locale)}
+              onChange={handleOnUserGroupsChange}
+              options={mapDropdownOptions(selectableUserGroups, locale)}
               placeholder={translate('lisaaryhma')}
               search
               selection
-              value={release.notification.tags}
+              value={[]}
             />
           </Field>
+        </div>
+
+        <div className="col-12 sm-col-6 sm-pl2">
+          <div className="invisible mb1">{translate('valitutryhmat')}</div>
+          {release.userGroups.map(group =>
+            <UserGroupButton
+              key={`usergroup${group}`}
+              controller={controller}
+              id={group}
+              text={getUserGroupName(group, userGroups, locale)}
+            />
+          )}
         </div>
       </div>
     </div>

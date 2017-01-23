@@ -74,6 +74,10 @@ a:focus {
   background-color: var(--blue-darken);
 }
 
+.bg-blue-lighten-4 {
+  background-color: var(--blue-lighten-4);
+}
+
 /* Borders */
 
 .border-primary {
@@ -90,6 +94,10 @@ a:focus {
 
 .border-blue {
   border-color: var(--blue);
+}
+
+.border-blue-lighten-3 {
+  border-color: var(--blue-lighten-3);
 }
 
 .rounded-bottom-left {

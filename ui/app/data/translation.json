@@ -953,7 +953,7 @@
   {
     "locale": "fi",
     "key": "sulje",
-    "value:": "Sulje"
+    "value": "Sulje"
   },
   {
     "locale": "fi",
@@ -962,7 +962,32 @@
   },
   {
     "locale": "fi",
-    "key": "sulje",
-    "value": "Sulje"
+    "key": "poistakohderyhma",
+    "value": "Poista kohderyhmä"
+  },
+  {
+    "locale": "fi",
+    "key": "valitutryhmat",
+    "value": "Valitut käyttöoikeusryhmät"
+  },
+  {
+    "locale": "fi",
+    "key": "kohderyhmavalinnannimi",
+    "value": "Anna kohderyhmävalinnalle nimi tallentaaksesi sen"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisunkohdennus",
+    "value": "Julkaisut kohdistetaan seuraavasti:"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennuskategoriat",
+    "value": "Virkailijat, jotka työskentelevät jossakin seuraavista kategorioista"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennusroolit",
+    "value": "ja joiden rooli on jokin seuraavista"
   }
 ]

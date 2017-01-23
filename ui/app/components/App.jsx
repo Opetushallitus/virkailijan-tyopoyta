@@ -209,6 +209,7 @@ class App extends React.Component {
             isPreviewed={state.editor.isPreviewed}
             release={state.editor.document}
             categories={state.editor.categories}
+            userGroups={state.editor.userGroups}
             notificationTags={state.notificationTags}
           />
         </Modal>

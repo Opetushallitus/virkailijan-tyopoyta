@@ -20,7 +20,8 @@ const propTypes = {
   isPreviewed: PropTypes.bool.isRequired,
   release: PropTypes.object.isRequired,
   notificationTags: PropTypes.array.isRequired,
-  categories: PropTypes.array.isRequired
+  categories: PropTypes.array.isRequired,
+  userGroups: PropTypes.array.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -65,7 +66,8 @@ function EditRelease (props) {
     isPreviewed,
     release,
     notificationTags,
-    categories
+    categories,
+    userGroups
   } = props
 
   const notification = release.notification
@@ -185,15 +187,15 @@ function EditRelease (props) {
             locale={locale}
             controller={controller}
             categories={categories}
+            userGroups={userGroups}
             release={release}
-            notificationTags={notificationTags}
           />
         </section>
       </div>
 
       {/*Preview*/}
       { isPreviewed
-        ? <section className="p3 border-top border-gray-lighten-3">
+        ? <section className="pt3 px3 border-top border-gray-lighten-3">
           <PreviewRelease locale={locale} release={release} />
         </section>
         : null

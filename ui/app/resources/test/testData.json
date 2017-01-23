@@ -41,6 +41,7 @@
       ],
 
       "categories": [1, 2],
+      "userGroups": [2, 3],
       "sendEmail": true
     }
   ],
@@ -70,6 +71,7 @@
       },
       "timeline": [],
       "categories": [3],
+      "userGroups": [1],
       "sendEmail": false
     }
   ],
@@ -161,6 +163,20 @@
     {
       "id": 9,
       "name_fi": "Vapaan sivistystyön koulutus"
+    }
+  ],
+  "userGroups": [
+    {
+      "id": 1,
+      "name_fi": "Organisaatiotietojen ylläpitäjä"
+    },
+    {
+      "id": 2,
+      "name_fi": "Opinto-ohjaaja"
+    },
+    {
+      "id": 3,
+      "name_fi": "2asterajapinnat"
     }
   ]
 }

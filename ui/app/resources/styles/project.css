@@ -523,11 +523,15 @@
   min-height: 6rem;
 }
 
-/* Hide labels in categories' usergroups Semantic UI Dropdown */
-.editor-select-usergroups.ui.multiple.dropdown > .label {
-  display: none;
+.release-usergroup-button:hover,
+.release-usergroup-button:focus {
+  color: var(--white);
 }
 
 .border-widen-1 {
   border-width: var(--border-widen-1) ;
+}
+
+.invisible {
+  visibility: hidden;
 }

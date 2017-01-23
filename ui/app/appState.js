@@ -21,6 +21,7 @@ const events = {
   toggleEditor: 'toggleEditor',
   toggleEditorTab: 'toggleEditorTab',
   toggleReleaseCategory: 'toggleReleaseCategory',
+  toggleReleaseUserGroup: 'toggleReleaseUserGroup',
   updateRelease: 'updateRelease',
   updateNotification: 'updateNotification',
   updateNotificationTags: 'updateNotificationTags',
@@ -204,13 +205,24 @@ function toggleReleaseCategory (state, category) {
   return updateRelease(state, { prop: 'categories', value: newCategories })
 }
 
+function toggleReleaseUserGroup (state, value) {
+  console.log('Toggling release user group', value)
+
+  const groups = state.editor.document.userGroups
+  const newGroups = R.contains(value, groups)
+    ? R.reject(g => g === value, groups)
+    : R.concat(groups, value)
+
+  return updateRelease(state, { prop: 'userGroups', value: newGroups })
+}
+
 // NOTIFICATION
 
-function emptyContent (id ,lang) {
+function emptyContent (id, lang) {
   return {
     notificationId: id,
-    text: "",
-    title: "",
+    text: '',
+    title: '',
     language: lang,
   }
 }
@@ -387,6 +399,7 @@ function emptyRelease () {
     notification: emptyNotification(),
     timeline: [newTimelineItem(-1, [])],
     categories: [],
+    userGroups: [],
     validationState: 'empty'
   }
 }
@@ -505,6 +518,7 @@ export function initAppState() {
       isVisible: false,
       isPreviewed: false,
       categories: testData.releaseCategories,
+      userGroups: testData.userGroups,
       document: emptyRelease(),
       selectedTab: 'edit-notification',
       onSave: removeDocumentProperties
@@ -536,6 +550,7 @@ export function initAppState() {
     [dispatcher.stream(events.updateTimeline)], updateTimeline,
     [dispatcher.stream(events.updateTimelineContent)], updateTimelineContent,
     [dispatcher.stream(events.toggleReleaseCategory)], toggleReleaseCategory,
+    [dispatcher.stream(events.toggleReleaseUserGroup)], toggleReleaseUserGroup,
     [dispatcher.stream(events.toggleDocumentPreview)], toggleDocumentPreview,
     [dispatcher.stream(events.saveDocument)], saveDocument,
 
