@@ -7,12 +7,17 @@ import translation from '../data/translation.json'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 // Components
-import Modal from './common/Modal'
 import Menu from './menu/Menu'
 import Notifications from './notifications/Notifications'
+import UnpublishedNotifications from './notifications/UnpublishedNotifications'
 import Timeline from './timeline/Timeline'
-import EditRelease from './editor/EditRelease'
-import { setTranslations } from './common/Translations'
+import Editor from './editor/Editor'
+import Tabs from './common/tabs/Tabs'
+import TabItem from './common/tabs/TabItem'
+import Alert from './common/Alert'
+import Modal from './common/Modal'
+import Spinner from './common/Spinner'
+import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
   state: PropTypes.object.isRequired,
@@ -99,47 +104,93 @@ class App extends React.Component {
       controller
     } = this.props
 
+    const selectedTab = state.view.selectedTab
+
     return (
       <div>
+        {/*Alerts*/}
+        <div className="box-shadow">
+          {state.view.alerts.map(alert =>
+            <Alert
+              key={alert.id}
+              type={alert.type}
+              title={alert.title}
+              text={alert.text}
+              onCloseButtonClick={() => controller.removeViewAlert(alert.id)}
+            />
+          )}
+        </div>
+
         {/*Content*/}
-        <div className="container flex flex-wrap mx-auto">
+        <div className="container mx-auto">
           {/*Menu*/}
           <Menu
             controller={controller}
+            locale={state.locale}
+            dateFormat={state.dateFormat}
             categories={state.categories}
+            view={state.view}
+            unpublishedNotifications={state.unpublishedNotifications}
             isMobileMenuVisible={state.menu.isMobileMenuVisible}
           />
 
-          {/*Notifications*/}
-          <section className="col-12 md-col-7 mt3 md-pr2">
-            <div className="alert alert-warning mb3">
-              Haku ei ole vielä toiminnassa
-            </div>
+          <div className="col-12 display-none">
+            <Spinner isVisible />
+          </div>
 
-            <Notifications
-              controller={controller}
-              locale={state.locale}
-              nextPage={state.nextPage}
-              notifications={state.notifications}
-              expandedNotifications={state.expandedNotifications}
-              notificationTags={state.notificationTags}
-              selectedNotificationTags={state.selectedNotificationTags}
-            />
-          </section>
+          {/*View selection for mobile screens*/}
+          <Tabs className="md-hide lg-hide sm-mt3">
+            <TabItem
+              name="notifications"
+              selectedTab={selectedTab}
+              onClick={controller.toggleViewTab}
+            >
+              {translate('tiedotteet')}
+            </TabItem>
 
-          {/*Timeline*/}
-          <section className="col-12 md-col-5 mt3 md-pl2">
-            <div className="alert alert-warning mb3">
-              Testidataa, ei muokattavissa
-            </div>
+            <TabItem
+              name="timeline"
+              selectedTab={selectedTab}
+              onClick={controller.toggleViewTab}
+            >
+              {translate('aikajana')}
+            </TabItem>
+          </Tabs>
 
-            <Timeline
-              controller={controller}
-              locale={state.locale}
-              dateFormat={state.dateFormat}
-              items={state.timeline}
-            />
-          </section>
+          <div className="flex flex-wrap col-12 mt3">
+            {/*Notifications*/}
+            <section
+              className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
+            >
+              <div className="alert alert-warning block mb3 py2">
+                Haku ei ole vielä toiminnassa
+              </div>
+
+              <Notifications
+                controller={controller}
+                locale={state.locale}
+                nextPage={state.nextPage}
+                notifications={state.notifications}
+                expandedNotifications={state.expandedNotifications}
+                notificationTags={state.notificationTags}
+                selectedNotificationTags={state.selectedNotificationTags}
+              />
+            </section>
+
+            {/*Timeline*/}
+            <section className="col-12 md-col-5 md-pl2">
+              <div className="alert alert-warning block mb3 py2">
+                Testidataa, ei muokattavissa
+              </div>
+
+              <Timeline
+                controller={controller}
+                locale={state.locale}
+                dateFormat={state.dateFormat}
+                items={state.timeline}
+              />
+            </section>
+          </div>
         </div>
 
         {/*Modals*/}
@@ -150,19 +201,30 @@ class App extends React.Component {
           variant="large"
           onCloseButtonClick={controller.toggleEditor}
         >
-          <EditRelease
+          <Editor
             controller={controller}
             locale={state.locale}
             dateFormat={state.dateFormat}
             selectedTab={state.editor.selectedTab}
             isPreviewed={state.editor.isPreviewed}
             release={state.editor.document}
-            categories={state.categories}
+            categories={state.editor.categories}
             notificationTags={state.notificationTags}
           />
         </Modal>
 
         {/*Unpublished notifications*/}
+        <Modal
+          isVisible={state.unpublishedNotifications.isVisible}
+          variant="large"
+          onCloseButtonClick={controller.toggleUnpublishedNotifications}
+        >
+          <UnpublishedNotifications
+            controller={controller}
+            locale={state.locale}
+            notifications={state.unpublishedNotifications.data}
+          />
+        </Modal>
       </div>
     )
   }

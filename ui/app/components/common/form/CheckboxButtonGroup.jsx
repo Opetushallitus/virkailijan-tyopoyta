@@ -35,7 +35,7 @@ function CheckboxButtonGroup (props) {
       {
         options.map((option, index) =>
           <CheckboxButton
-            key={option.id}
+            key={htmlId + option.id}
             id={option.id}
             htmlId={htmlId}
             variant={variant}

@@ -52,7 +52,7 @@ function EditNotification (props) {
 
     // Update endDate if it's before startDate
     if (newDate && date.isAfter(moment(notification.endDate, dateFormat))) {
-      controller.updateNotification('endDate', date.add(1, 'days').format(dateFormat))
+      controller.updateNotification('endDate', newDate)
     }
   }
 
@@ -70,16 +70,9 @@ function EditNotification (props) {
       return
     }
 
-    // Check if new startDate should be endDate - 1 or minDate
-    let newStartDate = date.subtract(1, 'days')
-
-    if (newStartDate.isBefore(minDate)) {
-      newStartDate = minDate
-    }
-
     // Update startDate if it's before endDate
     if (newDate && date.isBefore(moment(notification.startDate, dateFormat))) {
-      controller.updateNotification('startDate', newStartDate.format(dateFormat))
+      controller.updateNotification('startDate', newDate)
     }
   }
 

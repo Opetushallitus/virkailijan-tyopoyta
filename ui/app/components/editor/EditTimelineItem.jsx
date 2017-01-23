@@ -85,7 +85,7 @@ function EditTimelineItem (props) {
             ? null
             : <div className="flex-auto flex items-end justify-end">
               <Button
-                className="button-link h3 pt3 pr0 pb0 pl3 gray-lighten-1"
+                className="button-link h3 pr0 gray-lighten-1"
                 title="Poista tapahtuma"
                 onClick={handleOnRemoveItemClick}
               >

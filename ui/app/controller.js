@@ -1,4 +1,14 @@
 export function initController (dispatcher, events) {
+  // VIEW
+
+  const updateView = (prop, value) => dispatcher.push(events.updateView, { prop: prop, value: value })
+
+  const toggleViewCategory = category => dispatcher.push(events.toggleViewCategory, category)
+
+  const toggleViewTab = selectedTab => dispatcher.push(events.toggleViewTab, selectedTab)
+
+  const removeViewAlert = id => dispatcher.push(events.removeViewAlert, id)
+
   // EDITOR
 
   const toggleEditor = (releaseId, selectedTab) =>
@@ -8,8 +18,7 @@ export function initController (dispatcher, events) {
 
   const updateRelease = (prop, value) => dispatcher.push(events.updateRelease, {prop: prop, value: value})
 
-  const toggleReleaseCategory = category =>
-    dispatcher.push(events.toggleReleaseCategory, category)
+  const toggleReleaseCategory = category => dispatcher.push(events.toggleReleaseCategory, category)
 
   const updateNotification = (prop, value) => dispatcher.push(events.updateNotification, {prop: prop, value: value})
 
@@ -28,7 +37,7 @@ export function initController (dispatcher, events) {
     dispatcher.push(events.updateTimelineContent, {id: id, lang: lang, prop: prop, value: value})
 
   const updateTimeline = (id, prop, value) =>
-    dispatcher.push(events.updateTimeline, {id: id, prop:prop, value:value})
+    dispatcher.push(events.updateTimeline, {id: id, prop: prop, value: value})
 
   const toggleDocumentPreview = isPreviewed => dispatcher.push(events.toggleDocumentPreview, isPreviewed)
 
@@ -40,6 +49,8 @@ export function initController (dispatcher, events) {
 
   // NOTIFICATIONS
 
+  const toggleUnpublishedNotifications = releaseId => dispatcher.push(events.toggleUnpublishedNotifications, releaseId)
+
   const getNotifications = page => dispatcher.push(events.getNotifications, page)
 
   const lazyLoadNotifications = page => dispatcher.push(events.lazyLoadNotifications, page)
@@ -47,18 +58,20 @@ export function initController (dispatcher, events) {
   const updateSearch = search => dispatcher.push(events.updateSearch, {search: search})
 
   const setSelectedNotificationTags = value => {
-    console.log('Tag selected', value)
-
     dispatcher.push(events.setSelectedNotificationTags, value)
   }
 
   const toggleNotificationTag = value => {
-    console.log('Toggled tag with value', value)
-
     dispatcher.push(events.toggleNotificationTag, value)
   }
 
   return {
+    // View
+    updateView: updateView,
+    toggleViewCategory: toggleViewCategory,
+    toggleViewTab: toggleViewTab,
+    removeViewAlert: removeViewAlert,
+
     // Editor
     toggleEditor: toggleEditor,
     toggleEditorTab: toggleEditorTab,
@@ -79,10 +92,11 @@ export function initController (dispatcher, events) {
 
     // Notifications
     getNotifications: getNotifications,
+    toggleUnpublishedNotifications: toggleUnpublishedNotifications,
     lazyLoadNotifications: lazyLoadNotifications,
     updateSearch: updateSearch,
     toggleNotificationTag: toggleNotificationTag,
     setSelectedNotificationTags: setSelectedNotificationTags,
-    toggleNotification : toggleNotification
+    toggleNotification: toggleNotification
   }
 }

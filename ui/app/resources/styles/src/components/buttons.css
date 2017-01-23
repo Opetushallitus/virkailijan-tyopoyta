@@ -3,6 +3,7 @@
 .button {
   font-size: var(--base-font-size);
   font-family: var(--base-font-family);
+  font-weight: var(--font-weight-bold);
   line-height: 1.125rem;
   padding: var(--space-2);
   border: 1px solid transparent;
@@ -66,4 +67,10 @@
   font-size: var(--h4);
   padding-left: var(--space-3);
   padding-right: var(--space-3);
+}
+
+.button-close {
+  font-size: var(--h1);
+  color: var(--gray-lighten-1);
+  z-index: var(--z2);
 }

@@ -40,7 +40,7 @@ function EditTimeline (props) {
       )}
 
       {/*Add new event*/}
-      <Button className="button-link primary px0" onClick={handleOnAddItemClick}>
+      <Button className="button-link regular px0" onClick={handleOnAddItemClick}>
         <span aria-hidden>+ </span>
         <Translation trans="lisaauusitapahtuma" />
       </Button>

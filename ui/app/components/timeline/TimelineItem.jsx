@@ -44,13 +44,13 @@ function TimelineItem (props) {
         <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
 
         <div className="align-top inline-block">
-          <div className="h5">{localization[dayOfWeek]}</div>
+          <div className="h5 bold">{localization[dayOfWeek]}</div>
           <div className="h6 caps">{localization[month]} {year}</div>
         </div>
       </time>
 
       {/*Text*/}
-      <div className="h5">{renderHTML(text)}</div>
+      <div className="h5 bold">{renderHTML(text)}</div>
 
       {/*Edit button*/}
       <EditButton className="absolute top-0 right-0 white" onClick={handleOnEditButtonClick} />

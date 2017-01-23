@@ -119,7 +119,7 @@ function Notification (props) {
           }
         </div>
 
-        {/*Publish date and publisher's initials*/}
+        {/*Create date and creator's initials*/}
         <span className={`h6 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
           <time className="mr1">{notification.created}</time>
           {notification.creator}

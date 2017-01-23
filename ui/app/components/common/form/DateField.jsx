@@ -1,15 +1,17 @@
 import React, { PropTypes } from 'react'
 import moment from 'moment'
-
 import DatePicker from 'react-datepicker'
+
 import Field from './Field'
+import { translate } from '../Translations'
 
 const propTypes = {
-  datePickerClassName: PropTypes.string,
+  fieldClassName: PropTypes.string,
   label: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node
   ]).isRequired,
+  labelIsHidden: PropTypes.bool,
   name: PropTypes.string.isRequired,
   isRequired: PropTypes.bool,
   locale: PropTypes.string.isRequired,
@@ -20,18 +22,21 @@ const propTypes = {
   selectsEnd: PropTypes.bool,
   startDate: PropTypes.string,
   endDate: PropTypes.string,
+  placeholderText: PropTypes.string,
   popoverAttachment: PropTypes.string,
   popoverTargetAttachment: PropTypes.string,
   onChange: PropTypes.func.isRequired
 }
 
 const defaultProps = {
-  datePickerClassName: '',
+  fieldClassName: '',
   isRequired: false,
+  labelIsHidden: false,
   date: null,
   minDate: null,
   startDate: null,
   endDate: null,
+  placeholderText: translate('paivamaaraplaceholder'),
   popoverAttachment: 'top left',
   popoverTargetAttachment: 'bottom left',
   selectsStart: false,
@@ -40,8 +45,9 @@ const defaultProps = {
 
 function DateField (props) {
   const {
-    datePickerClassName,
+    fieldClassName,
     label,
+    labelIsHidden,
     name,
     isRequired,
     locale,
@@ -52,6 +58,7 @@ function DateField (props) {
     selectsEnd,
     startDate,
     endDate,
+    placeholderText,
     popoverAttachment,
     popoverTargetAttachment,
     onChange
@@ -59,12 +66,14 @@ function DateField (props) {
 
   return (
     <Field
+      className={fieldClassName}
       name={name}
       label={label}
+      labelIsHidden={labelIsHidden}
       isRequired={isRequired}
     >
       <DatePicker
-        className={`input ${datePickerClassName}`}
+        className="input"
         minDate={minDate}
         fixedHeight
         dateFormat={dateFormat}
@@ -72,7 +81,7 @@ function DateField (props) {
         isClearable
         locale={locale}
         onChange={onChange}
-        placeholderText="p.k.vvvv"
+        placeholderText={placeholderText}
         selected={date ? moment(date, dateFormat) : null}
         selectsStart={selectsStart}
         selectsEnd={selectsEnd}

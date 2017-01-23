@@ -5,6 +5,7 @@ import Bacon from 'baconjs'
 import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
 import QuickTagSelect from './QuickTagSelect'
+import Spinner from '../common/Spinner'
 import Translation from '../common/Translations'
 
 const propTypes = {
@@ -74,7 +75,7 @@ class Notifications extends React.Component {
         />
 
         <div
-          className="notification-tag-select-container p2
+          className="notification-tag-select-container pt2 px2 pb1
           border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right"
         >
           <QuickTagSelect
@@ -95,6 +96,8 @@ class Notifications extends React.Component {
             expandedNotifications={expandedNotifications}
           />
         )}
+
+        <Spinner isVisible={false} />
       </div>
     )
   }

@@ -4,7 +4,7 @@ import { Editor, EditorState, RichUtils, CompositeDecorator, SelectionState, Ent
 import { convertToHTML, convertFromHTML } from 'draft-convert'
 
 // Components
-import Button from '../common/buttons/Button'
+import CloseButton from '../common/buttons/CloseButton'
 import Translation, { translate } from '../common/Translations'
 import Link from './Link'
 import EditLink from './EditLink'
@@ -289,14 +289,11 @@ class TextEditor extends React.Component {
           <h3 className={this.state.showURLInput ? 'hide' : 'display-none'}><Translation trans="lisaalinkki" /></h3>
 
           {/*Cancel link editing*/}
-          <Button
-            className={`button-link h1 absolute top-0 right-0 z3 gray-lighten-1 ${this.state.showURLInput ? '' : 'display-none'}`}
+          <CloseButton
+            className={`z3 ${this.state.showURLInput ? '' : 'display-none'}`}
             onClick={this.promptForLink}
-            title={<Translation trans="peruuta" />}
-          >
-            &times;
-            <span className="hide"><Translation trans="peruuta" /></span>
-          </Button>
+            title="peruuta"
+          />
 
           {this.state.showURLInput
             ? <EditLink

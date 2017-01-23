@@ -1,0 +1,58 @@
+/* Alerts */
+
+.alert {
+  text-align: center;
+  display: block;
+  color: var(--gray);
+}
+
+.alert-container {
+  position: relative;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+}
+
+.alert-info {
+  background-color: var(--bg-color-info);
+}
+
+.alert-success {
+  background-color: var(--bg-color-success);
+}
+
+.alert-warning {
+  background-color: var(--bg-color-warning);
+}
+
+.alert-error {
+  background-color: var(--bg-color-error);
+}
+
+.alert-heading {
+  font-weight: var(--font-weight-bold);
+}
+
+.alert-success .alert-heading {
+  color: var(--color-success)
+}
+
+.alert-error .alert-heading {
+  color: var(--color-error)
+}
+
+.alert-text {
+  margin-top: var(--space-1);
+}
+
+:root {
+  --color-info:           var(--blue);
+  --color-success:        var(--green);
+  --color-warning:        var(--yellow);
+  --color-error:          var(--red);
+
+  --bg-color-info:        var(--blue-lighten-3);
+  --bg-color-success:     var(--green-lighten);
+  --bg-color-warning:     var(--yellow-lighten);
+  --bg-color-error:       var(--red-lighten-2);
+}

@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react'
 // Components
 import Button from './Button'
 import Icon from '../Icon'
-import Translation, { translate } from '../Translations'
+import { translate } from '../Translations'
 
 const propTypes = {
   className: PropTypes.string,
@@ -28,9 +28,7 @@ function EditButton (props) {
     >
       <Icon name="pencil" />
 
-      <span className="hide">
-        <Translation trans="muokkaa" />
-      </span>
+      <span className="hide">{translate('muokkaa')}</span>
     </Button>
   )
 }

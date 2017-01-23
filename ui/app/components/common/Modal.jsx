@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react'
 
-import Button from './buttons/Button'
+import CloseButton from './buttons/CloseButton'
 
 const propTypes = {
   isVisible: PropTypes.bool,
@@ -23,18 +23,10 @@ function Modal (props) {
   } = props
 
   return (
-    <div className={`overlay ${isVisible ? 'overlay-is-visible' : ''}`}>
+    <div className={`overlay ${isVisible ? 'overlay-is-visible' : 'display-none'}`}>
       <div className={`modal ${variant === 'large' ? 'modal-lg' : ''}`}>
         <div className="modal-dialog">
-          {/*Close button*/}
-          <Button
-            className="modal-close-button button-link absolute top-0 right-0"
-            onClick={onCloseButtonClick}
-            title="Sulje"
-          >
-            &times;
-            <span className="hide">Sulje</span>
-          </Button>
+          <CloseButton onClick={onCloseButtonClick} />
 
           {isVisible ? children : null}
         </div>

@@ -396,7 +396,6 @@
   content: "";
   border-left: 2px solid var(--blue-darken);
 
-  /* Small and large viewpoints */
   @media (--sm-and-lg) {
     left: 50%;
   }
@@ -407,7 +406,6 @@
   margin-left: calc(var(--space-2) + var(--space-1));
   padding: var(--space-05) var(--space-1);
 
-  /* Small and large viewpoints */
   @media (--sm-and-lg) {
     margin-left: 0;
   }
@@ -523,6 +521,11 @@
 
 .timeline-item-form .DraftEditor-editorContainer {
   min-height: 6rem;
+}
+
+/* Hide labels in categories' usergroups Semantic UI Dropdown */
+.editor-select-usergroups.ui.multiple.dropdown > .label {
+  display: none;
 }
 
 .border-widen-1 {

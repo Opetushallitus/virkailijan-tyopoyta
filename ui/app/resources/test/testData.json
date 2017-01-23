@@ -44,7 +44,7 @@
       "sendEmail": true
     }
   ],
-  "unpublished": [
+  "unpublishedReleases": [
     {
       "id": 2,
       "notification":
@@ -111,7 +111,7 @@
       "isQuickTag": true
     }
   ],
-  "categories": [
+  "viewCategories": [
     {
       "id": 1,
       "name_fi": "Perusopetus"
@@ -123,6 +123,44 @@
     {
       "id": 3,
       "name_fi": "Korkeakoulutus"
+    }
+  ],
+  "releaseCategories": [
+    {
+      "id": 1,
+      "name_fi": "Perusopetus"
+    },
+    {
+      "id": 2,
+      "name_fi": "Yhteishaku (lukiot)"
+    },
+    {
+      "id": 3,
+      "name_fi": "Yhteishaku (ammat.)"
+    },
+    {
+      "id": 4,
+      "name_fi": "Erkkahaut"
+    },
+    {
+      "id": 5,
+      "name_fi": "Pervako-haut"
+    },
+    {
+      "id": 6,
+      "name_fi": "Korkeakoulut"
+    },
+    {
+      "id": 7,
+      "name_fi": "Lukiokoulutus"
+    },
+    {
+      "id": 8,
+      "name_fi": "Ammatilinen koulutus"
+    },
+    {
+      "id": 9,
+      "name_fi": "Vapaan sivistystyön koulutus"
     }
   ]
 }

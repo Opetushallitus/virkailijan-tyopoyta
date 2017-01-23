@@ -45,7 +45,7 @@ function LimitedTextField (props) {
       isRequired={isRequired}
     >
       <div className="muted md-right mb1 md-mb0">
-        {maxLength - value.length}
+        {maxLength - value.length}&nbsp;
         <Translation trans="merkkiajaljella" />
       </div>
 

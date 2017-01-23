@@ -1,5 +1,7 @@
 /* Component styles */
-@import "components/button.css";
+@import "components/alerts.css";
+@import "components/buttons.css";
+@import "components/spinner.css";
 
 *,
 :after,
@@ -133,7 +135,7 @@ a:focus {
 
 .tabs {
   position: relative;
-  padding-bottom: var(--space-1);
+  width: 100%;
 
   @media (--breakpoint-sm) {
     display: flex;
@@ -161,7 +163,7 @@ a:focus {
     display: inline-block;
     border-width: 1px;
     border-style: solid;
-    border-color: var(--white);
+    border-color: transparent;
     border-top-width: var(--border-widen-1);
     border-bottom-color: var(--border-color);
   }
@@ -174,6 +176,7 @@ a:focus {
 .tab-item-is-active {
   z-index: var(--z2);
   color: var(--body-copy-color);
+  background-color: var(--white);
   outline: 0;
 
   @media (--breakpoint-sm) {
@@ -196,7 +199,7 @@ a:focus {
 
 .tab-pane-is-active {
   display: block;
-  padding: var(--space-2) 0;
+  padding: var(--space-3) 0;
 }
 
 /* Form */
@@ -321,26 +324,6 @@ fieldset {
   @media (--breakpoint-md) {
     width: var(--modal-width);
   }
-}
-
-.modal-close-button {
-  font-size: var(--h1);
-  color: var(--gray-lighten-1);
-  z-index: var(--z2);
-}
-
-/* Alert */
-
-.alert {
-  padding: var(--space-2);
-  border: 1px solid transparent;
-  border-radius: var(--border-radius);
-  color: var(--gray);
-}
-
-.alert-warning {
-  background-color: var(--bg-color-warning);
-  border-color: var(--border-color-warning);
 }
 
 /* Colors */

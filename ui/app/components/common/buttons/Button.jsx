@@ -1,17 +1,22 @@
 import React, { PropTypes } from 'react'
 
+import Spinner from '../Spinner'
+
 const propTypes = {
   className: PropTypes.string,
+  isLoading: PropTypes.bool,
   children: PropTypes.node.isRequired
 }
 
 const defaultProps = {
-  className: ''
+  className: '',
+  isLoading: false
 }
 
 function Button (props) {
   const {
     className,
+    isLoading,
     children,
     ...rest
   } = props
@@ -22,6 +27,7 @@ function Button (props) {
       type="button"
       {...rest}
     >
+      {isLoading ? <Spinner variant="in-button" isVisible /> : null}
       {children}
     </button>
   )

@@ -3,6 +3,7 @@ import React, { PropTypes } from 'react'
 // Components
 import TimelineHeading from './TimelineHeading'
 import TimelineDay from './TimelineDay'
+import Spinner from '../common/Spinner'
 import Translation from '../common/Translations'
 
 const propTypes = {
@@ -39,6 +40,8 @@ function Timeline (props) {
             items={items}
           />
         </div>
+
+        <Spinner isVisible={false} />
       </div>
     </div>
   )

@@ -53,7 +53,7 @@
     "force": false,
     "locale": "fi",
     "key": "alkaen",
-    "value": "alkaen"
+    "value": "Alkaen"
   },
   {
     "accesscount": 0,
@@ -67,7 +67,7 @@
     "force": false,
     "locale": "fi",
     "key": "loppuen",
-    "value": "loppuen"
+    "value": "Loppuen"
   },
   {
     "accesscount": 0,
@@ -459,7 +459,7 @@
     "force": false,
     "locale": "fi",
     "key": "julkkategoria",
-    "value": "Julkaisun kategoria(t)"
+    "value": "Valitse kategoria(t)"
   },
   {
     "accesscount": 0,
@@ -473,7 +473,7 @@
     "force": false,
     "locale": "fi",
     "key": "julkryhma",
-    "value": "Julkaisun kohdekäyttäjäryhmät"
+    "value": "Valittujen kategorioiden käyttöoikeusryhmät"
   },
   {
     "accesscount": 0,
@@ -899,13 +899,65 @@
     "locale": "fi",
     "key": "kategoriat",
     "value": "Kategoriat"
-  },{
+  },
+  {
     "locale": "fi",
     "key": "nayta",
     "value": "Näytä"
-  },{
+  },
+  {
     "locale": "fi",
     "key": "poistatapahtuma",
     "value": "Poista tapahtuma"
+  },
+  {
+    "locale": "fi",
+    "key": "luotu",
+    "value": "Luotu"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaistaan",
+    "value": "Julkaistaan"
+  },
+  {
+    "locale": "fi",
+    "key": "luonut",
+    "value": "Luonut"
+  },
+  {
+    "locale": "fi",
+    "key": "rajaa",
+    "value": "Rajaa"
+  },
+  {
+    "locale": "fi",
+    "key": "uusisisalto",
+    "value": "Uusi sisältö"
+  },
+  {
+    "locale": "fi",
+    "key": "aikavali",
+    "value": "Aikaväli"
+  },
+  {
+    "locale": "fi",
+    "key": "paivamaaraplaceholder",
+    "value:": "p.k.vvvv"
+  },
+  {
+    "locale": "fi",
+    "key": "hetkinen",
+    "value:": "Hetkinen"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennus",
+    "value:": "Kohdennus"
+  },
+  {
+    "locale": "fi",
+    "key": "sulje",
+    "value:": "Sulje"
   }
 ]

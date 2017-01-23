@@ -24,7 +24,6 @@ const classList = [
   'inline-block',
   'mb1',
   'mr1',
-  'lg-mb0',
   'border',
   'border-widen-1',
   'border-primary',
@@ -50,10 +49,10 @@ function CheckboxButton (props) {
   return (
     <label
       className="checkbox-button"
-      htmlFor={`${htmlId}.${id}`}
+      htmlFor={`${htmlId}-${id}`}
     >
       <input
-        id={`${htmlId}.${id}`}
+        id={`${htmlId}-${id}`}
         className="hide"
         type="checkbox"
         checked={checked}
@@ -61,7 +60,7 @@ function CheckboxButton (props) {
       />
 
       <span className={`${classList.join(' ')} ${variant === 'small' ? 'px1' : 'p1'}`}>
-        <Icon className="mr1" name={`${checked ? 'check-' : ''}square-o`} />
+        <Icon className={`${checked ? 'mr1' : ''}`} name={`${checked ? 'check' : ''}`} />
 
         {label}
       </span>

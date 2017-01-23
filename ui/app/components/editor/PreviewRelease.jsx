@@ -64,7 +64,7 @@ function PreviewRelease (props) {
         {/*Timeline*/}
         <div className="flex col-12 md-col-6 md-pl2">
           <div className="flex-1 col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
-            <h3 className="h3"><Translation trans="aikajanatapahtuma" /></h3>
+            <h3 className="h4"><Translation trans="aikajanatapahtuma" /></h3>
 
             {incompleteTimelineItems.length
               ? <div>

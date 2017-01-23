@@ -70,7 +70,7 @@
   --blue-lighten-3: #a6dcee;
   --blue-lighten-4: #def2ff;
 
-  --green:          #99d740;
+  --green:          #4c7f00;
   --green-lighten:  #e6ffc1;
 
   --yellow:         #ffd024;
@@ -83,9 +83,6 @@
   --link-color-hover:   var(--blue-lighten-2);
   --border-color:       var(--gray-lighten-3);
   --border-color-hover: var(--gray-lighten-1);
-
-  --bg-color-warning:     var(--yellow-lighten);
-  --border-color-warning: var(--yellow);
 
   /* Borders */
 
@@ -108,9 +105,9 @@
 
   /* Media queries */
 
-  @custom-media --breakpoint-sm (min-width: 40em);
-  @custom-media --breakpoint-md (min-width: 52em);
-  @custom-media --breakpoint-lg (min-width: 64em);
+  @custom-media --breakpoint-sm   (min-width: 40em);
+  @custom-media --breakpoint-md   (min-width: 52em);
+  @custom-media --breakpoint-lg   (min-width: 64em);
 
   @custom-media --viewport-sm (max-width: 52em);
 

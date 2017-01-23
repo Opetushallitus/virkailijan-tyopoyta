@@ -3,12 +3,18 @@ import R from 'ramda'
 
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
-import { validate, rules } from './validation'
+import { validate, rules } from './validation'
 import * as testData from './resources/test/testData.json'
 
 const dispatcher = new Dispatcher()
 
 const events = {
+  // View
+  updateView: 'updateView',
+  toggleViewCategory: 'toggleViewCategory',
+  toggleViewTab: 'toggleViewTab',
+  removeViewAlert: 'removeViewAlert',
+
   // Editor
   addNotification: 'addNotification',
   deleteNotification: 'deleteNotification',
@@ -31,6 +37,7 @@ const events = {
   toggleMenu: 'toggleMenu',
 
   // Notifications
+  toggleUnpublishedNotifications: 'toggleUnpublishedNotifications',
   getNotifications: 'getNotifications',
   lazyLoadNotifications: 'lazyLoadNotifications',
   updateSearch: 'updateSearch',
@@ -64,6 +71,40 @@ function onTimelineReceived(state, response){
   return R.assoc('timeline', response, state)
 }
 
+// VIEW
+
+function updateView (state, { prop, value }) {
+  console.log('Updating view', prop, value)
+
+  return R.assocPath(['view', prop], value, state)
+}
+
+function toggleViewCategory (state, category) {
+  console.log('Toggling view category', category)
+
+  const categories = state.view.categories
+  const newCategories = R.contains(category, categories)
+    ? R.reject(c => c === category, categories)
+    : R.append(category, categories)
+
+  return updateView(state, { prop: 'categories', value: newCategories })
+}
+
+function toggleViewTab (state, selectedTab) {
+  console.log('Toggling view tab', selectedTab)
+
+  return updateView(state, { prop: 'selectedTab', value: selectedTab })
+}
+
+function removeViewAlert (state, id) {
+  console.log('Removing alert with id', id)
+
+  const newAlerts = R.reject(alert => alert.id === id, state.view.alerts)
+
+  return updateView(state, { prop: 'alerts', value: newAlerts})
+}
+
+
 // EDITOR
 
 function toggleEditor (state, { releaseId = -1, selectedTab = 'edit-notification' }) {
@@ -81,7 +122,9 @@ function toggleEditor (state, { releaseId = -1, selectedTab = 'edit-notification
   else if (releaseId > -1) {
     console.log('Toggling editor with release id', releaseId)
 
-    const selectedRelease = state.releases.filter(release => release.id === releaseId)[0];
+    const selectedRelease = state.releases.find(release => release.id === releaseId) ||
+      state.unpublishedReleases.find(release => release.id === releaseId)
+
     const stateWithRelease = R.assocPath(['editor', 'document'], selectedRelease, newState)
 
     return toggleEditorTab(stateWithRelease, selectedTab)
@@ -155,7 +198,7 @@ function toggleReleaseCategory (state, category) {
 
   const categories = state.editor.document.categories;
   const newCategories = R.contains(category, categories)
-    ? R.reject((c => c === category), categories)
+    ? R.reject(c => c === category, categories)
     : R.append(category, categories)
 
   return updateRelease(state, { prop: 'categories', value: newCategories })
@@ -356,6 +399,19 @@ function toggleMenu (state) {
 
 // NOTIFICATIONS
 
+function toggleUnpublishedNotifications (state, releaseId) {
+  const newState = R.assocPath(
+    ['unpublishedNotifications', 'isVisible'],
+    !state.unpublishedNotifications.isVisible, state
+  )
+
+  if (releaseId > 0) {
+    return toggleEditor(newState, { releaseId })
+  }
+
+  return newState
+}
+
 function getNotifications (state, value) {
   console.log('Get notifications from page')
 
@@ -376,17 +432,17 @@ function updateSearch(state, {search}){
 }
 
 function toggleNotificationTag (state, value) {
+  console.log('Toggled tag with value', value)
+
   const isSelected = state.selectedNotificationTags.indexOf(value) >= 0
   let newTags = []
 
   // Remove an already selected tag
   if (isSelected) {
-    console.log('Notification tag removed, updating state')
     newTags = state.selectedNotificationTags.filter(tag => (tag !== value))
   }
   // Set tag to state if not selected
   else {
-    console.log('Notification tag selected, updating state')
     newTags = state.selectedNotificationTags.concat(value)
   }
 
@@ -394,7 +450,7 @@ function toggleNotificationTag (state, value) {
 }
 
 function setSelectedNotificationTags (state, value) {
-  console.log('Updating selected notification tags')
+  console.log('Updating selected notification tags', value)
 
   return R.assoc(
     'selectedNotificationTags',
@@ -415,9 +471,9 @@ function toggleNotification (state, {id}) {
 
 export function initAppState() {
   const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()))
-  //const releasesS = testData.releases
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
+  const viewAlerts = []
 
   const initialState = {
     locale: 'fi',
@@ -426,9 +482,16 @@ export function initAppState() {
     isLoading: false,
     currentPage: 1,
     nextPage: 2,
-    categories: testData.categories,
+    categories: testData.viewCategories,
+    view: {
+      categories: [],
+      startDate: '',
+      endDate: '',
+      selectedTab: 'notifications',
+      alerts: viewAlerts
+    },
     releases: testData.releases,
-    hasUnpublishedReleases: false,
+    unpublishedReleases: testData.unpublishedReleases,
     notifications: testData.releases.map(r => r.notification),
     notificationTags: testData.notificationTags,
     selectedNotificationTags: [],
@@ -441,14 +504,25 @@ export function initAppState() {
     editor: {
       isVisible: false,
       isPreviewed: false,
+      categories: testData.releaseCategories,
       document: emptyRelease(),
       selectedTab: 'edit-notification',
       onSave: removeDocumentProperties
+    },
+    unpublishedNotifications: {
+      isVisible: false,
+      data: testData.unpublishedReleases.map(r => r.notification)
     }
   }
 
   return Bacon.update(
     initialState,
+
+    // View
+    [dispatcher.stream(events.updateView)], updateView,
+    [dispatcher.stream(events.toggleViewCategory)], toggleViewCategory,
+    [dispatcher.stream(events.toggleViewTab)], toggleViewTab,
+    [dispatcher.stream(events.removeViewAlert)], removeViewAlert,
 
     // Editor
     [dispatcher.stream(events.toggleEditor)], toggleEditor,
@@ -469,6 +543,7 @@ export function initAppState() {
     [dispatcher.stream(events.toggleMenu)], toggleMenu,
 
     // Notifications
+    [dispatcher.stream(events.toggleUnpublishedNotifications)], toggleUnpublishedNotifications,
     [dispatcher.stream(events.getNotifications)], getNotifications,
     [dispatcher.stream(events.lazyLoadNotifications)], lazyLoadNotifications,
     [dispatcher.stream(events.updateSearch)], updateSearch,
