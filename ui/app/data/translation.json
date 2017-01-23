@@ -952,12 +952,12 @@
   },
   {
     "locale": "fi",
-    "key": "kohdennus",
-    "value:": "Kohdennus"
+    "key": "sulje",
+    "value:": "Sulje"
   },
   {
     "locale": "fi",
-    "key": "sulje",
-    "value:": "Sulje"
+    "key": "kohdennus",
+    "value:": "Kohdennus"
   }
 ]
