@@ -943,12 +943,12 @@
   {
     "locale": "fi",
     "key": "paivamaaraplaceholder",
-    "value:": "p.k.vvvv"
+    "value": "p.k.vvvv"
   },
   {
     "locale": "fi",
     "key": "hetkinen",
-    "value:": "Hetkinen"
+    "value": "Hetkinen"
   },
   {
     "locale": "fi",
@@ -958,6 +958,11 @@
   {
     "locale": "fi",
     "key": "kohdennus",
-    "value:": "Kohdennus"
+    "value": "Kohdennus"
+  },
+  {
+    "locale": "fi",
+    "key": "sulje",
+    "value": "Sulje"
   }
 ]
