@@ -36,7 +36,6 @@ const defaultProps = {
   minDate: null,
   startDate: null,
   endDate: null,
-  placeholderText: translate('paivamaaraplaceholder'),
   popoverAttachment: 'top left',
   popoverTargetAttachment: 'bottom left',
   selectsStart: false,
@@ -81,7 +80,7 @@ function DateField (props) {
         isClearable
         locale={locale}
         onChange={onChange}
-        placeholderText={placeholderText}
+        placeholderText={placeholderText? placeholderText : translate('paivamaaraplaceholder')}
         selected={date ? moment(date, dateFormat) : null}
         selectsStart={selectsStart}
         selectsEnd={selectsEnd}
