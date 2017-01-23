@@ -21,7 +21,8 @@ var config = {
   output: {
     path: PATHS.build,
     filename: '[name].js',
-    chunkFilename: '[id].js'
+    chunkFilename: '[id].js',
+    publicPath: '/virkailijan-tyopoyta/'
   },
   resolve: {
     extensions: ['', '.js', '.jsx']
