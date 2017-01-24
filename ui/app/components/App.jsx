@@ -183,12 +183,16 @@ class App extends React.Component {
                 Testidataa, ei muokattavissa
               </div>
 
-              <Timeline
-                controller={controller}
-                locale={state.locale}
-                dateFormat={state.dateFormat}
-                items={state.timeline}
-              />
+              {
+                state.timeline.length
+                  ? <Timeline
+                    controller={controller}
+                    locale={state.locale}
+                    dateFormat={state.dateFormat}
+                    items={state.timeline}
+                  />
+                  : null
+              }
             </section>
           </div>
         </div>
