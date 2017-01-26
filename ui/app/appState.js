@@ -91,6 +91,12 @@ function toggleValue (value, values) {
     : newValues = R.concat(values, value)
 
   return newValues
+  // return R.assoc('timeline', response, state)
+  return state
+}
+
+function onTagsReceived(state, tags){
+  return R.assoc('notificationTags', tags, state)
 }
 
 // VIEW
