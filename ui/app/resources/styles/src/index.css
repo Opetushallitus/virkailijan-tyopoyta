@@ -108,8 +108,8 @@ a:focus {
   border-bottom-right-radius: var(--border-radius);
 }
 
-@media (--breakpoint-sm) {
-  .sm-border-bottom {
+@media (--breakpoint-md) {
+  .md-border-bottom {
     border-bottom-width: 1px;
     border-bottom-style: solid;
   }
@@ -289,6 +289,52 @@ fieldset {
 .checkbox-button input:checked:focus + .checkbox-button-text {
   border-color: var(--link-color-hover);
   background-color: var(--link-color-hover);
+}
+
+.radio-button-group {
+  display: block;
+  padding: var(--space-05);
+  border: var(--border-widen-1) solid var(--link-color);
+  border-radius: var(--border-radius);
+  background-color: var(--white);
+
+  @media (--breakpoint-md) {
+    display: inline-block;
+  }
+}
+
+/* Display input only on screen readers */
+.radio-button-input {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+.radio-button-text {
+  display: block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius);
+  color: var(--link-color);
+
+  @media (--breakpoint-md) {
+    display: inline-block;
+  }
+}
+
+.radio-button-text:hover,
+.radio-button-input:focus + .radio-button-text {
+  color: var(--link-color-hover);
+  cursor: pointer;
+}
+
+.radio-button-input:checked + .radio-button-text,
+.radio-button-input:checked + .radio-button-text:hover,
+.radio-button-input:checked:focus + .radio-button-text {
+  color: var(--white);
+  background-color: var(--link-color);
+  cursor: default;
 }
 
 /* Overlay */

@@ -8,7 +8,13 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
-  view: PropTypes.object.isRequired
+  startDate: PropTypes.string,
+  endDate: PropTypes.string
+}
+
+const defaultProps = {
+  startDate: null,
+  endDate: null
 }
 
 function TimePeriod (props) {
@@ -16,7 +22,8 @@ function TimePeriod (props) {
     controller,
     locale,
     dateFormat,
-    view
+    startDate,
+    endDate
   } = props
 
   /*
@@ -29,7 +36,7 @@ function TimePeriod (props) {
     controller.updateView('startDate', newDate)
 
     // Update endDate if it's before startDate
-    if (newDate && date.isAfter(moment(view.endDate, dateFormat))) {
+    if (newDate && date.isAfter(moment(endDate, dateFormat))) {
       controller.updateView('endDate', newDate)
     }
   }
@@ -49,10 +56,14 @@ function TimePeriod (props) {
     }
 
     // Update startDate if it's before endDate
-    if (newDate && date.isBefore(moment(view.startDate, dateFormat))) {
+    if (newDate && date.isBefore(moment(startDate, dateFormat))) {
       controller.updateView('startDate', newDate)
     }
   }
+
+  const monthAndYear = 'MMMM YYYY'
+  const startDateMonthAndYear = startDate ? moment(startDate, dateFormat).format(monthAndYear) : null
+  const endDateMonthAndYear = endDate ? moment(endDate, dateFormat).format(monthAndYear) : null
 
   return (
     <div>
@@ -69,8 +80,8 @@ function TimePeriod (props) {
             labelIsHidden
             name="start-date"
             locale={locale}
-            dateFormat={dateFormat}
-            date={view.startDate}
+            dateFormat={monthAndYear}
+            date={startDateMonthAndYear}
             placeholderText={translate('alkaen')}
             onChange={handleOnStartDateChange}
           />
@@ -86,8 +97,8 @@ function TimePeriod (props) {
             labelIsHidden
             name="end-date"
             locale={locale}
-            dateFormat={dateFormat}
-            date={view.endDate}
+            dateFormat={monthAndYear}
+            date={endDateMonthAndYear}
             placeholderText={translate('loppuen')}
             onChange={handleOnEndDateChange}
           />
@@ -98,5 +109,6 @@ function TimePeriod (props) {
 }
 
 TimePeriod.propTypes = propTypes
+TimePeriod.defaultProps = defaultProps
 
 export default TimePeriod

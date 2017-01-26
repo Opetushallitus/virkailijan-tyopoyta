@@ -1,24 +1,28 @@
 import React, { PropTypes } from 'react'
 import renderHTML from 'react-render-html'
 
+import PreviewTargetingList from './PreviewTargetingList'
 import { translate } from '../common/Translations'
 
 import getTimelineItems from './getTimelineItems'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
+  categories: PropTypes.array.isRequired,
+  userGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
 function PreviewRelease (props) {
   const {
     locale,
+    categories,
+    userGroups,
     release
   } = props
 
   const notification = release.notification
   const timeline = release.timeline
-  const incompleteTimelineItems = getTimelineItems(['incomplete', 'complete'], timeline)
   const previewedTimelineItems = getTimelineItems(['incomplete', 'complete'], timeline)
 
   return (
@@ -27,25 +31,9 @@ function PreviewRelease (props) {
         {translate('oletjulkaisemassa')}
       </h2>
 
-      {/*Targeting selection name*/}
-      <div className="center mb3">
-        <label
-          className="block md-inline-block mb1 md-mb0 mr1"
-          htmlFor="targeting-name"
-        >
-          {translate('kohderyhmavalinnannimi')}
-        </label>
-
-        <input
-          className="input md-col-3"
-          type="text"
-          name="targeting-name"
-        />
-      </div>
-
       {/*Preview*/}
       <div className="flex flex-wrap">
-        <div className="flex flex-wrap flex-1 col-12 md-col-6 md-pr2 mb3 md-mb0">
+        <div className="flex flex-wrap flex-1 col-12 md-col-6 mb2 md-mb0 md-pr2">
           {/*Notification*/}
           <div className="col-12 mb2 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
             <h3 className="h4">
@@ -81,11 +69,11 @@ function PreviewRelease (props) {
           <div className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
             <h3 className="h4">{translate('aikajanatapahtuma')}</h3>
 
-            {incompleteTimelineItems.length
+            {previewedTimelineItems.length
               ? <div>
                 {previewedTimelineItems.map((item) =>
-                  <div key={item.id} className="mb2">
-                    <span className="italic">{item.date ? item.date : 'Ei päivämäärää'}: </span>
+                  <div key={`timelineItem${item.id}`} className="mb2">
+                    <div className="italic">{item.date ? item.date : translate('eipvm')}: </div>
                     {renderHTML(item.content[locale].text) || translate('tyhja')}
                   </div>
                 )}
@@ -97,15 +85,58 @@ function PreviewRelease (props) {
           </div>
         </div>
 
+        {/*Targeting*/}
         <div
-          className="flex-1 col-12 md-col-6 md-pl2 mb3 md-mb0 p2
+          className="flex-1 col-12 md-col-6 md-pl2 p2
           border rounded border-gray-lighten-2 bg-gray-lighten-5"
         >
           <h3 className="h4">{translate('kohdennus')}</h3>
 
           <p>{translate('julkaisunkohdennus')}</p>
-          <p>{translate('kohdennuskategoriat')}</p>
-          <p>{translate('kohdennusroolit')}</p>
+
+          {/*Categories*/}
+          <PreviewTargetingList
+            locale={locale}
+            title="kohdennuskategoriat"
+            items={categories}
+            selectedItems={release.categories}
+          />
+
+          {/*User groups*/}
+          {
+            release.userGroups.length
+              ? <PreviewTargetingList
+                locale={locale}
+                title="kohdennusroolit"
+                items={userGroups}
+                selectedItems={release.userGroups}
+              />
+              : null
+          }
+
+          {/*Focused category and category user groups*/}
+          {
+            release.focusedCategory
+              ? <PreviewTargetingList
+                locale={locale}
+                title="kohdennustarkennettukategoria"
+                items={categories}
+                selectedItems={[release.focusedCategory]}
+              />
+              : null
+          }
+
+          {/*Focused user groups*/}
+          {
+            release.focusedUserGroups
+              ? <PreviewTargetingList
+                locale={locale}
+                title="kohdennustarkennetutroolit"
+                items={userGroups}
+                selectedItems={release.focusedUserGroups}
+              />
+              : null
+          }
         </div>
       </div>
     </div>

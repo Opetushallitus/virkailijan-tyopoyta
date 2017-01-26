@@ -16,6 +16,12 @@
   box-shadow: var(--box-shadow-inner);
 }
 
+.semantic-ui.ui.disabled.dropdown {
+  background-color: var(--gray-lighten-5);
+  border-color: var(--gray-lighten-4);
+  box-shadow: 0 0 0;
+}
+
 .semantic-ui.ui.selection.active.dropdown:hover,
 .semantic-ui.ui.selection.active.dropdown:focus {
   box-shadow: var(--box-shadow-inner);
@@ -38,7 +44,8 @@
   padding-right: var(--space-2);
 }
 
-.semantic-ui.ui.multiple.search.dropdown > .text {
+.semantic-ui.ui.multiple.search.dropdown > .text,
+.semantic-ui.ui.dropdown:not(.button) > .default.text {
   color: var(--muted);
 }
 
@@ -309,7 +316,7 @@
   border-radius: 0;
 }
 
-/* Set datepicker as 100 % wide on mobile */
+/* Set datepicker to viewport top on mobile */
 @media (--viewport-sm) {
   .react-datepicker__tether-element {
     top: 0;
@@ -496,6 +503,10 @@
 .timeline-item a:hover,
 .timeline-item a:focus {
   color: var(--blue-lighten-4);
+}
+
+.timeline-item p:last-of-type {
+  margin-bottom: 0;
 }
 
 /* Editor */

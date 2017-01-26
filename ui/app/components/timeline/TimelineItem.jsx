@@ -7,7 +7,7 @@ import EditButton from '../common/buttons/EditButton'
 // TODO: Move localization to properties file
 const localization = {
   'Wednesday': 'keskiviikko',
-  'November': 'marraskuu'
+  'February': 'helmikuu'
 }
 
 const propTypes = {

@@ -22,6 +22,8 @@ const events = {
   toggleEditorTab: 'toggleEditorTab',
   toggleReleaseCategory: 'toggleReleaseCategory',
   toggleReleaseUserGroup: 'toggleReleaseUserGroup',
+  updateFocusedReleaseCategory: 'updateFocusedReleaseCategory',
+  toggleFocusedReleaseUserGroup: 'toggleFocusedReleaseUserGroup',
   updateRelease: 'updateRelease',
   updateNotification: 'updateNotification',
   updateNotificationTags: 'updateNotificationTags',
@@ -70,6 +72,16 @@ function onTimelineReceived(state, response){
   //console.log("received timeline: "+JSON.stringify(response) );
 
   return R.assoc('timeline', response, state)
+}
+
+function toggleValue (value, values) {
+  let newValues
+
+  R.contains(value, values)
+    ? newValues = R.reject(val => val === value, values)
+    : newValues = R.concat(values, value)
+
+  return newValues
 }
 
 // VIEW
@@ -195,8 +207,6 @@ function updateRelease (state, { prop, value }) {
 }
 
 function toggleReleaseCategory (state, category) {
-  console.log('Toggling release category', category);
-
   const categories = state.editor.document.categories;
   const newCategories = R.contains(category, categories)
     ? R.reject(c => c === category, categories)
@@ -206,14 +216,21 @@ function toggleReleaseCategory (state, category) {
 }
 
 function toggleReleaseUserGroup (state, value) {
-  console.log('Toggling release user group', value)
-
   const groups = state.editor.document.userGroups
-  const newGroups = R.contains(value, groups)
-    ? R.reject(g => g === value, groups)
-    : R.concat(groups, value)
+  const newGroups = toggleValue(value, groups)
 
   return updateRelease(state, { prop: 'userGroups', value: newGroups })
+}
+
+function updateFocusedReleaseCategory (state, value) {
+  return updateRelease(state, { prop: 'focusedCategory', value })
+}
+
+function toggleFocusedReleaseUserGroup (state, value) {
+  const groups = state.editor.document.focusedUserGroups
+  const newGroups = toggleValue(value, groups)
+
+  return updateRelease(state, { prop: 'focusedUserGroups', value: newGroups })
 }
 
 // NOTIFICATION
@@ -400,6 +417,8 @@ function emptyRelease () {
     timeline: [newTimelineItem(-1, [])],
     categories: [],
     userGroups: [],
+    focusedCategory: null,
+    focusedUserGroups: [],
     validationState: 'empty'
   }
 }
@@ -551,6 +570,8 @@ export function initAppState() {
     [dispatcher.stream(events.updateTimelineContent)], updateTimelineContent,
     [dispatcher.stream(events.toggleReleaseCategory)], toggleReleaseCategory,
     [dispatcher.stream(events.toggleReleaseUserGroup)], toggleReleaseUserGroup,
+    [dispatcher.stream(events.updateFocusedReleaseCategory)], updateFocusedReleaseCategory,
+    [dispatcher.stream(events.toggleFocusedReleaseUserGroup)], toggleFocusedReleaseUserGroup,
     [dispatcher.stream(events.toggleDocumentPreview)], toggleDocumentPreview,
     [dispatcher.stream(events.saveDocument)], saveDocument,
 

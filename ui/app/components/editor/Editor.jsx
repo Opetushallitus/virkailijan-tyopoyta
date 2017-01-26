@@ -111,7 +111,7 @@ function EditRelease (props) {
 
       {/*Tabs and release's state*/}
       <div className="flex flex-wrap px3">
-        <Tabs className="sm-col-8 mb0">
+        <Tabs className="md-col-8 mb0">
           <TabItem
             name="edit-notification"
             selectedTab={selectedTab}
@@ -151,8 +151,8 @@ function EditRelease (props) {
 
         {/*Publication state*/}
         <div
-          className="h5 caps muted sm-flex flex-auto items-center justify-end
-          mt2 sm-mt0 sm-border-bottom border-gray-lighten-2"
+          className="h5 caps muted md-flex flex-auto items-center justify-end
+          mt2 md-mt0 md-border-bottom border-gray-lighten-2"
         >
           {translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}
         </div>
@@ -196,7 +196,12 @@ function EditRelease (props) {
       {/*Preview*/}
       { isPreviewed
         ? <section className="pt3 px3 border-top border-gray-lighten-3">
-          <PreviewRelease locale={locale} release={release} />
+          <PreviewRelease
+            locale={locale}
+            categories={categories}
+            userGroups={userGroups}
+            release={release}
+          />
         </section>
         : null
       }

@@ -28,7 +28,7 @@ function Timeline (props) {
       {/*Months*/}
       <div className="sm-center md-left-align lg-center relative">
         {/*Month heading*/}
-        <TimelineHeading text="Marraskuu 2016" />
+        <TimelineHeading text="Helmikuu 2017" />
 
         {/*Month*/}
         <div className="timeline-axis flex flex-column">

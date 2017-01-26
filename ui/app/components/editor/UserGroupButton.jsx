@@ -4,40 +4,36 @@ import Button from '../common/buttons/Button'
 import { translate } from '../common/Translations'
 
 const propTypes = {
-  controller: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
-  text: PropTypes.string.isRequired
-}
-
-const defaultProps = {
+  text: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired
 }
 
 function UserGroupButton (props) {
   const {
-    controller,
     id,
-    text
+    text,
+    onClick
   } = props
 
   const handleOnClick = () => {
-    controller.toggleReleaseUserGroup(id)
+    onClick(id)
   }
 
   return (
     <Button
       className="button-primary release-usergroup-button left-align
-              col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
+              flex col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
       type="button"
       title={translate('poistakohderyhma')}
       onClick={handleOnClick}
     >
-      <span className="regular">{text}</span>
-      <span className="h3 right" aria-hidden>&times;</span>
+      <span className="regular flex-auto pr1">{text}</span>
+      <span className="h3 self-center self-end" aria-hidden>&times;</span>
     </Button>
   )
 }
 
 UserGroupButton.propTypes = propTypes
-UserGroupButton.defaultProps = defaultProps
 
 export default UserGroupButton

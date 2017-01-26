@@ -501,7 +501,7 @@
     "force": false,
     "locale": "fi",
     "key": "lisaaryhma",
-    "value": "Lisää käyttäjäryhmä"
+    "value": "Lisää käyttöoikeusryhmä"
   },
   {
     "accesscount": 0,
@@ -972,6 +972,36 @@
   },
   {
     "locale": "fi",
+    "key": "kohdennatarkemmin",
+    "value": "Kohdenna tarkemmin"
+  },
+  {
+    "locale": "fi",
+    "key": "valitsekategoria",
+    "value": "Valitse kategoria"
+  },
+  {
+    "locale": "fi",
+    "key": "eikategoriaa",
+    "value": "Ei kategoriaa"
+  },
+  {
+    "locale": "fi",
+    "key": "eikategorioita",
+    "value": "Ei kategorioita"
+  },
+  {
+    "locale": "fi",
+    "key": "haekategoria",
+    "value": "Hae kategoria"
+  },
+  {
+    "locale": "fi",
+    "key": "valitsekayttooikeusryhmat",
+    "value": "Valitse käyttöoikeusryhmä(t)"
+  },
+  {
+    "locale": "fi",
     "key": "kohderyhmavalinnannimi",
     "value": "Anna kohderyhmävalinnalle nimi tallentaaksesi sen"
   },
@@ -989,5 +1019,15 @@
     "locale": "fi",
     "key": "kohdennusroolit",
     "value": "ja joiden rooli on jokin seuraavista"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennustarkennettukategoria",
+    "value": "Lisäksi julkaisut näkyvät sellaisille virkailijoille, jotka työskentelevät kategoriassa"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennustarkennetutroolit",
+    "value": "Lisäksi julkaisut näkyvät sellaisille virkailijoille, joiden rooli on jokin seuraavista"
   }
 ]

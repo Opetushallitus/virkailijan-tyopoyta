@@ -68,7 +68,8 @@ function Menu (props) {
             controller={controller}
             locale={locale}
             dateFormat={dateFormat}
-            view={view}
+            startDate={view.startDate}
+            endDate={view.endDate}
           />
         </div>
 

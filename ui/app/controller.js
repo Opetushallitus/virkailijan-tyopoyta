@@ -22,6 +22,10 @@ export function initController (dispatcher, events) {
 
   const toggleReleaseUserGroup = value => dispatcher.push(events.toggleReleaseUserGroup, value)
 
+  const updateFocusedReleaseCategory = value => dispatcher.push(events.updateFocusedReleaseCategory, value)
+
+  const toggleFocusedReleaseUserGroup = value => dispatcher.push(events.toggleFocusedReleaseUserGroup, value)
+
   const updateNotification = (prop, value) => dispatcher.push(events.updateNotification, {prop: prop, value: value})
 
   const updateNotificationTags = value => dispatcher.push(events.updateNotificationTags, value)
@@ -80,6 +84,8 @@ export function initController (dispatcher, events) {
     updateRelease: updateRelease,
     toggleReleaseCategory: toggleReleaseCategory,
     toggleReleaseUserGroup: toggleReleaseUserGroup,
+    updateFocusedReleaseCategory: updateFocusedReleaseCategory,
+    toggleFocusedReleaseUserGroup: toggleFocusedReleaseUserGroup,
     updateNotification: updateNotification,
     updateNotificationTags: updateNotificationTags,
     updateNotificationContent: updateNotificationContent,
