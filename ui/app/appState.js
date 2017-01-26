@@ -5,6 +5,7 @@ import Dispatcher from './dispatcher'
 import { initController } from './controller'
 import { validate, rules } from './validation'
 import * as testData from './resources/test/testData.json'
+import urls from './data/virkailijan-tyopoyta-urls.json'
 
 const dispatcher = new Dispatcher()
 
@@ -49,7 +50,10 @@ const events = {
   toggleNotification: 'toggleNotification'
 }
 
-const notificationsUrl = "/virkailijan-tyopoyta/api/releases";
+const authUrl = "/virkailijan-tyopoyta/login"
+const releasesUrl = "/virkailijan-tyopoyta/api/releases"
+const tagsUrl = "/virkailijan-tyopoyta/api/tags"
+
 const controller = initController(dispatcher, events)
 
 export function getController () {
@@ -71,7 +75,12 @@ function onNotificationsReceived(state, response){
 function onTimelineReceived(state, response){
   //console.log("received timeline: "+JSON.stringify(response) );
 
-  return R.assoc('timeline', response, state)
+  // return R.assoc('timeline', response, state)
+  return state
+}
+
+function onTagsReceived(state, tags){
+  return R.assoc('notificationTags', tags, state)
 }
 
 function toggleValue (value, values) {
@@ -166,19 +175,8 @@ function toggleDocumentPreview (state, isPreviewed) {
   return R.assocPath(['editor', 'isPreviewed'], isPreviewed, state)
 }
 
-function saveDocument (state) {
-  console.log('Saving document', JSON.stringify(state.editor.document))
-
-  fetch(notificationsUrl + '/addRelease', {
-    method: 'POST',
-    dataType: 'json',
-    headers: {
-      'Content-type': 'text/json; charset=UTF-8'
-    },
-    body: JSON.stringify(state.editor.document),
-  });
-
-  return state
+function cleanUpDocument (document) {
+  return R.assoc('timeline', document.timeline.filter(tl => tl.date != null), document)
 }
 
 // RELEASE
@@ -261,7 +259,7 @@ function emptyNotification () {
 }
 
 function updateNotification (state, {prop, value}) {
-  console.log('Updating notification', prop, value)
+  // console.log('Updating notification', prop, value)
 
   // Concatenate path and prop
   let path = ['editor', 'document', 'notification']
@@ -372,13 +370,13 @@ function removeDocumentProperties (key, value) {
 function saveDocument (state) {
   console.log('Saving document')
 
-  fetch(notificationsUrl, {
+  fetch(releasesUrl, {
     method: 'POST',
     dataType: 'json',
     headers: {
       'Content-type': 'application/json'
     },
-    body: JSON.stringify(state.editor.document, state.editor.onSave)
+    body: JSON.stringify(cleanUpDocument(state.editor.document), state.editor.onSave)
   });
 
   return state;
@@ -502,7 +500,35 @@ function toggleNotification (state, {id}) {
 }
 
 export function initAppState() {
-  const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()))
+
+  function fetchReleases(){
+    console.log("fetching releases...")
+    fetch(releasesUrl).then(resp => resp.json()).then(releases => releasesBus.push(releases))
+  }
+
+  function fetchTags(){
+    console.log("fetching tags...")
+    fetch(tagsUrl).then(resp => resp.json()).then(tags => tagsBus.push(tags))
+  }
+
+  function onUserReceived(state, response){
+    console.log("received user: "+JSON.stringify(response))
+    fetchReleases()
+    fetchTags()
+    return R.assoc('user', response, state)
+  }
+
+  //Disabloidaan auth kunnes saadaan testattua
+  // const userS = Bacon.fromPromise(fetch(authUrl, {mode: 'no-cors'}).then(resp => {
+  //   resp.json()
+  // }))
+
+  onUserReceived(initialState, {language: "fi"})
+
+  const releasesBus = new Bacon.Bus()
+  const tagsBus = new Bacon.Bus()
+  //const releasesS = testData.releases
+  const releasesS = Bacon.fromPromise(fetch(releasesUrl).then(resp => resp.json()))
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
   const viewAlerts = []
@@ -587,8 +613,11 @@ export function initAppState() {
     [dispatcher.stream(events.setSelectedNotificationTags)], setSelectedNotificationTags,
     [dispatcher.stream(events.toggleNotification)], toggleNotification,
 
-    [releasesS], onReleasesReceived,
+    // [userS], onUserReceived,
+    [releasesBus], onReleasesReceived,
+    // [releasesS], onReleasesReceived,
     [notificationsS], onNotificationsReceived,
-    [timelineS], onTimelineReceived
+    [timelineS], onTimelineReceived,
+    [tagsBus], onTagsReceived
   )
 }

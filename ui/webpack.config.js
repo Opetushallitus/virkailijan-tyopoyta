@@ -1,8 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const validate = require('webpack-validator');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const webpack = require('webpack');
 
@@ -14,12 +14,13 @@ const PATHS = {
   fonts: path.join(__dirname, 'app/resources/fonts')
 };
 
-var config = {
+const config = {
   entry: {
     app: PATHS.app
   },
   output: {
     path: PATHS.build,
+    publicPath: "./",
     filename: '[name].js',
     chunkFilename: '[id].js',
     publicPath: '/virkailijan-tyopoyta/'
