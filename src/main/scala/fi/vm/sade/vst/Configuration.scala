@@ -22,12 +22,11 @@ trait Configuration {
   private val casUrl = config.getString("cas.url")
   private val casService = config.getString("virkailijan-tyopoyta.cas.service")
 
-  lazy val authenticationConfig = AuthenticationConfig(casUrl, "casService", 10)
+  lazy val authenticationConfig = AuthenticationConfig(casUrl, s"$casService/authenticate", 10)
   lazy val serverConfig = ServerConfig(config.getInt("server.port"))
 
-  lazy val config: Config = ConfigFactory.parseFile(confFile)
+  private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
 
-
-
+  private lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
 
 }

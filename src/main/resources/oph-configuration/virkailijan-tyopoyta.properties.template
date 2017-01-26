@@ -1,1 +1,9 @@
 server.port={{palvelu_portti}}
+
+cas.url={{cas_url}}
+virkailijan-tyopoyta.cas.service={{host_virkailija}}/virkailijan-tyopoyta
+
+# LDAP
+ldap.server.host={{host_ldap}}
+ldap.user.dn={{ldap_manager_userdn}}
+ldap.user.password={{ldap_manager_password}}

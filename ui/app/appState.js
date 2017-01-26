@@ -242,7 +242,7 @@ function emptyNotification () {
 }
 
 function updateNotification (state, {prop, value}) {
-  console.log('Updating notification', prop, value)
+  // console.log('Updating notification', prop, value)
 
   // Concatenate path and prop
   let path = ['editor', 'document', 'notification']
@@ -482,18 +482,6 @@ function toggleNotification (state, {id}) {
 
 export function initAppState() {
 
-  const getRoles = function (){
-    console.log("Doing login stuff...???")
-    fetch("https://itest-virkailija.oph.ware.fi/cas/login",{
-      credentials: 'include'
-    })
-    .then(response => response.json())
-  }
-
-  getRoles()
-
-  console.log("COOKIES:" + document.cookie)
-
   function fetchReleases(){
     console.log("fetching releases...")
     fetch(releasesUrl).then(resp => resp.json()).then(releases => releasesBus.push(releases))
@@ -521,9 +509,7 @@ export function initAppState() {
   const releasesBus = new Bacon.Bus()
   const tagsBus = new Bacon.Bus()
   //const releasesS = testData.releases
-  const notificationsS = releasesBus.flatMapLatest(r => R.map(r => r.notification, r))
-  const timelineS = releasesBus.flatMapLatest(r => R.map(r => r.timeline, r))
-  const releasesS = Bacon.fromPromise(fetch(notificationsUrl).then(resp => resp.json()))
+  const releasesS = Bacon.fromPromise(fetch(releasesUrl).then(resp => resp.json()))
   const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
   const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
   const viewAlerts = []
