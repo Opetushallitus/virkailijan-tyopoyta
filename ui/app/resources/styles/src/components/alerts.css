@@ -33,11 +33,11 @@
   font-weight: var(--font-weight-bold);
 }
 
-.alert-success .alert-heading {
+.alert-success .alert-title {
   color: var(--color-success)
 }
 
-.alert-error .alert-heading {
+.alert-error .alert-title {
   color: var(--color-error)
 }
 

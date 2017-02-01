@@ -30,6 +30,10 @@ function EditNotification (props) {
 
   const notification = release.notification
 
+  // Handle non-existing language properties in notification.content
+  const contentFi = notification.content.fi || {}
+  const contentSv = notification.content.sv || {}
+
   // Add 2 hours for first days of months, otherwise the previous months' last days are also selectable
   const minDate = moment().add(2, 'hours')
 
@@ -88,7 +92,7 @@ function EditNotification (props) {
           <LimitedTextField
             label={<Translation trans="otsikko" />}
             name="notification-title-fi"
-            value={notification.content.fi.title}
+            value={contentFi.title}
             maxLength={200}
             isRequired
             onChange={controller.updateNotificationContent('fi', 'title')}
@@ -99,7 +103,7 @@ function EditNotification (props) {
           <LimitedTextField
             label={<Translation trans="otsikkoSV" />}
             name="notification-title-sv"
-            value={notification.content.sv.title}
+            value={contentSv.title}
             maxLength={200}
             onChange={controller.updateNotificationContent('sv', 'title')}
           />
@@ -117,7 +121,7 @@ function EditNotification (props) {
             isRequired
           >
             <TextEditor
-              data={notification.content.fi.text}
+              data={contentFi.text}
               controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
               save={controller.updateNotificationContent('fi', 'text')}
             />
@@ -130,7 +134,7 @@ function EditNotification (props) {
             name="notification-description-sv"
           >
             <TextEditor
-              data={notification.content.sv.text}
+              data={contentSv.text}
               controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
               save={controller.updateNotificationContent('sv', 'text')}
             />

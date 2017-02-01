@@ -5,6 +5,7 @@
   font-family: var(--base-font-family);
   font-weight: var(--font-weight-bold);
   line-height: 1.125rem;
+  box-sizing: border-box;
   padding: var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--border-radius);

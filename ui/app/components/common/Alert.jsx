@@ -3,11 +3,9 @@ import React, { PropTypes } from 'react'
 import CloseButton from './buttons/CloseButton'
 
 const types = ['info', 'success', 'warning', 'error', 'help']
-const positions = ['top', 'right', 'bottom', 'left']
 
 const propTypes = {
   type: PropTypes.oneOf(types),
-  position: PropTypes.oneOf(positions),
   title: PropTypes.string.isRequired,
   text: PropTypes.string,
   onCloseButtonClick: PropTypes.func.isRequired
@@ -15,7 +13,6 @@ const propTypes = {
 
 const defaultProps = {
   type: 'info',
-  position: null,
   variant: 'fullscreen',
   text: null
 }
@@ -23,18 +20,17 @@ const defaultProps = {
 function Alert (props) {
   const {
     type,
-    position,
     onCloseButtonClick,
     title,
     text
   } = props
 
   return (
-    <div className={`alert alert-${type} ${position ? `alert-${position}` : ''}`}>
+    <div className={`alert alert-${type}`}>
       <div className="alert-container">
         <CloseButton onClick={onCloseButtonClick} />
 
-        <div className="alert-heading">{title}</div>
+        <div className="alert-title">{title}</div>
 
         {
           text

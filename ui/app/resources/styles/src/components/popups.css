@@ -1,0 +1,63 @@
+/* Popups */
+
+.popup {
+  font-weight: 400;
+  line-height: var(--base-line-height);
+  position: absolute;
+  width: 24rem;
+  padding: var(--space-2) var(--space-3);
+  color: var(--black);
+  border-radius: var(--border-radius);
+}
+
+.popup-title {
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-2);
+}
+
+.popup-right {
+}
+
+.popup-info {
+  background-color: var(--bg-color-info);
+}
+
+.popup-info .popup-title {
+  color: var(--color-info);
+}
+
+.popup-success {
+  background-color: var(--bg-color-success);
+}
+
+.popup-success .popup-title {
+  color: var(--color-success);
+}
+
+.popup-warning {
+  background-color: var(--bg-color-warning);
+}
+
+.popup-warning .popup-title {
+  color: var(--color-warning);
+}
+
+.popup-error {
+  background-color: var(--bg-color-error);
+}
+
+.popup-error .popup-title {
+  color: var(--color-error);
+}
+
+:root {
+  --color-info:           var(--blue);
+  --color-success:        var(--green);
+  --color-warning:        var(--yellow);
+  --color-error:          var(--red);
+
+  --bg-color-info:        var(--blue-lighten-3);
+  --bg-color-success:     var(--green-lighten);
+  --bg-color-warning:     var(--yellow-lighten);
+  --bg-color-error:       var(--red-lighten-2);
+}

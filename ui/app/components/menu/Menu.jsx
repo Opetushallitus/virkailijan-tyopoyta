@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react'
 
 // Components
 import MobileMenu from './MobileMenu'
-import TimePeriod from './TimePeriod'
 import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
 import Button from '../common/buttons/Button'
 import Translation from '../common/Translations'
@@ -10,7 +9,6 @@ import Translation from '../common/Translations'
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  dateFormat: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
   view: PropTypes.object.isRequired,
   unpublishedNotifications: PropTypes.object.isRequired,
@@ -21,7 +19,6 @@ function Menu (props) {
   const {
     controller,
     locale,
-    dateFormat,
     categories,
     view,
     unpublishedNotifications,
@@ -46,7 +43,7 @@ function Menu (props) {
         ${hasUnpublishedNotifications ? 'py2' : ''} ${isMobileMenuVisible ? 'menu-is-visible' : ''}`}
       >
         {/*Categories*/}
-        <div className="mb1 lg-mb0 lg-inline-block display-none">
+        <div className="mb1 lg-mb0 lg-inline-block">
           <div className="inline-block lg-inline md-col-1 mb1 lg-mb0"><Translation trans="nayta" /></div>
 
           <fieldset className="md-inline-block lg-ml2">
@@ -62,18 +59,7 @@ function Menu (props) {
           </fieldset>
         </div>
 
-        {/*Time period*/}
-        <div className="md-inline-block col-12 lg-col-5 lg-ml2 display-none">
-          <TimePeriod
-            controller={controller}
-            locale={locale}
-            dateFormat={dateFormat}
-            startDate={view.startDate}
-            endDate={view.endDate}
-          />
-        </div>
-
-        <span className="muted">Näkymän rajaus ei ole vielä toiminnassa</span>
+        <span className="muted display-none">Näkymän rajaus ei ole vielä toiminnassa</span>
       </div>
 
       {/*Actions*/}

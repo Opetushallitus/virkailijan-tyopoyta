@@ -138,9 +138,10 @@ class App extends React.Component {
             <Spinner isVisible />
           </div>
 
-          {/*View selection for mobile screens*/}
+          {/*Notification/timeline view selection for small screens*/}
           <Tabs className="md-hide lg-hide sm-mt3">
             <TabItem
+              className="sm-col-6"
               name="notifications"
               selectedTab={selectedTab}
               onClick={controller.toggleViewTab}
@@ -149,6 +150,7 @@ class App extends React.Component {
             </TabItem>
 
             <TabItem
+              className="sm-col-6"
               name="timeline"
               selectedTab={selectedTab}
               onClick={controller.toggleViewTab}

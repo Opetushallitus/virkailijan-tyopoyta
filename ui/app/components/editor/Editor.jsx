@@ -8,6 +8,7 @@ import PreviewRelease from './PreviewRelease'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
+import Popup from '../common/Popup'
 import Translation, { translate } from '../common/Translations'
 
 import getTimelineItems from './getTimelineItems'
@@ -210,7 +211,7 @@ function EditRelease (props) {
       <div className={`center relative pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
         {/*Preview & publish*/}
         <Button
-          className="button button-primary button-lg"
+          className="editor-button-save button button-primary button-lg relative"
           type="submit"
           disabled={
             // Release is empty
@@ -227,6 +228,7 @@ function EditRelease (props) {
           isLoading={false}
         >
           {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
+
         </Button>
       </div>
     </form>

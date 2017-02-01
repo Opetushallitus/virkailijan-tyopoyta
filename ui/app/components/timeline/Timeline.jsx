@@ -28,6 +28,20 @@ function Timeline (props) {
       {/*Months*/}
       <div className="sm-center md-left-align lg-center relative">
         {/*Month heading*/}
+        <TimelineHeading text="Tammikuu 2017" />
+
+        {/*Month*/}
+        <div className="timeline-axis flex flex-column">
+          {/*Timeline items for a single day*/}
+          <TimelineDay
+            controller={controller}
+            locale={locale}
+            dateFormat={dateFormat}
+            items={items}
+          />
+        </div>
+
+        {/*Month heading*/}
         <TimelineHeading text="Helmikuu 2017" />
 
         {/*Month*/}

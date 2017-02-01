@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "start": "webpack-dev-server",
-    "start-dev":"webpack --output-path ../target/scala-2.11/classes/ui "
+    "start-dev":"webpack --output-path ../target/scala-2.11/classes/ui --watch"
   },
   "keywords": [],
   "author": "",

@@ -60,14 +60,24 @@ export function getController () {
   return controller;
 }
 
-function onReleasesReceived(state, response){
-  console.log("received releases: "+JSON.stringify(response) );
+const releasesBus = new Bacon.Bus()
+
+function fetchReleases () {
+  console.log('Fetching releases')
+
+  fetch(releasesUrl)
+    .then(resp => resp.json())
+    .then(releases => releasesBus.push(releases))
+}
+
+function onReleasesReceived (state, response){
+  console.log('Received releases')
 
   return R.assoc('releases', response, state)
 }
 
-function onNotificationsReceived(state, response){
-  //console.log("received notifications: "+JSON.stringify(response) );
+function onNotificationsReceived (state, response) {
+  console.log('Received notifications')
 
   return R.assoc('notifications', response, state)
 }
@@ -124,18 +134,28 @@ function toggleViewTab (state, selectedTab) {
   return updateView(state, { prop: 'selectedTab', value: selectedTab })
 }
 
+function createAlert (options, alerts) {
+  const id = alerts.length > 0
+    ? R.tail(alerts).id + 1
+    : 1
+
+  return {
+    id,
+    ...options
+  }
+}
+
 function removeViewAlert (state, id) {
   console.log('Removing alert with id', id)
 
   const newAlerts = R.reject(alert => alert.id === id, state.view.alerts)
 
-  return updateView(state, { prop: 'alerts', value: newAlerts})
+  return updateView(state, { prop: 'alerts', value: newAlerts })
 }
-
 
 // EDITOR
 
-function toggleEditor (state, { releaseId = -1, selectedTab = 'edit-notification' }) {
+function toggleEditor (state, releaseId = -1, selectedTab = 'edit-notification') {
   const newState = R.assocPath(['editor', 'isVisible'], !state.editor.isVisible, state)
 
   // Toggle preview mode off and clear editor when closing
@@ -373,6 +393,8 @@ function removeDocumentProperties (key, value) {
   return value
 }
 
+const saveDocumentBus = new Bacon.Bus()
+
 function saveDocument (state) {
   console.log('Saving document')
 
@@ -383,9 +405,35 @@ function saveDocument (state) {
       'Content-type': 'application/json'
     },
     body: JSON.stringify(cleanUpDocument(state.editor.document), state.editor.onSave)
-  });
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        saveDocumentBus.push(response)
+      }
+    })
+    .then(json => {
+      saveDocumentBus.push(json)
+    })
 
-  return state;
+  return state
+}
+
+function onSaveComplete (state, json) {
+  console.log('Release saved', json)
+
+  const alert = createAlert({
+    type: 'success',
+    title: 'Julkaisu onnistui'
+  }, state.view.alerts)
+
+  const stateWithAlert = R.assocPath(['view', 'alerts'], [alert], state)
+
+  // Fetch releases again
+  fetchReleases()
+
+  return toggleEditor(stateWithAlert)
 }
 
 function emptyContent (id ,lang) {
@@ -398,7 +446,7 @@ function emptyContent (id ,lang) {
 }
 
 function emptyNotification () {
-  return{
+  return {
     id: -1,
     releaseId: -1,
     startDate: null,
@@ -506,12 +554,6 @@ function toggleNotification (state, {id}) {
 }
 
 export function initAppState() {
-
-  function fetchReleases(){
-    console.log("fetching releases...")
-    fetch(releasesUrl).then(resp => resp.json()).then(releases => releasesBus.push(releases))
-  }
-
   function fetchTags(){
     console.log("fetching tags...")
     fetch(tagsUrl).then(resp => resp.json()).then(tags => tagsBus.push(tags))
@@ -531,13 +573,9 @@ export function initAppState() {
 
   onUserReceived(initialState, {language: "fi"})
 
-  const releasesBus = new Bacon.Bus()
   const tagsBus = new Bacon.Bus()
-  //const releasesS = testData.releases
-  const releasesS = Bacon.fromPromise(fetch(releasesUrl).then(resp => resp.json()))
-  const notificationsS = releasesS.flatMapLatest(r => R.map(r => r.notification, r))
-  const timelineS = releasesS.flatMapLatest(r => R.map(r => r.timeline, r))
-  const viewAlerts = []
+  const notificationsS = releasesBus.flatMapLatest(r => R.map(r => r.notification, r))
+  const timelineS = releasesBus.flatMapLatest(r => R.map(r => r.timeline, r))
 
   const initialState = {
     locale: 'fi',
@@ -552,7 +590,7 @@ export function initAppState() {
       startDate: '',
       endDate: '',
       selectedTab: 'notifications',
-      alerts: viewAlerts
+      alerts: []
     },
     releases: testData.releases,
     unpublishedReleases: testData.unpublishedReleases,
@@ -622,8 +660,9 @@ export function initAppState() {
     // [userS], onUserReceived,
     [releasesBus], onReleasesReceived,
     // [releasesS], onReleasesReceived,
+    [tagsBus], onTagsReceived,
     [notificationsS], onNotificationsReceived,
     [timelineS], onTimelineReceived,
-    [tagsBus], onTagsReceived
+    [saveDocumentBus], onSaveComplete
   )
 }

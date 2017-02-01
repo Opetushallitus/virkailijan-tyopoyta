@@ -18,8 +18,6 @@ function PreviewTargetingList (props) {
     items
   } = props
 
-  console.log(selectedItems, items)
-
   const getSelectedTargetingName = (id, items, locale) => {
     return R.find(R.propEq('id', id))(items)[`name_${locale}`]
   }

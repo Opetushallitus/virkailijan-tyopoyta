@@ -4,6 +4,7 @@
 @import "semantic-ui-css/components/dropdown";
 @import "semantic-ui-css/components/transition";
 @import "font-awesome";
+@import "virkailija-style-guide/oph-styles-min.css";
 
 /* Common */
 @import "src/index.css";
@@ -26,12 +27,11 @@
   /* Typography */
 
   --base-font-family: "Open Sans", "Helvetica", sans-sefif;
-  --base-font-size:   15px;
+  --base-font-size:   95%;
 
   --font-weight-bold: 600;
 
-  /* Readable height of ~1.428 */
-  --base-line-height: calc(1 * (20/14));
+  --base-line-height: 1.45;
 
   /* Layout */
 

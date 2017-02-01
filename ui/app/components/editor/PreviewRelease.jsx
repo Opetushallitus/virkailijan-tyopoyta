@@ -104,7 +104,7 @@ function PreviewRelease (props) {
 
           {/*User groups*/}
           {
-            release.userGroups.length
+            release.userGroups.length > 0
               ? <PreviewTargetingList
                 locale={locale}
                 title="kohdennusroolit"

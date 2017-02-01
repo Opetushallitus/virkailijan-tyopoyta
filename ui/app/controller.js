@@ -12,7 +12,7 @@ export function initController (dispatcher, events) {
   // EDITOR
 
   const toggleEditor = (releaseId, selectedTab) =>
-    dispatcher.push(events.toggleEditor, { releaseId, selectedTab: selectedTab })
+    dispatcher.push(events.toggleEditor, releaseId, selectedTab)
 
   const toggleEditorTab = selectedTab => dispatcher.push(events.toggleEditorTab, selectedTab)
 

@@ -15,9 +15,13 @@ import mapDropdownOptions from '../utils/mapDropdownOptions'
 const propTypes = {
   locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
-  categories: PropTypes.array.isRequired,
+  categories: PropTypes.array,
   userGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
+}
+
+const defaultProps = {
+  categories: []
 }
 
 function Targeting (props) {
@@ -49,8 +53,13 @@ function Targeting (props) {
     )
   }
 
-  const unselectedUserGroups = getUnselectedUserGroups(userGroups, release.userGroups)
-  const unselectedFocusedUserGroups = getUnselectedUserGroups(userGroups, release.focusedUserGroups)
+  const unselectedUserGroups = release.userGroups
+    ? getUnselectedUserGroups(userGroups, release.userGroups)
+    : userGroups
+
+  const unselectedFocusedUserGroups = release.focusedUserGroups
+    ? getUnselectedUserGroups(userGroups, release.focusedUserGroups)
+    : userGroups
 
   const getUserGroupName = (id, groups, locale) => {
     return R.find(R.propEq('id', id))(groups)[`name_${locale}`]
@@ -59,6 +68,8 @@ function Targeting (props) {
   // Add a 'No category' option for clearing the focused category dropdown
   const focusedCategoryOptions = [{ value: null, text: translate('eikategoriaa') }]
     .concat(mapDropdownOptions(categories, locale))
+
+  const selectedCategories = release.categories || []
 
   return (
     <div>
@@ -72,7 +83,7 @@ function Targeting (props) {
               locale={locale}
               htmlId="release-category"
               options={categories}
-              selectedOptions={release.categories}
+              selectedOptions={selectedCategories}
               onChange={controller.toggleReleaseCategory}
             />
           </Fieldset>
@@ -100,14 +111,18 @@ function Targeting (props) {
         <div className="col-12 sm-col-6 sm-pl2">
           <div className="invisible xs-hide sm-hide mb1">{translate('valitutryhmat')}</div>
 
-          {release.userGroups.map(group =>
-            <UserGroupButton
-              key={`userGroup${group}`}
-              id={group}
-              text={getUserGroupName(group, userGroups, locale)}
-              onClick={controller.toggleReleaseUserGroup}
-            />
-          )}
+          {
+            release.userGroups
+              ? release.userGroups.map(group =>
+                <UserGroupButton
+                  key={`userGroup${group}`}
+                  id={group}
+                  text={getUserGroupName(group, userGroups, locale)}
+                  onClick={controller.toggleReleaseUserGroup}
+                />
+              )
+              : null
+          }
         </div>
 
         {/*Focus targeting*/}
@@ -215,14 +230,18 @@ function Targeting (props) {
             <div className="col-12 sm-col-6 sm-pl2">
               <div className="invisible xs-hide sm-hide mb1">{translate('valitutryhmat')}</div>
 
-              {release.focusedUserGroups.map(group =>
-                <UserGroupButton
-                  key={`focusedUsergroup${group}`}
-                  id={group}
-                  text={getUserGroupName(group, userGroups, locale)}
-                  onClick={controller.toggleFocusedReleaseUserGroup}
-                />
-              )}
+              {
+                release.focusedUserGroups
+                  ? release.focusedUserGroups.map(group =>
+                    <UserGroupButton
+                      key={`focusedUsergroup${group}`}
+                      id={group}
+                      text={getUserGroupName(group, userGroups, locale)}
+                      onClick={controller.toggleFocusedReleaseUserGroup}
+                    />
+                  )
+                  : null
+              }
             </div>
           </div>
         </div>
@@ -248,5 +267,6 @@ function Targeting (props) {
 }
 
 Targeting.propTypes = propTypes
+Targeting.defaultProps = defaultProps
 
 export default Targeting
