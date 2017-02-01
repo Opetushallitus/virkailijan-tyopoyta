@@ -57,6 +57,7 @@
     "react-dom": "15.3.2",
     "react-render-html": "0.1.6",
     "semantic-ui-css": "2.2.4",
-    "semantic-ui-react": "0.61.7"
+    "semantic-ui-react": "0.61.7",
+    "virkailija-style-guide": "github:opetushallitus/virkailija-styles#styleguide"
   }
 }
