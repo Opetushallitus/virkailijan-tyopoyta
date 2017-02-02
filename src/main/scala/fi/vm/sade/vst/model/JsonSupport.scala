@@ -61,8 +61,8 @@ trait JsonSupport {
     )(NotificationContent.apply _)
 
   implicit val tagReads: Reads[Tag] = (
-    (JsPath \ "notificationId").read[Long] and
-      (JsPath \ "name").read[String]
+    (JsPath \ "id").read[Long] and
+    (JsPath \ "name").read[String]
     )(Tag.apply _)
 
   implicit val NotificationReads: Reads[Notification] = (
@@ -101,12 +101,28 @@ trait JsonSupport {
     (JsPath \ "roles").write[Seq[String]]
   )(unlift(User.unapply))
 
+  def releasesReads: Reads[List[Release]] = {
+    (JsPath).read[List[Release]]
+  }
+  def tagsReads: Reads[List[Tag]] = {
+    (JsPath).read[List[Tag]]
+  }
+
   def parseRelease(jsString: String): Option[Release] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseReads)
     result.asOpt
   }
-
+  def parseReleases(jsString: String): Option[List[Release]] ={
+    val jsonVal = Json.parse(jsString)
+    val result = Json.fromJson(jsonVal)(releasesReads)
+    result.asOpt
+  }
+  def parseTags(jsString: String): Option[List[Tag]] ={
+    val jsonVal = Json.parse(jsString)
+    val result = Json.fromJson(jsonVal)(tagsReads)
+    result.asOpt
+  }
   def serialize[T](obj: T)(implicit tjs: Writes[T]): String ={
     Json.toJson[T](obj).toString()
   }

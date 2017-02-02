@@ -1,8 +1,9 @@
 package fi.vm.sade.vst.server
 
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{ContentType, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
+import akka.http.scaladsl.model.MediaTypes.`application/json`
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session._
 import com.softwaremill.session.SessionOptions._
@@ -33,7 +34,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
   def sendResponse[T](eventualResult: Future[T])(implicit writes: Writes[T]): Route = {
     onComplete(eventualResult) {
       case Success(result) ⇒
-        complete(Json.toJson(result).toString())
+        complete{
+          HttpResponse(entity = HttpEntity(`application/json`, Json.toJson(result).toString()))
+        }
       case Failure(e) ⇒
         complete(ToResponseMarshallable("Error"))
     }

@@ -1,0 +1,70 @@
+[
+  {
+    "id": 1,
+    "name": "Aikataulut"
+  },
+  {
+    "id": 2,
+    "name": "Kielikoe"
+  },
+  {
+    "id": 3,
+    "name": "Koulutustarjonta"
+  },
+  {
+    "id": 4,
+    "name": "Käyttöoikeudet"
+  },
+  {
+    "id": 5,
+    "name": "Opintopolku-info"
+  },
+  {
+    "id": 6,
+    "name": "Opo-paketti"
+  },
+  {
+    "id": 7,
+    "name": "Oppimisvalmiustesti"
+  },
+  {
+    "id": 8,
+    "name": "Pääsy-ja soveltuvuuskoe"
+  },
+  {
+    "id": 9,
+    "name": "Raportit"
+  },
+  {
+    "id": 10,
+    "name": "Tiedonsiirrot"
+  },
+  {
+    "id": 11,
+    "name": "Tilastot"
+  },
+  {
+    "id": 12,
+    "name": "Valinnat"
+  },
+  {
+    "id": 13,
+    "name": "Erillishaku"
+  },
+  {
+    "id": 14,
+    "name": "Yhteishaku"
+  },
+  {
+    "id": 15,
+    "name": "Lisähaku"
+  },
+  {
+    "id": 16,
+    "name": "Valintakoe"
+  },
+  {
+    "id": 17,
+    "name": "Hakulomakkeen hallinta"
+  }
+]
