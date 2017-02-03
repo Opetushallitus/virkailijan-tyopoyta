@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait ReleaseRepository{
+  def getTimeline(amount: Int, startdate: String): Future[Seq[TimelineItem]]
   def getReleases : Future[Seq[Release]]
   def addRelease(release: Release): Future[Release]
   def getTags : Future[Seq[Tag]]
@@ -20,13 +21,13 @@ trait ReleaseRepository{
 
 class MockRepository() extends ReleaseRepository with JsonSupport {
 
-  private var releases = new AtomicReference(Map[Long, Release]())
+  private val releases = new AtomicReference(Map[Long, Release]())
 
   val tagfile = new File(getClass.getResource("/data/tags.json").toURI)
   val tags = parseTags(scala.io.Source.fromFile(tagfile).mkString).get
 
   def getTags(names: String*): List[Int] = {
-    tags.filter(t => names.contains(t.name)).map(_.id.toInt).toList
+    tags.filter(t => names.contains(t.name)).map(_.id.toInt)
   }
 
   val file = new File(getClass.getResource("/data/releases.json").toURI)
@@ -34,6 +35,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   val releasesList = parseReleases(scala.io.Source.fromFile(file).mkString)
 
   var initReleases = Map[Long, Release]()
+
   releasesList match {
     case Some(p) =>
         p.foreach((release: Release) => {
@@ -64,18 +66,35 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   def addRelease(release: Release): Future[Release] = {
     println("Received release: "+ release)
-    val oldReleases = releases.get()
     val id = nextReleaseId()
     val persistedRelease = release.copy(
       id = id,
       notification = release.notification.map(persistNotification(id, _))
     )
-    releases.set(sortReleasesByPublishDate((oldReleases + (id -> persistedRelease))))
+    releases.set(sortReleasesByPublishDate((releases.get() + (id -> persistedRelease))))
     Future{persistedRelease}
   }
 
   def sortReleasesByPublishDate(releases: Map[Long, Release]): Map[Long, Release] = {
     ListMap(releases.toSeq.sortBy(- _._2.notification.get.publishDate.toEpochDay):_*)
+  }
+
+
+  override def getTimeline(amount: Int,startdate : String): Future[Seq[TimelineItem]] = {
+    var timelineItems: List[TimelineItem] = List()
+    releases.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
+      p._2.timeline.foreach( (t: TimelineItem) => {
+        timelineItems = t :: timelineItems
+      })
+    })
+    val date = LocalDate.parse(startdate)
+    if(amount < 0){
+      println(timelineItems.filter(_.date.toEpochDay <= date.toEpochDay))
+      timelineItems = timelineItems.filter(_.date.toEpochDay <= date.toEpochDay).sortBy(- _.date.toEpochDay).slice(0,amount*(-1))
+    }else{
+      timelineItems = timelineItems.filter(_.date.toEpochDay >= date.toEpochDay).sortBy(- _.date.toEpochDay).slice(0,amount)
+    }
+    Future{timelineItems}
   }
 
 }

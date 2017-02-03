@@ -1,5 +1,7 @@
 package fi.vm.sade.vst.server
 
+import java.time.LocalDate
+
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.{ContentType, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
@@ -45,7 +47,13 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
   val apiRoutes: Route = {
     get{
       path("releases"){sendResponse(releaseRepository.getReleases)} ~
-      path("tags"){sendResponse(releaseRepository.getTags)}
+      path("tags"){sendResponse(releaseRepository.getTags)} ~
+      path("timeline"){
+          parameter("amount" ? 10,"startdate" ? LocalDate.now().toString){(amount,startdate) =>
+
+            sendResponse(releaseRepository.getTimeline(amount,startdate))
+          }
+        }
       }
     } ~
     post{
