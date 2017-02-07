@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait ReleaseRepository{
-  def getTimeline(amount: Int, startdate: String, enddate: String): Future[Timeline]
+  def getTimeline(month: Int, year: Int): Future[Timeline]
   def getReleases : Future[Seq[Release]]
   def addRelease(release: Release): Future[Release]
   def getTags : Future[Seq[Tag]]
@@ -80,7 +80,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   }
 
 
-  override def getTimeline(amount: Int,startdate : String, enddate : String): Future[Timeline] = {
+  override def getTimeline(month: Int, year: Int): Future[Timeline] = {
     var timelineItems: List[TimelineItem] = List()
     var days: Map[String, List[TimelineItem]] = Map()
     releases.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
@@ -88,13 +88,13 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         timelineItems = t :: timelineItems
       })
     })
-    val startDate = LocalDate.parse(startdate)
-    val endDate = LocalDate.parse(enddate)
-    if(amount < 0){
-      timelineItems = timelineItems.filter(_.date.toEpochDay <= startDate.toEpochDay).filter(_.date.toEpochDay > endDate.toEpochDay).sortBy(- _.date.toEpochDay).slice(0,amount*(-1))
-    }else{
-      timelineItems = timelineItems.filter(_.date.toEpochDay >= startDate.toEpochDay).filter(_.date.toEpochDay < endDate.toEpochDay).sortBy(_.date.toEpochDay).slice(0,amount)
-    }
+    val date = "%d-%02d-01".format(year, month)
+
+    val startDate = LocalDate.parse(date)
+
+    val endDate = startDate.plusMonths(1)
+    timelineItems = timelineItems.filter(_.date.toEpochDay >= startDate.toEpochDay).filter(_.date.toEpochDay < endDate.toEpochDay).sortBy(_.date.toEpochDay)
+
     timelineItems.foreach( (t: TimelineItem) => {
       val day = t.date.getDayOfMonth
       days.get(day.toString) match {
@@ -102,7 +102,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         case None => days += (day.toString -> List(t))
       }
     })
-    Future{Timeline(startDate.getMonthValue,startDate.getYear,days)}
+    Future{Timeline(month,year,days)}
   }
 
 }

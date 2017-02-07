@@ -50,9 +50,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
       path("releases"){sendResponse(releaseRepository.getReleases)} ~
       path("tags"){sendResponse(releaseRepository.getTags)} ~
       path("timeline"){
-          parameter("enddate" ? LocalDate.now().plusMonths(1).toString, "amount" ? 10, "startdate" ? LocalDate.now().toString){(enddate, amount,startdate) =>
 
-            sendResponse(releaseRepository.getTimeline(amount,startdate, enddate))
+          parameter("month" ? LocalDate.now().getMonthValue, "year" ? LocalDate.now().getYear){(month,year) =>
+            sendResponse(releaseRepository.getTimeline(month,year))
           }
         }
       }
