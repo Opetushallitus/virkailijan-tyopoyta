@@ -138,9 +138,7 @@ function onNotificationsReceived (state, response) {
 function onTimelineReceived (state, response) {
   console.log('Received timeline')
 
-  const newTimeline = R.append(response, state.timeline)
-
-  return R.assoc('timeline', newTimeline, state)
+  return R.assoc('timeline', [response], state)
 }
 
 function onTagsReceived (state, tags) {
