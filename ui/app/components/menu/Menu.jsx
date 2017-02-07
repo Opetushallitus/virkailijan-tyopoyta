@@ -4,14 +4,14 @@ import React, { PropTypes } from 'react'
 import MobileMenu from './MobileMenu'
 import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
 import Button from '../common/buttons/Button'
-import Translation from '../common/Translations'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
   view: PropTypes.object.isRequired,
-  unpublishedNotifications: PropTypes.object.isRequired,
+  unpublishedNotifications: PropTypes.array.isRequired,
   isMobileMenuVisible: PropTypes.bool.isRequired
 }
 
@@ -25,29 +25,34 @@ function Menu (props) {
     isMobileMenuVisible
   } = props
 
-  const hasUnpublishedNotifications = unpublishedNotifications.data.length
+  const hasUnpublishedNotifications = unpublishedNotifications.length
 
   return (
-    <section
-      className="relative flex flex-wrap items-center col-12 md-py2 border-bottom border-gray-lighten-2"
-    >
-      <MobileMenu
-        controller={controller}
-        unpublishedNotifications={unpublishedNotifications}
-        isMobileMenuVisible={isMobileMenuVisible}
+    <div>
+      {/*Skeleton screen*/}
+      <div
+        className={`col-12 py3 border-bottom border-gray-lighten-2 ${view.isInitialLoad ? '' : 'display-none'}`}
       />
 
-      {/*Filter view*/}
-      <div
-        className={`menu center md-left-align flex-auto mb2 md-mb0
-        ${hasUnpublishedNotifications ? 'py2' : ''} ${isMobileMenuVisible ? 'menu-is-visible' : ''}`}
+      <section
+        className={`relative flex flex-wrap items-center
+        col-12 md-py2 border-bottom border-gray-lighten-2 ${view.isInitialLoad ? 'display-none' : ''}`}
       >
-        {/*Categories*/}
-        <div className="mb1 lg-mb0 lg-inline-block">
-          <div className="inline-block lg-inline md-col-1 mb1 lg-mb0"><Translation trans="nayta" /></div>
+        <MobileMenu
+          controller={controller}
+          unpublishedNotifications={unpublishedNotifications}
+          isMobileMenuVisible={isMobileMenuVisible}
+        />
+
+        {/*Filter view*/}
+        <div
+          className={`menu center md-left-align col-12 md-col-9 ${isMobileMenuVisible ? 'menu-is-visible' : ''}`}
+        >
+          {/*Categories*/}
+          <div className="inline-block lg-inline md-col-1 mb1 lg-mb0">{translate('nayta')}</div>
 
           <fieldset className="md-inline-block lg-ml2">
-            <legend className="hide"><Translation trans="kategoriat" /></legend>
+            <legend className="hide">{translate('kategoriat')}</legend>
 
             <CheckboxButtonGroup
               locale={locale}
@@ -57,37 +62,37 @@ function Menu (props) {
               onChange={controller.toggleViewCategory}
             />
           </fieldset>
+
+          <span className="muted">Näkymän rajaus ei ole vielä toiminnassa</span>
         </div>
 
-        <span className="muted display-none">Näkymän rajaus ei ole vielä toiminnassa</span>
-      </div>
+        {/*Actions*/}
+        <div className="right-align flex-auto xs-hide sm-hide">
+          {/*Create a new release*/}
+          <Button
+            className="button-link h3 bold px0 py1"
+            onClick={controller.toggleEditor}
+          >
+            +&nbsp;
+            {translate('lisaauusi')}
+          </Button>
 
-      {/*Actions*/}
-      <div className="md-right-align absolute right-0 lg-col-2 xs-hide sm-hide">
-        {/*Create a new release*/}
-        <Button
-          className="button-link h3 bold px0 py1"
-          onClick={controller.toggleEditor}
-        >
-          +&nbsp;
-          <Translation trans="lisaauusi" />
-        </Button>
+          <br />
 
-        <br />
-
-        {/*Display unpublished notifications*/}
-        {
-          hasUnpublishedNotifications
-            ? <Button
-              className="button-display-unpublished-notifications button-link regular right-align px0 py1"
-              onClick={controller.toggleUnpublishedNotifications}
-            >
-              <Translation trans="julktiedotteet" />
-            </Button>
-            : null
-        }
-      </div>
-    </section>
+          {/*Display unpublished notifications*/}
+          {
+            hasUnpublishedNotifications
+              ? <Button
+                className="button-link regular right-align px0 py1"
+                onClick={controller.toggleUnpublishedNotifications}
+              >
+                {translate('julktiedotteet')}
+              </Button>
+              : null
+          }
+        </div>
+      </section>
+    </div>
   )
 }
 

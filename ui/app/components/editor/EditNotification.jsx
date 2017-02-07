@@ -37,11 +37,11 @@ function EditNotification (props) {
   // Add 2 hours for first days of months, otherwise the previous months' last days are also selectable
   const minDate = moment().add(2, 'hours')
 
-  const handleOnTagsChange = (event, { value }) => {
+  const handleTagsChange = (event, { value }) => {
     controller.updateNotificationTags(value)
   }
 
-  const handleOnTagClick = (event, { value }) => {
+  const handleTagClick = (event, { value }) => {
     controller.updateNotificationTags(value)
   }
 
@@ -49,7 +49,7 @@ function EditNotification (props) {
     Updates startDate
     Updates endDate if startDate > endDate
   */
-  const handleOnStartDateChange = date => {
+  const handleStartDateChange = date => {
     const newDate = getFormattedDate({ date, minDate, dateFormat })
 
     controller.updateNotification('startDate', newDate)
@@ -64,7 +64,7 @@ function EditNotification (props) {
     Updates endDate
     Updates startDate if endDate < startDate
   */
-  const handleOnEndDateChange = date => {
+  const handleEndDateChange = date => {
     const newDate = getFormattedDate({ date, minDate, dateFormat })
 
     controller.updateNotification('endDate', newDate)
@@ -156,8 +156,8 @@ function EditNotification (props) {
               multiple
               name="notification-tags"
               noResultsMessage={translate('eiavainsanoja')}
-              onChange={handleOnTagsChange}
-              onLabelClick={handleOnTagClick}
+              onChange={handleTagsChange}
+              onLabelClick={handleTagClick}
               options={mapDropdownOptions(notificationTags, locale)}
               placeholder={translate('lisaaavainsanoja')}
               search
@@ -182,7 +182,7 @@ function EditNotification (props) {
               startDate={notification.startDate}
               endDate={notification.endDate}
               isRequired
-              onChange={handleOnStartDateChange}
+              onChange={handleStartDateChange}
             />
           </div>
 
@@ -200,7 +200,7 @@ function EditNotification (props) {
               endDate={notification.endDate}
               popoverAttachment="top right"
               popoverTargetAttachment="bottom right"
-              onChange={handleOnEndDateChange}
+              onChange={handleEndDateChange}
             />
           </div>
         </div>

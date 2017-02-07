@@ -1029,5 +1029,125 @@
     "locale": "fi",
     "key": "kohdennustarkennetutroolit",
     "value": "Lisäksi julkaisut näkyvät sellaisille virkailijoille, joiden rooli on jokin seuraavista"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisuepaonnistui",
+    "value": "Julkaisu epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kokeileuudestaan",
+    "value": "Kokeile hetken kuluttua uudestaan."
+  },
+  {
+    "locale": "fi",
+    "key": "tanaan",
+    "value": "Tänään"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisueditori",
+    "value": "Julkaisueditori"
+  },
+  {
+    "locale": "fi",
+    "key": "January",
+    "value": "Tammikuu"
+  },
+  {
+    "locale": "fi",
+    "key": "February",
+    "value": "Helmikuu"
+  },
+  {
+    "locale": "fi",
+    "key": "March",
+    "value": "Maaliskuu"
+  },
+  {
+    "locale": "fi",
+    "key": "April",
+    "value": "Huhtikuu"
+  },
+  {
+    "locale": "fi",
+    "key": "May",
+    "value": "Toukokuu"
+  },
+  {
+    "locale": "fi",
+    "key": "June",
+    "value": "Kesäkuu"
+  },
+  {
+    "locale": "fi",
+    "key": "July",
+    "value": "Heinäkuu"
+  },
+  {
+    "locale": "fi",
+    "key": "August",
+    "value": "Elokuu"
+  },
+  {
+    "locale": "fi",
+    "key": "September",
+    "value": "Syyskuu"
+  },
+  {
+    "locale": "fi",
+    "key": "October",
+    "value": "Lokakuu"
+  },
+  {
+    "locale": "fi",
+    "key": "November",
+    "value": "Marraskuu"
+  },
+  {
+    "locale": "fi",
+    "key": "December",
+    "value": "Joulukuu"
+  },
+  {
+    "locale": "fi",
+    "key": "Monday",
+    "value": "Maanantai"
+  },
+  {
+    "locale": "fi",
+    "key": "Tuesday",
+    "value": "Tiistai"
+  },
+  {
+    "locale": "fi",
+    "key": "Wednesday",
+    "value": "Keskiviikko"
+  },
+  {
+    "locale": "fi",
+    "key": "Thursday",
+    "value": "Torstai"
+  },
+  {
+    "locale": "fi",
+    "key": "Friday",
+    "value": "Perjantai"
+  },
+  {
+    "locale": "fi",
+    "key": "Saturday",
+    "value": "Lauantai"
+  },
+  {
+    "locale": "fi",
+    "key": "Sunday",
+    "value": "Sunnuntai"
+  },
+  {
+    "locale": "fi",
+    "key": "haetaantunnisteita",
+    "value": "Haetaan tunnisteita..."
   }
 ]

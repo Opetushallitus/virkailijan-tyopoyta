@@ -9,7 +9,8 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   options: PropTypes.array.isRequired,
-  selectedOptions: PropTypes.array.isRequired
+  selectedOptions: PropTypes.array.isRequired,
+  isLoading: PropTypes.bool.isRequired
 }
 
 function NotificationTagSelect (props) {
@@ -17,7 +18,8 @@ function NotificationTagSelect (props) {
     controller,
     locale,
     options,
-    selectedOptions
+    selectedOptions,
+    isLoading
   } = props
 
   const handleOnChange = (event, { value }) => {
@@ -40,7 +42,7 @@ function NotificationTagSelect (props) {
         onChange={handleOnChange}
         onLabelClick={handleOnLabelClick}
         options={mapDropdownOptions(options, locale)}
-        placeholder={translate('hakusana')}
+        placeholder={isLoading ? translate('haetaantunnisteita') : translate('hakusana')}
         search
         selection
         scrolling

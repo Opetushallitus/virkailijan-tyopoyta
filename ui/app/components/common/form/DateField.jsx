@@ -90,6 +90,7 @@ function DateField (props) {
         startDate={moment(startDate, dateFormat)}
         endDate={moment(endDate, dateFormat)}
         showMonthDropdown
+        todayButton={translate('tanaan')}
         popoverAttachment={popoverAttachment}
         popoverTargetAttachment={popoverTargetAttachment}
       />

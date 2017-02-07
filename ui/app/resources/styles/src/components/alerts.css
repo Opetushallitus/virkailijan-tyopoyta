@@ -13,6 +13,10 @@
   padding: var(--space-2) var(--space-4);
 }
 
+.alert-title {
+  font-weight: var(--font-weight-bold);
+}
+
 .alert-info {
   background-color: var(--bg-color-info);
 }
@@ -27,10 +31,6 @@
 
 .alert-error {
   background-color: var(--bg-color-error);
-}
-
-.alert-heading {
-  font-weight: var(--font-weight-bold);
 }
 
 .alert-success .alert-title {

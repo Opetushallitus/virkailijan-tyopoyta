@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 
+import Delay from '../Delay'
 import Spinner from '../Spinner'
 
 const propTypes = {
@@ -27,7 +28,16 @@ function Button (props) {
       type="button"
       {...rest}
     >
-      {isLoading ? <Spinner variant="in-button" isVisible /> : null}
+      {isLoading
+        ? <Delay time={1000}>
+          <Spinner
+            variant="in-button"
+            isVisible
+            delay=""
+          />
+        </Delay>
+        : null
+      }
       {children}
     </button>
   )

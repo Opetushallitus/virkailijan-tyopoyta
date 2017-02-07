@@ -4,8 +4,9 @@ import R from 'ramda'
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
 import { validate, rules } from './validation'
+import getData from './getData'
 import * as testData from './resources/test/testData.json'
-import urls from './data/virkailijan-tyopoyta-urls.json'
+// import urls from './data/virkailijan-tyopoyta-urls.json'
 
 const dispatcher = new Dispatcher()
 
@@ -35,6 +36,7 @@ const events = {
   updateTimeline: 'updateTimeline',
   updateTimelineContent: 'updateTimelineContent',
   toggleDocumentPreview: 'toggleDocumentPreview',
+  toggleHasSaveFailed: 'toggleHasSaveFailed',
   saveDocument: 'saveDocument',
 
   // Menu
@@ -50,47 +52,114 @@ const events = {
   toggleNotification: 'toggleNotification'
 }
 
-const authUrl = "/virkailijan-tyopoyta/login"
-const releasesUrl = "/virkailijan-tyopoyta/api/releases"
-const tagsUrl = "/virkailijan-tyopoyta/api/tags"
+// const authUrl = '/virkailijan-tyopoyta/login'
+const releasesUrl = '/virkailijan-tyopoyta/api/releases'
+const tagsUrl = '/virkailijan-tyopoyta/api/tags'
+const timelineUrl = '/virkailijan-tyopoyta/api/timeline'
 
 const controller = initController(dispatcher, events)
 
 export function getController () {
-  return controller;
+  return controller
 }
 
+const alertsBus = new Bacon.Bus()
 const releasesBus = new Bacon.Bus()
+const timelineBus = new Bacon.Bus()
+const tagsBus = new Bacon.Bus()
 
 function fetchReleases () {
   console.log('Fetching releases')
 
-  fetch(releasesUrl)
-    .then(resp => resp.json())
-    .then(releases => releasesBus.push(releases))
+  const alert = createAlert({
+    type: 'error',
+    title: 'Julkaisujen haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
+  getData({
+    url: releasesUrl,
+    onSuccess: releases => releasesBus.push(releases),
+    onError: () => alertsBus.push(alert)
+  })
 }
 
-function onReleasesReceived (state, response){
+function fetchTimeline () {
+  console.log('Fetching timeline')
+
+  const alert = createAlert({
+    type: 'error',
+    title: 'Aikajanan haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
+  const currentTime = new Date()
+  const year = currentTime.getFullYear()
+  const month = currentTime.getMonth() + 1
+
+  getData({
+    url: `${timelineUrl}?year=${year}&month=${month}`,
+    onSuccess: timeline => timelineBus.push(timeline),
+    onError: () => alertsBus.push(alert)
+  })
+}
+
+function fetchTags () {
+  console.log('Fetching tags')
+
+  const alert = createAlert({
+    type: 'error',
+    title: 'Tunnisteiden haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
+  getData({
+    url: tagsUrl,
+    onSuccess: tags => tagsBus.push(tags),
+    onError: () => alertsBus.push(alert)
+  })
+}
+
+function onReleasesReceived (state, response) {
   console.log('Received releases')
 
-  return R.assoc('releases', response, state)
+  const newState = R.assocPath(['view', 'isInitialLoad'], false, state)
+  const stateWithoutLoading = R.assocPath(['view', 'isLoading'], false, newState)
+
+  return R.assoc('releases', response, stateWithoutLoading)
 }
 
 function onNotificationsReceived (state, response) {
   console.log('Received notifications')
 
-  return R.assoc('notifications', response, state)
+  return R.assocPath(['notifications', 'items'], response, state)
 }
 
-function onTimelineReceived(state, response){
-  //console.log("received timeline: "+JSON.stringify(response) );
+function onTimelineReceived (state, response) {
+  console.log('Received timeline')
 
-  // return R.assoc('timeline', response, state)
-  return state
+  const newTimeline = R.append(response, state.timeline)
+
+  return R.assoc('timeline', newTimeline, state)
 }
 
-function onTagsReceived(state, tags){
-  return R.assoc('notificationTags', tags, state)
+function onTagsReceived (state, tags) {
+  console.log('Received tags')
+
+  const newState = R.assocPath(['notifications', 'tagsLoading'], false, state)
+
+  return R.assocPath(['notifications', 'tags'], tags, newState)
+}
+
+function onAlertsReceived (state, alert) {
+  console.log('Received alerts', alert)
+
+  const newViewAlerts = R.append(alert, state.view.alerts)
+  const newState = R.assocPath(['view', 'isInitialLoad'], false, state)
+  const stateWithoutViewLoading = R.assocPath(['view', 'isLoading'], false, newState)
+  const stateWithoutTagsLoading = R.assocPath(['notifications', 'tagsLoading'], false, stateWithoutViewLoading)
+
+  return R.assocPath(['view', 'alerts'], newViewAlerts, stateWithoutTagsLoading)
 }
 
 function toggleValue (value, values) {
@@ -101,12 +170,6 @@ function toggleValue (value, values) {
     : newValues = R.concat(values, value)
 
   return newValues
-  // return R.assoc('timeline', response, state)
-  return state
-}
-
-function onTagsReceived(state, tags){
-  return R.assoc('notificationTags', tags, state)
 }
 
 // VIEW
@@ -134,10 +197,9 @@ function toggleViewTab (state, selectedTab) {
   return updateView(state, { prop: 'selectedTab', value: selectedTab })
 }
 
-function createAlert (options, alerts) {
-  const id = alerts.length > 0
-    ? R.tail(alerts).id + 1
-    : 1
+function createAlert (options) {
+  // Use millisecond timestamp as ID
+  const id = Date.now()
 
   return {
     id,
@@ -157,14 +219,16 @@ function removeViewAlert (state, id) {
 
 function toggleEditor (state, releaseId = -1, selectedTab = 'edit-notification') {
   const newState = R.assocPath(['editor', 'isVisible'], !state.editor.isVisible, state)
+  const stateWithoutError = R.assocPath(['editor', 'hasSaveFailed'], false, newState)
 
   // Toggle preview mode off and clear editor when closing
   if (state.editor.isVisible) {
     console.log('Closing editor')
 
-    const stateWithClearedEditor = clearEditor(newState)
+    const stateWithClearedEditor = clearEditor(stateWithoutError)
+    const stateWithoutLoading = R.assocPath(['editor', 'isLoading'], false, stateWithClearedEditor)
 
-    return toggleDocumentPreview(stateWithClearedEditor, false)
+    return toggleDocumentPreview(stateWithoutLoading, false)
   }
   // Display correct tab depending if user edits a notification or a timeline item
   else if (releaseId > -1) {
@@ -173,20 +237,20 @@ function toggleEditor (state, releaseId = -1, selectedTab = 'edit-notification')
     const selectedRelease = state.releases.find(release => release.id === releaseId) ||
       state.unpublishedReleases.find(release => release.id === releaseId)
 
-    const stateWithRelease = R.assocPath(['editor', 'document'], selectedRelease, newState)
+    const stateWithRelease = R.assocPath(['editor', 'editedRelease'], selectedRelease, stateWithoutError)
 
     return toggleEditorTab(stateWithRelease, selectedTab)
   }
   // Display notification tab when creating a new release
   else {
-    return toggleEditorTab(newState, selectedTab)
+    return toggleEditorTab(stateWithoutError, selectedTab)
   }
 }
 
 function clearEditor (state) {
   console.log('Clearing editor')
 
-  return R.assocPath(['editor', 'document'], emptyRelease(), state)
+  return R.assocPath(['editor', 'editedRelease'], emptyRelease(), state)
 }
 
 function toggleEditorTab (state, selectedTab) {
@@ -199,6 +263,10 @@ function toggleDocumentPreview (state, isPreviewed) {
   console.log('Toggling document preview', isPreviewed)
 
   return R.assocPath(['editor', 'isPreviewed'], isPreviewed, state)
+}
+
+function toggleHasSaveFailed (state, hasSaveFailed) {
+  return R.assocPath(['editor', 'hasSaveFailed'], !state.editor.hasSaveFailed, state)
 }
 
 function cleanUpDocument (document) {
@@ -221,7 +289,7 @@ function emptyRelease () {
 function updateRelease (state, { prop, value }) {
   console.log('Updating release', prop, value)
 
-  const path = ['editor', 'document']
+  const path = ['editor', 'editedRelease']
   const newState = R.assocPath(R.append(prop, path), value, state)
 
   // Validate release
@@ -231,7 +299,7 @@ function updateRelease (state, { prop, value }) {
 }
 
 function toggleReleaseCategory (state, category) {
-  const categories = state.editor.document.categories;
+  const categories = state.editor.editedRelease.categories;
   const newCategories = R.contains(category, categories)
     ? R.reject(c => c === category, categories)
     : R.append(category, categories)
@@ -240,7 +308,7 @@ function toggleReleaseCategory (state, category) {
 }
 
 function toggleReleaseUserGroup (state, value) {
-  const groups = state.editor.document.userGroups
+  const groups = state.editor.editedRelease.userGroups
   const newGroups = toggleValue(value, groups)
 
   return updateRelease(state, { prop: 'userGroups', value: newGroups })
@@ -251,7 +319,7 @@ function updateFocusedReleaseCategory (state, value) {
 }
 
 function toggleFocusedReleaseUserGroup (state, value) {
-  const groups = state.editor.document.focusedUserGroups
+  const groups = state.editor.editedRelease.focusedUserGroups
   const newGroups = toggleValue(value, groups)
 
   return updateRelease(state, { prop: 'focusedUserGroups', value: newGroups })
@@ -288,7 +356,7 @@ function updateNotification (state, {prop, value}) {
   // console.log('Updating notification', prop, value)
 
   // Concatenate path and prop
-  let path = ['editor', 'document', 'notification']
+  let path = ['editor', 'editedRelease', 'notification']
   const concatenatedPath = R.is(Array, prop)
     ? path.concat(prop)
     : R.append(prop, path)
@@ -307,7 +375,7 @@ function updateNotificationTags (state, value) {
   // Remove an already selected tag
   if (R.is(Number, value)) {
     console.log('Removing notification tag', value)
-    newTags = state.editor.document.notification.tags.filter(tag => (tag !== value))
+    newTags = state.editor.editedRelease.notification.tags.filter(tag => (tag !== value))
   }
 
   return updateNotification(state, { prop: 'tags', value: newTags })
@@ -344,13 +412,13 @@ function addTimelineItem (state, release) {
 
   console.log('Adding new timeline item with id', item.id)
 
-  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
+  return R.assocPath(['editor', 'editedRelease', 'timeline'], newTimeline, state)
 }
 
 function removeTimelineItem (state, id) {
   console.log('Removing new timeline item with id', id)
 
-  const timeline = state.editor.document.timeline
+  const timeline = state.editor.editedRelease.timeline
   const index = R.findIndex(R.propEq('id', id), timeline)
 
   const newTimeline = [
@@ -358,13 +426,13 @@ function removeTimelineItem (state, id) {
     ...timeline.slice(index + 1)
   ]
 
-  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
+  return R.assocPath(['editor', 'editedRelease', 'timeline'], newTimeline, state)
 }
 
 function updateTimeline (state, { id, prop, value }) {
   console.log('Updating timeline item', id, prop, value);
 
-  const timeline = state.editor.document.timeline
+  const timeline = state.editor.editedRelease.timeline
   const index = R.findIndex(R.propEq('id', id), timeline)
   const item = R.find(R.propEq('id', id), timeline)
 
@@ -378,7 +446,7 @@ function updateTimeline (state, { id, prop, value }) {
     ...timeline.slice(index + 1)
   ]
 
-  return R.assocPath(['editor', 'document', 'timeline'], newTimeline, state)
+  return R.assocPath(['editor', 'editedRelease', 'timeline'], newTimeline, state)
 }
 
 function updateTimelineContent (state, { id, lang, prop, value }) {
@@ -393,50 +461,58 @@ function removeDocumentProperties (key, value) {
   return value
 }
 
-const saveDocumentBus = new Bacon.Bus()
+const savedReleases = new Bacon.Bus()
+const failedReleases = new Bacon.Bus()
 
 function saveDocument (state) {
   console.log('Saving document')
 
-  fetch(releasesUrl, {
-    method: 'POST',
-    dataType: 'json',
-    headers: {
-      'Content-type': 'application/json'
+  getData({
+    url: releasesUrl,
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(cleanUpDocument(state.editor.editedRelease), state.editor.onSave)
     },
-    body: JSON.stringify(cleanUpDocument(state.editor.document), state.editor.onSave)
+    onSuccess: json => savedReleases.push(json),
+    onError: error => failedReleases.push(error)
   })
-    .then(response => {
-      if (response.ok) {
-        return response.json()
-      } else {
-        saveDocumentBus.push(response)
-      }
-    })
-    .then(json => {
-      saveDocumentBus.push(json)
-    })
 
-  return state
+  return R.assocPath(['editor', 'isLoading'], true, state)
 }
 
-function onSaveComplete (state, json) {
-  console.log('Release saved', json)
+function onSaveComplete (state) {
+  console.log('Release saved')
 
   const alert = createAlert({
     type: 'success',
     title: 'Julkaisu onnistui'
-  }, state.view.alerts)
+  })
 
-  const stateWithAlert = R.assocPath(['view', 'alerts'], [alert], state)
+  const newViewAlerts = R.append(alert, state.view.alerts)
+  const stateWithAlert = R.assocPath(['view', 'alerts'], newViewAlerts, state)
+  const stateWithLoading = R.assocPath(['view', 'isLoading'], true, stateWithAlert)
 
-  // Fetch releases again
+  // Update view
   fetchReleases()
+  fetchTimeline()
 
-  return toggleEditor(stateWithAlert)
+  // Only toggle editor if user hasn't closed it already
+  return toggleEditor(stateWithLoading)
 }
 
-function emptyContent (id ,lang) {
+function onSaveFailed (state) {
+  console.log('Saving release failed')
+
+  const newState = R.assocPath(['editor', 'isLoading'], false, state)
+
+  return R.assocPath(['editor', 'hasSaveFailed'], true, newState)
+}
+
+function emptyContent (id, lang) {
   return {
     notificationId: id,
     text: "",
@@ -484,13 +560,15 @@ function toggleMenu (state) {
 // NOTIFICATIONS
 
 function toggleUnpublishedNotifications (state, releaseId) {
+  console.log('Toggling unpublished notifications')
+
   const newState = R.assocPath(
     ['unpublishedNotifications', 'isVisible'],
     !state.unpublishedNotifications.isVisible, state
   )
 
   if (releaseId > 0) {
-    return toggleEditor(newState, { releaseId })
+    return toggleEditor(newState, releaseId)
   }
 
   return newState
@@ -518,16 +596,16 @@ function updateSearch(state, {search}){
 function toggleNotificationTag (state, value) {
   console.log('Toggled tag with value', value)
 
-  const isSelected = state.selectedNotificationTags.indexOf(value) >= 0
+  const isSelected = state.notifications.selectedTags.indexOf(value) >= 0
   let newTags = []
 
   // Remove an already selected tag
   if (isSelected) {
-    newTags = state.selectedNotificationTags.filter(tag => (tag !== value))
+    newTags = state.notifications.selectedTags.filter(tag => (tag !== value))
   }
   // Set tag to state if not selected
   else {
-    newTags = state.selectedNotificationTags.concat(value)
+    newTags = state.notifications.selectedTags.concat(value)
   }
 
   return setSelectedNotificationTags(state, newTags)
@@ -536,33 +614,33 @@ function toggleNotificationTag (state, value) {
 function setSelectedNotificationTags (state, value) {
   console.log('Updating selected notification tags', value)
 
-  return R.assoc(
-    'selectedNotificationTags',
+  return R.assocPath(
+    ['notifications', 'selectedTags'],
     value,
     state
   )
 }
 
-function toggleNotification (state, {id}) {
-  const idx = state.expandedNotifications.indexOf(id);
+function toggleNotification (state, id) {
+  console.log('Toggling notification', id)
 
-  if(idx >= 0){
-    return R.assoc('expandedNotifications', state.expandedNotifications.filter(n =>( n != id)), state)
-  }
+  const index = state.notifications.expanded.indexOf(id)
 
-  return R.assoc('expandedNotifications', state.expandedNotifications.concat(id), state)
+  const newState = index >= 0
+    ? R.remove(index, 1, state.notifications.expanded)
+    : R.append(id, state.notifications.expanded)
+
+  return R.assocPath(['notifications', 'expanded'], newState, state)
 }
 
-export function initAppState() {
-  function fetchTags(){
-    console.log("fetching tags...")
-    fetch(tagsUrl).then(resp => resp.json()).then(tags => tagsBus.push(tags))
-  }
-
+export function initAppState () {
   function onUserReceived(state, response){
     console.log("received user: "+JSON.stringify(response))
+
     fetchReleases()
     fetchTags()
+    fetchTimeline()
+
     return R.assoc('user', response, state)
   }
 
@@ -571,52 +649,52 @@ export function initAppState() {
   //   resp.json()
   // }))
 
-  onUserReceived(initialState, {language: "fi"})
-
-  const tagsBus = new Bacon.Bus()
   const notificationsS = releasesBus.flatMapLatest(r => R.map(r => r.notification, r))
-  const timelineS = releasesBus.flatMapLatest(r => R.map(r => r.timeline, r))
 
   const initialState = {
     locale: 'fi',
     dateFormat: 'D.M.YYYY',
-    // TODO: These should be per data set, e.g. notifications.isLoading, timeline.isLoading
-    isLoading: false,
-    currentPage: 1,
-    nextPage: 2,
     categories: testData.viewCategories,
+    menu: {
+      isMobileMenuVisible: false
+    },
     view: {
       categories: [],
       startDate: '',
       endDate: '',
       selectedTab: 'notifications',
-      alerts: []
+      alerts: [],
+      isLoading: true,
+      isInitialLoad: true
     },
-    releases: testData.releases,
-    unpublishedReleases: testData.unpublishedReleases,
-    notifications: testData.releases.map(r => r.notification),
-    notificationTags: testData.notificationTags,
-    selectedNotificationTags: [],
-    timeline: testData.timeline,
-    expandedNotifications: [],
-    activeFilter: '',
-    menu: {
-      isMobileMenuVisible: false
-    },
-    editor: {
-      isVisible: false,
-      isPreviewed: false,
-      categories: testData.releaseCategories,
-      userGroups: testData.userGroups,
-      document: emptyRelease(),
-      selectedTab: 'edit-notification',
-      onSave: removeDocumentProperties
+    releases: [],
+    notifications: {
+      items: [],
+      expanded: [],
+      tags: [],
+      tagsLoading: true,
+      selectedTags: [],
+      isLoading: false
     },
     unpublishedNotifications: {
       isVisible: false,
-      data: testData.unpublishedReleases.map(r => r.notification)
+      items: testData.unpublishedReleases.map(r => r.notification)
+    },
+    timeline: [],
+    editor: {
+      isVisible: false,
+      isPreviewed: false,
+      isLoading: false,
+      hasSaveFailed: false,
+      categories: testData.releaseCategories,
+      userGroups: testData.userGroups,
+      editedRelease: emptyRelease(),
+      selectedTab: 'edit-notification',
+      onSave: removeDocumentProperties
     }
   }
+
+  onUserReceived(initialState, { language: 'fi' })
 
   return Bacon.update(
     initialState,
@@ -643,6 +721,7 @@ export function initAppState() {
     [dispatcher.stream(events.updateFocusedReleaseCategory)], updateFocusedReleaseCategory,
     [dispatcher.stream(events.toggleFocusedReleaseUserGroup)], toggleFocusedReleaseUserGroup,
     [dispatcher.stream(events.toggleDocumentPreview)], toggleDocumentPreview,
+    [dispatcher.stream(events.toggleHasSaveFailed)], toggleHasSaveFailed,
     [dispatcher.stream(events.saveDocument)], saveDocument,
 
     // Menu
@@ -660,9 +739,11 @@ export function initAppState() {
     // [userS], onUserReceived,
     [releasesBus], onReleasesReceived,
     // [releasesS], onReleasesReceived,
+    [timelineBus], onTimelineReceived,
     [tagsBus], onTagsReceived,
     [notificationsS], onNotificationsReceived,
-    [timelineS], onTimelineReceived,
-    [saveDocumentBus], onSaveComplete
+    [savedReleases], onSaveComplete,
+    [failedReleases], onSaveFailed,
+    [alertsBus], onAlertsReceived
   )
 }

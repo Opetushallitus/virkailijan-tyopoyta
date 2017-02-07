@@ -7,7 +7,7 @@ import Translation from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  unpublishedNotifications: PropTypes.object.isRequired,
+  unpublishedNotifications: PropTypes.array.isRequired,
   isMobileMenuVisible: PropTypes.bool.isRequired
 }
 
@@ -18,7 +18,7 @@ function MobileMenu (props) {
     isMobileMenuVisible
   } = props
 
-  const hasUnpublishedNotifications = unpublishedNotifications.data.length
+  const hasUnpublishedNotifications = unpublishedNotifications.length
 
   return (
     <div className="md-hide lg-hide flex flex-wrap justify-center col-12">

@@ -17,6 +17,7 @@ import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
 import Modal from './common/Modal'
 import Spinner from './common/Spinner'
+import Delay from './common/Delay'
 import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
@@ -121,6 +122,16 @@ class App extends React.Component {
           )}
         </div>
 
+        {
+          state.view.isLoading
+            ? <Delay time={1000}>
+              <div className="view-spinner absolute">
+                <Spinner isVisible />
+              </div>
+            </Delay>
+            : null
+        }
+
         {/*Content*/}
         <div className="container mx-auto">
           {/*Menu*/}
@@ -130,13 +141,9 @@ class App extends React.Component {
             dateFormat={state.dateFormat}
             categories={state.categories}
             view={state.view}
-            unpublishedNotifications={state.unpublishedNotifications}
+            unpublishedNotifications={state.unpublishedNotifications.items}
             isMobileMenuVisible={state.menu.isMobileMenuVisible}
           />
-
-          <div className="col-12 display-none">
-            <Spinner isVisible />
-          </div>
 
           {/*Notification/timeline view selection for small screens*/}
           <Tabs className="md-hide lg-hide sm-mt3">
@@ -171,30 +178,20 @@ class App extends React.Component {
               <Notifications
                 controller={controller}
                 locale={state.locale}
-                nextPage={state.nextPage}
                 notifications={state.notifications}
-                expandedNotifications={state.expandedNotifications}
-                notificationTags={state.notificationTags}
-                selectedNotificationTags={state.selectedNotificationTags}
+                isInitialLoad={state.view.isInitialLoad}
               />
             </section>
 
             {/*Timeline*/}
             <section className="col-12 md-col-5 md-pl2">
-              <div className="alert alert-warning block mb3 py2">
-                Testidataa, ei muokattavissa
-              </div>
-
-              {
-                state.timeline.length
-                  ? <Timeline
-                    controller={controller}
-                    locale={state.locale}
-                    dateFormat={state.dateFormat}
-                    items={state.timeline}
-                  />
-                  : null
-              }
+              <Timeline
+                controller={controller}
+                locale={state.locale}
+                dateFormat={state.dateFormat}
+                timeline={state.timeline}
+                isInitialLoad={state.view.isInitialLoad}
+              />
             </section>
           </div>
         </div>
@@ -203,7 +200,9 @@ class App extends React.Component {
 
         {/*Editor*/}
         <Modal
+          title={translate('julkaisueditori')}
           isVisible={state.editor.isVisible}
+          isCloseDisabled={state.editor.isLoading}
           variant="large"
           onCloseButtonClick={controller.toggleEditor}
         >
@@ -211,17 +210,14 @@ class App extends React.Component {
             controller={controller}
             locale={state.locale}
             dateFormat={state.dateFormat}
-            selectedTab={state.editor.selectedTab}
-            isPreviewed={state.editor.isPreviewed}
-            release={state.editor.document}
-            categories={state.editor.categories}
-            userGroups={state.editor.userGroups}
-            notificationTags={state.notificationTags}
+            notificationTags={state.notifications.tags}
+            state={state.editor}
           />
         </Modal>
 
         {/*Unpublished notifications*/}
         <Modal
+          title={translate('julktiedotteet')}
           isVisible={state.unpublishedNotifications.isVisible}
           variant="large"
           onCloseButtonClick={controller.toggleUnpublishedNotifications}
@@ -229,7 +225,7 @@ class App extends React.Component {
           <UnpublishedNotifications
             controller={controller}
             locale={state.locale}
-            notifications={state.unpublishedNotifications.data}
+            items={state.unpublishedNotifications.items}
           />
         </Modal>
       </div>

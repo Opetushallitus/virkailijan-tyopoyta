@@ -11,19 +11,17 @@
 }
 
 html {
+  font-family: var(--base-font-family);
   font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
   text-size-adjust: 100%;
+  color: var(--body-copy-color);
   box-sizing: border-box;
 }
 
 body {
-  font-family: var(--base-font-family);
-  font-size: var(--base-font-size);
-  /*font-size: 100%;*/
-  line-height: var(--base-line-height);
   margin: 0;
   overflow: hidden;
-  color: var(--body-copy-color);
   background-color: var(--gray-lighten-5);
 }
 
@@ -239,7 +237,7 @@ fieldset {
 
 .input {
   font-family: var(--base-font-family);
-  font-size: var(--base-font-size);
+  font-size: inherit;
   width: 100%;
   padding: var(--input-padding-y) var(--input-padding-x);
   border: 1px solid var(--border-color);

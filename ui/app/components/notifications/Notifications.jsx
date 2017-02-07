@@ -6,23 +6,19 @@ import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
 import QuickTagSelect from './QuickTagSelect'
 import Spinner from '../common/Spinner'
-import Translation from '../common/Translations'
+import Delay from '../common/Delay'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  nextPage: PropTypes.number.isRequired,
-  notifications: PropTypes.array.isRequired,
-  expandedNotifications: PropTypes.array.isRequired,
-  notificationTags: PropTypes.array.isRequired,
-  selectedNotificationTags: PropTypes.array.isRequired
+  notifications: PropTypes.object.isRequired,
+  isInitialLoad: PropTypes.bool.isRequired
 }
 
 // Get quick selection tags
 const getQuickTags = tags => {
-  return tags.filter(tag => {
-    return tag.isQuickTag
-  })
+  return tags.slice(0, 3)
 }
 
 class Notifications extends React.Component {
@@ -41,7 +37,7 @@ class Notifications extends React.Component {
         if (isLoadingHeightBreakpoint) {
           this.props.controller.lazyLoadNotifications({
             node: event.target,
-            page: this.props.nextPage,
+            page: 1,
             isLoading: true
           })
         }
@@ -53,51 +49,82 @@ class Notifications extends React.Component {
       controller,
       locale,
       notifications,
-      expandedNotifications,
-      notificationTags,
-      selectedNotificationTags
+      isInitialLoad
     } = this.props
 
-    const quickTags = getQuickTags(notificationTags)
+    const {
+      isLoading,
+      items,
+      expanded,
+      tags,
+      tagsLoading,
+      selectedTags
+    } = notifications
+
+    const quickTags = getQuickTags(tags)
 
     return (
-      <div
-        className="notifications autohide-scrollbar"
-        ref={notifications => { this.notifications = notifications }}
-      >
-        <h2 className="hide"><Translation trans="tiedotteet" /></h2>
+      <div>
+        {/*Skeleton screen*/}
+        <div className={isInitialLoad ? '' : 'display-none'}>
+          <div className="mb3 p3 border border-gray-lighten-2 rounded" />
 
-        <NotificationTagSelect
-          locale={locale}
-          options={notificationTags}
-          selectedOptions={selectedNotificationTags}
-          controller={controller}
-        />
-
-        <div
-          className="notification-tag-select-container pt2 px2 pb1
-          border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right"
-        >
-          <QuickTagSelect
-            locale={locale}
-            options={quickTags}
-            selectedOptions={selectedNotificationTags}
-            controller={controller}
-          />
+          <div className="mb3 p3 rounded bg-white box-shadow" />
+          <div className="mb3 p3 rounded bg-white box-shadow" />
+          <div className="mb3 p3 rounded bg-white box-shadow" />
         </div>
 
-        {notifications.map(notification =>
-          <Notification
-            key={notification.id}
-            controller={controller}
-            locale={locale}
-            notification={notification}
-            tags={notificationTags}
-            expandedNotifications={expandedNotifications}
-          />
-        )}
+        <div className={isInitialLoad ? 'display-none' : ''}>
+          <h2 className="hide">{translate('tiedotteet')}</h2>
 
-        <Spinner isVisible={false} />
+          <NotificationTagSelect
+            locale={locale}
+            options={tags}
+            selectedOptions={selectedTags}
+            controller={controller}
+            isLoading={tagsLoading}
+          />
+
+          <div
+            className={`notification-tag-select-container mb3 border border-gray-lighten-2
+            rounded-bottom-left rounded-bottom-right ${tagsLoading || tags.length === 0 ? 'p3' : 'pt2 px2 pb1'}`}
+          >
+            {
+              tagsLoading || tags.length === 0
+                ? null
+                : <QuickTagSelect
+                  locale={locale}
+                  options={quickTags}
+                  selectedOptions={selectedTags}
+                  controller={controller}
+                />
+            }
+          </div>
+
+          <div
+            className="notifications pr2 autohide-scrollbar"
+            ref={notifications => { this.notifications = notifications }}
+          >
+            {items.map(notification =>
+              <Notification
+                key={notification.id}
+                controller={controller}
+                locale={locale}
+                notification={notification}
+                tags={tags}
+                expandedNotifications={expanded}
+              />
+            )}
+
+            {
+              isLoading
+                ? <Delay time={1000}>
+                  <Spinner isVisible />
+                </Delay>
+                : null
+            }
+          </div>
+        </div>
       </div>
     )
   }

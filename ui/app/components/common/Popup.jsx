@@ -1,56 +1,47 @@
 import React, { PropTypes } from 'react'
 
+const debounce = require('lodash.debounce')
 const types = ['info', 'success', 'warning', 'error', 'help']
 const positions = ['top', 'right', 'bottom', 'left']
 
 const propTypes = {
-  parent: PropTypes.string.isRequired,
+  target: PropTypes.string.isRequired,
   type: PropTypes.oneOf(types),
   position: PropTypes.oneOf(positions).isRequired,
   title: PropTypes.string.isRequired,
-  text: PropTypes.string
+  text: PropTypes.string,
+  onOutsideClick: PropTypes.func
 }
 
 const defaultProps = {
+  parent: null,
   type: null,
-  text: null
+  text: null,
+  onOutsideClick: () => {}
 }
 
 class Popup extends React.Component {
   constructor (props) {
     super(props)
 
-    this.handleOnClick = this.handleOnClick.bind(this)
+    this.handleClick = this.handleClick.bind(this)
     this.handleResize = this.handleResize.bind(this)
   }
 
   componentWillMount () {
-    document.addEventListener('click', this.handleOnClick, false)
-    window.addEventListener('resize', this.handleResize)
+    document.addEventListener('click', this.handleClick, false)
+    window.addEventListener('resize', debounce(this.handleResize, 100))
   }
 
   componentWillUnmount () {
-    document.removeEventListener('click', this.handleOnClick, false)
+    document.removeEventListener('click', this.handleClick, false)
     window.removeEventListener('resize', this.handleResize)
   }
 
-  getParentPosition () {
-    if (document.querySelector(this.props.parent)) {
-      const position = document.querySelector(this.props.parent).getBoundingClientRect()
-
-      return position
-    } else {
-      return {
-        top: 0,
-        left: 0
-      }
-    }
-  }
-
-  handleOnClick (event) {
+  handleClick (event) {
     // Check if click is outside the component
     if (!this.popup.contains(event.target)) {
-      console.log('outside')
+      this.props.onOutsideClick()
     }
   }
 
@@ -60,17 +51,26 @@ class Popup extends React.Component {
 
   render () {
     const {
+      target,
       type,
       position,
       title,
       text
     } = this.props
 
+    const node = document.querySelector(target)
+    const rectangle = node.getBoundingClientRect()
+    const top = `${node.offsetTop}px`
+    const left = `${node.offsetLeft + rectangle.width}px`
+
     return (
       <div
         ref={popup => (this.popup = popup)}
         className={`popup ${type ? `popup-${type}` : ''} popup-${position}`}
-        style={{ left: `${this.getParentPosition().left}px` }}
+        style={{
+          top,
+          left
+        }}
         role="tooltip"
       >
         <div className="popup-title">{title}</div>

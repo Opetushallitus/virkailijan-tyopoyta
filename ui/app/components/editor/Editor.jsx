@@ -17,12 +17,8 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
-  selectedTab: PropTypes.string.isRequired,
-  isPreviewed: PropTypes.bool.isRequired,
-  release: PropTypes.object.isRequired,
   notificationTags: PropTypes.array.isRequired,
-  categories: PropTypes.array.isRequired,
-  userGroups: PropTypes.array.isRequired
+  state: PropTypes.object.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -63,31 +59,37 @@ function EditRelease (props) {
     controller,
     locale,
     dateFormat,
-    selectedTab,
-    isPreviewed,
-    release,
     notificationTags,
-    categories,
-    userGroups
+    state
   } = props
 
-  const notification = release.notification
-  const timeline = release.timeline
+  const {
+    selectedTab,
+    isPreviewed,
+    isLoading,
+    hasSaveFailed,
+    editedRelease,
+    categories,
+    userGroups
+  } = state
+
+  const notification = editedRelease.notification
+  const timeline = editedRelease.timeline
   const emptyTimelineItems = getTimelineItems(['empty'], timeline)
   const incompleteTimelineItems = getTimelineItems(['incomplete'], timeline)
   const completeTimelineItems = getTimelineItems(['complete'], timeline)
 
   // Set default release and notification validation states for unpublishedReleases/published releases
-  release.validationState = release.id > 0
-    ? release.validationState || 'complete'
-    : release.validationState
+  editedRelease.validationState = editedRelease.id > 0
+    ? editedRelease.validationState || 'complete'
+    : editedRelease.validationState
 
   notification.validationState = notification.id > 0
     ? notification.validationState || 'complete'
     : notification.validationState
 
   const notificationValidationStateString = getNotificationValidationStateString(notification.validationState)
-  const notificationPublicationStateString = getNotificationPublicationStateString(notification.initialDate, dateFormat)
+  const notificationPublicationStateString = getNotificationPublicationStateString(notification.initialStartDate, dateFormat)
 
   const handleOnSubmit = event => {
     event.preventDefault()
@@ -167,7 +169,7 @@ function EditRelease (props) {
             locale={locale}
             dateFormat={dateFormat}
             controller={controller}
-            release={release}
+            release={editedRelease}
             notificationTags={notificationTags}
           />
         </section>
@@ -178,7 +180,7 @@ function EditRelease (props) {
             locale={locale}
             dateFormat={dateFormat}
             controller={controller}
-            release={release}
+            release={editedRelease}
           />
         </section>
 
@@ -189,7 +191,7 @@ function EditRelease (props) {
             controller={controller}
             categories={categories}
             userGroups={userGroups}
-            release={release}
+            release={editedRelease}
           />
         </section>
       </div>
@@ -201,23 +203,24 @@ function EditRelease (props) {
             locale={locale}
             categories={categories}
             userGroups={userGroups}
-            release={release}
+            release={editedRelease}
           />
         </section>
         : null
       }
 
       {/*Form actions*/}
-      <div className={`center relative pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
+      <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
         {/*Preview & publish*/}
         <Button
-          className="editor-button-save button button-primary button-lg relative"
+          className="editor-button-save button button-primary button-lg"
           type="submit"
           disabled={
+            isLoading ||
             // Release is empty
-            release.validationState === 'empty' ||
+            editedRelease.validationState === 'empty' ||
             // Release is incomplete
-            release.validationState === 'incomplete' ||
+            editedRelease.validationState === 'incomplete' ||
             // Notification is empty and empty timeline items exist
             (notification.validationState === 'empty' && emptyTimelineItems.length === timeline.length) ||
             // Notification is incomplete
@@ -225,12 +228,24 @@ function EditRelease (props) {
             // Incomplete timeline items exist
             incompleteTimelineItems.length
           }
-          isLoading={false}
+          isLoading={isLoading}
         >
           {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
-
         </Button>
       </div>
+
+      {
+        hasSaveFailed
+          ? <Popup
+            target=".editor-button-save"
+            type="error"
+            position="right"
+            title={translate('julkaisuepaonnistui')}
+            text={translate('kokeileuudestaan')}
+            onOutsideClick={controller.toggleHasSaveFailed}
+          />
+          : null
+      }
     </form>
   )
 }

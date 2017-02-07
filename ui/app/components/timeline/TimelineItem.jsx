@@ -3,32 +3,29 @@ import moment from 'moment'
 import renderHTML from 'react-render-html'
 
 import EditButton from '../common/buttons/EditButton'
-
-// TODO: Move localization to properties file
-const localization = {
-  'Wednesday': 'keskiviikko',
-  'February': 'helmikuu'
-}
+import { translate } from '../common/Translations'
 
 const propTypes = {
-  controller: PropTypes.object.isRequired,
-  releaseId: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
   dateFormat: PropTypes.string.isRequired,
+  releaseId: PropTypes.number.isRequired,
   date: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired
+  text: PropTypes.string.isRequired,
+  onEditButtonClick: PropTypes.func.isRequired
 }
 
 function TimelineItem (props) {
   const {
-    controller,
-    releaseId,
+    index,
     dateFormat,
+    releaseId,
     date,
-    text
+    text,
+    onEditButtonClick
   } = props
 
-  const handleOnEditButtonClick = () => {
-    controller.toggleEditor(releaseId, 'edit-timeline')
+  const handleEditButtonClick = () => {
+    onEditButtonClick(releaseId, 'edit-timeline')
   }
 
   const momentDate = moment(date, dateFormat)
@@ -38,22 +35,25 @@ function TimelineItem (props) {
   const year = momentDate.format('YYYY')
 
   return (
-    <div className="timeline-item break-word left-align p2 relative rounded white bg-blue">
+    <div className={`timeline-item break-word left-align p2 relative rounded white bg-blue ${index > 0 ? 'mt1' : ''}`}>
       {/*Date*/}
-      <time className="mb1 block" dateTime={date}>
-        <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
+      { index === 0
+        ? <time className="mb1 block" dateTime={date}>
+          <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
 
-        <div className="align-top inline-block">
-          <div className="h5 bold">{localization[dayOfWeek]}</div>
-          <div className="h6 caps">{localization[month]} {year}</div>
-        </div>
-      </time>
+          <div className="align-top inline-block">
+            <div className="h5 lowercase bold">{translate(dayOfWeek)}</div>
+            <div className="h6 caps">{translate(month)} {year}</div>
+          </div>
+        </time>
+        : null
+      }
 
       {/*Text*/}
       <div className="h5 bold">{renderHTML(text)}</div>
 
       {/*Edit button*/}
-      <EditButton className="absolute top-0 right-0 white" onClick={handleOnEditButtonClick} />
+      <EditButton className="absolute top-0 right-0 white" onClick={handleEditButtonClick} />
     </div>
   )
 }
@@ -61,3 +61,4 @@ function TimelineItem (props) {
 TimelineItem.propTypes = propTypes
 
 export default TimelineItem
+

@@ -4,61 +4,84 @@ import React, { PropTypes } from 'react'
 import TimelineHeading from './TimelineHeading'
 import TimelineDay from './TimelineDay'
 import Spinner from '../common/Spinner'
-import Translation from '../common/Translations'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
-  items: PropTypes.array.isRequired
+  timeline: PropTypes.array.isRequired,
+  isInitialLoad: PropTypes.bool.isRequired
 }
 
-function Timeline (props) {
-  const {
-    controller,
-    locale,
-    dateFormat,
-    items
-  } = props
+class Timeline extends React.Component {
+  componentDidUpdate () {
+    this.timeline.scrollTop = this.months.offsetTop
+  }
 
-  return (
-    <div className="timeline timeline-axis relative autohide-scrollbar">
-      <h2 className="hide"><Translation trans="tapahtumat" /></h2>
+  render () {
+    const {
+      controller,
+      locale,
+      dateFormat,
+      timeline,
+      isInitialLoad
+    } = this.props
 
-      {/*Months*/}
-      <div className="sm-center md-left-align lg-center relative">
-        {/*Month heading*/}
-        <TimelineHeading text="Tammikuu 2017" />
+    return (
+      <div>
+        {/*Skeleton screen*/}
+        <div className={`timeline timeline-axis relative ${isInitialLoad ? '' : 'display-none'}`}>
+          <div className="sm-center md-left-align lg-center relative pt3">
+            <div className="timeline-heading h6 caps regular center mb0 p1 inline-block rounded white bg-blue-darken">
+              <span className="invisible">{translate('hetkinen')}</span>
+            </div>
 
-        {/*Month*/}
-        <div className="timeline-axis flex flex-column">
-          {/*Timeline items for a single day*/}
-          <TimelineDay
-            controller={controller}
-            locale={locale}
-            dateFormat={dateFormat}
-            items={items}
-          />
+            <div className="timeline-axis flex flex-column">
+              <div className="timeline-day relative col-12 sm-col-6 md-col-12 lg-col-6">
+                <div className="timeline-item p3 relative rounded bg-blue">
+                  <span className="invisible">{translate('hetkinen')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/*Month heading*/}
-        <TimelineHeading text="Helmikuu 2017" />
+        <div
+          ref={timeline => (this.timeline = timeline)}
+          className={`timeline timeline-axis relative autohide-scrollbar ${isInitialLoad ? 'display-none' : ''}`}
+        >
+          <h2 className="hide">{translate('tapahtumat')}</h2>
 
-        {/*Month*/}
-        <div className="timeline-axis flex flex-column">
-          {/*Timeline items for a single day*/}
-          <TimelineDay
-            controller={controller}
-            locale={locale}
-            dateFormat={dateFormat}
-            items={items}
-          />
+          <div className="sm-center md-left-align lg-center relative">
+            {/*Months*/}
+            <div ref={months => (this.months = months)}>
+              {timeline.map(month =>
+                <div key={`timelineMonth${month.month}.${month.year}`} className="mb3">
+                  <TimelineHeading month={month.month} year={month.year} />
+
+                  <div className="timeline-axis flex flex-column">
+                    {/*Days*/}
+                    {Object.keys(month.days || {}).map(key =>
+                      <TimelineDay
+                        key={`timelineDay${key}.${month.month}.${month.year}`}
+                        locale={locale}
+                        dateFormat={dateFormat}
+                        items={month.days[key]}
+                        onEditButtonClick={controller.toggleEditor}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Spinner isVisible={false} />
+          </div>
         </div>
-
-        <Spinner isVisible={false} />
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 Timeline.propTypes = propTypes

@@ -1,7 +1,11 @@
 import React, { PropTypes } from 'react'
+import moment from 'moment'
+
+import { translate } from '../common/Translations'
 
 const propTypes = {
-  text: PropTypes.string.isRequired
+  month: PropTypes.number.isRequired,
+  year: PropTypes.number.isRequired
 }
 
 const classList = [
@@ -19,9 +23,11 @@ const classList = [
 ]
 
 function TimelineHeading (props) {
+  const month = moment(props.month, 'M').format('MMMM')
+
   return (
     <h2 className={classList.join(' ')}>
-      {props.text}
+      {translate(month)} {props.year}
     </h2>
   )
 }

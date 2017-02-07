@@ -33,7 +33,7 @@ export function initController (dispatcher, events) {
   const updateNotificationContent = (lang, prop) => value =>
     dispatcher.push(events.updateNotificationContent, {lang: lang, prop: prop, value: value})
 
-  const toggleNotification = id => dispatcher.push(events.toggleNotification, {id: id})
+  const toggleNotification = id => dispatcher.push(events.toggleNotification, id)
 
   const addTimelineItem = release => dispatcher.push(events.addTimelineItem, release)
 
@@ -46,6 +46,8 @@ export function initController (dispatcher, events) {
     dispatcher.push(events.updateTimeline, {id: id, prop: prop, value: value})
 
   const toggleDocumentPreview = isPreviewed => dispatcher.push(events.toggleDocumentPreview, isPreviewed)
+
+  const toggleHasSaveFailed = () => dispatcher.push(events.toggleHasSaveFailed)
 
   const saveDocument = () => dispatcher.push(events.saveDocument)
 
@@ -94,6 +96,7 @@ export function initController (dispatcher, events) {
     updateTimelineContent: updateTimelineContent,
     updateTimeline: updateTimeline,
     toggleDocumentPreview: toggleDocumentPreview,
+    toggleHasSaveFailed: toggleHasSaveFailed,
     saveDocument: saveDocument,
 
     // Menu

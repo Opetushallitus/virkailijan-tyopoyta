@@ -34,7 +34,7 @@
 
 .semantic-ui .search {
   font-family: var(--base-font-family);
-  font-size: var(--h4);
+  font-size: inherit;
 }
 
 .semantic-ui.ui.multiple.search.dropdown > input.search,
@@ -81,9 +81,11 @@
   margin-top: 1px;
   padding: var(--space-1) 0;
   border-color: var(--border-color);
+  z-index: var(--z2);
 }
 
 .semantic-ui.ui.dropdown .menu > .item {
+  font-size: inherit;
   border-top: 0;
 }
 
@@ -115,7 +117,7 @@
 }
 
 .DraftEditor-editorContainer {
-  font-size: var(--h4);
+  font-size: inherit;
   min-height: 15rem;
   padding: var(--space-2) 0;
 }
@@ -160,7 +162,7 @@
 
 .react-datepicker__current-month,
 .react-datepicker__month-dropdown-container {
-  font-size: var(--h4);
+  font-size: var(--h5);
 }
 
 .react-datepicker__month-dropdown {
@@ -316,7 +318,16 @@
   border-radius: 0;
 }
 
-/* Set datepicker to viewport top on mobile */
+.react-datepicker__today-button {
+  font-weight: normal;
+}
+
+.react-datepicker__today-button:hover,
+.react-datepicker__today-button:focus {
+  color: var(--link-color-hover);
+}
+
+/* Place datepicker to viewport top on mobile */
 @media (--viewport-sm) {
   .react-datepicker__tether-element {
     top: 0;
@@ -347,8 +358,14 @@
   }
 }
 
-/* Menu */
+.view-spinner {
+  left: 0;
+  right: 0;
+  width: 100px;
+  margin: 0 auto;
+}
 
+/* Menu */
 .menu {
   display: none;
 
@@ -363,7 +380,12 @@
 
 /* Notifications */
 .notifications {
-  height: 80vh;
+  height: 60vh;
+}
+
+.notification {
+  /* Notifications overlap the notification tag dropdown if z-index isn' */
+  z-index: 1;
 }
 
 .notification-is-expandable:hover {
@@ -409,17 +431,12 @@
 }
 
 .timeline-heading {
-  margin-top: var(--space-3);
   margin-left: calc(var(--space-2) + var(--space-1));
   padding: var(--space-05) var(--space-1);
 
   @media (--sm-and-lg) {
     margin-left: 0;
   }
-}
-
-.timeline-heading:first-of-type {
-  margin-top: 0;
 }
 
 /* Pointers for timeline days */

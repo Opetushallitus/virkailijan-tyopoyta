@@ -15,7 +15,7 @@ function UnpublishedNotification (props) {
     onTitleClick
   } = props
 
-  const handleOnTitleClick = (event) => {
+  const handleTitleClick = (event) => {
     event.preventDefault()
     onTitleClick(notification.releaseId)
   }
@@ -26,7 +26,7 @@ function UnpublishedNotification (props) {
     <div className="flex flex-wrap mb1">
       {/*Title*/}
       <div className="col-12 md-col-6 mb1 md-pr2">
-        <a href="#" onClick={handleOnTitleClick}>{content.title}</a>
+        <a href="#" onClick={handleTitleClick}>{content.title}</a>
       </div>
 
       {/*Create date*/}

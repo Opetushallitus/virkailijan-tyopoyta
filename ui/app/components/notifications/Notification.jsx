@@ -55,7 +55,7 @@ function Notification (props) {
     `notification-${notification.type}`,
     `${isExpandable ? 'notification-is-expandable' : ''}`,
     'relative',
-    'mt3',
+    'mb3',
     'pt2',
     'px2',
     'pb1',
@@ -68,7 +68,7 @@ function Notification (props) {
   ]
 
   return (
-    <div className="relative">
+    <div className="notification relative">
       {/*Title for screen readers*/}
       <h3 className="hide">
         {content.title}

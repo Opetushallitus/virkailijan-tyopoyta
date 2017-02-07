@@ -6,14 +6,14 @@ import { translate } from '../common/Translations'
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  notifications: PropTypes.array.isRequired
+  items: PropTypes.array.isRequired
 }
 
 function UnpublishedNotifications (props) {
   const {
     controller,
     locale,
-    notifications
+    items
   } = props
 
   return (
@@ -39,7 +39,7 @@ function UnpublishedNotifications (props) {
         </div>
       </div>
 
-      {notifications.map(notification =>
+      {items.map(notification =>
         <UnpublishedNotification
           key={notification.id}
           locale={locale}
