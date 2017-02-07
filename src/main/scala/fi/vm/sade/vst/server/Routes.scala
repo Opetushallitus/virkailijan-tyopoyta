@@ -6,6 +6,7 @@ import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.{ContentType, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.model.MediaTypes.`application/json`
+import akka.http.scaladsl.server.directives.ParameterDirectives.ParamMagnet
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session._
 import com.softwaremill.session.SessionOptions._
@@ -49,9 +50,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
       path("releases"){sendResponse(releaseRepository.getReleases)} ~
       path("tags"){sendResponse(releaseRepository.getTags)} ~
       path("timeline"){
-          parameter("amount" ? 10,"startdate" ? LocalDate.now().toString){(amount,startdate) =>
+          parameter("enddate" ? LocalDate.now().plusMonths(1).toString, "amount" ? 10, "startdate" ? LocalDate.now().toString){(enddate, amount,startdate) =>
 
-            sendResponse(releaseRepository.getTimeline(amount,startdate))
+            sendResponse(releaseRepository.getTimeline(amount,startdate, enddate))
           }
         }
       }

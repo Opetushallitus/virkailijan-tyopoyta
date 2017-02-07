@@ -1,6 +1,6 @@
 package fi.vm.sade.vst.model
 
-import java.time.LocalDate
+import java.time.{LocalDate, Month, MonthDay, Year}
 
 
 case class Release(id: Long, sendEmail: Boolean, notification: Option[Notification] = None, timeline: Seq[TimelineItem] = Nil)
@@ -24,3 +24,5 @@ case class TimelineItem(id: Long, releaseId: Long, date: LocalDate, content: Map
 case class TimelineContent(timelineId: Long, language: String, text: String)
 
 case class User(name: String, language: String, roles: Seq[String])
+
+case class Timeline(month: Int, year: Int, days: Map[String,List[TimelineItem]] = Map.empty)

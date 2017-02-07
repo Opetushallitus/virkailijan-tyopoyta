@@ -46,6 +46,12 @@ trait JsonSupport {
     (JsPath \ "content").write[Map[String, TimelineContent]]
     )(unlift(TimelineItem.unapply))
 
+  implicit val timelineWrites: Writes[Timeline] = (
+    (JsPath \ "month").write[Int] and
+    (JsPath \ "year").write[Int] and
+    (JsPath \ "days").write[Map[String,List[TimelineItem]]]
+    )(unlift(Timeline.unapply))
+
   implicit val releaseWrites: Writes[Release] = (
     (JsPath \ "id").write[Long] and
       (JsPath \ "sendEmail").write[Boolean] and
