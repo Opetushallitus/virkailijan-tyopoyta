@@ -23,17 +23,14 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   private val releases = new AtomicReference(Map[Long, Release]())
 
-  val tagfile = new File(getClass.getResource("/data/tags.json").getPath)
-  println(tagfile.getAbsolutePath())
-  val tags = parseTags(scala.io.Source.fromFile(tagfile).mkString).get
+  println(getClass.getResource("/data/tags.json").getPath)
+  val tags = parseTags(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/tags.json")).mkString).get
 
   def getTags(names: String*): List[Int] = {
     tags.filter(t => names.contains(t.name)).map(_.id.toInt)
   }
-
-  val file = new File(getClass.getResource("/data/releases.json").getPath)
-
-  val releasesList = parseReleases(scala.io.Source.fromFile(file).mkString)
+  val releasesList = parseReleases(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/releases.json")).mkString)
+  //val releasesList = parseReleases(scala.io.Source.fromFile(getClass.getResource("/data/releases.json").getPath).mkString)
 
   var initReleases = Map[Long, Release]()
 
