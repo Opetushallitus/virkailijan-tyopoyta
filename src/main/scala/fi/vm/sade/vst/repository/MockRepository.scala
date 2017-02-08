@@ -23,14 +23,15 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   private val releases = new AtomicReference(Map[Long, Release]())
 
-  val tagfile = new File(getClass.getResource("/data/tags.json").toURI)
+  val tagfile = new File(getClass.getResource("/data/tags.json").getPath)
+  println(tagfile.getAbsolutePath())
   val tags = parseTags(scala.io.Source.fromFile(tagfile).mkString).get
 
   def getTags(names: String*): List[Int] = {
     tags.filter(t => names.contains(t.name)).map(_.id.toInt)
   }
 
-  val file = new File(getClass.getResource("/data/releases.json").toURI)
+  val file = new File(getClass.getResource("/data/releases.json").getPath)
 
   val releasesList = parseReleases(scala.io.Source.fromFile(file).mkString)
 
@@ -88,10 +89,8 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         timelineItems = t :: timelineItems
       })
     })
-    val date = "%d-%02d-01".format(year, month)
 
-    val startDate = LocalDate.parse(date)
-
+    val startDate = LocalDate.parse("%d-%02d-01".format(year, month))
     val endDate = startDate.plusMonths(1)
     timelineItems = timelineItems.filter(_.date.toEpochDay >= startDate.toEpochDay).filter(_.date.toEpochDay < endDate.toEpochDay).sortBy(_.date.toEpochDay)
 
