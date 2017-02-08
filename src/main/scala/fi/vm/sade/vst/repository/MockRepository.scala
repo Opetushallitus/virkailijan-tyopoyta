@@ -1,38 +1,35 @@
 package fi.vm.sade.vst.repository
 
 import java.io.File
-import java.time.LocalDate
+import java.time.{LocalDate, YearMonth}
 
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.model.JsonSupport
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.collection.immutable.ListMap
+import scala.collection.immutable.{ListMap, Seq => Seq}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait ReleaseRepository{
-  def getTimeline(month: Int, year: Int): Future[Timeline]
-  def getReleases : Future[Seq[Release]]
-  def addRelease(release: Release): Future[Release]
-  def getTags : Future[Seq[Tag]]
-
-}
 
 class MockRepository() extends ReleaseRepository with JsonSupport {
 
   private val releases = new AtomicReference(Map[Long, Release]())
 
-  println(getClass.getResource("/data/tags.json").getPath)
-  val tags = parseTags(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/tags.json")).mkString).get
+  private val tagfile = new File(getClass.getResource("/data/tags.json").toURI)
+  private val notificationTags = parseTags(scala.io.Source.fromFile(tagfile).mkString).get
 
   def getTags(names: String*): List[Int] = {
-    tags.filter(t => names.contains(t.name)).map(_.id.toInt)
+    notificationTags.filter(t => names.contains(t.name)).map(_.id.toInt)
   }
-  val releasesList = parseReleases(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/releases.json")).mkString)
-  //val releasesList = parseReleases(scala.io.Source.fromFile(getClass.getResource("/data/releases.json").getPath).mkString)
 
-  var initReleases = Map[Long, Release]()
+  def tags(): Future[List[Tag]] = Future{notificationTags}
+
+  val file = new File(getClass.getResource("/data/releases.json").toURI)
+
+  private val releasesList = parseReleases(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/releases.json")).mkString)
+
+  private var initReleases = Map[Long, Release]()
 
   releasesList match {
     case Some(p) =>
@@ -45,18 +42,14 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   releases.set(sortReleasesByPublishDate(initReleases))
 
-
   def nextReleaseId(): Long = releases.get().values.map(_.id).max +1
 
   def notifications(): Iterable[Option[Notification]] = releases.get().values.map(_.notification)
   private def nextNotificationId = notifications().flatMap(_.map(_.id)).max + 1
 
-  def getReleases : Future[Seq[Release]] = Future{
-    releases.get().values.toSeq
-  }
-
-  def getTags : Future[Seq[Tag]] = Future{tags}
-
+  def getReleases : Future[Seq[Release]] = Future(
+    releases.get().values.toList
+  )
 
   def persistNotification(releaseId: Long, notification: Notification): Notification = {
     notification.copy(id = nextNotificationId, releaseId = releaseId)
@@ -69,7 +62,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
       id = id,
       notification = release.notification.map(persistNotification(id, _))
     )
-    releases.set(sortReleasesByPublishDate((releases.get() + (id -> persistedRelease))))
+    releases.set(sortReleasesByPublishDate(releases.get() + (id -> persistedRelease)))
     Future{persistedRelease}
   }
 
@@ -78,7 +71,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   }
 
 
-  override def getTimeline(month: Int, year: Int): Future[Timeline] = {
+  override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
     var timelineItems: List[TimelineItem] = List()
     var days: Map[String, List[TimelineItem]] = Map()
     releases.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
@@ -86,9 +79,9 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         timelineItems = t :: timelineItems
       })
     })
+    val startDate = month.atDay(1)
+    val endDate = month.atEndOfMonth()
 
-    val startDate = LocalDate.parse("%d-%02d-01".format(year, month))
-    val endDate = startDate.plusMonths(1)
     timelineItems = timelineItems.filter(_.date.toEpochDay >= startDate.toEpochDay).filter(_.date.toEpochDay < endDate.toEpochDay).sortBy(_.date.toEpochDay)
 
     timelineItems.foreach( (t: TimelineItem) => {
@@ -98,7 +91,13 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         case None => days += (day.toString -> List(t))
       }
     })
-    Future{Timeline(month,year,days)}
+    Future{Timeline(startDate.getMonthValue,startDate.getYear,days)}
   }
 
+  override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
+    Future(releases.get.values.flatMap(_.notification).toList)
+
+  override def categories(): Future[Seq[Category]] = Future(Seq.empty)
+
+  override def release(id: Long): Future[Option[Release]] = Future(None)
 }

@@ -22,7 +22,7 @@ class AuthenticationService(val casClient: CasClient,
 
   val validateTicket: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId)
 
-  lazy val loginUrl =s"${config.casUrl}/login?service=${config.serviceId}"
+  lazy val loginUrl =s"${config.casUrl}/login?service=${config.serviceId}/authenticate"
 
   private def createUser(ldapUser: LdapUser): User = User(ldapUser.lastName, "fi", ldapUser.roles)
 

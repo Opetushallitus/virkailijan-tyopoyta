@@ -8,6 +8,7 @@ import fi.vm.sade.security.ldap.LdapConfig
 
 case class AuthenticationConfig(casUrl: String, serviceId: String, memoizeDuration: Int)
 case class ServerConfig(port: Int)
+case class DBConfig(url: String, username: String, password: String, pageLength: Int)
 
 trait Configuration {
 
@@ -29,4 +30,11 @@ trait Configuration {
 
   private lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
 
+//  lazy val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig[JdbcProfile]("postgres", config)
+
+  lazy val dBConfig: DBConfig = DBConfig(
+    config.getString("db.url"),
+    config.getString("db.username"),
+    config.getString("db.password"),
+    config.getInt("db.page.length"))
 }

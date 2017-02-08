@@ -53,7 +53,7 @@ const events = {
 }
 
 // const authUrl = '/virkailijan-tyopoyta/login'
-const releasesUrl = '/virkailijan-tyopoyta/api/releases'
+const notificationsUrl = '/virkailijan-tyopoyta/api/notifications'
 const tagsUrl = '/virkailijan-tyopoyta/api/tags'
 const timelineUrl = '/virkailijan-tyopoyta/api/timeline'
 
@@ -64,11 +64,11 @@ export function getController () {
 }
 
 const alertsBus = new Bacon.Bus()
-const releasesBus = new Bacon.Bus()
+const notificationsBus = new Bacon.Bus()
 const timelineBus = new Bacon.Bus()
 const tagsBus = new Bacon.Bus()
 
-function fetchReleases () {
+function fetchNotifications () {
   console.log('Fetching releases')
 
   const alert = createAlert({
@@ -78,8 +78,8 @@ function fetchReleases () {
   })
 
   getData({
-    url: releasesUrl,
-    onSuccess: releases => releasesBus.push(releases),
+    url: notificationsUrl,
+    onSuccess: notifications => notificationsBus.push(notifications),
     onError: () => alertsBus.push(alert)
   })
 }
@@ -123,16 +123,18 @@ function fetchTags () {
 function onReleasesReceived (state, response) {
   console.log('Received releases')
 
-  const newState = R.assocPath(['view', 'isInitialLoad'], false, state)
-  const stateWithoutLoading = R.assocPath(['view', 'isLoading'], false, newState)
+
 
   return R.assoc('releases', response, stateWithoutLoading)
 }
 
 function onNotificationsReceived (state, response) {
-  console.log('Received notifications')
+  console.log('Received notifications: ')
 
-  return R.assocPath(['notifications', 'items'], response, state)
+  const newState = R.assocPath(['view', 'isInitialLoad'], false, state)
+  const stateWithoutLoading = R.assocPath(['view', 'isLoading'], false, newState)
+
+  return R.assocPath(['notifications', 'items'], response, stateWithoutLoading)
 }
 
 function onTimelineReceived (state, response) {
@@ -466,7 +468,7 @@ function saveDocument (state) {
   console.log('Saving document')
 
   getData({
-    url: releasesUrl,
+    url: notificationsUrl,
     requestOptions: {
       method: 'POST',
       dataType: 'json',
@@ -495,7 +497,7 @@ function onSaveComplete (state) {
   const stateWithLoading = R.assocPath(['view', 'isLoading'], true, stateWithAlert)
 
   // Update view
-  fetchReleases()
+  fetchNotifications()
   fetchTimeline()
 
   // Only toggle editor if user hasn't closed it already
@@ -635,7 +637,7 @@ export function initAppState () {
   function onUserReceived(state, response){
     console.log("received user: "+JSON.stringify(response))
 
-    fetchReleases()
+    fetchNotifications()
     fetchTags()
     fetchTimeline()
 
@@ -647,7 +649,7 @@ export function initAppState () {
   //   resp.json()
   // }))
 
-  const notificationsS = releasesBus.flatMapLatest(r => R.map(r => r.notification, r))
+  // const notificationsS = notificationsBus.flatMapLatest(r => R.map(r => r.notification, r))
 
   const initialState = {
     locale: 'fi',
@@ -735,11 +737,10 @@ export function initAppState () {
     [dispatcher.stream(events.toggleNotification)], toggleNotification,
 
     // [userS], onUserReceived,
-    [releasesBus], onReleasesReceived,
     // [releasesS], onReleasesReceived,
     [timelineBus], onTimelineReceived,
     [tagsBus], onTagsReceived,
-    [notificationsS], onNotificationsReceived,
+    [notificationsBus], onNotificationsReceived,
     [savedReleases], onSaveComplete,
     [failedReleases], onSaveFailed,
     [alertsBus], onAlertsReceived
