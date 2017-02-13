@@ -59,7 +59,7 @@ const events = {
 }
 
 // const authUrl = '/virkailijan-tyopoyta/login'
-const releasesUrl = '/virkailijan-tyopoyta/api/releases'
+const notificationsUrl = '/virkailijan-tyopoyta/api/notifications'
 const tagsUrl = '/virkailijan-tyopoyta/api/tags'
 const timelineUrl = '/virkailijan-tyopoyta/api/timeline'
 
@@ -70,25 +70,35 @@ export function getController () {
 }
 
 const alertsBus = new Bacon.Bus()
-const releasesBus = new Bacon.Bus()
+const notificationsBus = new Bacon.Bus()
 const failedNotificationsBus = new Bacon.Bus()
 const timelineBus = new Bacon.Bus()
 const failedTimelineBus = new Bacon.Bus()
 const tagsBus = new Bacon.Bus()
 const failedTagsBus = new Bacon.Bus()
 
-function fetchReleases () {
+function fetchNotifications () {
   console.log('Fetching releases')
 
+  const alert = createAlert({
+    type: 'error',
+    title: 'Julkaisujen haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
   getData({
-    url: releasesUrl,
-    onSuccess: releases => releasesBus.push(releases),
+    url: notificationsUrl,
+    onSuccess: notifications => notificationsBus.push(notifications),
     onError: error => failedNotificationsBus.push(error)
   })
 }
 
 function fetchTimeline (month, year) {
   console.log('Fetching timeline')
+
+  const currentTime = new Date()
+  year = year || currentTime.getFullYear()
+  month = month || currentTime.getMonth() + 1
 
   getData({
     url: timelineUrl,
@@ -111,14 +121,8 @@ function fetchTags () {
   })
 }
 
-function onReleasesReceived (state, response) {
-  console.log('Received releases')
-
-  return R.assoc('releases', response, state)
-}
-
 function onNotificationsReceived (state, response) {
-  console.log('Received notifications')
+  console.log('Received notifications: ')
 
   const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
   const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
@@ -565,7 +569,7 @@ function saveDocument (state) {
   console.log('Saving document')
 
   getData({
-    url: releasesUrl,
+    url: notificationsUrl,
     requestOptions: {
       method: 'POST',
       dataType: 'json',
@@ -596,7 +600,7 @@ function onSaveComplete (state) {
   const stateWithAlert = R.assocPath(['view', 'alerts'], newViewAlerts, state)
 
   // Update view
-  fetchReleases()
+  fetchNotifications()
   fetchTimeline(currentMonth, currentYear)
 
   // Only toggle editor if user hasn't closed it already
@@ -825,7 +829,7 @@ export function initAppState () {
     const month = getCurrentMonth()
     const year = getCurrentYear()
 
-    fetchReleases()
+    fetchNotifications()
     fetchTags()
     fetchTimeline(month, year)
 
@@ -837,7 +841,7 @@ export function initAppState () {
   //   resp.json()
   // }))
 
-  const notificationsS = releasesBus.flatMapLatest(r => R.map(r => r.notification, r))
+  // const notificationsS = notificationsBus.flatMapLatest(r => R.map(r => r.notification, r))
 
   const initialState = {
     locale: 'fi',
@@ -937,14 +941,13 @@ export function initAppState () {
     [dispatcher.stream(events.getNextMonth)], getNextMonth,
 
     // [userS], onUserReceived,
-    [releasesBus], onReleasesReceived,
     [failedNotificationsBus], onNotificationsFailed,
     // [releasesS], onReleasesReceived,
     [timelineBus], onTimelineReceived,
     [failedTimelineBus], onTimelineFailed,
     [tagsBus], onTagsReceived,
+    [notificationsBus], onNotificationsReceived,
     [failedTagsBus], onTagsFailed,
-    [notificationsS], onNotificationsReceived,
     [savedReleases], onSaveComplete,
     [failedReleases], onSaveFailed,
     [alertsBus], onAlertsReceived

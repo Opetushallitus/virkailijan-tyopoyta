@@ -30,7 +30,7 @@ trait JsonSupport {
     (JsPath \ "endDate").write[Option[LocalDate]] and
     (JsPath \ "initialStartDate").write[Option[LocalDate]] and
     (JsPath \ "content").write[Map[String, NotificationContent]] and
-    (JsPath \ "tags").write[List[Int]]
+    (JsPath \ "tags").write[Seq[Long]]
     ) (unlift(Notification.unapply))
 
   implicit val timelineContentWrites: Writes[TimelineContent] = (
@@ -49,14 +49,16 @@ trait JsonSupport {
   implicit val timelineWrites: Writes[Timeline] = (
     (JsPath \ "month").write[Int] and
     (JsPath \ "year").write[Int] and
-    (JsPath \ "days").write[Map[String,List[TimelineItem]]]
+    (JsPath \ "days").write[Map[String,Seq[TimelineItem]]]
     )(unlift(Timeline.unapply))
 
   implicit val releaseWrites: Writes[Release] = (
     (JsPath \ "id").write[Long] and
-      (JsPath \ "sendEmail").write[Boolean] and
-      (JsPath \ "notification").write[Option[Notification]] and
-      (JsPath \ "timeline").write[Seq[TimelineItem]]
+    (JsPath \ "sendEmail").write[Boolean] and
+    (JsPath \ "notification").write[Option[Notification]] and
+    (JsPath \ "timeline").write[Seq[TimelineItem]] and
+    (JsPath \ "categories").write[Seq[Long]]
+
     ) (unlift(Release.unapply))
 
   implicit val notificationContentReads: Reads[NotificationContent] = (
@@ -78,7 +80,7 @@ trait JsonSupport {
     (JsPath \ "endDate").readNullable[LocalDate] and
     (JsPath \ "initialStartDate").readNullable[LocalDate] and
     (JsPath \ "content").read[Map[String, NotificationContent]] and
-    (JsPath \ "tags").read[List [Int]]
+    (JsPath \ "tags").read[Seq[Long]]
     )(Notification.apply _)
 
   implicit val timelineContentReads: Reads[TimelineContent] = (
@@ -98,7 +100,8 @@ trait JsonSupport {
     (JsPath \ "id").read[Long] and
       (JsPath \ "sendEmail").read[Boolean] and
       (JsPath \ "notification").readNullable[Notification] and
-      (JsPath \ "timeline").read[List[TimelineItem]]
+      (JsPath \ "timeline").read[List[TimelineItem]] and
+      (JsPath \ "categories").read[Seq[Long]]
     )(Release.apply _)
 
   implicit val userWrites: Writes[User] = (
@@ -108,11 +111,21 @@ trait JsonSupport {
   )(unlift(User.unapply))
 
   def releasesReads: Reads[List[Release]] = {
-    (JsPath).read[List[Release]]
+    JsPath.read[List[Release]]
   }
   def tagsReads: Reads[List[Tag]] = {
-    (JsPath).read[List[Tag]]
+    JsPath.read[List[Tag]]
   }
+
+  implicit val categoryWrites: Writes[Category] = (
+    (JsPath \ "id").write[Long] and
+    (JsPath \ "name").write[String]
+    )(unlift(Category.unapply))
+
+  implicit val categoryReads: Reads[Category] = (
+    (JsPath \ "id").read[Long] and
+    (JsPath \ "name").read[String]
+  )(Category.apply _)
 
   def parseRelease(jsString: String): Option[Release] ={
     val jsonVal = Json.parse(jsString)

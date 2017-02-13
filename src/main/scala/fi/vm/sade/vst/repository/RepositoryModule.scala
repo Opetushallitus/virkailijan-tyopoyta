@@ -1,9 +1,13 @@
 package fi.vm.sade.vst.repository
 
-trait RepositoryModule {
+import fi.vm.sade.vst.Configuration
+
+trait RepositoryModule extends Configuration {
 
   import com.softwaremill.macwire._
 
-  lazy val releaseRepository = wire[MockRepository]
+  lazy val releaseRepository: ReleaseRepository = wire[MockRepository]
+
+//  lazy val repo = wire[ReleaseRepo]
 
 }

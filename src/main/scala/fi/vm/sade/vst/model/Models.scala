@@ -1,9 +1,13 @@
 package fi.vm.sade.vst.model
 
-import java.time.{LocalDate, Month, MonthDay, Year}
+import java.time.{LocalDate}
 
 
-case class Release(id: Long, sendEmail: Boolean, notification: Option[Notification] = None, timeline: Seq[TimelineItem] = Nil)
+case class Release(id: Long,
+                   sendEmail: Boolean,
+                   notification: Option[Notification] = None,
+                   timeline: Seq[TimelineItem] = Nil,
+                   categories: Seq[Long] = Seq.empty)
 
 case class Notification(id: Long,
                         releaseId: Long,
@@ -11,7 +15,7 @@ case class Notification(id: Long,
                         expiryDate: Option[LocalDate],
                         initialStartDate: Option[LocalDate],
                         content: Map[String, NotificationContent] = Map.empty,
-                        tags: List[Int] = List.empty)
+                        tags: Seq[Long] = List.empty)
 
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
 
@@ -25,4 +29,8 @@ case class TimelineContent(timelineId: Long, language: String, text: String)
 
 case class User(name: String, language: String, roles: Seq[String])
 
-case class Timeline(month: Int, year: Int, days: Map[String,List[TimelineItem]] = Map.empty)
+case class Category(id: Long, name: String)
+
+case class ReleaseCategory(releaseId: Long, categoryId: Long)
+
+case class Timeline(month: Int, year: Int, days: Map[String,Seq[TimelineItem]] = Map.empty)
