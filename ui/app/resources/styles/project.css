@@ -407,16 +407,19 @@
 
 /* Timeline */
 
+.timeline-container {
+  height: 70vh;
+}
+
 .timeline {
   height: 80vh;
 }
 
-/* Timeline axis line */
-.timeline-axis {
+.timeline-line {
   clear: both;
 }
 
-.timeline-axis:after {
+.timeline-line:after {
   position: absolute;
   z-index: -1;
   top: 0;
@@ -437,6 +440,10 @@
   @media (--sm-and-lg) {
     margin-left: 0;
   }
+}
+
+.timeline-heading:first-of-type {
+  margin-bottom: var(--space-3);
 }
 
 /* Pointers for timeline days */
@@ -497,6 +504,10 @@
   @media (--sm-and-lg) {
     margin-bottom: 0;
   }
+}
+
+.timeline-day:first-of-type {
+  margin-top: 0;
 }
 
 .timeline-day:nth-of-type(even) .timeline-item {

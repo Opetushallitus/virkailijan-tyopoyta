@@ -122,16 +122,6 @@ class App extends React.Component {
           )}
         </div>
 
-        {
-          state.view.isLoading
-            ? <Delay time={1000}>
-              <div className="view-spinner absolute">
-                <Spinner isVisible />
-              </div>
-            </Delay>
-            : null
-        }
-
         {/*Content*/}
         <div className="container mx-auto">
           {/*Menu*/}
@@ -140,7 +130,8 @@ class App extends React.Component {
             locale={state.locale}
             dateFormat={state.dateFormat}
             categories={state.categories}
-            view={state.view}
+            selectedCategories={state.view.categories}
+            notificationsLoaded={state.notifications.isInitialLoad}
             unpublishedNotifications={state.unpublishedNotifications.items}
             isMobileMenuVisible={state.menu.isMobileMenuVisible}
           />
@@ -179,7 +170,6 @@ class App extends React.Component {
                 controller={controller}
                 locale={state.locale}
                 notifications={state.notifications}
-                isInitialLoad={state.view.isInitialLoad}
               />
             </section>
 
@@ -190,7 +180,6 @@ class App extends React.Component {
                 locale={state.locale}
                 dateFormat={state.dateFormat}
                 timeline={state.timeline}
-                isInitialLoad={state.view.isInitialLoad}
               />
             </section>
           </div>

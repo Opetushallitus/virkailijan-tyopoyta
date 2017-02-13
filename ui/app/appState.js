@@ -1,5 +1,6 @@
 import Bacon from 'baconjs'
 import R from 'ramda'
+import moment from 'moment'
 
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
@@ -49,7 +50,12 @@ const events = {
   updateSearch: 'updateSearch',
   toggleNotificationTag: 'toggleNotificationTag',
   setSelectedNotificationTags: 'setSelectedNotificationTags',
-  toggleNotification: 'toggleNotification'
+  toggleNotification: 'toggleNotification',
+
+  // Timeline
+  getPreloadedMonth: 'getPreloadedMonth',
+  getPreviousMonth: 'getPreviousMonth',
+  getNextMonth: 'getNextMonth'
 }
 
 // const authUrl = '/virkailijan-tyopoyta/login'
@@ -65,80 +71,160 @@ export function getController () {
 
 const alertsBus = new Bacon.Bus()
 const releasesBus = new Bacon.Bus()
+const failedNotificationsBus = new Bacon.Bus()
 const timelineBus = new Bacon.Bus()
+const failedTimelineBus = new Bacon.Bus()
 const tagsBus = new Bacon.Bus()
+const failedTagsBus = new Bacon.Bus()
 
 function fetchReleases () {
   console.log('Fetching releases')
 
-  const alert = createAlert({
-    type: 'error',
-    title: 'Julkaisujen haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
-  })
-
   getData({
     url: releasesUrl,
     onSuccess: releases => releasesBus.push(releases),
-    onError: () => alertsBus.push(alert)
+    onError: error => failedNotificationsBus.push(error)
   })
 }
 
-function fetchTimeline () {
+function fetchTimeline (month, year) {
   console.log('Fetching timeline')
 
-  const alert = createAlert({
-    type: 'error',
-    title: 'Aikajanan haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
-  })
-
-  const currentTime = new Date()
-  const year = currentTime.getFullYear()
-  const month = currentTime.getMonth() + 1
-
   getData({
-    url: `${timelineUrl}?year=${year}&month=${month}`,
+    url: timelineUrl,
+    searchParams: {
+      month,
+      year
+    },
     onSuccess: timeline => timelineBus.push(timeline),
-    onError: () => alertsBus.push(alert)
+    onError: (error) => failedTimelineBus.push(error)
   })
 }
 
 function fetchTags () {
   console.log('Fetching tags')
 
-  const alert = createAlert({
-    type: 'error',
-    title: 'Tunnisteiden haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
-  })
-
   getData({
     url: tagsUrl,
     onSuccess: tags => tagsBus.push(tags),
-    onError: () => alertsBus.push(alert)
+    onError: error => failedTagsBus.push(error)
   })
 }
 
 function onReleasesReceived (state, response) {
   console.log('Received releases')
 
-  const newState = R.assocPath(['view', 'isInitialLoad'], false, state)
-  const stateWithoutLoading = R.assocPath(['view', 'isLoading'], false, newState)
-
-  return R.assoc('releases', response, stateWithoutLoading)
+  return R.assoc('releases', response, state)
 }
 
 function onNotificationsReceived (state, response) {
   console.log('Received notifications')
 
-  return R.assocPath(['notifications', 'items'], response, state)
+  const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
+  const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
+
+  return R.assocPath(['notifications', 'items'], response, stateWithoutLoading)
+}
+
+function onNotificationsFailed (state) {
+  const alert = createAlert({
+    type: 'error',
+    title: 'Tiedotteiden haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
+  const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
+  const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
+
+  alertsBus.push(alert)
+
+  return stateWithoutLoading
+}
+
+function onCurrentMonthReceived (state, response) {
+  const currentDate = new Date()
+  const currentDay = currentDate.getUTCDate()
+  const isCurrentDayOrAfter = (value, key) => key >= currentDay
+
+  // Get month's current day and the days after it
+  const visibleDays = R.pickBy(isCurrentDayOrAfter, response.days)
+  const visibleMonth = R.assoc('days', visibleDays, response)
+
+  // Get month's past days
+  const pastDays = R.omit(Object.keys(visibleDays), response.days)
+  const partOfMonth = R.assoc('part', 2, response)
+  const pastMonth = R.assoc('days', pastDays, partOfMonth)
+
+  const newState = R.assocPath(['timeline', 'preloadedItems'], [pastMonth], state)
+  const stateWithCount = R.assocPath(['timeline', 'count'], Object.keys(visibleDays).length, newState)
+
+  return R.assocPath(['timeline', 'items'], [visibleMonth], stateWithCount)
+}
+
+function onNewMonthReceived (state, response) {
+
 }
 
 function onTimelineReceived (state, response) {
   console.log('Received timeline')
 
-  return R.assoc('timeline', [response], state)
+  const timeline = state.timeline
+  const dateFormat = timeline.dateFormat
+  let newItems = []
+
+  const newState = R.assocPath(['timeline', 'isLoading'], false, state)
+  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], false, newState)
+  const stateWithoutLoading = R.assocPath(['timeline', 'isInitialLoad'], false, stateWithFailedTimeline)
+
+  // On initial load
+  if (timeline.isInitialLoad) {
+    return onCurrentMonthReceived(stateWithoutLoading, response)
+  }
+
+  const requestedDateMoment = moment(`${response.month}.${response.year}`, dateFormat)
+
+  const firstMonth = R.head(timeline.items)
+  const firstMonthMoment = moment(`${firstMonth.month}.${firstMonth.year}`, dateFormat)
+
+  const newCount = () => {
+    const count = Object.keys(response.days).length || 1
+    return timeline.count + count
+  }
+  const stateWithCount = R.assocPath(['timeline', 'count'], newCount(), stateWithoutLoading)
+
+  // Returned date is before first month and year
+  if (requestedDateMoment.isBefore(firstMonthMoment)) {
+    // Set scrolling direction
+    const newState = R.assocPath(['timeline', 'direction'], 'up', stateWithCount)
+    newItems = R.prepend(response, timeline.items)
+
+    return R.assocPath(['timeline', 'items'], newItems, newState)
+  } else {
+    // Returned date is after last month and year
+
+    // Set scrolling direction
+    const newState = R.assocPath(['timeline', 'direction'], 'down', stateWithCount)
+
+    newItems = R.append(response, timeline.items)
+
+    return R.assocPath(['timeline', 'items'], newItems, newState)
+  }
+}
+
+function onTimelineFailed (state) {
+  const alert = createAlert({
+    type: 'error',
+    title: 'Tapahtumien haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
+  const newState = R.assocPath(['timeline', 'isInitialLoad'], false, state)
+  const stateWithoutLoading = R.assocPath(['timeline', 'isLoading'], false, newState)
+  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], true, stateWithoutLoading)
+
+  alertsBus.push(alert)
+
+  return stateWithFailedTimeline
 }
 
 function onTagsReceived (state, tags) {
@@ -149,15 +235,24 @@ function onTagsReceived (state, tags) {
   return R.assocPath(['notifications', 'tags'], tags, newState)
 }
 
+function onTagsFailed (state) {
+  const alert = createAlert({
+    type: 'error',
+    title: 'Tunnisteiden haku epäonnistui',
+    text: 'Päivitä sivu hakeaksesi uudelleen'
+  })
+
+  alertsBus.push(alert)
+
+  return R.assocPath(['tags', 'isLoading'], false, state)
+}
+
 function onAlertsReceived (state, alert) {
   console.log('Received alerts', alert)
 
   const newViewAlerts = R.append(alert, state.view.alerts)
-  const newState = R.assocPath(['view', 'isInitialLoad'], false, state)
-  const stateWithoutViewLoading = R.assocPath(['view', 'isLoading'], false, newState)
-  const stateWithoutTagsLoading = R.assocPath(['notifications', 'tagsLoading'], false, stateWithoutViewLoading)
 
-  return R.assocPath(['view', 'alerts'], newViewAlerts, stateWithoutTagsLoading)
+  return R.assocPath(['view', 'alerts'], newViewAlerts, state)
 }
 
 function toggleValue (value, values) {
@@ -368,7 +463,7 @@ function updateNotification (state, {prop, value}) {
 }
 
 function updateNotificationTags (state, value) {
-  let newTags = value;
+  let newTags = value
 
   // Remove an already selected tag
   if (R.is(Number, value)) {
@@ -385,11 +480,15 @@ function updateNotificationContent (state, { prop, lang, value }) {
 
 // TIMELINE
 
-const newTimelineId = R.compose(R.dec, R.apply(Math.min), R.map(R.prop('id')))
+// Returns last timeline item's ID + 1
+function getNewTimelineItemId (timeline) {
+  return R.inc(R.prop('id', R.last(timeline)))
+}
 
 function newTimelineItem (releaseId, timeline) {
-  //const id = Math.min(newTimelineId(timeline), 0);
-  const id = Math.floor(Math.random() * (10000 - 1) + 1)
+  const id = timeline.length
+    ? getNewTimelineItemId(timeline)
+    : 1
 
   return {
     id: id,
@@ -485,6 +584,9 @@ function saveDocument (state) {
 function onSaveComplete (state) {
   console.log('Release saved')
 
+  const currentMonth = getCurrentMonth()
+  const currentYear = getCurrentYear()
+
   const alert = createAlert({
     type: 'success',
     title: 'Julkaisu onnistui'
@@ -492,14 +594,13 @@ function onSaveComplete (state) {
 
   const newViewAlerts = R.append(alert, state.view.alerts)
   const stateWithAlert = R.assocPath(['view', 'alerts'], newViewAlerts, state)
-  const stateWithLoading = R.assocPath(['view', 'isLoading'], true, stateWithAlert)
 
   // Update view
   fetchReleases()
-  fetchTimeline()
+  fetchTimeline(currentMonth, currentYear)
 
   // Only toggle editor if user hasn't closed it already
-  return toggleEditor(stateWithLoading)
+  return toggleEditor(stateWithAlert)
 }
 
 function onSaveFailed (state) {
@@ -631,13 +732,102 @@ function toggleNotification (state, id) {
   return R.assocPath(['notifications', 'expanded'], newState, state)
 }
 
+// TIMELINE
+
+function getCurrentMonth () {
+  const currentDate = new Date()
+
+  // getUTCMonth returns 0-11, add 1 to get the proper month
+  return currentDate.getUTCMonth() + 1
+}
+
+function getCurrentYear () {
+  const currentDate = new Date()
+
+  return currentDate.getUTCFullYear()
+}
+
+/*
+  Returns an object with manipulated month and year
+  Manipulation is done with Moment.js: http://momentjs.com/docs/#/manipulating/
+ */
+function getManipulatedMonthAndYear (options) {
+  const {
+    month,
+    year,
+    action,
+    amount
+  } = options
+
+  /*
+    Example, subtract 1 month from January 2017 = December 2016
+    moment('1.2017', 'M.YYYY')['subtract'](1, 'months')
+  */
+  const newDate = moment(`${month}.${year}`, 'M.YYYY')[action](amount, 'months')
+
+  return {
+    month: newDate.format('M'),
+    year: newDate.format('YYYY')
+  }
+}
+
+function getPreloadedMonth (state) {
+  console.log('Get preloaded month')
+
+  const timeline = state.timeline
+  const newItems = R.concat(timeline.preloadedItems, timeline.items)
+  const newState = R.assocPath(['timeline', 'direction'], 'up', state)
+  const stateWithoutPreloadedItems = R.assocPath(['timeline', 'preloadedItems'], [], newState)
+
+  return R.assocPath(['timeline', 'items'], newItems, stateWithoutPreloadedItems)
+}
+
+function getPreviousMonth (state) {
+  console.log('Get previous month')
+
+  const timeline = state.timeline
+  const firstMonth = R.head(timeline.items)
+
+  const previousMonthAndYear = getManipulatedMonthAndYear({
+    month: firstMonth.month,
+    year: firstMonth.year,
+    action: 'subtract',
+    amount: 1
+  })
+
+  fetchTimeline(previousMonthAndYear.month, previousMonthAndYear.year)
+
+  return state
+}
+
+function getNextMonth (state) {
+  console.log('Get next month')
+
+  const timeline = state.timeline
+  const lastMonth = R.last(timeline.items)
+
+  const nextMonthAndYear = getManipulatedMonthAndYear({
+    month: lastMonth.month,
+    year: lastMonth.year,
+    action: 'add',
+    amount: 1
+  })
+
+  fetchTimeline(nextMonthAndYear.month, nextMonthAndYear.year)
+
+  return state
+}
+
 export function initAppState () {
-  function onUserReceived(state, response){
-    console.log("received user: "+JSON.stringify(response))
+  function onUserReceived (state, response) {
+    console.log('Received user')
+
+    const month = getCurrentMonth()
+    const year = getCurrentYear()
 
     fetchReleases()
     fetchTags()
-    fetchTimeline()
+    fetchTimeline(month, year)
 
     return R.assoc('user', response, state)
   }
@@ -661,9 +851,7 @@ export function initAppState () {
       startDate: '',
       endDate: '',
       selectedTab: 'notifications',
-      alerts: [],
-      isLoading: true,
-      isInitialLoad: true
+      alerts: []
     },
     releases: [],
     notifications: {
@@ -672,13 +860,22 @@ export function initAppState () {
       tags: [],
       tagsLoading: true,
       selectedTags: [],
-      isLoading: false
+      isLoading: false,
+      isInitialLoad: true
     },
     unpublishedNotifications: {
       isVisible: false,
       items: testData.unpublishedReleases.map(r => r.notification)
     },
-    timeline: [],
+    timeline: {
+      items: [],
+      preloadedItems: [],
+      count: 0,
+      dateFormat: 'M.YYYY',
+      isLoading: true,
+      isInitialLoad: true,
+      hasLoadingFailed: false
+    },
     editor: {
       isVisible: false,
       isPreviewed: false,
@@ -734,11 +931,19 @@ export function initAppState () {
     [dispatcher.stream(events.setSelectedNotificationTags)], setSelectedNotificationTags,
     [dispatcher.stream(events.toggleNotification)], toggleNotification,
 
+    // Timeline
+    [dispatcher.stream(events.getPreloadedMonth)], getPreloadedMonth,
+    [dispatcher.stream(events.getPreviousMonth)], getPreviousMonth,
+    [dispatcher.stream(events.getNextMonth)], getNextMonth,
+
     // [userS], onUserReceived,
     [releasesBus], onReleasesReceived,
+    [failedNotificationsBus], onNotificationsFailed,
     // [releasesS], onReleasesReceived,
     [timelineBus], onTimelineReceived,
+    [failedTimelineBus], onTimelineFailed,
     [tagsBus], onTagsReceived,
+    [failedTagsBus], onTagsFailed,
     [notificationsS], onNotificationsReceived,
     [savedReleases], onSaveComplete,
     [failedReleases], onSaveFailed,

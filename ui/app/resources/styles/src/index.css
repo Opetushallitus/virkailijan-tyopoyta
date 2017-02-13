@@ -56,8 +56,12 @@ a:focus {
   background-color: var(--white);
 }
 
-.bg-gray-lighten-1 {
-  background-color: var(--gray-lighten-1);
+.bg-gray-lighten-2 {
+  background-color: var(--gray-lighten-2);
+}
+
+.bg-gray-lighten-4 {
+  background-color: var(--gray-lighten-4);
 }
 
 .bg-gray-lighten-5 {
@@ -74,6 +78,10 @@ a:focus {
 
 .bg-blue-lighten-4 {
   background-color: var(--blue-lighten-4);
+}
+
+.bg-green-lighten {
+  background-color: var(--green-lighten);
 }
 
 /* Borders */
@@ -407,4 +415,8 @@ fieldset {
 
 .blue-lighten-1 {
   color: var(--blue-lighten-1);
+}
+
+.green {
+  color: var(--green);
 }

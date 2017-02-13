@@ -25,12 +25,12 @@ class Popup extends React.Component {
     super(props)
 
     this.handleClick = this.handleClick.bind(this)
-    this.handleResize = this.handleResize.bind(this)
+    this.handleResize = debounce(this.handleResize.bind(this), 100)
   }
 
-  componentWillMount () {
+  componentDidMount () {
     document.addEventListener('click', this.handleClick, false)
-    window.addEventListener('resize', debounce(this.handleResize, 100))
+    window.addEventListener('resize', this.handleResize)
   }
 
   componentWillUnmount () {

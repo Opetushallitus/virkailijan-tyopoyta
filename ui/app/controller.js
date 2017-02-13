@@ -73,6 +73,14 @@ export function initController (dispatcher, events) {
     dispatcher.push(events.toggleNotificationTag, value)
   }
 
+  // TIMELINE
+
+  const getPreloadedMonth = () => dispatcher.push(events.getPreloadedMonth)
+
+  const getPreviousMonth = (year, month) => dispatcher.push(events.getPreviousMonth, {year: year, month: month})
+
+  const getNextMonth = (year, month) => dispatcher.push(events.getNextMonth, {year: year, month: month})
+
   return {
     // View
     updateView: updateView,
@@ -109,6 +117,11 @@ export function initController (dispatcher, events) {
     updateSearch: updateSearch,
     toggleNotificationTag: toggleNotificationTag,
     setSelectedNotificationTags: setSelectedNotificationTags,
-    toggleNotification: toggleNotification
+    toggleNotification: toggleNotification,
+
+    // Timeline
+    getPreloadedMonth: getPreloadedMonth,
+    getPreviousMonth: getPreviousMonth,
+    getNextMonth: getNextMonth
   }
 }
