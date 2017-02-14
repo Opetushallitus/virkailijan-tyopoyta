@@ -12,7 +12,7 @@ import { translate } from '../common/Translations'
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  notifications: PropTypes.object.isRequired,
+  notifications: PropTypes.object.isRequired
 }
 
 // Get quick selection tags

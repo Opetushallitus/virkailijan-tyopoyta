@@ -16,8 +16,6 @@ import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
 import Modal from './common/Modal'
-import Spinner from './common/Spinner'
-import Delay from './common/Delay'
 import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
