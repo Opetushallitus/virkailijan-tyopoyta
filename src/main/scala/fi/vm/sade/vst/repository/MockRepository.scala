@@ -24,8 +24,6 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   def tags(): Future[List[Tag]] = Future{notificationTags}
 
-  val file = new File(getClass.getResource("/data/releases.json").toURI)
-
   private val releasesList = parseReleases(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/releases.json")).mkString)
 
   private var initReleases = Map[Long, Release]()
