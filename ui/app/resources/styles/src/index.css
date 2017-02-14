@@ -21,7 +21,8 @@ html {
 
 body {
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   background-color: var(--gray-lighten-5);
 }
 
@@ -352,7 +353,7 @@ fieldset {
 }
 
 .overlay-is-visible {
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   bottom: 0;

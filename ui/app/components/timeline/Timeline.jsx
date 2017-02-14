@@ -17,24 +17,48 @@ const propTypes = {
 }
 
 class Timeline extends React.Component {
+  constructor (props) {
+    super(props)
+
+    this.loadTimeline = this.loadTimeline.bind(this)
+    this.mouseEnterTimer = null
+  }
+
   componentDidMount () {
-    // Create a stream from scrolling event
+    // Scrolling event stream for loading next/previous months
     Bacon
       .fromEvent(this.timeline, 'scroll')
       .debounce(100)
-      .onValue((event) => {
-        const node = event.target
+      .onValue(event => this.loadTimeline(event))
 
-        // Fetch previous month or current month's past days when scrolling to top
-        if (node.scrollTop === 0) {
-          this.props.timeline.preloadedItems.length
-            ? this.props.controller.getPreloadedMonth()
-            : this.props.controller.getPreviousMonth()
-        }
+    // Delayed mouseenter event stream to hide window scrollbar
+    Bacon
+      .fromEvent(this.timeline, 'mouseenter')
+      .onValue(() => {
+        this.mouseEnterTimer = setTimeout(() => {
+          const body = document.body
+          const scrollbarWidth = window.innerWidth - body.clientWidth
 
-        // Fetch next month when scrolling to bottom
-        if ((node.offsetHeight + node.scrollTop) === node.scrollHeight) {
-          this.props.controller.getNextMonth()
+          body.classList.add('overflow-hidden')
+          body.style.marginRight = `${scrollbarWidth}px`
+          document.querySelector('.menu-container').style.right = `${scrollbarWidth}px`
+          document.querySelector('.timeline-container').style.right = `${scrollbarWidth}px`
+        }, 200)
+      })
+
+    // Mouseleave event stream to display window scrollbar
+    Bacon
+      .fromEvent(this.timeline, 'mouseleave')
+      .onValue(() => {
+        clearTimeout(this.mouseEnterTimer)
+
+        const body = document.body
+
+        if (body.classList.contains('overflow-hidden')) {
+          body.classList.remove('overflow-hidden')
+          body.style.marginRight = 0
+          document.querySelector('.menu-container').style.right = 0
+          document.querySelector('.timeline-container').style.right = 0
         }
       })
   }
@@ -60,8 +84,29 @@ class Timeline extends React.Component {
       this.timeline.scrollTop = this.months.offsetTop
     }
 
-    // Autoload next months until timeline has more than 20 items
+    // Autoload next months until timeline has more than 10 items
     if (timeline.count < 10) {
+      this.props.controller.getNextMonth()
+    }
+  }
+
+  loadTimeline (event) {
+    const node = event.target
+
+    // TODO: Set loading trigger to 80px from top/bottom
+    console.log(event)
+
+    // Fetch previous month or current month's past days when scrolling to top
+    if (node.scrollTop === 0) {
+      this.props.timeline.preloadedItems.length
+        ? this.props.controller.getPreloadedMonth()
+        : this.props.controller.getPreviousMonth()
+    }
+
+    // Fetch next month when scrolling to the container's bottom
+    if ((node.offsetHeight + node.scrollTop) === node.scrollHeight) {
+      console.log('is at bottom')
+
       this.props.controller.getNextMonth()
     }
   }
@@ -82,8 +127,6 @@ class Timeline extends React.Component {
 
     const currentDate = moment().format(dateFormat)
 
-    // TODO: Block scrolling/tab focusing while loading OR block new fetches while loading
-
     return (
       <div>
         {/*Skeleton screen*/}
@@ -94,7 +137,7 @@ class Timeline extends React.Component {
 
         <div
           ref={timeline => (this.timeline = timeline)}
-          className={`${hasLoadingFailed ? '' : 'timeline-container'} timeline-line relative autohide-scrollbar
+          className={`timeline-viewport timeline-line relative
           ${isInitialLoad ? 'display-none' : ''}`}
         >
           <h2 className="hide">{translate('tapahtumatalkaen')} {currentDate}</h2>
@@ -118,15 +161,14 @@ class Timeline extends React.Component {
               className="timeline-line sm-center md-left-align lg-center relative"
             >
               {/*Months*/}
-              {items.map((month, index) =>
+              {items.map(month =>
                 <div
-                  ref={index === 0 ? firstMonth => (this.firstMonth = firstMonth) : ''}
                   key={`timelineMonth${month.month}${month.part ? `.${month.part}` : ''}.${month.year}`}
                   className="mb3"
                 >
                   <TimelineHeading month={month.month} year={month.year} />
 
-                  <div className="flex flex-column">
+                  <div className="flex flex-column pr2 sm-pl2 md-pl0 lg-pl2">
                     {/*Days*/}
                     {Object.keys(month.days || {}).map(key =>
                       <TimelineDay

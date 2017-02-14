@@ -2,21 +2,26 @@ import Bacon from 'baconjs'
 import R from 'ramda'
 import moment from 'moment'
 
+import view from './state/view'
+
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
 import { validate, rules } from './validation'
-import getData from './getData'
+import getData from './utils/getData'
+import createAlert from './utils/createAlert'
 import * as testData from './resources/test/testData.json'
 // import urls from './data/virkailijan-tyopoyta-urls.json'
 
 const dispatcher = new Dispatcher()
 
 const events = {
-  // View
-  updateView: 'updateView',
-  toggleViewCategory: 'toggleViewCategory',
-  toggleViewTab: 'toggleViewTab',
-  removeViewAlert: 'removeViewAlert',
+  view: {
+    update: 'update',
+    toggleCategory: 'toggleCategory',
+    toggleTab: 'toggleTab',
+    toggleMenu: 'toggleMenu',
+    removeAlert: 'removeAlert'
+  },
 
   // Editor
   addNotification: 'addNotification',
@@ -39,9 +44,6 @@ const events = {
   toggleDocumentPreview: 'toggleDocumentPreview',
   toggleHasSaveFailed: 'toggleHasSaveFailed',
   saveDocument: 'saveDocument',
-
-  // Menu
-  toggleMenu: 'toggleMenu',
 
   // Notifications
   toggleUnpublishedNotifications: 'toggleUnpublishedNotifications',
@@ -79,12 +81,6 @@ const failedTagsBus = new Bacon.Bus()
 
 function fetchNotifications () {
   console.log('Fetching releases')
-
-  const alert = createAlert({
-    type: 'error',
-    title: 'Julkaisujen haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
-  })
 
   getData({
     url: notificationsUrl,
@@ -165,25 +161,12 @@ function onCurrentMonthReceived (state, response) {
   return R.assocPath(['timeline', 'items'], [visibleMonth], stateWithCount)
 }
 
-function onNewMonthReceived (state, response) {
-
-}
-
-function onTimelineReceived (state, response) {
-  console.log('Received timeline')
-
-  const timeline = state.timeline
-  const dateFormat = timeline.dateFormat
-  let newItems = []
-
-  const newState = R.assocPath(['timeline', 'isLoading'], false, state)
-  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], false, newState)
-  const stateWithoutLoading = R.assocPath(['timeline', 'isInitialLoad'], false, stateWithFailedTimeline)
-
-  // On initial load
-  if (timeline.isInitialLoad) {
-    return onCurrentMonthReceived(stateWithoutLoading, response)
-  }
+function onNewMonthReceived (state, options) {
+  const {
+    response,
+    dateFormat,
+    timeline
+  } = options
 
   const requestedDateMoment = moment(`${response.month}.${response.year}`, dateFormat)
 
@@ -194,13 +177,13 @@ function onTimelineReceived (state, response) {
     const count = Object.keys(response.days).length || 1
     return timeline.count + count
   }
-  const stateWithCount = R.assocPath(['timeline', 'count'], newCount(), stateWithoutLoading)
+  const stateWithCount = R.assocPath(['timeline', 'count'], newCount(), state)
 
   // Returned date is before first month and year
   if (requestedDateMoment.isBefore(firstMonthMoment)) {
     // Set scrolling direction
     const newState = R.assocPath(['timeline', 'direction'], 'up', stateWithCount)
-    newItems = R.prepend(response, timeline.items)
+    const newItems = R.prepend(response, timeline.items)
 
     return R.assocPath(['timeline', 'items'], newItems, newState)
   } else {
@@ -209,9 +192,31 @@ function onTimelineReceived (state, response) {
     // Set scrolling direction
     const newState = R.assocPath(['timeline', 'direction'], 'down', stateWithCount)
 
-    newItems = R.append(response, timeline.items)
+    const newItems = R.append(response, timeline.items)
 
     return R.assocPath(['timeline', 'items'], newItems, newState)
+  }
+}
+
+function onTimelineReceived (state, response) {
+  console.log('Received timeline')
+
+  const timeline = state.timeline
+  const dateFormat = timeline.dateFormat
+
+  const newState = R.assocPath(['timeline', 'isLoading'], false, state)
+  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], false, newState)
+  const stateWithoutLoading = R.assocPath(['timeline', 'isInitialLoad'], false, stateWithFailedTimeline)
+
+  // On initial load
+  if (timeline.isInitialLoad) {
+    return onCurrentMonthReceived(stateWithoutLoading, response)
+  } else {
+    return onNewMonthReceived(stateWithoutLoading, {
+      response,
+      dateFormat,
+      timeline
+    })
   }
 }
 
@@ -269,58 +274,19 @@ function toggleValue (value, values) {
   return newValues
 }
 
-// VIEW
-
-function updateView (state, { prop, value }) {
-  console.log('Updating view', prop, value)
-
-  return R.assocPath(['view', prop], value, state)
-}
-
-function toggleViewCategory (state, category) {
-  console.log('Toggling view category', category)
-
-  const categories = state.view.categories
-  const newCategories = R.contains(category, categories)
-    ? R.reject(c => c === category, categories)
-    : R.append(category, categories)
-
-  return updateView(state, { prop: 'categories', value: newCategories })
-}
-
-function toggleViewTab (state, selectedTab) {
-  console.log('Toggling view tab', selectedTab)
-
-  return updateView(state, { prop: 'selectedTab', value: selectedTab })
-}
-
-function createAlert (options) {
-  // Use millisecond timestamp as ID
-  const id = Date.now()
-
-  return {
-    id,
-    ...options
-  }
-}
-
-function removeViewAlert (state, id) {
-  console.log('Removing alert with id', id)
-
-  const newAlerts = R.reject(alert => alert.id === id, state.view.alerts)
-
-  return updateView(state, { prop: 'alerts', value: newAlerts })
-}
-
 // EDITOR
 
 function toggleEditor (state, releaseId = -1, selectedTab = 'edit-notification') {
   const newState = R.assocPath(['editor', 'isVisible'], !state.editor.isVisible, state)
   const stateWithoutError = R.assocPath(['editor', 'hasSaveFailed'], false, newState)
 
+  document.body.classList.add('overflow-hidden')
+
   // Toggle preview mode off and clear editor when closing
   if (state.editor.isVisible) {
     console.log('Closing editor')
+
+    document.body.classList.remove('overflow-hidden')
 
     const stateWithClearedEditor = clearEditor(stateWithoutError)
     const stateWithoutLoading = R.assocPath(['editor', 'isLoading'], false, stateWithClearedEditor)
@@ -654,16 +620,18 @@ function emptyRelease () {
   }
 }
 
-// MENU
-
-function toggleMenu (state) {
-  return R.assocPath(['menu', 'isMobileMenuVisible'], !state.menu.isMobileMenuVisible, state)
-}
-
 // NOTIFICATIONS
 
 function toggleUnpublishedNotifications (state, releaseId) {
   console.log('Toggling unpublished notifications')
+
+  const body = document.body
+
+  if (state.unpublishedNotifications.isVisible) {
+    body.classList.remove('overflow-hidden')
+  } else {
+    body.classList.add('overflow-hidden')
+  }
 
   const newState = R.assocPath(
     ['unpublishedNotifications', 'isVisible'],
@@ -847,15 +815,13 @@ export function initAppState () {
     locale: 'fi',
     dateFormat: 'D.M.YYYY',
     categories: testData.viewCategories,
-    menu: {
-      isMobileMenuVisible: false
-    },
     view: {
       categories: [],
       startDate: '',
       endDate: '',
       selectedTab: 'notifications',
-      alerts: []
+      alerts: [],
+      isMobileMenuVisible: false
     },
     releases: [],
     notifications: {
@@ -899,10 +865,11 @@ export function initAppState () {
     initialState,
 
     // View
-    [dispatcher.stream(events.updateView)], updateView,
-    [dispatcher.stream(events.toggleViewCategory)], toggleViewCategory,
-    [dispatcher.stream(events.toggleViewTab)], toggleViewTab,
-    [dispatcher.stream(events.removeViewAlert)], removeViewAlert,
+    [dispatcher.stream(events.view.update)], view.update,
+    [dispatcher.stream(events.view.toggleCategory)], view.toggleCategory,
+    [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
+    [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
+    [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,
 
     // Editor
     [dispatcher.stream(events.toggleEditor)], toggleEditor,
@@ -922,9 +889,6 @@ export function initAppState () {
     [dispatcher.stream(events.toggleDocumentPreview)], toggleDocumentPreview,
     [dispatcher.stream(events.toggleHasSaveFailed)], toggleHasSaveFailed,
     [dispatcher.stream(events.saveDocument)], saveDocument,
-
-    // Menu
-    [dispatcher.stream(events.toggleMenu)], toggleMenu,
 
     // Notifications
     [dispatcher.stream(events.toggleUnpublishedNotifications)], toggleUnpublishedNotifications,

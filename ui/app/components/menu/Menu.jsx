@@ -30,7 +30,7 @@ function Menu (props) {
   const hasUnpublishedNotifications = unpublishedNotifications.length
 
   return (
-    <div>
+    <div className="menu-container">
       {/*Skeleton screen*/}
       <div
         className={`col-12 py3 border-bottom border-gray-lighten-2 ${notificationsLoaded ? '' : 'display-none'}`}
@@ -61,7 +61,7 @@ function Menu (props) {
               htmlId="view-category"
               options={categories}
               selectedOptions={selectedCategories}
-              onChange={controller.toggleViewCategory}
+              onChange={controller.view.toggleCategory}
             />
           </fieldset>
 

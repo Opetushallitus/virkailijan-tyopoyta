@@ -12,7 +12,7 @@ import { translate } from '../common/Translations'
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  notifications: PropTypes.object.isRequired,
+  notifications: PropTypes.object.isRequired
 }
 
 // Get quick selection tags
@@ -98,7 +98,7 @@ class Notifications extends React.Component {
         </div>
 
         <div
-          className={`notifications pr2 autohide-scrollbar ${isInitialLoad ? 'display-none' : ''}`}
+          className={`notifications ${isInitialLoad ? 'display-none' : ''}`}
           ref={notifications => { this.notifications = notifications }}
         >
           {items.map(notification =>

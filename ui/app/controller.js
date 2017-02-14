@@ -1,13 +1,15 @@
 export function initController (dispatcher, events) {
-  // VIEW
+  const view = {
+    update: (prop, value) => dispatcher.push(events.view.update, { prop: prop, value: value }),
 
-  const updateView = (prop, value) => dispatcher.push(events.updateView, { prop: prop, value: value })
+    toggleCategory: category => dispatcher.push(events.view.toggleCategory, category),
 
-  const toggleViewCategory = category => dispatcher.push(events.toggleViewCategory, category)
+    toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
 
-  const toggleViewTab = selectedTab => dispatcher.push(events.toggleViewTab, selectedTab)
+    toggleMenu: () => dispatcher.push(events.view.toggleMenu),
 
-  const removeViewAlert = id => dispatcher.push(events.removeViewAlert, id)
+    removeAlert: id => dispatcher.push(events.view.removeAlert, id)
+  }
 
   // EDITOR
 
@@ -53,7 +55,6 @@ export function initController (dispatcher, events) {
 
   // MENU
 
-  const toggleMenu = () => dispatcher.push(events.toggleMenu)
 
   // NOTIFICATIONS
 
@@ -83,10 +84,13 @@ export function initController (dispatcher, events) {
 
   return {
     // View
-    updateView: updateView,
-    toggleViewCategory: toggleViewCategory,
-    toggleViewTab: toggleViewTab,
-    removeViewAlert: removeViewAlert,
+    view: {
+      update: view.update,
+      toggleCategory: view.toggleCategory,
+      toggleTab: view.toggleTab,
+      removeAlert: view.removeAlert,
+      toggleMenu: view.toggleMenu
+    },
 
     // Editor
     toggleEditor: toggleEditor,
@@ -106,9 +110,6 @@ export function initController (dispatcher, events) {
     toggleDocumentPreview: toggleDocumentPreview,
     toggleHasSaveFailed: toggleHasSaveFailed,
     saveDocument: saveDocument,
-
-    // Menu
-    toggleMenu: toggleMenu,
 
     // Notifications
     getNotifications: getNotifications,

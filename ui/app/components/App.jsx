@@ -16,8 +16,6 @@ import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
 import Modal from './common/Modal'
-import Spinner from './common/Spinner'
-import Delay from './common/Delay'
 import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
@@ -114,10 +112,11 @@ class App extends React.Component {
           {state.view.alerts.map(alert =>
             <Alert
               key={alert.id}
+              id={alert.id}
               type={alert.type}
               title={alert.title}
               text={alert.text}
-              onCloseButtonClick={() => controller.removeViewAlert(alert.id)}
+              onCloseButtonClick={controller.view.removeAlert}
             />
           )}
         </div>
@@ -133,34 +132,34 @@ class App extends React.Component {
             selectedCategories={state.view.categories}
             notificationsLoaded={state.notifications.isInitialLoad}
             unpublishedNotifications={state.unpublishedNotifications.items}
-            isMobileMenuVisible={state.menu.isMobileMenuVisible}
+            isMobileMenuVisible={state.view.isMobileMenuVisible}
           />
 
-          {/*Notification/timeline view selection for small screens*/}
-          <Tabs className="md-hide lg-hide sm-mt3">
-            <TabItem
-              className="sm-col-6"
-              name="notifications"
-              selectedTab={selectedTab}
-              onClick={controller.toggleViewTab}
-            >
-              {translate('tiedotteet')}
-            </TabItem>
+          <div className={`content content-has-menu flex flex-wrap col-12`}>
+            {/*Notification/timeline view selection for small screens*/}
+            <Tabs className="md-hide lg-hide">
+              <TabItem
+                className="sm-col-6"
+                name="notifications"
+                selectedTab={selectedTab}
+                onClick={controller.view.toggleTab}
+              >
+                {translate('tiedotteet')}
+              </TabItem>
 
-            <TabItem
-              className="sm-col-6"
-              name="timeline"
-              selectedTab={selectedTab}
-              onClick={controller.toggleViewTab}
-            >
-              {translate('aikajana')}
-            </TabItem>
-          </Tabs>
+              <TabItem
+                className="sm-col-6"
+                name="timeline"
+                selectedTab={selectedTab}
+                onClick={controller.view.toggleTab}
+              >
+                {translate('aikajana')}
+              </TabItem>
+            </Tabs>
 
-          <div className="flex flex-wrap col-12 mt3">
             {/*Notifications*/}
             <section
-              className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
+              className={`col-12 md-col-7 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
               <div className="alert alert-warning block mb3 py2">
                 Haku ei ole vielä toiminnassa
@@ -174,7 +173,7 @@ class App extends React.Component {
             </section>
 
             {/*Timeline*/}
-            <section className="col-12 md-col-5 md-pl2">
+            <section className="timeline-container">
               <Timeline
                 controller={controller}
                 locale={state.locale}
