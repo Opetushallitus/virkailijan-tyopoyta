@@ -1,7 +1,8 @@
 [
   {
     "id": 5,
-    "sendEmail": false,
+    "createdBy": 0,
+    "createdAt": "29.12.2016 13:27:00",
     "notification": {
       "id": 5,
       "releaseId": 5,
@@ -36,7 +37,8 @@
   },
   {
     "id": 1,
-    "sendEmail": false,
+    "createdBy": 0,
+    "createdAt": "29.12.2016 13:27:00",
     "notification": {
       "id": 1,
       "releaseId": 1,
@@ -71,7 +73,8 @@
   },
   {
     "id": 2,
-    "sendEmail": false,
+    "createdBy": 0,
+    "createdAt": "29.12.2016 13:27:00",
     "notification": {
       "id": 2,
       "releaseId": 2,
@@ -93,7 +96,8 @@
   },
   {
     "id": 3,
-    "sendEmail": false,
+    "createdBy": 0,
+    "createdAt": "29.12.2016 13:27:00",
     "notification": {
       "id": 3,
       "releaseId": 3,
@@ -128,7 +132,8 @@
   },
   {
     "id": 4,
-    "sendEmail": false,
+    "createdBy": 0,
+    "createdAt": "29.12.2016 13:27:00",
     "notification": {
       "id": 4,
       "releaseId": 4,

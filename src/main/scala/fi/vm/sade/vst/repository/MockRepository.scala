@@ -1,13 +1,11 @@
 package fi.vm.sade.vst.repository
 
-import java.io.File
-import java.time.{LocalDate, MonthDay, YearMonth}
+import java.time.{LocalDate, YearMonth}
 
-import fi.vm.sade.vst.model._
-import fi.vm.sade.vst.model.JsonSupport
+import fi.vm.sade.vst.model.{JsonSupport, ReleaseUpdate, _}
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.collection.immutable.{ListMap, Seq}
+import scala.collection.immutable.{ListMap, Seq => Seq}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Random
@@ -55,13 +53,15 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     notification.copy(id = nextNotificationId, releaseId = releaseId)
   }
 
-  def addRelease(release: Release): Future[Release] = {
-    println("Received release: "+ release)
+  override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
+    println("Received release: "+ releaseUpdate)
     val id = nextReleaseId()
-    val persistedRelease = release.copy(
-      id = id,
-      notification = release.notification.map(persistNotification(id, _))
-    )
+    val persistedRelease =
+      Release(id = id,
+        notification = releaseUpdate.notification.map(persistNotification(id, _)),
+        timeline = releaseUpdate.timeline, categories = releaseUpdate.categories,
+        createdBy = 0, createdAt = LocalDate.now())
+
     releases.set(sortReleasesByPublishDate(releases.get() + (id -> persistedRelease)))
     Future{persistedRelease}
   }
@@ -113,22 +113,34 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   }
   def generateRelease(id: Long, month: YearMonth): Release ={
     val notificationId = 1
-    val startDay = Random.nextInt((month.atEndOfMonth().getDayOfMonth-1))+1
+    val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
     val startDate = month.atDay(startDay)
-    val endDate = month.atDay(Random.nextInt((month.atEndOfMonth().getDayOfMonth-startDay))+startDay)
+    val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
     println(startDate, endDate)
     val notificationContent = NotificationContent(id,"fi",month+"-"+startDay+" Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
 
-    val notification = Notification(id,id,startDate,Option(endDate),Option(startDate),Map(("fi"->notificationContent)))
-    Release(id,false,Option(notification),Seq(generateTimeLine(id,startDate,endDate)))
+    val notification = Notification(id,id,startDate,Option(endDate),Option(startDate),Map("fi" -> notificationContent))
+    Release(id = id,
+      notification = Some(notification),
+      timeline = Seq(generateTimeLine(id,startDate,endDate)),
+      createdBy = 0,
+      createdAt = LocalDate.now()
+      )
   }
 
   def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): TimelineItem = {
 
-    val day = Random.nextInt((endDate.getDayOfMonth-startDate.getDayOfMonth+1))+startDate.getDayOfMonth
-    println(startDate, endDate,(endDate.getDayOfMonth-startDate.getDayOfMonth),day)
+    val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1)+startDate.getDayOfMonth
+    println(startDate, endDate, endDate.getDayOfMonth - startDate.getDayOfMonth,day)
     val publisDate = LocalDate.of(startDate.getYear, startDate.getMonth, day)
     val timelineContent = TimelineContent(releaseId,"fi", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
-    TimelineItem(releaseId,releaseId,publisDate,Map(("fi"->timelineContent)))
+    TimelineItem(releaseId,releaseId,publisDate,Map("fi" -> timelineContent))
+  }
+
+  override def deleteRelease(id: Long): Future[Int] = {
+    Future{
+      releases.set(releases.get() - id)
+      1
+    }
   }
 }

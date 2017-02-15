@@ -77,14 +77,19 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
 
     } ~
     post {
-      path("releases") {
+      path("release") {
         entity(as[String]) { json =>
-          val release = parseRelease(json)
+          val release = parseReleaseUpdate(json)
           release match {
             case Some(r) => sendResponse(releaseRepository.addRelease(r))
             case None => complete(StatusCodes.BadRequest)
           }
         }
+      }
+    } ~
+    delete {
+      path("releases"){
+        entity(as[String]) { id => sendResponse(releaseRepository.deleteRelease(id.toLong)) }
       }
     }
   }
