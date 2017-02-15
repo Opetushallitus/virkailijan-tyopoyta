@@ -61,7 +61,8 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
 
   import fi.vm.sade.vst.service.EmailService
   def sendInstantEmails(release: Release) = {
-    if (release.sendEmail) EmailService.sendEmails(Vector(release))
+    // Release.sendEmail seems to have been removed and no replacement is given, rethink this part
+    if (true) EmailService.sendEmails(Vector(release))
     release
   }
 
@@ -83,7 +84,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           (categories, year, month) => sendResponse(releaseRepository.timeline(categories, parseMonth(year, month)))
         }
       } ~
-      path("tags"){sendResponse(releaseRepository.tags())} ~
+      path("tags"){sendResponse(releaseRepository.tags)} ~
       path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases)))} ~
       path("generate"){
         parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {

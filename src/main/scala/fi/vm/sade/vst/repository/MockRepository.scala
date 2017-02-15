@@ -55,14 +55,14 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
     println("Received release: "+ releaseUpdate)
-    val id = nextReleaseId()
+    val id = nextReleaseId
     val persistedRelease =
       Release(id = id,
         notification = releaseUpdate.notification.map(persistNotification(id, _)),
         timeline = releaseUpdate.timeline, categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
-    releasesMap.set(sortReleasesByPublishDate(releases.get() + (id -> persistedRelease)))
+    releasesMap.set(sortReleasesByPublishDate(releasesMap.get() + (id -> persistedRelease)))
     Future{persistedRelease}
   }
 
@@ -109,9 +109,9 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     for( a <- 1 to amount){
       val id = nextReleaseId
       val release = generateRelease(id, month)
-      releases.set(sortReleasesByPublishDate(releases.get() + (id -> release)))
+      releasesMap.set(sortReleasesByPublishDate(releasesMap.get() + (id -> release)))
     }
-    Future(releases.get().values.toList)
+    Future(releasesMap.get().values.toList)
   }
 
   def generateRelease(id: Long, month: YearMonth): Release ={
@@ -142,7 +142,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def deleteRelease(id: Long): Future[Int] = {
     Future{
-      releases.set(releases.get() - id)
+      releasesMap.set(releasesMap.get() - id)
       1
     }
   }

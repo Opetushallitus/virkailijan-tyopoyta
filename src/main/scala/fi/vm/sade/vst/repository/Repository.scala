@@ -220,9 +220,9 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
   }
 
 
-  def tags(): Future[Seq[Tag]] = Future{withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply}
+  def tags: Future[Seq[Tag]] = Future{withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply}
 
-  def categories(): Future[Seq[Category]] = Future {
+  def categories: Future[Seq[Category]] = Future {
     withSQL{select.from(CategoryTable as cat)}.map(CategoryTable(cat)).list.apply
   }
 
@@ -248,6 +248,12 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
       release.map(r => r.copy(
         notification = notificationForRelease(r),
         timeline = timelineForRelease(r)))
+    }
+  }
+
+  def releases: Future[Iterable[Release]] = {
+    Future {
+      withSQL(select.from(ReleaseTable as r)).map(ReleaseTable(r)).list.apply
     }
   }
 
