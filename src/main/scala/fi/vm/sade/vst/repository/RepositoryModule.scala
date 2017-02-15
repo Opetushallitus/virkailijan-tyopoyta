@@ -7,7 +7,5 @@ trait RepositoryModule extends Configuration {
   import com.softwaremill.macwire._
 
   lazy val releaseRepository: ReleaseRepository = wire[MockRepository]
-
-//  lazy val repo = wire[ReleaseRepo]
-
+  lazy val migrations: Migrations = wire[Migrations]
 }

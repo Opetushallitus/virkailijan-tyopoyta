@@ -14,7 +14,7 @@ class Server(routes: Routes, config: ServerConfig) {
 
   lazy val port = config.port
 
-  def run(): Unit = {
+  def start(): Unit = {
     val handler = Http().bindAndHandle(routes.routes, "localhost", port)
 
     handler.failed.foreach {case ex : Exception => println(ex, "Failed to bind to port")}

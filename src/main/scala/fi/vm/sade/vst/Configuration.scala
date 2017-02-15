@@ -31,10 +31,8 @@ trait Configuration {
 
   private lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
 
-//  lazy val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig[JdbcProfile]("postgres", config)
-
   lazy val dBConfig: DBConfig = DBConfig(
-    config.getString("db.url"),
+    config.getString("db.uri"),
     config.getString("db.username"),
     config.getString("db.password"),
     config.getInt("db.page.length"))

@@ -18,5 +18,8 @@ trait ReleaseRepository{
   def release(id: Long): Future[Option[Release]]
   def releases: Future[Iterable[Release]]
 
-  def addRelease(release: Release) : Future[Release]
+  def deleteRelease(id: Long): Future[Int]
+  def addRelease(release: ReleaseUpdate) : Future[Release]
+
+  def generateReleases(amount: Int, month: YearMonth) : Future[Seq[Release]]
 }

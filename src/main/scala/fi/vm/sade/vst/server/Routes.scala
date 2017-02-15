@@ -83,20 +83,29 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           (categories, year, month) => sendResponse(releaseRepository.timeline(categories, parseMonth(year, month)))
         }
       } ~
-      path("tags"){sendResponse(releaseRepository.tags)} ~
-//      path("emailhtml"){sendHtml(releaseRepository.getReleases.map(releases => EmailHtmlService.htmlString(DateTime.now, releases, "fi")))}
-      path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases)))}
+      path("tags"){sendResponse(releaseRepository.tags())} ~
+      path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases)))} ~
+      path("generate"){
+        parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
+          (amount, year, month) => sendResponse(releaseRepository.generateReleases(amount, parseMonth(year, month)))
+        }
+      }
 
     } ~
     post {
-      path("releases") {
+      path("release") {
         entity(as[String]) { json =>
-          val release = parseRelease(json)
+          val release = parseReleaseUpdate(json)
           release match {
             case Some(r) => sendResponse(releaseRepository.addRelease(r).map(sendInstantEmails))
             case None => complete(StatusCodes.BadRequest)
           }
         }
+      }
+    } ~
+    delete {
+      path("releases"){
+        entity(as[String]) { id => sendResponse(releaseRepository.deleteRelease(id.toLong)) }
       }
     }
   }
