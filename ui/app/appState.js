@@ -62,6 +62,7 @@ const events = {
 
 // const authUrl = '/virkailijan-tyopoyta/login'
 const notificationsUrl = '/virkailijan-tyopoyta/api/notifications'
+const releaseUrl = '/virkailijan-tyopoyta/api/release'
 const tagsUrl = '/virkailijan-tyopoyta/api/tags'
 const timelineUrl = '/virkailijan-tyopoyta/api/timeline'
 
@@ -535,7 +536,7 @@ function saveDocument (state) {
   console.log('Saving document')
 
   getData({
-    url: notificationsUrl,
+    url: releaseUrl,
     requestOptions: {
       method: 'POST',
       dataType: 'json',
