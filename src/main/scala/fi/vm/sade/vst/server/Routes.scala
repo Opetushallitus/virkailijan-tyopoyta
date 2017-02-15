@@ -1,24 +1,21 @@
 package fi.vm.sade.vst.server
 
-
-import java.time.YearMonth
-
-import akka.http.scaladsl.model.MediaTypes.`application/json`
+import akka.http.scaladsl.marshalling.ToResponseMarshallable
+import akka.http.scaladsl.model.ContentTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
+import com.softwaremill.session._
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
-import com.softwaremill.session._
-import fi.vm.sade.vst.model.JsonSupport
+import fi.vm.sade.vst.model.{Release, JsonSupport}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.AuthenticationService
+import java.time.YearMonth
 import play.api.libs.json.{Json, Writes}
-
-import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
 
 class Routes(authenticationService: AuthenticationService, releaseRepository: ReleaseRepository) extends Directives with JsonSupport {
 
@@ -51,6 +48,23 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
     case _ => YearMonth.now()
   }
 
+  def sendHtml[T](eventualResult: Future[T]): Route = {
+    onComplete(eventualResult) {
+      case Success(result) ⇒
+        complete{
+          HttpResponse(entity = HttpEntity(`text/html(UTF-8)`, result.toString))
+        }
+      case Failure(e) ⇒
+        complete(ToResponseMarshallable(s"Error: $e"))
+    }
+  }
+
+  import fi.vm.sade.vst.service.EmailService
+  def sendInstantEmails(release: Release) = {
+    if (release.sendEmail) EmailService.sendEmails(Vector(release))
+    release
+  }
+
   val apiRoutes: Route = {
     get{
       path("release"){
@@ -63,12 +77,15 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
         }
       } ~
-      path("categories"){sendResponse(releaseRepository.categories())} ~
+      path("categories"){sendResponse(releaseRepository.categories)} ~
       path("timeline"){
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
           (categories, year, month) => sendResponse(releaseRepository.timeline(categories, parseMonth(year, month)))
-        }} ~
-      path("tags"){sendResponse(releaseRepository.tags())}
+        }
+      } ~
+      path("tags"){sendResponse(releaseRepository.tags)} ~
+//      path("emailhtml"){sendHtml(releaseRepository.getReleases.map(releases => EmailHtmlService.htmlString(DateTime.now, releases, "fi")))}
+      path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases)))}
 
     } ~
     post {
@@ -76,7 +93,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
         entity(as[String]) { json =>
           val release = parseRelease(json)
           release match {
-            case Some(r) => sendResponse(releaseRepository.addRelease(r))
+            case Some(r) => sendResponse(releaseRepository.addRelease(r).map(sendInstantEmails))
             case None => complete(StatusCodes.BadRequest)
           }
         }

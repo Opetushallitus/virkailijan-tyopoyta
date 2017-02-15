@@ -13,9 +13,10 @@ trait ReleaseRepository{
 
   def notifications(categories: RowIds, tags: RowIds, page: Int) : Future[Seq[Notification]]
   def timeline(categories: RowIds, month: YearMonth) : Future[Timeline]
-  def tags() : Future[Seq[Tag]]
-  def categories() : Future[Seq[Category]]
+  def tags: Future[Seq[Tag]]
+  def categories: Future[Seq[Category]]
   def release(id: Long): Future[Option[Release]]
+  def releases: Future[Iterable[Release]]
 
   def addRelease(release: Release) : Future[Release]
 }

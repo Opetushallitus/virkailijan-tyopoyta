@@ -34,3 +34,5 @@ case class Category(id: Long, name: String)
 case class ReleaseCategory(releaseId: Long, categoryId: Long)
 
 case class Timeline(month: Int, year: Int, days: Map[String,Seq[TimelineItem]] = Map.empty)
+
+case class EmailEvent(id: Long, createdDate: LocalDate, releaseRid: Long, eventType: String)
