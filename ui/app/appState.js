@@ -89,12 +89,13 @@ function fetchNotifications () {
   })
 }
 
-function fetchTimeline (month, year) {
+function fetchTimeline (options) {
   console.log('Fetching timeline')
 
-  const currentTime = new Date()
-  year = year || currentTime.getFullYear()
-  month = month || currentTime.getMonth() + 1
+  const {
+    month,
+    year
+  } = options
 
   getData({
     url: timelineUrl,
@@ -118,7 +119,7 @@ function fetchTags () {
 }
 
 function onNotificationsReceived (state, response) {
-  console.log('Received notifications: ')
+  console.log('Received notifications')
 
   const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
   const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
@@ -177,24 +178,26 @@ function onNewMonthReceived (state, options) {
     const count = Object.keys(response.days).length || 1
     return timeline.count + count
   }
+
   const stateWithCount = R.assocPath(['timeline', 'count'], newCount(), state)
 
   // Returned date is before first month and year
   if (requestedDateMoment.isBefore(firstMonthMoment)) {
-    // Set scrolling direction
     const newState = R.assocPath(['timeline', 'direction'], 'up', stateWithCount)
+    const stateWithoutLoading = R.assocPath(['timeline', 'isLoadingPrevious'], false, newState)
+
     const newItems = R.prepend(response, timeline.items)
 
-    return R.assocPath(['timeline', 'items'], newItems, newState)
+    return R.assocPath(['timeline', 'items'], newItems, stateWithoutLoading)
   } else {
     // Returned date is after last month and year
 
-    // Set scrolling direction
     const newState = R.assocPath(['timeline', 'direction'], 'down', stateWithCount)
+    const stateWithoutLoading = R.assocPath(['timeline', 'isLoadingNext'], false, newState)
 
     const newItems = R.append(response, timeline.items)
 
-    return R.assocPath(['timeline', 'items'], newItems, newState)
+    return R.assocPath(['timeline', 'items'], newItems, stateWithoutLoading)
   }
 }
 
@@ -204,11 +207,9 @@ function onTimelineReceived (state, response) {
   const timeline = state.timeline
   const dateFormat = timeline.dateFormat
 
-  const newState = R.assocPath(['timeline', 'isLoading'], false, state)
-  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], false, newState)
-  const stateWithoutLoading = R.assocPath(['timeline', 'isInitialLoad'], false, stateWithFailedTimeline)
+  const newState = R.assocPath(['timeline', 'hasLoadingFailed'], false, state)
+  const stateWithoutLoading = R.assocPath(['timeline', 'isInitialLoad'], false, newState)
 
-  // On initial load
   if (timeline.isInitialLoad) {
     return onCurrentMonthReceived(stateWithoutLoading, response)
   } else {
@@ -227,13 +228,14 @@ function onTimelineFailed (state) {
     text: 'Päivitä sivu hakeaksesi uudelleen'
   })
 
-  const newState = R.assocPath(['timeline', 'isInitialLoad'], false, state)
-  const stateWithoutLoading = R.assocPath(['timeline', 'isLoading'], false, newState)
-  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], true, stateWithoutLoading)
+  const newState = R.assocPath(['timeline', 'isLoadingNext'], false, state)
+  const stateWithoutLoadingPrevious = R.assocPath(['timeline', 'isLoadingPrevious'], false, newState)
+  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], true, stateWithoutLoadingPrevious)
+  const stateIsReady = R.assocPath(['timeline', 'isInitialLoad'], false, stateWithFailedTimeline)
 
   alertsBus.push(alert)
 
-  return stateWithFailedTimeline
+  return stateIsReady
 }
 
 function onTagsReceived (state, tags) {
@@ -754,8 +756,19 @@ function getPreloadedMonth (state) {
   return R.assocPath(['timeline', 'items'], newItems, stateWithoutPreloadedItems)
 }
 
+// Check if month is same as newMonth
+function isSameMonth (month, newMonth) {
+  console.log(month, newMonth)
+
+  return month.month === parseInt(newMonth.month) &&
+    month.year === parseInt(newMonth.year)
+}
+
 function getPreviousMonth (state) {
-  console.log('Get previous month')
+  // Check if previous month is already being fetched
+  if (state.timeline.isLoadingPrevious) {
+    return state
+  }
 
   const timeline = state.timeline
   const firstMonth = R.head(timeline.items)
@@ -767,13 +780,18 @@ function getPreviousMonth (state) {
     amount: 1
   })
 
-  fetchTimeline(previousMonthAndYear.month, previousMonthAndYear.year)
+  console.log('Get previous month', previousMonthAndYear.month, previousMonthAndYear.year)
 
-  return state
+  fetchTimeline(previousMonthAndYear)
+
+  return R.assocPath(['timeline', 'isLoadingPrevious'], true, state)
 }
 
 function getNextMonth (state) {
-  console.log('Get next month')
+  // Check if next month is already being fetched
+  if (state.timeline.isLoadingNext) {
+    return state
+  }
 
   const timeline = state.timeline
   const lastMonth = R.last(timeline.items)
@@ -785,9 +803,11 @@ function getNextMonth (state) {
     amount: 1
   })
 
-  fetchTimeline(nextMonthAndYear.month, nextMonthAndYear.year)
+  console.log('Get next month', nextMonthAndYear.month, nextMonthAndYear.year)
 
-  return state
+  fetchTimeline(nextMonthAndYear)
+
+  return R.assocPath(['timeline', 'isLoadingNext'], true, state)
 }
 
 export function initAppState () {
@@ -799,7 +819,10 @@ export function initAppState () {
 
     fetchNotifications()
     fetchTags()
-    fetchTimeline(month, year)
+    fetchTimeline({
+      month,
+      year
+    })
 
     return R.assoc('user', response, state)
   }
@@ -842,7 +865,8 @@ export function initAppState () {
       preloadedItems: [],
       count: 0,
       dateFormat: 'M.YYYY',
-      isLoading: true,
+      isLoadingNext: false,
+      isLoadingPrevious: false,
       isInitialLoad: true,
       hasLoadingFailed: false
     },

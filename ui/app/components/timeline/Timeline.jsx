@@ -22,6 +22,10 @@ class Timeline extends React.Component {
 
     this.loadTimeline = this.loadTimeline.bind(this)
     this.mouseEnterTimer = null
+
+    this.state = {
+      previousScrollTop: 0
+    }
   }
 
   componentDidMount () {
@@ -64,7 +68,7 @@ class Timeline extends React.Component {
   }
 
   // Only update if timeline items has changed or loading has failed
-  shouldComponentUpdate (nextProps) {
+  shouldComponentUpdate (nextProps, nextState) {
     const newTimeline = nextProps.timeline
     const timeline = this.props.timeline
 
@@ -93,20 +97,19 @@ class Timeline extends React.Component {
   loadTimeline (event) {
     const node = event.target
 
-    // TODO: Set loading trigger to 80px from top/bottom
-    console.log(event)
+    if (this.props.timeline.hasLoadingFailed) {
+      return
+    }
 
-    // Fetch previous month or current month's past days when scrolling to top
-    if (node.scrollTop === 0) {
+    // Get previous month or current month's past days when scrolling above the first month
+    if (node.scrollTop < this.months.offsetTop) {
       this.props.timeline.preloadedItems.length
         ? this.props.controller.getPreloadedMonth()
         : this.props.controller.getPreviousMonth()
     }
 
-    // Fetch next month when scrolling to the container's bottom
-    if ((node.offsetHeight + node.scrollTop) === node.scrollHeight) {
-      console.log('is at bottom')
-
+    // Get next month when scrolling to spinner
+    if ((node.offsetHeight + node.scrollTop) >= (node.scrollHeight - this.nextMonthSpinner.clientHeight)) {
       this.props.controller.getNextMonth()
     }
   }
@@ -154,7 +157,9 @@ class Timeline extends React.Component {
           <div
             className={`timeline timeline-line relative ${isInitialLoad ? 'display-none' : ''}`}
           >
-            <Spinner isVisible={!hasLoadingFailed} />
+            <div className="my3">
+              <Spinner isVisible={!hasLoadingFailed} />
+            </div>
 
             <div
               ref={months => (this.months = months)}
@@ -183,7 +188,12 @@ class Timeline extends React.Component {
                 </div>
               )}
 
-              <Spinner isVisible={!hasLoadingFailed} />
+              <div
+                className="py3"
+                ref={nextMonthSpinner => (this.nextMonthSpinner = nextMonthSpinner)}
+              >
+                <Spinner isVisible={!hasLoadingFailed} />
+              </div>
             </div>
           </div>
         </div>

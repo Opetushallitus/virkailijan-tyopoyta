@@ -107,6 +107,18 @@ class App extends React.Component {
 
     return (
       <div>
+        {/*Menu*/}
+        <Menu
+          controller={controller}
+          locale={state.locale}
+          dateFormat={state.dateFormat}
+          categories={state.categories}
+          selectedCategories={state.view.categories}
+          notificationsLoaded={state.notifications.isInitialLoad}
+          unpublishedNotifications={state.unpublishedNotifications.items}
+          isMobileMenuVisible={state.view.isMobileMenuVisible}
+        />
+
         {/*Alerts*/}
         <div className="box-shadow">
           {state.view.alerts.map(alert =>
@@ -122,20 +134,8 @@ class App extends React.Component {
         </div>
 
         {/*Content*/}
-        <div className="container mx-auto">
-          {/*Menu*/}
-          <Menu
-            controller={controller}
-            locale={state.locale}
-            dateFormat={state.dateFormat}
-            categories={state.categories}
-            selectedCategories={state.view.categories}
-            notificationsLoaded={state.notifications.isInitialLoad}
-            unpublishedNotifications={state.unpublishedNotifications.items}
-            isMobileMenuVisible={state.view.isMobileMenuVisible}
-          />
-
-          <div className={`content content-has-menu flex flex-wrap col-12`}>
+        <div className="container content content-has-menu mx-auto">
+          <div className={`flex flex-wrap col-12`}>
             {/*Notification/timeline view selection for small screens*/}
             <Tabs className="md-hide lg-hide">
               <TabItem
@@ -173,7 +173,7 @@ class App extends React.Component {
             </section>
 
             {/*Timeline*/}
-            <section className="timeline-container">
+            <section className={`timeline-container ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
               <Timeline
                 controller={controller}
                 locale={state.locale}
