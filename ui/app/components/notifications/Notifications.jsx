@@ -12,8 +12,7 @@ import { translate } from '../common/Translations'
 const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  notifications: PropTypes.object.isRequired,
-  isInitialLoad: PropTypes.bool.isRequired
+  notifications: PropTypes.object.isRequired
 }
 
 // Get quick selection tags
@@ -48,12 +47,12 @@ class Notifications extends React.Component {
     const {
       controller,
       locale,
-      notifications,
-      isInitialLoad
+      notifications
     } = this.props
 
     const {
       isLoading,
+      isInitialLoad,
       items,
       expanded,
       tags,
@@ -65,66 +64,64 @@ class Notifications extends React.Component {
 
     return (
       <div>
+        <h2 className="hide">{translate('tiedotteet')}</h2>
+
+        <NotificationTagSelect
+          locale={locale}
+          options={tags}
+          selectedOptions={selectedTags}
+          controller={controller}
+          isInitialLoad={isInitialLoad}
+          isLoading={tagsLoading}
+        />
+
+        <div
+          className={`notification-tag-select-container mb3 border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right
+          ${isInitialLoad || tagsLoading || tags.length === 0 ? 'p3' : 'pt2 px2 pb1'}`}
+        >
+          {
+            isInitialLoad || tagsLoading || tags.length === 0
+              ? null
+              : <QuickTagSelect
+                locale={locale}
+                options={quickTags}
+                selectedOptions={selectedTags}
+                controller={controller}
+              />
+          }
+        </div>
+
         {/*Skeleton screen*/}
         <div className={isInitialLoad ? '' : 'display-none'}>
-          <div className="mb3 p3 border border-gray-lighten-2 rounded" />
-
-          <div className="mb3 p3 rounded bg-white box-shadow" />
           <div className="mb3 p3 rounded bg-white box-shadow" />
           <div className="mb3 p3 rounded bg-white box-shadow" />
         </div>
 
-        <div className={isInitialLoad ? 'display-none' : ''}>
-          <h2 className="hide">{translate('tiedotteet')}</h2>
-
-          <NotificationTagSelect
-            locale={locale}
-            options={tags}
-            selectedOptions={selectedTags}
-            controller={controller}
-            isLoading={tagsLoading}
-          />
-
-          <div
-            className={`notification-tag-select-container mb3 border border-gray-lighten-2
-            rounded-bottom-left rounded-bottom-right ${tagsLoading || tags.length === 0 ? 'p3' : 'pt2 px2 pb1'}`}
-          >
-            {
-              tagsLoading || tags.length === 0
-                ? null
-                : <QuickTagSelect
-                  locale={locale}
-                  options={quickTags}
-                  selectedOptions={selectedTags}
-                  controller={controller}
-                />
-            }
-          </div>
-
-          <div
-            className="notifications pr2 autohide-scrollbar"
-            ref={notifications => { this.notifications = notifications }}
-          >
-            {items.map(notification =>
-              <Notification
-                key={notification.id}
-                controller={controller}
-                locale={locale}
-                notification={notification}
-                tags={tags}
-                expandedNotifications={expanded}
-              />
-            )}
-
-            {
-              isLoading
-                ? <Delay time={1000}>
-                  <Spinner isVisible />
-                </Delay>
-                : null
-            }
-          </div>
+        <div
+          className={`notifications ${isInitialLoad ? 'display-none' : ''}`}
+          ref={notifications => { this.notifications = notifications }}
+        >
+          {items.map(notification =>
+            <Notification
+              key={notification.id}
+              controller={controller}
+              locale={locale}
+              notification={notification}
+              tags={tags}
+              expandedNotifications={expanded}
+            />
+          )}
         </div>
+
+        <Spinner isVisible />
+
+        {
+          isLoading
+            ? <Delay time={1000}>
+              <Spinner isVisible />
+            </Delay>
+            : null
+        }
       </div>
     )
   }

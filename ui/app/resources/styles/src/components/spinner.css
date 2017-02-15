@@ -1,7 +1,8 @@
 /* Spinner */
 
 .spinner {
-  margin: var(--space-3) auto;
+  margin-right: auto;
+  margin-left: auto;
   width: 100px;
   text-align: center;
 }
@@ -9,7 +10,6 @@
 .spinner-in-button {
   display: inline-block;
   width: auto;
-  margin: 0;
   margin-right: var(--space-2);
 }
 

@@ -10,7 +10,8 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
-  view: PropTypes.object.isRequired,
+  selectedCategories: PropTypes.array.isRequired,
+  notificationsLoaded: PropTypes.bool.isRequired,
   unpublishedNotifications: PropTypes.array.isRequired,
   isMobileMenuVisible: PropTypes.bool.isRequired
 }
@@ -20,7 +21,8 @@ function Menu (props) {
     controller,
     locale,
     categories,
-    view,
+    selectedCategories,
+    notificationsLoaded,
     unpublishedNotifications,
     isMobileMenuVisible
   } = props
@@ -28,15 +30,15 @@ function Menu (props) {
   const hasUnpublishedNotifications = unpublishedNotifications.length
 
   return (
-    <div>
+    <div className="menu-container">
       {/*Skeleton screen*/}
       <div
-        className={`col-12 py3 border-bottom border-gray-lighten-2 ${view.isInitialLoad ? '' : 'display-none'}`}
+        className={`col-12 py3 border-bottom border-gray-lighten-2 ${notificationsLoaded ? '' : 'display-none'}`}
       />
 
       <section
         className={`relative flex flex-wrap items-center
-        col-12 md-py2 border-bottom border-gray-lighten-2 ${view.isInitialLoad ? 'display-none' : ''}`}
+        col-12 md-py2 border-bottom border-gray-lighten-2 ${notificationsLoaded ? 'display-none' : ''}`}
       >
         <MobileMenu
           controller={controller}
@@ -58,8 +60,8 @@ function Menu (props) {
               locale={locale}
               htmlId="view-category"
               options={categories}
-              selectedOptions={view.categories}
-              onChange={controller.toggleViewCategory}
+              selectedOptions={selectedCategories}
+              onChange={controller.view.toggleCategory}
             />
           </fieldset>
 
@@ -81,14 +83,13 @@ function Menu (props) {
 
           {/*Display unpublished notifications*/}
           {
-            hasUnpublishedNotifications
-              ? <Button
+            hasUnpublishedNotifications &&
+              <Button
                 className="button-link regular right-align px0 py1"
                 onClick={controller.toggleUnpublishedNotifications}
               >
                 {translate('julktiedotteet')}
               </Button>
-              : null
           }
         </div>
       </section>

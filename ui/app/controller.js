@@ -1,13 +1,15 @@
 export function initController (dispatcher, events) {
-  // VIEW
+  const view = {
+    update: (prop, value) => dispatcher.push(events.view.update, { prop: prop, value: value }),
 
-  const updateView = (prop, value) => dispatcher.push(events.updateView, { prop: prop, value: value })
+    toggleCategory: category => dispatcher.push(events.view.toggleCategory, category),
 
-  const toggleViewCategory = category => dispatcher.push(events.toggleViewCategory, category)
+    toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
 
-  const toggleViewTab = selectedTab => dispatcher.push(events.toggleViewTab, selectedTab)
+    toggleMenu: () => dispatcher.push(events.view.toggleMenu),
 
-  const removeViewAlert = id => dispatcher.push(events.removeViewAlert, id)
+    removeAlert: id => dispatcher.push(events.view.removeAlert, id)
+  }
 
   // EDITOR
 
@@ -53,7 +55,6 @@ export function initController (dispatcher, events) {
 
   // MENU
 
-  const toggleMenu = () => dispatcher.push(events.toggleMenu)
 
   // NOTIFICATIONS
 
@@ -73,12 +74,23 @@ export function initController (dispatcher, events) {
     dispatcher.push(events.toggleNotificationTag, value)
   }
 
+  // TIMELINE
+
+  const getPreloadedMonth = () => dispatcher.push(events.getPreloadedMonth)
+
+  const getPreviousMonth = (year, month) => dispatcher.push(events.getPreviousMonth, {year: year, month: month})
+
+  const getNextMonth = (year, month) => dispatcher.push(events.getNextMonth, {year: year, month: month})
+
   return {
     // View
-    updateView: updateView,
-    toggleViewCategory: toggleViewCategory,
-    toggleViewTab: toggleViewTab,
-    removeViewAlert: removeViewAlert,
+    view: {
+      update: view.update,
+      toggleCategory: view.toggleCategory,
+      toggleTab: view.toggleTab,
+      removeAlert: view.removeAlert,
+      toggleMenu: view.toggleMenu
+    },
 
     // Editor
     toggleEditor: toggleEditor,
@@ -99,9 +111,6 @@ export function initController (dispatcher, events) {
     toggleHasSaveFailed: toggleHasSaveFailed,
     saveDocument: saveDocument,
 
-    // Menu
-    toggleMenu: toggleMenu,
-
     // Notifications
     getNotifications: getNotifications,
     toggleUnpublishedNotifications: toggleUnpublishedNotifications,
@@ -109,6 +118,11 @@ export function initController (dispatcher, events) {
     updateSearch: updateSearch,
     toggleNotificationTag: toggleNotificationTag,
     setSelectedNotificationTags: setSelectedNotificationTags,
-    toggleNotification: toggleNotification
+    toggleNotification: toggleNotification,
+
+    // Timeline
+    getPreloadedMonth: getPreloadedMonth,
+    getPreviousMonth: getPreviousMonth,
+    getNextMonth: getNextMonth
   }
 }

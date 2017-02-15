@@ -1149,5 +1149,30 @@
     "locale": "fi",
     "key": "haetaantunnisteita",
     "value": "Haetaan tunnisteita..."
+  },
+  {
+    "locale": "fi",
+    "key": "tapahtumatalkaen",
+    "value": "Tapahtumat alkaen"
+  },
+  {
+    "locale": "fi",
+    "key": "haeedellisiatapahtumia",
+    "value": "Hae edellisiä tapahtumia"
+  },
+  {
+    "locale": "fi",
+    "key": "tapahtumienhakuepaonnistui",
+    "value": "Tapahtumien haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tiedotteidenhakuepaonnistui",
+    "value": "Tiedotteiden haku"
+  },
+  {
+    "locale": "fi",
+    "key": "paivitasivu",
+    "value": "Päivitä sivu hakeaksesi uudelleen"
   }
 ]

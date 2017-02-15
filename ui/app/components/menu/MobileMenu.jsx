@@ -24,7 +24,7 @@ function MobileMenu (props) {
     <div className="md-hide lg-hide flex flex-wrap justify-center col-12">
       <Button
         className={`button-link col-6 sm-col-4 ${isMobileMenuVisible ? 'primary' : 'gray'}`}
-        onClick={controller.toggleMenu}
+        onClick={controller.view.toggleMenu}
       >
         <Icon className="mr1" name="sliders" />
         <Translation trans="rajaa" />
