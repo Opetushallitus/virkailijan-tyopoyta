@@ -18,4 +18,6 @@ trait ReleaseRepository{
   def release(id: Long): Future[Option[Release]]
 
   def addRelease(release: Release) : Future[Release]
+
+  def generateReleases(amount: Int, month: YearMonth) : Future[Seq[Release]]
 }

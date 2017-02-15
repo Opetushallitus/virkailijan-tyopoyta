@@ -68,7 +68,12 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
           (categories, year, month) => sendResponse(releaseRepository.timeline(categories, parseMonth(year, month)))
         }} ~
-      path("tags"){sendResponse(releaseRepository.tags())}
+      path("tags"){sendResponse(releaseRepository.tags())} ~
+      path("generate"){
+        parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
+          (amount, year, month) => sendResponse(releaseRepository.generateReleases(amount, parseMonth(year, month)))
+        }
+      }
 
     } ~
     post {
