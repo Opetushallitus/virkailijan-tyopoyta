@@ -299,9 +299,7 @@ function toggleEditor (state, releaseId = -1, selectedTab = 'edit-notification')
   else if (releaseId > -1) {
     console.log('Toggling editor with release id', releaseId)
 
-    const selectedRelease = state.releases.find(release => release.id === releaseId) ||
-      state.unpublishedReleases.find(release => release.id === releaseId)
-
+    const selectedRelease = state.releases.find(release => release.id === releaseId)
     const stateWithRelease = R.assocPath(['editor', 'editedRelease'], selectedRelease, stateWithoutError)
 
     return toggleEditorTab(stateWithRelease, selectedTab)
@@ -858,7 +856,7 @@ export function initAppState () {
     },
     unpublishedNotifications: {
       isVisible: false,
-      items: testData.unpublishedReleases.map(r => r.notification)
+      items: []
     },
     timeline: {
       items: [],

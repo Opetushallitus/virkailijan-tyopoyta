@@ -22,10 +22,6 @@ class Timeline extends React.Component {
 
     this.loadTimeline = this.loadTimeline.bind(this)
     this.mouseEnterTimer = null
-
-    this.state = {
-      previousScrollTop: 0
-    }
   }
 
   componentDidMount () {
