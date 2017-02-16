@@ -8,5 +8,6 @@ object Main extends App with ServerModule with Configuration{
 
   val server = wire[Server]
 
-  server.run()
+//  migrations.run()
+  server.start()
 }

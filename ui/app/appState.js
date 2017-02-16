@@ -62,6 +62,7 @@ const events = {
 
 // const authUrl = '/virkailijan-tyopoyta/login'
 const notificationsUrl = '/virkailijan-tyopoyta/api/notifications'
+const releaseUrl = '/virkailijan-tyopoyta/api/release'
 const tagsUrl = '/virkailijan-tyopoyta/api/tags'
 const timelineUrl = '/virkailijan-tyopoyta/api/timeline'
 
@@ -299,9 +300,7 @@ function toggleEditor (state, releaseId = -1, selectedTab = 'edit-notification')
   else if (releaseId > -1) {
     console.log('Toggling editor with release id', releaseId)
 
-    const selectedRelease = state.releases.find(release => release.id === releaseId) ||
-      state.unpublishedReleases.find(release => release.id === releaseId)
-
+    const selectedRelease = state.releases.find(release => release.id === releaseId)
     const stateWithRelease = R.assocPath(['editor', 'editedRelease'], selectedRelease, stateWithoutError)
 
     return toggleEditorTab(stateWithRelease, selectedTab)
@@ -537,7 +536,7 @@ function saveDocument (state) {
   console.log('Saving document')
 
   getData({
-    url: notificationsUrl,
+    url: releaseUrl,
     requestOptions: {
       method: 'POST',
       dataType: 'json',
@@ -858,7 +857,7 @@ export function initAppState () {
     },
     unpublishedNotifications: {
       isVisible: false,
-      items: testData.unpublishedReleases.map(r => r.notification)
+      items: []
     },
     timeline: {
       items: [],
