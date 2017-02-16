@@ -83,13 +83,14 @@ function Menu (props) {
 
           {/*Display unpublished notifications*/}
           {
-            hasUnpublishedNotifications &&
-              <Button
+            hasUnpublishedNotifications
+              ? <Button
                 className="button-link regular right-align px0 py1"
                 onClick={controller.toggleUnpublishedNotifications}
               >
                 {translate('julktiedotteet')}
               </Button>
+              : null
           }
         </div>
       </section>
