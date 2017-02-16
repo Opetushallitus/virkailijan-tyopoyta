@@ -1,6 +1,7 @@
 import R from 'ramda'
+import Bacon from 'baconjs'
 
-// VIEW
+const alertsBus = new Bacon.Bus()
 
 function update (state, { prop, value }) {
   console.log('Updating view', prop, value)
@@ -8,9 +9,13 @@ function update (state, { prop, value }) {
   return R.assocPath(['view', prop], value, state)
 }
 
-function toggleCategory (state, category) {
-  console.log('Toggling view category', category)
+function onAlertsReceived (state, alert) {
+  const newViewAlerts = R.append(alert, state.view.alerts)
 
+  return update(state, { prop: 'alerts', value: newViewAlerts })
+}
+
+function toggleCategory (state, category) {
   const categories = state.view.categories
   const newCategories = R.contains(category, categories)
     ? R.reject(c => c === category, categories)
@@ -20,8 +25,6 @@ function toggleCategory (state, category) {
 }
 
 function toggleTab (state, selectedTab) {
-  console.log('Toggling view tab', selectedTab)
-
   return update(state, { prop: 'selectedTab', value: selectedTab })
 }
 
@@ -37,7 +40,28 @@ function removeAlert (state, id) {
   return update(state, { prop: 'alerts', value: newAlerts })
 }
 
+// Events for appState
+const events = {
+  toggleCategory,
+  toggleTab,
+  toggleMenu,
+  removeAlert
+}
+
+const initialState = {
+  categories: [],
+  startDate: '',
+  endDate: '',
+  selectedTab: 'notifications',
+  alerts: [],
+  isMobileMenuVisible: false
+}
+
 const view = {
+  alertsBus,
+  events,
+  initialState,
+  onAlertsReceived,
   toggleCategory,
   toggleTab,
   toggleMenu,

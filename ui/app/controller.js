@@ -1,7 +1,5 @@
 export function initController (dispatcher, events) {
   const view = {
-    update: (prop, value) => dispatcher.push(events.view.update, { prop: prop, value: value }),
-
     toggleCategory: category => dispatcher.push(events.view.toggleCategory, category),
 
     toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
@@ -11,76 +9,71 @@ export function initController (dispatcher, events) {
     removeAlert: id => dispatcher.push(events.view.removeAlert, id)
   }
 
-  // EDITOR
+  const timeline = {
+    getPreloadedMonth: () => dispatcher.push(events.timeline.getPreloadedMonth),
 
-  const toggleEditor = (releaseId, selectedTab) =>
-    dispatcher.push(events.toggleEditor, releaseId, selectedTab)
+    getPreviousMonth: (year, month) => dispatcher.push(events.timeline.getPreviousMonth, { year, month }),
 
-  const toggleEditorTab = selectedTab => dispatcher.push(events.toggleEditorTab, selectedTab)
+    getNextMonth: (year, month) => dispatcher.push(events.timeline.getNextMonth, { year, month }),
 
-  const updateRelease = (prop, value) => dispatcher.push(events.updateRelease, {prop: prop, value: value})
-
-  const toggleReleaseCategory = category => dispatcher.push(events.toggleReleaseCategory, category)
-
-  const toggleReleaseUserGroup = value => dispatcher.push(events.toggleReleaseUserGroup, value)
-
-  const updateFocusedReleaseCategory = value => dispatcher.push(events.updateFocusedReleaseCategory, value)
-
-  const toggleFocusedReleaseUserGroup = value => dispatcher.push(events.toggleFocusedReleaseUserGroup, value)
-
-  const updateNotification = (prop, value) => dispatcher.push(events.updateNotification, {prop: prop, value: value})
-
-  const updateNotificationTags = value => dispatcher.push(events.updateNotificationTags, value)
-
-  const updateNotificationContent = (lang, prop) => value =>
-    dispatcher.push(events.updateNotificationContent, {lang: lang, prop: prop, value: value})
-
-  const toggleNotification = id => dispatcher.push(events.toggleNotification, id)
-
-  const addTimelineItem = release => dispatcher.push(events.addTimelineItem, release)
-
-  const removeTimelineItem = id => dispatcher.push(events.removeTimelineItem, id)
-
-  const updateTimelineContent = (id, lang, prop) => value =>
-    dispatcher.push(events.updateTimelineContent, {id: id, lang: lang, prop: prop, value: value})
-
-  const updateTimeline = (id, prop, value) =>
-    dispatcher.push(events.updateTimeline, {id: id, prop: prop, value: value})
-
-  const toggleDocumentPreview = isPreviewed => dispatcher.push(events.toggleDocumentPreview, isPreviewed)
-
-  const toggleHasSaveFailed = () => dispatcher.push(events.toggleHasSaveFailed)
-
-  const saveDocument = () => dispatcher.push(events.saveDocument)
-
-  // MENU
-
-
-  // NOTIFICATIONS
-
-  const toggleUnpublishedNotifications = releaseId => dispatcher.push(events.toggleUnpublishedNotifications, releaseId)
-
-  const getNotifications = page => dispatcher.push(events.getNotifications, page)
-
-  const lazyLoadNotifications = page => dispatcher.push(events.lazyLoadNotifications, page)
-
-  const updateSearch = search => dispatcher.push(events.updateSearch, {search: search})
-
-  const setSelectedNotificationTags = value => {
-    dispatcher.push(events.setSelectedNotificationTags, value)
+    edit: releaseId => dispatcher.push(events.timeline.edit, releaseId)
   }
 
-  const toggleNotificationTag = value => {
-    dispatcher.push(events.toggleNotificationTag, value)
+  const notifications = {
+    getPage: page => dispatcher.push(events.notifications.getPage, page),
+
+    toggleTag: value => dispatcher.push(events.notifications.toggleTag, value),
+
+    setSelectedTags: value => dispatcher.push(events.notifications.setSelectedTags, value),
+
+    toggle: id => dispatcher.push(events.notifications.toggle, id),
+
+    edit: releaseId => dispatcher.push(events.notifications.edit, releaseId),
+
+    toggleUnpublishedNotifications: releaseId => dispatcher.push(events.notifications.toggleUnpublishedNotifications(), releaseId)
   }
 
-  // TIMELINE
+  const editor = {
+    toggle: (releaseId, selectedTab) => dispatcher.push(events.editor.toggle, releaseId, selectedTab),
 
-  const getPreloadedMonth = () => dispatcher.push(events.getPreloadedMonth)
+    toggleTab: selectedTab => dispatcher.push(events.editor.toggleTab, selectedTab),
 
-  const getPreviousMonth = (year, month) => dispatcher.push(events.getPreviousMonth, {year: year, month: month})
+    togglePreview: isPreviewed => dispatcher.push(events.editor.togglePreview, isPreviewed),
 
-  const getNextMonth = (year, month) => dispatcher.push(events.getNextMonth, {year: year, month: month})
+    toggleHasSaveFailed: () => dispatcher.push(events.editor.toggleHasSaveFailed),
+
+    save: () => dispatcher.push(events.editor.save),
+
+    editRelease: {
+      toggleCategory: category => dispatcher.push(events.editor.editRelease.toggleCategory, category),
+
+      toggleUserGroup: value => dispatcher.push(events.editor.editRelease.toggleUserGroup, value),
+
+      updateFocusedCategory: value => dispatcher.push(events.editor.editRelease.updateFocusedCategory, value),
+
+      toggleFocusedUserGroup: value => dispatcher.push(events.editor.editRelease.toggleFocusedUserGroup, value)
+    },
+
+    editTimeline: {
+      update: (id, prop, value) => dispatcher.push(events.editor.editTimeline.update, { id, prop, value }),
+
+      updateContent: (id, language, prop) => value =>
+        dispatcher.push(events.editor.editTimeline.updateContent, { id, language, prop, value }),
+
+      add: release => dispatcher.push(events.editor.editTimeline.add, release),
+
+      remove: id => dispatcher.push(events.editor.editTimeline.remove, id)
+    },
+
+    editNotification: {
+      update: (prop, value) => dispatcher.push(events.editor.editNotification.update, { prop, value }),
+
+      updateTags: value => dispatcher.push(events.editor.editNotification.updateTags, value),
+
+      updateContent: (language, prop) => value =>
+        dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value })
+    }
+  }
 
   return {
     // View
@@ -92,37 +85,45 @@ export function initController (dispatcher, events) {
       toggleMenu: view.toggleMenu
     },
 
-    // Editor
-    toggleEditor: toggleEditor,
-    toggleEditorTab: toggleEditorTab,
-    updateRelease: updateRelease,
-    toggleReleaseCategory: toggleReleaseCategory,
-    toggleReleaseUserGroup: toggleReleaseUserGroup,
-    updateFocusedReleaseCategory: updateFocusedReleaseCategory,
-    toggleFocusedReleaseUserGroup: toggleFocusedReleaseUserGroup,
-    updateNotification: updateNotification,
-    updateNotificationTags: updateNotificationTags,
-    updateNotificationContent: updateNotificationContent,
-    addTimelineItem: addTimelineItem,
-    removeTimelineItem: removeTimelineItem,
-    updateTimelineContent: updateTimelineContent,
-    updateTimeline: updateTimeline,
-    toggleDocumentPreview: toggleDocumentPreview,
-    toggleHasSaveFailed: toggleHasSaveFailed,
-    saveDocument: saveDocument,
+    timeline: {
+      getPreloadedMonth: timeline.getPreloadedMonth,
+      getNextMonth: timeline.getNextMonth,
+      getPreviousMonth: timeline.getPreviousMonth,
+      edit: timeline.edit
+    },
 
-    // Notifications
-    getNotifications: getNotifications,
-    toggleUnpublishedNotifications: toggleUnpublishedNotifications,
-    lazyLoadNotifications: lazyLoadNotifications,
-    updateSearch: updateSearch,
-    toggleNotificationTag: toggleNotificationTag,
-    setSelectedNotificationTags: setSelectedNotificationTags,
-    toggleNotification: toggleNotification,
+    notifications: {
+      getPage: notifications.getPage,
+      toggleTag: notifications.toggleTag,
+      setSelectedTags: notifications.setSelectedTags,
+      toggle: notifications.toggle,
+      edit: notifications.edit,
+      toggleUnpublishedNotifications: notifications.toggleUnpublishedNotifications
+    },
 
-    // Timeline
-    getPreloadedMonth: getPreloadedMonth,
-    getPreviousMonth: getPreviousMonth,
-    getNextMonth: getNextMonth
+    editor: {
+      toggle: editor.toggle,
+      toggleTab: editor.toggleTab,
+      togglePreview: editor.togglePreview,
+      toggleHasSaveFailed: editor.toggleHasSaveFailed,
+      save: editor.save,
+      editRelease: {
+        toggleCategory: editor.editRelease.toggleCategory,
+        toggleUserGroup: editor.editRelease.toggleUserGroup,
+        updateFocusedCategory: editor.editRelease.updateFocusedCategory,
+        toggleFocusedUserGroup: editor.editRelease.toggleFocusedUserGroup
+      },
+      editTimeline: {
+        update: editor.editTimeline.update,
+        updateContent: editor.editTimeline.updateContent,
+        add: editor.editTimeline.add,
+        remove: editor.editTimeline.remove
+      },
+      editNotification: {
+        update: editor.editNotification.update,
+        updateTags: editor.editNotification.updateTags,
+        updateContent: editor.editNotification.updateContent
+      }
+    }
   }
 }

@@ -177,7 +177,7 @@ class Timeline extends React.Component {
                         locale={locale}
                         dateFormat={dateFormat}
                         items={month.days[key]}
-                        onEditButtonClick={controller.toggleEditor}
+                        onEditButtonClick={controller.timeline.edit}
                       />
                     )}
                   </div>

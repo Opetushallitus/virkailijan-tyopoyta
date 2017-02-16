@@ -19,8 +19,8 @@ function EditTimeline (props) {
     release
   } = props
 
-  const handleOnAddItemClick = () => {
-    controller.addTimelineItem(release)
+  const handleAddItemClick = () => {
+    controller.add(release)
   }
 
   return (
@@ -40,7 +40,7 @@ function EditTimeline (props) {
       )}
 
       {/*Add new event*/}
-      <Button className="button-link regular px0" onClick={handleOnAddItemClick}>
+      <Button className="button-link regular px0" onClick={handleAddItemClick}>
         <span aria-hidden>+ </span>
         <Translation trans="lisaauusitapahtuma" />
       </Button>

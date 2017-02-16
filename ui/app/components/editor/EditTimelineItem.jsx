@@ -4,8 +4,8 @@ import Button from '../common/buttons/Button'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
 import Icon from '../common/Icon'
-import Translation from '../common/Translations'
 import TextEditor from '../texteditor/TextEditor'
+import { translate } from '../common/Translations'
 
 import getFormattedDate from './getFormattedDate'
 
@@ -24,15 +24,17 @@ function EditTimelineItem (props) {
     controller
   } = props
 
-  const handleOnDateChange = date => {
+  const handleDateChange = date => {
     const newDate = getFormattedDate({ date, dateFormat })
 
-    controller.updateTimeline(item.id, 'date', newDate)
+    controller.update(item.id, 'date', newDate)
   }
 
-  const handleOnRemoveItemClick = () => {
-    controller.removeTimelineItem(item.id)
+  const handleRemoveItemClick = () => {
+    controller.remove(item.id)
   }
+
+  // TODO: initialDate = createdAt
 
   return (
     <div key={item.id} className="timeline-item-form">
@@ -40,26 +42,25 @@ function EditTimelineItem (props) {
       <div className="flex flex-wrap">
         <div className="col-12 sm-col-6 sm-pr2">
           <Field
-            label={<Translation trans="aikajanateksti" />}
+            label={translate('aikajanateksti')}
             name={`timeline-item-${item.id}-text-fi`}
             isRequired
           >
             <TextEditor
               data={item.content.fi.text}
-              save={controller.updateTimelineContent(item.id, 'fi', 'text')}
+              save={controller.updateContent(item.id, 'fi', 'text')}
             />
           </Field>
         </div>
 
         <div className="col-12 sm-col-6 sm-pl2">
           <Field
-            label={<Translation trans="tekstiSV" />}
+            label={translate('tekstiSV')}
             name={`timeline-item-${item.id}-text-sv`}
-            isRequired
           >
             <TextEditor
               data={item.content.fi.text}
-              save={controller.updateTimelineContent(item.id, 'sv', 'text')}
+              save={controller.updateContent(item.id, 'sv', 'text')}
             />
           </Field>
         </div>
@@ -69,13 +70,13 @@ function EditTimelineItem (props) {
         <div className="col-10 sm-col-6 lg-col-3 sm-pr2 mb0">
           {/*Date*/}
           <DateField
-            label={<Translation trans="tapahtumapvmaikajanaavarten" />}
+            label={translate('tapahtumapvmaikajanaavarten')}
             locale={locale}
             name={`timeline-item-${item.id}-date`}
             dateFormat={dateFormat}
             date={item.date}
             isRequired
-            onChange={handleOnDateChange}
+            onChange={handleDateChange}
           />
         </div>
 
@@ -86,13 +87,11 @@ function EditTimelineItem (props) {
             : <div className="flex-auto flex items-end justify-end">
               <Button
                 className="button-link h3 pr0 gray-lighten-1"
-                title="Poista tapahtuma"
-                onClick={handleOnRemoveItemClick}
+                title={translate('poistatapahtuma')}
+                onClick={handleRemoveItemClick}
               >
                 <Icon name="trash" />
-                <span className="hide">
-                  <Translation trans="poistatapahtuma" />
-                </span>
+                <span className="hide">{translate('poistatapahtuma')}</span>
               </Button>
             </div>
         }

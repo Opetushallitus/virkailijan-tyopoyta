@@ -24,12 +24,12 @@ function NotificationTagSelect (props) {
     isInitialLoad
   } = props
 
-  const handleOnChange = (event, { value }) => {
-    controller.setSelectedNotificationTags(value)
+  const handleChange = (event, { value }) => {
+    controller.setSelectedTags(value)
   }
 
-  const handleOnLabelClick = (event, { value }) => {
-    controller.toggleNotificationTag(value)
+  const handleLabelClick = (event, { value }) => {
+    controller.toggleTag(value)
   }
 
   return (
@@ -41,8 +41,8 @@ function NotificationTagSelect (props) {
         fluid
         multiple
         noResultsMessage={translate('eitunnisteita')}
-        onChange={handleOnChange}
-        onLabelClick={handleOnLabelClick}
+        onChange={handleChange}
+        onLabelClick={handleLabelClick}
         options={isInitialLoad ? [] : mapDropdownOptions(options, locale)}
         placeholder={isLoading || isInitialLoad ? translate('haetaantunnisteita') : translate('hakusana')}
         search

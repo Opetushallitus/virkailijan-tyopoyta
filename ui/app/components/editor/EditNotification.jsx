@@ -38,11 +38,11 @@ function EditNotification (props) {
   const minDate = moment().add(2, 'hours')
 
   const handleTagsChange = (event, { value }) => {
-    controller.updateNotificationTags(value)
+    controller.updateTags(value)
   }
 
   const handleTagClick = (event, { value }) => {
-    controller.updateNotificationTags(value)
+    controller.updateTags(value)
   }
 
   /*
@@ -52,11 +52,11 @@ function EditNotification (props) {
   const handleStartDateChange = date => {
     const newDate = getFormattedDate({ date, minDate, dateFormat })
 
-    controller.updateNotification('startDate', newDate)
+    controller.update('startDate', newDate)
 
     // Update endDate if it's before startDate
     if (newDate && date.isAfter(moment(notification.endDate, dateFormat))) {
-      controller.updateNotification('endDate', newDate)
+      controller.update('endDate', newDate)
     }
   }
 
@@ -67,7 +67,7 @@ function EditNotification (props) {
   const handleEndDateChange = date => {
     const newDate = getFormattedDate({ date, minDate, dateFormat })
 
-    controller.updateNotification('endDate', newDate)
+    controller.update('endDate', newDate)
 
     // No need to update startDate if endDate is null
     if (!newDate) {
@@ -76,7 +76,7 @@ function EditNotification (props) {
 
     // Update startDate if it's before endDate
     if (newDate && date.isBefore(moment(notification.startDate, dateFormat))) {
-      controller.updateNotification('startDate', newDate)
+      controller.update('startDate', newDate)
     }
   }
 
@@ -95,7 +95,7 @@ function EditNotification (props) {
             value={contentFi.title}
             maxLength={200}
             isRequired
-            onChange={controller.updateNotificationContent('fi', 'title')}
+            onChange={controller.updateContent('fi', 'title')}
           />
         </div>
 
@@ -105,7 +105,7 @@ function EditNotification (props) {
             name="notification-title-sv"
             value={contentSv.title}
             maxLength={200}
-            onChange={controller.updateNotificationContent('sv', 'title')}
+            onChange={controller.updateContent('sv', 'title')}
           />
         </div>
 
@@ -123,7 +123,7 @@ function EditNotification (props) {
             <TextEditor
               data={contentFi.text}
               controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
-              save={controller.updateNotificationContent('fi', 'text')}
+              save={controller.updateContent('fi', 'text')}
             />
           </Field>
         </div>
@@ -136,7 +136,7 @@ function EditNotification (props) {
             <TextEditor
               data={contentSv.text}
               controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
-              save={controller.updateNotificationContent('sv', 'text')}
+              save={controller.updateContent('sv', 'text')}
             />
           </Field>
         </div>

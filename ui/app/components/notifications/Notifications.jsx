@@ -34,11 +34,7 @@ class Notifications extends React.Component {
           node.scrollHeight - (node.scrollHeight / 10)
 
         if (isLoadingHeightBreakpoint) {
-          this.props.controller.lazyLoadNotifications({
-            node: event.target,
-            page: 1,
-            isLoading: true
-          })
+          this.props.controller.getPage()
         }
       })
   }

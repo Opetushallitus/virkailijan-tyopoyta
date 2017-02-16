@@ -120,7 +120,7 @@ class App extends React.Component {
         />
 
         {/*Alerts*/}
-        <div className="box-shadow">
+        <div className="fixed bottom-0 right-0 mb2 mr2 z2">
           {state.view.alerts.map(alert =>
             <Alert
               key={alert.id}
@@ -166,7 +166,7 @@ class App extends React.Component {
               </div>
 
               <Notifications
-                controller={controller}
+                controller={controller.notifications}
                 locale={state.locale}
                 notifications={state.notifications}
               />
@@ -175,7 +175,7 @@ class App extends React.Component {
             {/*Timeline*/}
             <section className={`timeline-container ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
               <Timeline
-                controller={controller}
+                controller={controller.timeline}
                 locale={state.locale}
                 dateFormat={state.dateFormat}
                 timeline={state.timeline}
@@ -192,7 +192,7 @@ class App extends React.Component {
           isVisible={state.editor.isVisible}
           isCloseDisabled={state.editor.isLoading}
           variant="large"
-          onCloseButtonClick={controller.toggleEditor}
+          onCloseButtonClick={controller.editor.toggle}
         >
           <Editor
             controller={controller}
@@ -208,7 +208,7 @@ class App extends React.Component {
           title={translate('julktiedotteet')}
           isVisible={state.unpublishedNotifications.isVisible}
           variant="large"
-          onCloseButtonClick={controller.toggleUnpublishedNotifications}
+          onCloseButtonClick={controller.notifications.toggleUnpublishedNotifications}
         >
           <UnpublishedNotifications
             controller={controller}

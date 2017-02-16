@@ -26,12 +26,12 @@ function Notification (props) {
     expandedNotifications
   } = props
 
-  const handleOnNotificationClick = () => {
-    controller.toggleNotification(notification.id)
+  const handleNotificationClick = () => {
+    controller.toggle(notification.id)
   }
 
-  const handleOnEditButtonClick = () => {
-    controller.toggleEditor(notification.releaseId)
+  const handleEditButtonClick = () => {
+    controller.edit(notification.releaseId)
   }
 
   const truncate = length => R.when(
@@ -84,7 +84,7 @@ function Notification (props) {
               ? <Translation trans="naytakatkelma" />
               : <Translation trans="naytatiedote" />
           }
-          onClick={handleOnNotificationClick}
+          onClick={handleNotificationClick}
         >
           <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
 
@@ -101,10 +101,10 @@ function Notification (props) {
       {/*Edit button*/}
       <EditButton
         className="absolute bottom-0 right-0 z2 gray-lighten-1"
-        onClick={handleOnEditButtonClick}
+        onClick={handleEditButtonClick}
       />
 
-      <div className={classList.join(' ')} onClick={handleOnNotificationClick}>
+      <div className={classList.join(' ')} onClick={handleNotificationClick}>
         {/*Title*/}
         <h3 className="notification-heading h4 primary bold inline-block mb2 mr2" aria-hidden>
           {content.title}
