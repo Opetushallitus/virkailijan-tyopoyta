@@ -26,9 +26,22 @@ function toggleValue (value, values) {
   return newValues
 }
 
-function cleanUpDocument (document) {
-  return R.assoc('timeline', document.timeline.filter(tl => tl.date != null), document)
+function cleanTimeline (timeline) {
+  return timeline.filter(tl => tl.date != null).map(tl =>
+    R.assoc('content', R.pickBy(c => c.text != '', tl.content), tl))
 }
+
+function cleanNotification (notification) {
+  return notification.validationState === 'complete' ?
+    R.assoc('content',
+      R.pickBy(c => (c.text != '' && c.title != ''), notification.content), notification) :
+    null
+}
+
+function cleanUpDocument(document) {
+  return R.compose(
+    R.assoc('timeline', cleanTimeline(document.timeline)),
+    R.assoc('notification', cleanNotification(document.notification)))(document)}
 
 function removeDocumentProperties (key, value) {
   if (key === 'validationState') {
