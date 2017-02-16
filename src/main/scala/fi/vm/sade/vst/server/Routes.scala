@@ -55,7 +55,19 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
     get{
       path("release"){
         parameters("id".as[Long]) { id =>
-          sendResponse(releaseRepository.release(id))
+          val release = releaseRepository.release(id)
+          onComplete(release) {
+            case Success(result) ⇒
+              result match {
+                case Some(r) => sendResponse(release)
+                case None => complete(StatusCodes.NoContent)
+              }
+            case Failure(e) ⇒
+              complete(StatusCodes.InternalServerError, e.getMessage)
+          }
+
+
+
         }
       } ~
       path("notifications"){

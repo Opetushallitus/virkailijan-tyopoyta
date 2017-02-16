@@ -99,7 +99,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def categories(): Future[Seq[Category]] = Future(Seq.empty)
 
-  override def release(id: Long): Future[Option[Release]] = Future(None)
+  override def release(id: Long): Future[Option[Release]] = Future(releases.get.get(id))
 
   override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
 
