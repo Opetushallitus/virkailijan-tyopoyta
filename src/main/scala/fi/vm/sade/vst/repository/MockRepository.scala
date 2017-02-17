@@ -43,6 +43,8 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   def nextReleaseId(): Long = releases.get().values.map(_.id).max +1
 
   def notifications(): Iterable[Option[Notification]] = releases.get().values.map(_.notification)
+  def nextTimelineId: Long = releases.get().values.flatMap(_.timeline).map(_.id).max + 1
+
   private def nextNotificationId = notifications().flatMap(_.map(_.id)).max + 1
 
   def getReleases : Future[Seq[Release]] = Future(
@@ -53,13 +55,18 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     notification.copy(id = nextNotificationId, releaseId = releaseId)
   }
 
+  def persistTimeline(releaseId: Long, timelineItem: TimelineItem): TimelineItem = {
+    timelineItem.copy(id = nextTimelineId, releaseId = releaseId)
+  }
+
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
     println("Received release: "+ releaseUpdate)
     val id = nextReleaseId()
     val persistedRelease =
       Release(id = id,
         notification = releaseUpdate.notification.map(persistNotification(id, _)),
-        timeline = releaseUpdate.timeline, categories = releaseUpdate.categories,
+        timeline = releaseUpdate.timeline.map(persistTimeline(id, _)),
+        categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
     releases.set(releases.get() + (id -> persistedRelease))
@@ -73,7 +80,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
     var timelineItems: List[TimelineItem] = List()
-    var days: Map[String, List[TimelineItem]] = Map()
+    var days: Map[Int, List[TimelineItem]] = Map()
     releases.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
       p._2.timeline.foreach( (t: TimelineItem) => {
         timelineItems = t :: timelineItems
@@ -86,9 +93,9 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
     timelineItems.foreach( (t: TimelineItem) => {
       val day = t.date.getDayOfMonth
-      days.get(day.toString) match {
-        case Some(v) => days += (day.toString -> (t :: v))
-        case None => days += (day.toString -> List(t))
+      days.get(_) match {
+        case Some(v) => days += (day -> (t :: v))
+        case None => days += (day -> List(t))
       }
     })
     Future{Timeline(startDate.getMonthValue,startDate.getYear,days)}
@@ -143,4 +150,5 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
       1
     }
   }
+
 }
