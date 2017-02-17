@@ -32,7 +32,7 @@ function MobileMenu (props) {
 
       <Button
         className="button-link col-6 sm-col-4 gray"
-        onClick={controller.toggleEditor}
+        onClick={controller.editor.toggle}
       >
         <Icon className="mr1" name="plus" />
         <Translation trans="uusisisalto" />

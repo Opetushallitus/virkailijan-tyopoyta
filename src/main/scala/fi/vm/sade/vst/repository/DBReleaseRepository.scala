@@ -61,14 +61,38 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       )}.list.apply()
 
 
+  private def notificationJoins: scalikejdbc.SelectSQLBuilder[Release] = select
+    .from(ReleaseTable as r)
+    .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
+    .innerJoin(NotificationTable as n).on(r.id, n.releaseId)
+    .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
+    .leftJoin(NotificationTagTable as nt).on(n.id, nt.notificationId)
+
+  private def notificationsFromRS(sql: SQL[Release, NoExtractor]): Seq[Notification] = {
+    sql.one(ReleaseTable(r)).toManies(
+      rs => NotificationTable.opt(n)(rs),
+      rs => NotificationContentTable.opt(c)(rs),
+      rs => NotificationTagTable.opt(nt)(rs)).map {
+      (_, notifications, content, tags) =>
+        notifications.headOption.map(n => n.copy(
+          content = content.groupBy(_.language).transform((_, v) => v.head),
+          tags = tags.map(_.tagId)))
+    }.list.apply().flatten
+  }
+
+  private def listUnpublishedNotifications(): Seq[Notification] = {
+    val sql: SQL[Release, NoExtractor] = withSQL[Release]{
+      notificationJoins
+        .where.gt(n.publishDate, LocalDate.now())
+        .and.eq(r.deleted, false).and.eq(n.deleted, false)
+    }
+    notificationsFromRS(sql)
+
+  }
+
   private def listNotifications(categories: RowIds, tags: RowIds, page: Int): Seq[Notification] = {
-    val sql = withSQL[Release] {
-      select
-        .from(ReleaseTable as r)
-        .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
-        .innerJoin(NotificationTable as n).on(r.id, n.releaseId)
-        .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
-        .leftJoin(NotificationTagTable as nt).on(n.id, nt.notificationId)
+    val sql: SQL[Release, NoExtractor] = withSQL[Release] {
+      notificationJoins
         .where.not.gt(n.publishDate, LocalDate.now())
         .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
@@ -79,15 +103,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .limit(pageLength)
         .offset(offset(page))
     }
-    sql.one(ReleaseTable(r)).toManies(
-      rs => NotificationTable.opt(n)(rs),
-      rs => NotificationContentTable.opt(c)(rs),
-      rs => NotificationTagTable.opt(nt)(rs)).map {
-      (_, notifications, content, tags) =>
-        notifications.headOption.map(n => n.copy(
-          content = content.groupBy(_.language).transform((_, v) => v.head),
-          tags = tags.map(_.tagId)))
-    }.list.apply().flatten
+    notificationsFromRS(sql)
   }
 
   private def listTimeline(categories: RowIds, month: YearMonth): Seq[TimelineItem] = {
@@ -132,12 +148,18 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
+  override def unpublishedNotifications(): Future[Seq[Notification]] = {
+    Future{
+      listUnpublishedNotifications()
+    }
+  }
+
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
     Future{
-      val timeline = listTimeline(categories, month)
-      val grouped: (Timeline, Seq[TimelineItem]) = timeline.groupBy(tl => Timeline(tl.date.getMonthValue, tl.date.getYear)).head
+      val eventsForMonth = listTimeline(categories, month)
+      val dayEvents: Map[String, Seq[TimelineItem]] = eventsForMonth.groupBy(tl => tl.date.getDayOfMonth.toString)
 
-      grouped._1.copy(days = grouped._2.groupBy(_.date.toString))
+      Timeline(month.getMonthValue, month.getYear, dayEvents)
     }
   }
 

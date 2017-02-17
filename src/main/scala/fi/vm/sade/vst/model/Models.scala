@@ -7,13 +7,15 @@ case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
 
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
-case class TimelineContent(timelineId: Long, language: String, text: String)
+
 
 case class User(name: String, language: String, roles: Seq[String])
 
 case class ReleaseCategory(releaseId: Long, categoryId: Long)
 case class NotificationTags(notificationId: Long, tagId: Long)
 
+
+case class TimelineContent(timelineId: Long, language: String, text: String)
 
 case class TimelineItem(id: Long,
                         releaseId: Long,

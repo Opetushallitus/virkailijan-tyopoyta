@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { render } from 'react-dom'
 
@@ -7,8 +6,10 @@ import { initAppState, getController } from './appState.js'
 
 import './resources/styles/app.css'
 
-const appState = initAppState()
 const controller = getController()
+const appState = initAppState()
+
+console.log(controller)
 
 appState.onValue((state) => {
   render(

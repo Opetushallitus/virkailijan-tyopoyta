@@ -33,16 +33,16 @@ function Targeting (props) {
     release
   } = props
 
-  const handleOnUserGroupsChange = (event, { value }) => {
-    controller.toggleReleaseUserGroup(value)
+  const handleUserGroupsChange = (event, { value }) => {
+    controller.toggleUserGroup(value)
   }
 
-  const handleOnFocusedCategoryChange = (event, { value }) => {
-    controller.updateFocusedReleaseCategory(value)
+  const handleFocusedCategoryChange = (event, { value }) => {
+    controller.updateFocusedCategory(value)
   }
 
-  const handleOnFocusedUserGroupsChange = (event, { value }) => {
-    controller.toggleFocusedReleaseUserGroup(value)
+  const handleFocusedUserGroupsChange = (event, { value }) => {
+    controller.toggleFocusedUserGroup(value)
   }
 
   /* Get unselected user groups for Dropdown options */
@@ -84,7 +84,7 @@ function Targeting (props) {
               htmlId="release-category"
               options={categories}
               selectedOptions={selectedCategories}
-              onChange={controller.toggleReleaseCategory}
+              onChange={controller.toggleCategory}
             />
           </Fieldset>
         </div>
@@ -98,7 +98,7 @@ function Targeting (props) {
               multiple
               name="release-usergroups"
               noResultsMessage={translate('eiryhma')}
-              onChange={handleOnUserGroupsChange}
+              onChange={handleUserGroupsChange}
               options={mapDropdownOptions(unselectedUserGroups, locale)}
               placeholder={translate('lisaaryhma')}
               search
@@ -118,7 +118,7 @@ function Targeting (props) {
                   key={`userGroup${group}`}
                   id={group}
                   text={getUserGroupName(group, userGroups, locale)}
-                  onClick={controller.toggleReleaseUserGroup}
+                  onClick={controller.toggleUserGroup}
                 />
               )
               : null
@@ -174,7 +174,7 @@ function Targeting (props) {
                     fluid
                     name="release-focused-category"
                     noResultsMessage={translate('eikategorioita')}
-                    onChange={handleOnFocusedCategoryChange}
+                    onChange={handleFocusedCategoryChange}
                     options={focusedCategoryOptions}
                     placeholder={translate('haekategoria')}
                     search
@@ -217,7 +217,7 @@ function Targeting (props) {
                   multiple
                   name="release-focused-usergroups"
                   noResultsMessage={translate('eiryhma')}
-                  onChange={handleOnFocusedUserGroupsChange}
+                  onChange={handleFocusedUserGroupsChange}
                   options={mapDropdownOptions(unselectedFocusedUserGroups, locale)}
                   placeholder={translate('lisaaryhma')}
                   search
@@ -237,7 +237,7 @@ function Targeting (props) {
                       key={`focusedUsergroup${group}`}
                       id={group}
                       text={getUserGroupName(group, userGroups, locale)}
-                      onClick={controller.toggleFocusedReleaseUserGroup}
+                      onClick={controller.toggleFocusedUserGroup}
                     />
                   )
                   : null

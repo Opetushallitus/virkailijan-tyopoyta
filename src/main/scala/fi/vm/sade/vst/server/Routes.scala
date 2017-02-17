@@ -70,12 +70,26 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
     get{
       path("release"){
         parameters("id".as[Long]) { id =>
-          sendResponse(releaseRepository.release(id))
+          val release = releaseRepository.release(id)
+          onComplete(release) {
+            case Success(result) ⇒
+              result match {
+                case Some(r) => sendResponse(release)
+                case None => complete(StatusCodes.NoContent)
+              }
+            case Failure(e) ⇒
+              complete(StatusCodes.InternalServerError, e.getMessage)
+          }
         }
       } ~
-      path("notifications"){
-        parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
-          (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
+      pathPrefix("notifications"){
+        pathEnd {
+          parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
+            (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
+          }
+        } ~
+        path("unpublished") {
+          sendResponse(releaseRepository.unpublishedNotifications())
         }
       } ~
       path("categories"){sendResponse(releaseRepository.categories)} ~

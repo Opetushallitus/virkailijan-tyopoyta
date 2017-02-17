@@ -22,19 +22,19 @@ const propTypes = {
 }
 
 // Returns a translation key representing the notification's publication state
-const getNotificationPublicationStateString = (initialDate, dateFormat) => {
-  // No initialStartDate = a draft
-  if (!initialDate) {
+const getNotificationPublicationStateString = (createdAt, dateFormat) => {
+  // No createdAt = a draft
+  if (!createdAt) {
     return 'luonnos'
   }
 
-  // initialStartDate is after today = unpublishedReleases
-  if (moment(initialDate, dateFormat).isAfter(moment())) {
+  // createdAt is after today = unpublished
+  if (moment(createdAt, dateFormat).isAfter(moment())) {
     return 'julkaisematon'
   }
 
-  // initialStartDate is before today = published
-  if (moment(initialDate, dateFormat).isBefore(moment())) {
+  // createdAt is before today = published
+  if (moment(createdAt, dateFormat).isBefore(moment())) {
     return 'julkaistu'
   }
 }
@@ -54,7 +54,7 @@ const getNotificationValidationStateString = state => {
   }
 }
 
-function EditRelease (props) {
+function Editor (props) {
   const {
     controller,
     locale,
@@ -89,20 +89,20 @@ function EditRelease (props) {
     : notification.validationState
 
   const notificationValidationStateString = getNotificationValidationStateString(notification.validationState)
-  const notificationPublicationStateString = getNotificationPublicationStateString(notification.initialStartDate, dateFormat)
+  const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
 
-  const handleOnSubmit = event => {
+  const handleSubmit = event => {
     event.preventDefault()
 
     if (isPreviewed) {
-      controller.saveDocument()
+      controller.save()
     } else {
-      controller.toggleDocumentPreview(true)
+      controller.togglePreview(true)
     }
   }
 
   return (
-    <form noValidate onSubmit={handleOnSubmit}>
+    <form noValidate onSubmit={handleSubmit}>
       {/*Heading for screen readers*/}
       <h2 className="hide">
         {
@@ -118,7 +118,7 @@ function EditRelease (props) {
           <TabItem
             name="edit-notification"
             selectedTab={selectedTab}
-            onClick={controller.toggleEditorTab}
+            onClick={controller.toggleTab}
           >
             <Translation trans="tiedote" />
 
@@ -130,7 +130,7 @@ function EditRelease (props) {
           <TabItem
             name="edit-timeline"
             selectedTab={selectedTab}
-            onClick={controller.toggleEditorTab}
+            onClick={controller.toggleTab}
           >
             <Translation trans="aikajana" />
 
@@ -146,7 +146,7 @@ function EditRelease (props) {
           <TabItem
             name="targeting"
             selectedTab={selectedTab}
-            onClick={controller.toggleEditorTab}
+            onClick={controller.toggleTab}
           >
             <Translation trans="kohdennus" />
           </TabItem>
@@ -168,7 +168,7 @@ function EditRelease (props) {
           <EditNotification
             locale={locale}
             dateFormat={dateFormat}
-            controller={controller}
+            controller={controller.editNotification}
             release={editedRelease}
             notificationTags={notificationTags}
           />
@@ -179,7 +179,7 @@ function EditRelease (props) {
           <EditTimeline
             locale={locale}
             dateFormat={dateFormat}
-            controller={controller}
+            controller={controller.editTimeline}
             release={editedRelease}
           />
         </section>
@@ -188,7 +188,7 @@ function EditRelease (props) {
         <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
           <Targeting
             locale={locale}
-            controller={controller}
+            controller={controller.editRelease}
             categories={categories}
             userGroups={userGroups}
             release={editedRelease}
@@ -237,7 +237,7 @@ function EditRelease (props) {
       {
         hasSaveFailed
           ? <Popup
-            target=".editor-button-save"
+            target="-button-save"
             type="error"
             position="right"
             title={translate('julkaisuepaonnistui')}
@@ -250,6 +250,6 @@ function EditRelease (props) {
   )
 }
 
-EditRelease.propTypes = propTypes
+Editor.propTypes = propTypes
 
-export default EditRelease
+export default Editor

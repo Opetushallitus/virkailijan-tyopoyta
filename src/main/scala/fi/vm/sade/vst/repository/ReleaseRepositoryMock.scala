@@ -31,10 +31,9 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
 
   releasesList match {
     case Some(p) =>
-        p.foreach((release: Release) => {
-          initReleases += (release.id -> release)
-        }
-      )
+      p.foreach((release: Release) => {
+        initReleases += (release.id -> release)
+      })
     case None => println("Error parsing release JSON")
   }
 
@@ -53,22 +52,27 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     notification.copy(id = nextNotificationId, releaseId = releaseId)
   }
 
+  def persistTimeline(releaseId: Long, timelineItem: TimelineItem): TimelineItem = {
+    timelineItem.copy(id = nextTimelineId, releaseId = releaseId)
+  }
+
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
     println("Received release: "+ releaseUpdate)
     val id = nextReleaseId
     val persistedRelease =
       Release(id = id,
         notification = releaseUpdate.notification.map(persistNotification(id, _)),
-        timeline = releaseUpdate.timeline, categories = releaseUpdate.categories,
+        timeline = releaseUpdate.timeline.map(persistTimeline(id, _)),
+        categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
     releasesMap.set(sortReleasesByPublishDate(releasesMap.get() + (id -> persistedRelease)))
     Future{persistedRelease}
   }
 
-  def sortReleasesByPublishDate(releases: Map[Long, Release]): Map[Long, Release] = {
-    ListMap(releases.toSeq.sortBy(- _._2.notification.get.publishDate.toEpochDay):_*)
-  }
+  //  def sortReleasesByPublishDate(releases: Map[Long, Release]): Map[Long, Release] = {
+  //    ListMap(releases.toSeq.sortBy(- _._2.notification.get.publishDate.toEpochDay):_*)
+  //  }
 
 
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
@@ -99,7 +103,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
 
   override def categories: Future[Seq[Category]] = Future(Seq.empty)
 
-  override def release(id: Long): Future[Option[Release]] = Future(None)
+  override def release(id: Long): Future[Option[Release]] = Future(releases.get.get(id))
 
   override def releases: Future[Iterable[Release]] = Future(releasesMap.get.values)
 
@@ -128,7 +132,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
       timeline = Seq(generateTimeLine(id,startDate,endDate)),
       createdBy = 0,
       createdAt = LocalDate.now()
-      )
+    )
   }
 
   def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): TimelineItem = {
@@ -146,4 +150,5 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
       1
     }
   }
+
 }

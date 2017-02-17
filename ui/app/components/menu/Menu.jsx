@@ -73,7 +73,7 @@ function Menu (props) {
           {/*Create a new release*/}
           <Button
             className="button-link h3 bold px0 py1"
-            onClick={controller.toggleEditor}
+            onClick={controller.editor.toggle}
           >
             +&nbsp;
             {translate('lisaauusi')}
@@ -86,7 +86,7 @@ function Menu (props) {
             hasUnpublishedNotifications
               ? <Button
                 className="button-link regular right-align px0 py1"
-                onClick={controller.toggleUnpublishedNotifications}
+                onClick={controller.notifications.toggleUnpublishedNotifications}
               >
                 {translate('julktiedotteet')}
               </Button>

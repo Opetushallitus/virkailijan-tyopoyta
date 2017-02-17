@@ -13,6 +13,7 @@ CREATE TABLE notification(
   release_id INTEGER NOT NULL REFERENCES release(id),
   publish_date DATE NOT NULL,
   expiry_date DATE,
+  send_email BOOLEAN NOT NULL DEFAULT FALSE,
   deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
