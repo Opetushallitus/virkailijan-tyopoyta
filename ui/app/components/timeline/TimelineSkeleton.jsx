@@ -29,9 +29,11 @@ function TimelineSkeleton (props) {
           </div>
         </div>
 
-        <Delay time={1000}>
-          <Spinner isVisible />
-        </Delay>
+        <div className="my3">
+          <Delay time={1000}>
+            <Spinner isVisible />
+          </Delay>
+        </div>
       </div>
     </div>
   )

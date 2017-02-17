@@ -195,7 +195,7 @@ class App extends React.Component {
           onCloseButtonClick={controller.editor.toggle}
         >
           <Editor
-            controller={controller}
+            controller={controller.editor}
             locale={state.locale}
             dateFormat={state.dateFormat}
             notificationTags={state.notifications.tags}

@@ -95,9 +95,9 @@ function Editor (props) {
     event.preventDefault()
 
     if (isPreviewed) {
-      controller.editor.save()
+      controller.save()
     } else {
-      controller.editor.togglePreview(true)
+      controller.togglePreview(true)
     }
   }
 
@@ -118,7 +118,7 @@ function Editor (props) {
           <TabItem
             name="edit-notification"
             selectedTab={selectedTab}
-            onClick={controller.editor.toggleTab}
+            onClick={controller.toggleTab}
           >
             <Translation trans="tiedote" />
 
@@ -130,7 +130,7 @@ function Editor (props) {
           <TabItem
             name="edit-timeline"
             selectedTab={selectedTab}
-            onClick={controller.editor.toggleTab}
+            onClick={controller.toggleTab}
           >
             <Translation trans="aikajana" />
 
@@ -146,7 +146,7 @@ function Editor (props) {
           <TabItem
             name="targeting"
             selectedTab={selectedTab}
-            onClick={controller.editor.toggleTab}
+            onClick={controller.toggleTab}
           >
             <Translation trans="kohdennus" />
           </TabItem>
@@ -168,7 +168,7 @@ function Editor (props) {
           <EditNotification
             locale={locale}
             dateFormat={dateFormat}
-            controller={controller.editor.editNotification}
+            controller={controller.editNotification}
             release={editedRelease}
             notificationTags={notificationTags}
           />
@@ -179,7 +179,7 @@ function Editor (props) {
           <EditTimeline
             locale={locale}
             dateFormat={dateFormat}
-            controller={controller.editor.editTimeline}
+            controller={controller.editTimeline}
             release={editedRelease}
           />
         </section>
@@ -188,7 +188,7 @@ function Editor (props) {
         <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
           <Targeting
             locale={locale}
-            controller={controller.editor.editRelease}
+            controller={controller.editRelease}
             categories={categories}
             userGroups={userGroups}
             release={editedRelease}
@@ -237,12 +237,12 @@ function Editor (props) {
       {
         hasSaveFailed
           ? <Popup
-            target=".editor-button-save"
+            target="-button-save"
             type="error"
             position="right"
             title={translate('julkaisuepaonnistui')}
             text={translate('kokeileuudestaan')}
-            onOutsideClick={controller.editor.toggleHasSaveFailed}
+            onOutsideClick={controller.toggleHasSaveFailed}
           />
           : null
       }
