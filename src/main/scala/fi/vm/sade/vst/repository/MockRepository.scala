@@ -80,7 +80,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
     var timelineItems: List[TimelineItem] = List()
-    var days: Map[Int, List[TimelineItem]] = Map()
+    var days: Map[String, List[TimelineItem]] = Map()
     releases.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
       p._2.timeline.foreach( (t: TimelineItem) => {
         timelineItems = t :: timelineItems
@@ -93,9 +93,9 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
     timelineItems.foreach( (t: TimelineItem) => {
       val day = t.date.getDayOfMonth
-      days.get(_) match {
-        case Some(v) => days += (day -> (t :: v))
-        case None => days += (day -> List(t))
+      days.get(day.toString) match {
+        case Some(v) => days += (day.toString -> (t :: v))
+        case None => days += (day.toString -> List(t))
       }
     })
     Future{Timeline(startDate.getMonthValue,startDate.getYear,days)}
@@ -103,6 +103,9 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
     Future(releases.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay >= _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
+
+  override def unpublishedNotifications(): Future[Seq[Notification]] =
+    Future(releases.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
 
   override def categories(): Future[Seq[Category]] = Future(Seq.empty)
 
