@@ -71,6 +71,13 @@ CREATE TABLE user_profile(
 CREATE TABLE user_category(
   user_id INTEGER NOT NULL REFERENCES user_profile(id),
   category_id INTEGER NOT NULL REFERENCES category(id)
+);
+
+CREATE TABLE email_events(
+  id SERIAL PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  createdAt TIMESTAMP NOT NULL,
+  releaseId INTEGER NOT NULL REFERENCES release(id),
+  eventType VARCHAR(50) NOT NULL
 )
 
 

@@ -11,6 +11,7 @@ import com.softwaremill.session.SessionOptions._
 import fi.vm.sade.vst.model.{Release, JsonSupport}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.AuthenticationService
+import fi.vm.sade.vst.service.EmailService
 import java.time.YearMonth
 import play.api.libs.json.{Json, Writes}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,10 +60,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
     }
   }
 
-  import fi.vm.sade.vst.service.EmailService
   def sendInstantEmails(release: Release) = {
     // Release.sendEmail seems to have been removed and no replacement is given, rethink this part
-    if (true) EmailService.sendEmails(Vector(release))
+    if (true) EmailService.sendEmails(Vector(release), EmailService.ImmediateEmail)
     release
   }
 
@@ -85,7 +85,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
         }
       } ~
       path("tags"){sendResponse(releaseRepository.tags)} ~
-      path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases)))} ~
+      path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases, EmailService.TimedEmail)))} ~
       path("generate"){
         parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
           (amount, year, month) => sendResponse(releaseRepository.generateReleases(amount, parseMonth(year, month)))

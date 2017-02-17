@@ -31,7 +31,8 @@ case class Release(id: Long,
                    createdAt: LocalDate,
                    modifiedBy: Option[Int] = None,
                    modifiedAt: Option[LocalDate] = None,
-                   deleted: Boolean = false)
+                   deleted: Boolean = false,
+                   sendEmail: Boolean = false)
 
 
 case class Notification(id: Long,
@@ -52,4 +53,4 @@ case class ReleaseUpdate(id: Long,
 
 case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, content: Map[String, TimelineContent] = Map.empty)
 
-case class EmailEvent(id: Long, createdDate: LocalDate, releaseRid: Long, eventType: String)
+case class EmailEvent(id: Long, createdAt: LocalDate, releaseId: Long, eventType: String)

@@ -113,6 +113,7 @@ trait JsonSupport {
     (JsPath \ "createdAt").read[LocalDate](dateTimeReads) and
     (JsPath \ "modifiedBy").readNullable[Int] and
     (JsPath \ "modifiedAt").readNullable[LocalDate](dateTimeReads) and
+    Reads.pure(false) and
     Reads.pure(false)
     )(Release.apply _)
 
