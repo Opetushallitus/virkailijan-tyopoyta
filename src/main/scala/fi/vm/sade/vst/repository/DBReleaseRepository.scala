@@ -5,29 +5,34 @@ import java.time.{LocalDate, YearMonth}
 import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model._
 import scalikejdbc._
-import jsr310._
 
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import scalikejdbc.jsr310._
 
-object NotificationTable extends SQLSyntaxSupport[Notification]{
+object NotificationTable extends SQLSyntaxSupport[Notification] {
   override val tableName = "notification"
+
   def apply(n: SyntaxProvider[Notification])(rs: WrappedResultSet): Notification = apply(n.resultName)(rs)
+
   def apply(n: ResultName[Notification])(rs: WrappedResultSet): Notification =
     Notification(id = rs.get(n.id),
       releaseId = rs.get(n.releaseId),
       publishDate = rs.localDate(n.publishDate),
       expiryDate = None,
       initialStartDate = None)
+
   def opt(n: SyntaxProvider[Notification])(rs: WrappedResultSet): Option[Notification] =
     rs.longOpt(n.resultName.releaseId).map(_ => NotificationTable(n)(rs))
 }
 
-object NotificationContentTable extends SQLSyntaxSupport[NotificationContent]{
+object NotificationContentTable extends SQLSyntaxSupport[NotificationContent] {
   override val tableName = "notification_content"
+
   def apply(n: SyntaxProvider[NotificationContent])(rs: WrappedResultSet): NotificationContent = apply(n.resultName)(rs)
+
   def apply(n: ResultName[NotificationContent])(rs: WrappedResultSet): NotificationContent =
     NotificationContent(rs.get(n.notificationId), rs.get(n.language), rs.get(n.title), rs.get(n.text))
 
@@ -35,71 +40,89 @@ object NotificationContentTable extends SQLSyntaxSupport[NotificationContent]{
     rs.longOpt(c.resultName.notificationId).map(_ => NotificationContentTable(c)(rs))
 }
 
-object TagTable extends SQLSyntaxSupport[Tag]{
+object TagTable extends SQLSyntaxSupport[Tag] {
   override val tableName = "tag"
+
   def apply(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Tag = apply(t.resultName)(rs)
+
   def apply(t: ResultName[Tag])(rs: WrappedResultSet): Tag = Tag(rs.get(t.id), rs.get(t.name))
 
   def opt(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Option[Tag] =
     rs.longOpt(t.resultName.id).map(_ => TagTable(t)(rs))
 }
 
-object NotificationTagTable extends SQLSyntaxSupport[NotificationTags]{
+object NotificationTagTable extends SQLSyntaxSupport[NotificationTags] {
   override val tableName = "notification_tag"
+
   def apply(n: SyntaxProvider[NotificationTags])(rs: WrappedResultSet): NotificationTags = apply(n.resultName)(rs)
+
   def apply(n: ResultName[NotificationTags])(rs: WrappedResultSet): NotificationTags =
     NotificationTags(rs.get(n.notificationId), rs.get(n.tagId))
 
-  def opt(c: SyntaxProvider[NotificationTags])(rs: WrappedResultSet): Option[NotificationTags] =
-    rs.longOpt(c.resultName.tagId).map(_ => NotificationTagTable(c)(rs))
+  def opt(nt: SyntaxProvider[NotificationTags])(rs: WrappedResultSet): Option[NotificationTags] =
+    rs.longOpt(nt.resultName.tagId).map(_ => NotificationTagTable(nt)(rs))
 }
 
-object ReleaseTable extends SQLSyntaxSupport[Release]{
+object ReleaseTable extends SQLSyntaxSupport[Release] {
   override val tableName = "release"
+
   def apply(n: SyntaxProvider[Release])(rs: WrappedResultSet): Release = apply(n.resultName)(rs)
+
   def apply(r: ResultName[Release])(rs: WrappedResultSet): Release = Release(
     id = rs.get(r.id),
     createdBy = rs.get(r.createdBy),
     createdAt = rs.get(r.createdAt))
 }
 
-object TimelineTable extends SQLSyntaxSupport[TimelineItem]{
+object TimelineTable extends SQLSyntaxSupport[TimelineItem] {
   override val tableName = "timeline_item"
+
   def apply(tl: SyntaxProvider[TimelineItem])(rs: WrappedResultSet): TimelineItem = apply(tl.resultName)(rs)
-  def apply(tl: ResultName[TimelineItem])(rs:WrappedResultSet): TimelineItem = TimelineItem(rs.get(tl.id), rs.get(tl.releaseId), rs.get(tl.date))
+
+  def apply(tl: ResultName[TimelineItem])(rs: WrappedResultSet): TimelineItem = TimelineItem(rs.get(tl.id), rs.get(tl.releaseId), rs.get(tl.date))
 
   def opt(tl: SyntaxProvider[TimelineItem])(rs: WrappedResultSet): Option[TimelineItem] =
     rs.longOpt(tl.resultName.id).map(_ => TimelineTable(tl)(rs))
 }
 
-object TimelineContentTable extends SQLSyntaxSupport[TimelineContent]{
+object TimelineContentTable extends SQLSyntaxSupport[TimelineContent] {
   override val tableName = "timeline_content"
+
   def apply(c: SyntaxProvider[TimelineContent])(rs: WrappedResultSet): TimelineContent = apply(c.resultName)(rs)
+
   def apply(c: ResultName[TimelineContent])(rs: WrappedResultSet): TimelineContent =
     TimelineContent(rs.get(c.timelineId), rs.get(c.language), rs.get(c.text))
+
   def opt(c: SyntaxProvider[TimelineContent])(rs: WrappedResultSet): Option[TimelineContent] =
     rs.longOpt(c.resultName.timelineId).map(_ => TimelineContentTable(c)(rs))
 }
 
-object CategoryTable extends SQLSyntaxSupport[Category]{
+object CategoryTable extends SQLSyntaxSupport[Category] {
   override val tableName = "category"
-  def apply (cat: SyntaxProvider[Category])(rs: WrappedResultSet): Category = apply(cat.resultName)(rs)
-  def apply (cat: ResultName[Category])(rs: WrappedResultSet): Category =
+
+  def apply(cat: SyntaxProvider[Category])(rs: WrappedResultSet): Category = apply(cat.resultName)(rs)
+
+  def apply(cat: ResultName[Category])(rs: WrappedResultSet): Category =
     Category(rs.get(cat.id), rs.get(cat.name))
+
   def opt(cat: SyntaxProvider[Category])(rs: WrappedResultSet): Option[Category] =
     rs.longOpt(cat.resultName.id).map(_ => CategoryTable(cat)(rs))
 }
 
-object ReleaseCategoryTable extends SQLSyntaxSupport[ReleaseCategory]{
+object ReleaseCategoryTable extends SQLSyntaxSupport[ReleaseCategory] {
   override val tableName = "release_category"
+
   def apply(n: SyntaxProvider[ReleaseCategory])(rs: WrappedResultSet): ReleaseCategory = apply(n.resultName)(rs)
+
   def apply(n: ResultName[ReleaseCategory])(rs: WrappedResultSet): ReleaseCategory =
     ReleaseCategory(rs.get(n.releaseId), rs.get(n.categoryId))
 
   def opt(c: SyntaxProvider[ReleaseCategory])(rs: WrappedResultSet): Option[ReleaseCategory] =
     rs.longOpt(c.resultName.categoryId).map(_ => ReleaseCategoryTable(c)(rs))
 }
+
 class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
+
 
   Class.forName("org.postgresql.Driver")
   ConnectionPool.singleton(config.url, config.username, config.password)
@@ -161,14 +184,38 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
       )}.list.apply()
 
 
+  private def notificationJoins: scalikejdbc.SelectSQLBuilder[Release] = select
+    .from(ReleaseTable as r)
+    .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
+    .innerJoin(NotificationTable as n).on(r.id, n.releaseId)
+    .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
+    .leftJoin(NotificationTagTable as nt).on(n.id, nt.notificationId)
+
+  private def notificationsFromRS(sql: SQL[Release, NoExtractor]): Seq[Notification] = {
+    sql.one(ReleaseTable(r)).toManies(
+      rs => NotificationTable.opt(n)(rs),
+      rs => NotificationContentTable.opt(c)(rs),
+      rs => NotificationTagTable.opt(nt)(rs)).map {
+      (_, notifications, content, tags) =>
+        notifications.headOption.map(n => n.copy(
+          content = content.groupBy(_.language).transform((_, v) => v.head),
+          tags = tags.map(_.tagId)))
+    }.list.apply().flatten
+  }
+
+  private def listUnpublishedNotifications(): Seq[Notification] = {
+    val sql: SQL[Release, NoExtractor] = withSQL[Release]{
+      notificationJoins
+        .where.gt(n.publishDate, LocalDate.now())
+        .and.eq(r.deleted, false).and.eq(n.deleted, false)
+    }
+    notificationsFromRS(sql)
+
+  }
+
   private def listNotifications(categories: RowIds, tags: RowIds, page: Int): Seq[Notification] = {
-    val sql = withSQL[Release] {
-      select
-        .from(ReleaseTable as r)
-        .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
-        .innerJoin(NotificationTable as n).on(r.id, n.releaseId)
-        .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
-        .leftJoin(NotificationTagTable as nt).on(n.id, nt.notificationId)
+    val sql: SQL[Release, NoExtractor] = withSQL[Release] {
+      notificationJoins
         .where.not.gt(n.publishDate, LocalDate.now())
         .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
@@ -179,15 +226,7 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
         .limit(pageLength)
         .offset(offset(page))
     }
-    sql.one(ReleaseTable(r)).toManies(
-      rs => NotificationTable.opt(n)(rs),
-      rs => NotificationContentTable.opt(c)(rs),
-      rs => NotificationTagTable.opt(nt)(rs)).map {
-      (_, notifications, content, tags) =>
-        notifications.headOption.map(n => n.copy(
-          content = content.groupBy(_.language).transform((_, v) => v.head),
-          tags = tags.map(_.tagId)))
-    }.list.apply().flatten
+    notificationsFromRS(sql)
   }
 
   private def listTimeline(categories: RowIds, month: YearMonth): Seq[TimelineItem] = {
@@ -219,7 +258,6 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     }.list.apply().flatten
   }
 
-
   def tags(): Future[Seq[Tag]] = Future{withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply}
 
   def categories(): Future[Seq[Category]] = Future {
@@ -232,12 +270,18 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     }
   }
 
+  override def unpublishedNotifications(): Future[Seq[Notification]] = {
+    Future{
+      listUnpublishedNotifications()
+    }
+  }
+
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
     Future{
-      val timeline = listTimeline(categories, month)
-      val grouped: (Timeline, Seq[TimelineItem]) = timeline.groupBy(tl => Timeline(tl.date.getMonthValue, tl.date.getYear)).head
+      val eventsForMonth = listTimeline(categories, month)
+      val dayEvents: Map[String, Seq[TimelineItem]] = eventsForMonth.groupBy(tl => tl.date.getDayOfMonth.toString)
 
-      grouped._1.copy(days = grouped._2.groupBy(_.date.toString))
+      Timeline(month.getMonthValue, month.getYear, dayEvents)
     }
   }
 
