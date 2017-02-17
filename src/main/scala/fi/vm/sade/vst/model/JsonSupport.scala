@@ -19,17 +19,40 @@ trait JsonSupport {
     (JsPath \ "name_fi").write[String]
     )(unlift(Tag.unapply))
 
+  implicit val timelineContentReads: Reads[TimelineContent] = (
+    (JsPath \ "timelineId").read[Long] and
+      (JsPath \ "language").read[String] and
+      (JsPath \ "text").read[String]
+    )(TimelineContent.apply _)
+
   implicit val timelineContentWrites: Writes[TimelineContent] = (
     (JsPath \ "timelineId").write[Long] and
-    (JsPath \ "language").write[String] and
-    (JsPath \ "text").write[String]
+      (JsPath \ "language").write[String] and
+      (JsPath \ "text").write[String]
     )(unlift(TimelineContent.unapply))
+
+  implicit val timelineItemReads: Reads[TimelineItem] = (
+    (JsPath \ "id").read[Long] and
+      (JsPath \ "releaseId").read[Long] and
+      (JsPath \ "date").read[LocalDate](dateReads)and
+      (JsPath \ "content").read[Map[String, TimelineContent]] and
+      (JsPath \ "notificationId").readNullable[Long]
+    )(TimelineItem.apply _)
+
+  implicit val timelineItemWrites: Writes[TimelineItem] = (
+    (JsPath \ "id").write[Long] and
+      (JsPath \ "releaseId").write[Long] and
+      (JsPath \ "date").write[LocalDate] and
+      (JsPath \ "content").write[Map[String, TimelineContent]] and
+      (JsPath \ "notificationId").write[Option[Long]]
+    )(unlift(TimelineItem.unapply))
 
   implicit val timelineWrites: Writes[Timeline] = (
     (JsPath \ "month").write[Int] and
-    (JsPath \ "year").write[Int] and
-    (JsPath \ "days").write[Map[String,Seq[TimelineItem]]]
+      (JsPath \ "year").write[Int] and
+      (JsPath \ "days").write[Map[String,Seq[TimelineItem]]]
     )(unlift(Timeline.unapply))
+
 
   implicit val releaseWrites: Writes[Release] = Writes { release =>
     Json.obj(
@@ -81,28 +104,6 @@ trait JsonSupport {
       "tags" -> notification.tags
     )
   }
-
-  implicit val timelineContentReads: Reads[TimelineContent] = (
-    (JsPath \ "timelineId").read[Long] and
-      (JsPath \ "language").read[String] and
-      (JsPath \ "text").read[String]
-    )(TimelineContent.apply _)
-
-  implicit val timelineItemReads: Reads[TimelineItem] = (
-      (JsPath \ "id").read[Long] and
-      (JsPath \ "releaseId").read[Long] and
-      (JsPath \ "date").read[LocalDate](dateReads)and
-      (JsPath \ "content").read[Map[String, TimelineContent]] and
-      (JsPath \ "notificationId").readNullable[Long]
-    )(TimelineItem.apply _)
-
-  implicit val timelineItemWrites: Writes[TimelineItem] = (
-      (JsPath \ "id").write[Long] and
-      (JsPath \ "releaseId").write[Long] and
-      (JsPath \ "date").write[LocalDate] and
-      (JsPath \ "content").write[Map[String, TimelineContent]] and
-      (JsPath \ "notificationId").write[Option[Long]]
-    )(unlift(TimelineItem.unapply))
 
   implicit val releaseReads: Reads[Release] = (
     (JsPath \ "id").read[Long] and

@@ -31,14 +31,14 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   releasesList match {
     case Some(p) =>
-        p.foreach((release: Release) => {
-          initReleases += (release.id -> release)
-        }
+      p.foreach((release: Release) => {
+        initReleases += (release.id -> release)
+      }
       )
     case None => println("Error parsing release JSON")
   }
 
-  releases.set(sortReleasesByPublishDate(initReleases))
+  releases.set(initReleases)
 
   def nextReleaseId(): Long = releases.get().values.map(_.id).max +1
 
@@ -62,13 +62,13 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         timeline = releaseUpdate.timeline, categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
-    releases.set(sortReleasesByPublishDate(releases.get() + (id -> persistedRelease)))
+    releases.set(releases.get() + (id -> persistedRelease))
     Future{persistedRelease}
   }
 
-  def sortReleasesByPublishDate(releases: Map[Long, Release]): Map[Long, Release] = {
-    ListMap(releases.toSeq.sortBy(- _._2.notification.get.publishDate.toEpochDay):_*)
-  }
+  //  def sortReleasesByPublishDate(releases: Map[Long, Release]): Map[Long, Release] = {
+  //    ListMap(releases.toSeq.sortBy(- _._2.notification.get.publishDate.toEpochDay):_*)
+  //  }
 
 
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
@@ -95,7 +95,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   }
 
   override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
-    Future(releases.get.values.flatMap(_.notification).toList)
+    Future(releases.get.values.flatMap(_.notification).toList.sortBy(_.publishDate.toEpochDay))
 
   override def categories(): Future[Seq[Category]] = Future(Seq.empty)
 
@@ -107,7 +107,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     for( a <- 1 to amount){
       val id = nextReleaseId
       val release = generateRelease(id, month)
-      releases.set(sortReleasesByPublishDate(releases.get() + (id -> release)))
+      releases.set(releases.get() + (id -> release))
     }
     Future(releases.get().values.toList)
   }
@@ -125,7 +125,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
       timeline = Seq(generateTimeLine(id,startDate,endDate)),
       createdBy = 0,
       createdAt = LocalDate.now()
-      )
+    )
   }
 
   def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): TimelineItem = {

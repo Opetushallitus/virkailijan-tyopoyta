@@ -15,7 +15,6 @@ import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.AuthenticationService
 import play.api.libs.json.{Json, Writes}
 
-import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
