@@ -13,8 +13,8 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired,
-  expandedNotifications: PropTypes.array.isRequired
+  expandedNotifications: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired
 }
 
 function Notification (props) {

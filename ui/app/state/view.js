@@ -40,6 +40,15 @@ function removeAlert (state, id) {
   return update(state, { prop: 'alerts', value: newAlerts })
 }
 
+function emptyView () {
+  return {
+    categories: [],
+    selectedTab: 'notifications',
+    alerts: [],
+    isMobileMenuVisible: false
+  }
+}
+
 // Events for appState
 const events = {
   toggleCategory,
@@ -48,14 +57,7 @@ const events = {
   removeAlert
 }
 
-const initialState = {
-  categories: [],
-  startDate: '',
-  endDate: '',
-  selectedTab: 'notifications',
-  alerts: [],
-  isMobileMenuVisible: false
-}
+const initialState = emptyView()
 
 const view = {
   alertsBus,
@@ -65,7 +67,8 @@ const view = {
   toggleCategory,
   toggleTab,
   toggleMenu,
-  removeAlert
+  removeAlert,
+  emptyView
 }
 
 export default view

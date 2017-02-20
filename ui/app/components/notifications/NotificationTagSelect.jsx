@@ -25,11 +25,11 @@ function NotificationTagSelect (props) {
   } = props
 
   const handleChange = (event, { value }) => {
-    controller.setSelectedTags(value)
+    controller.setSelectedItems(value)
   }
 
   const handleLabelClick = (event, { value }) => {
-    controller.toggleTag(value)
+    controller.toggle(value)
   }
 
   return (

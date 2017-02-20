@@ -39,6 +39,7 @@ function onCurrentMonthReceived (state, response) {
   // Get month's current day and the days after it
   const visibleDays = R.pickBy(isCurrentDayOrAfter, response.days)
   const visibleMonth = R.assoc('days', visibleDays, response)
+  const count = Object.keys(visibleDays).length
 
   // Get month's past days
   const pastDays = R.omit(Object.keys(visibleDays), response.days)
@@ -46,9 +47,10 @@ function onCurrentMonthReceived (state, response) {
   const pastMonth = R.assoc('days', pastDays, partOfMonth)
 
   const newState = R.assocPath(['timeline', 'preloadedItems'], [pastMonth], state)
-  const stateWithCount = R.assocPath(['timeline', 'count'], Object.keys(visibleDays).length, newState)
+  const stateWithCount = R.assocPath(['timeline', 'count'], count, newState)
+  const stateWithoutLoading = R.assocPath(['timeline', 'isLoadingNext'], false, stateWithCount)
 
-  return R.assocPath(['timeline', 'items'], [visibleMonth], stateWithCount)
+  return R.assocPath(['timeline', 'items'], [visibleMonth], stateWithoutLoading)
 }
 
 function onNewMonthReceived (state, options) {
@@ -162,6 +164,45 @@ function getPreloadedMonth (state) {
   return R.assocPath(['timeline', 'items'], newItems, stateWithoutPreloadedItems)
 }
 
+function getCurrentMonth (state) {
+  const month = moment().format('M')
+  const year = moment().format('YYYY')
+
+  fetch({
+    month,
+    year
+  })
+
+  return R.assocPath(['timeline', 'isLoadingNext'], true, state)
+}
+
+function getNextMonth (state) {
+  // Check if next month is already being fetched
+  if (state.timeline.isLoadingNext) {
+    return state
+  }
+
+  const timeline = state.timeline
+  const lastMonth = R.last(timeline.items)
+
+  if (!lastMonth) {
+    return getCurrentMonth(state)
+  }
+
+  const nextMonthAndYear = getManipulatedMonthAndYear({
+    month: lastMonth.month,
+    year: lastMonth.year,
+    action: 'add',
+    amount: 1
+  })
+
+  console.log('Get next month', nextMonthAndYear.month, nextMonthAndYear.year)
+
+  fetch(nextMonthAndYear)
+
+  return R.assocPath(['timeline', 'isLoadingNext'], true, state)
+}
+
 function getPreviousMonth (state) {
   // Check if previous month is already being fetched
   if (state.timeline.isLoadingPrevious) {
@@ -185,53 +226,35 @@ function getPreviousMonth (state) {
   return R.assocPath(['timeline', 'isLoadingPrevious'], true, state)
 }
 
-function getNextMonth (state) {
-  // Check if next month is already being fetched
-  if (state.timeline.isLoadingNext) {
-    return state
-  }
-
-  const timeline = state.timeline
-  const lastMonth = R.last(timeline.items)
-
-  const nextMonthAndYear = getManipulatedMonthAndYear({
-    month: lastMonth.month,
-    year: lastMonth.year,
-    action: 'add',
-    amount: 1
-  })
-
-  console.log('Get next month', nextMonthAndYear.month, nextMonthAndYear.year)
-
-  fetch(nextMonthAndYear)
-
-  return R.assocPath(['timeline', 'isLoadingNext'], true, state)
-}
-
 function edit (state, id) {
   console.log('Editing timeline item with id ', id)
 
   return editor.toggle(state, id, 'edit-timeline')
 }
 
+function emptyTimeline () {
+  return {
+    items: [],
+    preloadedItems: [],
+    count: 0,
+    dateFormat: 'M.YYYY',
+    isLoadingNext: false,
+    isLoadingPrevious: false,
+    isInitialLoad: true,
+    hasLoadingFailed: false
+  }
+}
+
 // Events for appState
 const events = {
   getPreloadedMonth,
-  getPreviousMonth,
+  getCurrentMonth,
   getNextMonth,
+  getPreviousMonth,
   edit
 }
 
-const initialState = {
-  items: [],
-  preloadedItems: [],
-  count: 0,
-  dateFormat: 'M.YYYY',
-  isLoadingNext: false,
-  isLoadingPrevious: false,
-  isInitialLoad: true,
-  hasLoadingFailed: false
-}
+const initialState = emptyTimeline()
 
 const timeline = {
   bus,
@@ -241,10 +264,12 @@ const timeline = {
   onReceived,
   onFailed,
   fetch,
+  getCurrentMonth,
   getPreloadedMonth,
   getPreviousMonth,
   getNextMonth,
-  edit
+  edit,
+  emptyTimeline
 }
 
 export default timeline

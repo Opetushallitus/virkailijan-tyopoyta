@@ -166,9 +166,11 @@ class App extends React.Component {
               </div>
 
               <Notifications
-                controller={controller.notifications}
+                notificationsController={controller.notifications}
+                tagsController={controller.tags}
                 locale={state.locale}
                 notifications={state.notifications}
+                tags={state.tags}
               />
             </section>
 
@@ -198,8 +200,9 @@ class App extends React.Component {
             controller={controller.editor}
             locale={state.locale}
             dateFormat={state.dateFormat}
-            notificationTags={state.notifications.tags}
-            state={state.editor}
+            editor={state.editor}
+            tags={state.tags.items}
+            isLoading={state.editor.isLoading}
           />
         </Modal>
 

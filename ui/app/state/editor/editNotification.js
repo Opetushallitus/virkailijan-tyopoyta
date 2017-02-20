@@ -19,16 +19,19 @@ function update (state, {prop, value}) {
   return R.assocPath(path, validatedNotification, state)
 }
 
-function updateTags (state, value) {
-  let newTags = value
+function toggleTag (state, id) {
+  console.log('Toggled tag with id', id)
 
-  // Remove an already selected tag
-  if (R.is(Number, value)) {
-    console.log('Removing notification tag', value)
-    newTags = state.editor.editedRelease.notification.tags.filter(tag => (tag !== value))
-  }
+  const selectedTags = state.editor.editedRelease.notification.tags
+  const newSelectedTags = R.contains(id, selectedTags)
+    ? R.reject(selected => selected === id, selectedTags)
+    : R.append(id, selectedTags)
 
-  return update(state, { prop: 'tags', value: newTags })
+  return setSelectedTags(state, newSelectedTags)
+}
+
+function setSelectedTags (state, selected) {
+  return update(state, { prop: 'tags', value: selected })
 }
 
 function updateContent (state, { prop, language, value }) {
@@ -37,14 +40,16 @@ function updateContent (state, { prop, language, value }) {
 
 const events = {
   update,
-  updateTags,
+  toggleTag,
+  setSelectedTags,
   updateContent
 }
 
 const editNotification = {
   events,
   update,
-  updateTags,
+  toggleTag,
+  setSelectedTags,
   updateContent
 }
 

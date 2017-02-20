@@ -20,12 +20,19 @@ function fetch () {
   })
 }
 
+function reset () {
+  fetch()
+
+  return emptyTags()
+}
+
 function onReceived (state, tags) {
   console.log('Received tags')
 
-  const newState = R.assocPath(['notifications', 'tagsLoading'], false, state)
-
-  return R.assocPath(['notifications', 'tags'], tags, newState)
+  return R.compose(
+    R.assocPath(['tags', 'items'], tags),
+    R.assocPath(['tags', 'isLoading'], false)
+  )(state)
 }
 
 function onFailed (state) {
@@ -40,12 +47,53 @@ function onFailed (state) {
   return R.assocPath(['tags', 'isLoading'], false, state)
 }
 
+function toggle (state, id) {
+  console.log('Toggled tag with id', id)
+
+  const selectedItems = state.tags.selectedItems
+  const newSelectedItems = R.contains(id, selectedItems)
+    ? R.reject(selected => selected === id, selectedItems)
+    : R.append(id, selectedItems)
+
+  return setSelectedItems(state, newSelectedItems)
+}
+
+function setSelectedItems (state, selected) {
+  console.log('Updating selected tags', selected)
+
+  return R.assocPath(
+    ['tags', 'selectedItems'],
+    selected,
+    state
+  )
+}
+
+function emptyTags () {
+  return {
+    items: [],
+    selectedItems: [],
+    isLoading: true
+  }
+}
+
+const initialState = emptyTags()
+
+const events = {
+  toggle,
+  setSelectedItems
+}
+
 const tags = {
   bus,
   failedBus,
+  initialState,
+  events,
   fetch,
+  reset,
   onReceived,
-  onFailed
+  onFailed,
+  toggle,
+  setSelectedItems
 }
 
 export default tags

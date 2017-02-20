@@ -5,8 +5,8 @@ import { Dropdown } from 'semantic-ui-react'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
 import LimitedTextField from '../common/form/LimitedTextField'
-import Translation, { translate } from '../common/Translations'
 import TextEditor from '../texteditor/TextEditor'
+import { translate } from '../common/Translations'
 
 import getFormattedDate from './getFormattedDate'
 import mapDropdownOptions from '../utils/mapDropdownOptions'
@@ -15,8 +15,8 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
-  release: PropTypes.object.isRequired,
-  notificationTags: PropTypes.array.isRequired
+  notification: PropTypes.object.isRequired,
+  tags: PropTypes.array.isRequired
 }
 
 function EditNotification (props) {
@@ -24,11 +24,9 @@ function EditNotification (props) {
     locale,
     dateFormat,
     controller,
-    release,
-    notificationTags
+    notification,
+    tags
   } = props
-
-  const notification = release.notification
 
   // Handle non-existing language properties in notification.content
   const contentFi = notification.content.fi || {}
@@ -38,11 +36,11 @@ function EditNotification (props) {
   const minDate = moment().add(2, 'hours')
 
   const handleTagsChange = (event, { value }) => {
-    controller.updateTags(value)
+    controller.setSelectedTags(value)
   }
 
   const handleTagClick = (event, { value }) => {
-    controller.updateTags(value)
+    controller.toggleTag(value)
   }
 
   /*
@@ -83,14 +81,14 @@ function EditNotification (props) {
   return (
     <div>
       <h3 className="hide">
-        <Translation trans="muokkaatiedotteita" />
+        {translate('muokkaatiedotteita')}
       </h3>
 
       {/*Title*/}
       <div className="flex flex-wrap">
         <div className="col-12 sm-col-6 sm-pr2">
           <LimitedTextField
-            label={<Translation trans="otsikko" />}
+            label={translate('otsikko')}
             name="notification-title-fi"
             value={contentFi.title}
             maxLength={200}
@@ -101,7 +99,7 @@ function EditNotification (props) {
 
         <div className="col-12 sm-col-6 sm-pl2">
           <LimitedTextField
-            label={<Translation trans="otsikkoSV" />}
+            label={translate('otsikkoSV')}
             name="notification-title-sv"
             value={contentSv.title}
             maxLength={200}
@@ -116,7 +114,7 @@ function EditNotification (props) {
       <div className="flex flex-wrap">
         <div className="col-12 sm-col-6 sm-pr2">
           <Field
-            label={<Translation trans="kuvaus" />}
+            label={translate('kuvaus')}
             name="notification-description-fi"
             isRequired
           >
@@ -130,7 +128,7 @@ function EditNotification (props) {
 
         <div className="col-12 sm-col-6 sm-pl2">
           <Field
-            label={<Translation trans="kuvausSV" />}
+            label={translate('kuvausSV')}
             name="notification-description-sv"
           >
             <TextEditor
@@ -146,7 +144,7 @@ function EditNotification (props) {
         {/*Tags*/}
         <div className="col-12 sm-col-6 sm-pr2">
           <Field
-            label={<Translation trans="tiedotteenavainsanat" />}
+            label={translate('tiedotteenavainsanat')}
             name="notification-tags"
             isRequired
           >
@@ -158,11 +156,11 @@ function EditNotification (props) {
               noResultsMessage={translate('eiavainsanoja')}
               onChange={handleTagsChange}
               onLabelClick={handleTagClick}
-              options={mapDropdownOptions(notificationTags, locale)}
+              options={mapDropdownOptions(tags, locale)}
               placeholder={translate('lisaaavainsanoja')}
               search
               selection
-              value={release.notification.tags}
+              value={notification.tags}
             />
           </Field>
         </div>
@@ -172,7 +170,7 @@ function EditNotification (props) {
           <div className="md-col-6 lg-col-5 md-pr2">
             {/*Publish date*/}
             <DateField
-              label={<Translation trans="julkaisupvm" />}
+              label={translate('julkaisupvm')}
               name="notification-start-date"
               locale={locale}
               dateFormat={dateFormat}
@@ -189,7 +187,7 @@ function EditNotification (props) {
           <div className="md-col-6 lg-col-5 md-pl2">
             {/*Expiry date*/}
             <DateField
-              label={<Translation trans="poistumispvm" />}
+              label={translate('poistumispvm')}
               name="notification-end-date"
               locale={locale}
               dateFormat={dateFormat}

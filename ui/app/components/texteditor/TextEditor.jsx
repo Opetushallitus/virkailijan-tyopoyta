@@ -131,7 +131,9 @@ class TextEditor extends React.Component {
   _promptForLink (e) {
     e.preventDefault()
 
-    const {editorState} = this.state
+    const {
+      editorState
+    } = this.state
 
     // Update link's text with text from editor's content
     const entity = getEntityAtCursor(editorState)
@@ -237,7 +239,9 @@ class TextEditor extends React.Component {
       controls
     } = this.props
 
-    const { editorState } = this.state
+    const {
+      editorState
+    } = this.state
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.

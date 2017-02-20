@@ -17,8 +17,9 @@ const dispatcher = new Dispatcher()
 
 const events = {
   view: view.events,
-  timeline: timeline.events,
+  tags: tags.events,
   notifications: notifications.events,
+  timeline: timeline.events,
   editor: editor.events
 }
 
@@ -57,6 +58,7 @@ export function initAppState () {
     locale: 'fi',
     dateFormat: 'D.M.YYYY',
     categories: testData.viewCategories,
+    tags: tags.initialState,
     view: view.initialState,
     unpublishedNotifications: {
       isVisible: false,
@@ -84,13 +86,13 @@ export function initAppState () {
     // Tags
     [tags.bus], tags.onReceived,
     [tags.failedBus], tags.onFailed,
+    [dispatcher.stream(events.tags.toggle)], tags.toggle,
+    [dispatcher.stream(events.tags.setSelectedItems)], tags.setSelectedItems,
 
     // Notifications
     [notifications.bus], notifications.onReceived,
     [notifications.failedBus], notifications.onFailed,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
-    [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
-    [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.toggle)], notifications.toggle,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
     [dispatcher.stream(events.notifications.toggleUnpublishedNotifications)], notifications.toggleUnpublishedNotifications,
@@ -99,17 +101,20 @@ export function initAppState () {
     [timeline.bus], timeline.onReceived,
     [timeline.failedBus], timeline.onFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
-    [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
+    [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
     [dispatcher.stream(events.timeline.edit)], timeline.edit,
 
     // Editor
-    [editor.savedReleasesBus], editor.onSaveComplete,
-    [editor.failedReleasesBus], editor.onSaveFailed,
+    [editor.saveBus], editor.onSaveComplete,
+    [editor.saveFailedBus], editor.onSaveFailed,
+    [editor.fetchBus], editor.onReleaseReceived,
+    [editor.fetchFailedBus], editor.onFetchFailed,
     [dispatcher.stream(events.editor.toggle)], editor.toggle,
     [dispatcher.stream(events.editor.toggleTab)], editor.toggleTab,
     [dispatcher.stream(events.editor.togglePreview)], editor.togglePreview,
     [dispatcher.stream(events.editor.toggleHasSaveFailed)], editor.toggleHasSaveFailed,
+    [dispatcher.stream(events.editor.removeAlert)], editor.removeAlert,
     [dispatcher.stream(events.editor.save)], editor.save,
 
     [dispatcher.stream(events.editor.editRelease.update)], editor.editRelease.update,
@@ -124,7 +129,8 @@ export function initAppState () {
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
 
     [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
-    [dispatcher.stream(events.editor.editNotification.updateTags)], editor.editNotification.updateTags,
+    [dispatcher.stream(events.editor.editNotification.toggleTag)], editor.editNotification.toggleTag,
+    [dispatcher.stream(events.editor.editNotification.setSelectedTags)], editor.editNotification.setSelectedTags,
     [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent
   )
 }

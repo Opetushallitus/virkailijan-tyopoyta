@@ -9,28 +9,28 @@ export function initController (dispatcher, events) {
     removeAlert: id => dispatcher.push(events.view.removeAlert, id)
   }
 
-  const timeline = {
-    getPreloadedMonth: () => dispatcher.push(events.timeline.getPreloadedMonth),
+  const tags = {
+    toggle: id => dispatcher.push(events.tags.toggle, id),
 
-    getPreviousMonth: (year, month) => dispatcher.push(events.timeline.getPreviousMonth, { year, month }),
-
-    getNextMonth: (year, month) => dispatcher.push(events.timeline.getNextMonth, { year, month }),
-
-    edit: releaseId => dispatcher.push(events.timeline.edit, releaseId)
+    setSelectedItems: selected => dispatcher.push(events.tags.setSelectedItems, selected)
   }
 
   const notifications = {
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
-    toggleTag: value => dispatcher.push(events.notifications.toggleTag, value),
-
-    setSelectedTags: value => dispatcher.push(events.notifications.setSelectedTags, value),
-
-    toggle: id => dispatcher.push(events.notifications.toggle, id),
-
     edit: releaseId => dispatcher.push(events.notifications.edit, releaseId),
 
     toggleUnpublishedNotifications: releaseId => dispatcher.push(events.notifications.toggleUnpublishedNotifications(), releaseId)
+  }
+
+  const timeline = {
+    getPreloadedMonth: () => dispatcher.push(events.timeline.getPreloadedMonth),
+
+    getNextMonth: (year, month) => dispatcher.push(events.timeline.getNextMonth, { year, month }),
+
+    getPreviousMonth: (year, month) => dispatcher.push(events.timeline.getPreviousMonth, { year, month }),
+
+    edit: releaseId => dispatcher.push(events.timeline.edit, releaseId)
   }
 
   const editor = {
@@ -41,6 +41,8 @@ export function initController (dispatcher, events) {
     togglePreview: isPreviewed => dispatcher.push(events.editor.togglePreview, isPreviewed),
 
     toggleHasSaveFailed: () => dispatcher.push(events.editor.toggleHasSaveFailed),
+
+    removeAlert: id => dispatcher.push(events.editor.removeAlert, id),
 
     save: () => dispatcher.push(events.editor.save),
 
@@ -68,7 +70,9 @@ export function initController (dispatcher, events) {
     editNotification: {
       update: (prop, value) => dispatcher.push(events.editor.editNotification.update, { prop, value }),
 
-      updateTags: value => dispatcher.push(events.editor.editNotification.updateTags, value),
+      toggleTag: id => dispatcher.push(events.editor.editNotification.toggleTag, id),
+
+      setSelectedTags: selected => dispatcher.push(events.editor.editNotification.setSelectedTags, selected),
 
       updateContent: (language, prop) => value =>
         dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value })
@@ -85,6 +89,18 @@ export function initController (dispatcher, events) {
       toggleMenu: view.toggleMenu
     },
 
+    tags: {
+      toggle: tags.toggle,
+      setSelectedItems: tags.setSelectedItems
+    },
+
+    notifications: {
+      getPage: notifications.getPage,
+      toggle: notifications.toggle,
+      edit: notifications.edit,
+      toggleUnpublishedNotifications: notifications.toggleUnpublishedNotifications
+    },
+
     timeline: {
       getPreloadedMonth: timeline.getPreloadedMonth,
       getNextMonth: timeline.getNextMonth,
@@ -92,20 +108,12 @@ export function initController (dispatcher, events) {
       edit: timeline.edit
     },
 
-    notifications: {
-      getPage: notifications.getPage,
-      toggleTag: notifications.toggleTag,
-      setSelectedTags: notifications.setSelectedTags,
-      toggle: notifications.toggle,
-      edit: notifications.edit,
-      toggleUnpublishedNotifications: notifications.toggleUnpublishedNotifications
-    },
-
     editor: {
       toggle: editor.toggle,
       toggleTab: editor.toggleTab,
       togglePreview: editor.togglePreview,
       toggleHasSaveFailed: editor.toggleHasSaveFailed,
+      removeAlert: editor.removeAlert,
       save: editor.save,
       editRelease: {
         toggleCategory: editor.editRelease.toggleCategory,
@@ -121,7 +129,8 @@ export function initController (dispatcher, events) {
       },
       editNotification: {
         update: editor.editNotification.update,
-        updateTags: editor.editNotification.updateTags,
+        toggleTag: editor.editNotification.toggleTag,
+        setSelectedTags: editor.editNotification.setSelectedTags,
         updateContent: editor.editNotification.updateContent
       }
     }
