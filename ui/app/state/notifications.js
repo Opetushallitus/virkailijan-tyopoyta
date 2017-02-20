@@ -2,23 +2,22 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import view from './view'
-import tags from './tags'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 
 const url = '/virkailijan-tyopoyta/api/notifications'
 
-const bus = new Bacon.Bus()
-const failedBus = new Bacon.Bus()
+const fetchBus = new Bacon.Bus()
+const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
   console.log('Fetching notifications')
 
   getData({
     url: url,
-    onSuccess: notifications => bus.push(notifications),
-    onError: error => failedBus.push(error)
+    onSuccess: notifications => fetchBus.push(notifications),
+    onError: error => fetchFailedBus.push(error)
   })
 }
 
@@ -125,8 +124,8 @@ const events = {
 const initialState = emptyNotifications()
 
 const notifications = {
-  bus,
-  failedBus,
+  fetchBus,
+  fetchFailedBus,
   events,
   initialState,
   fetch,

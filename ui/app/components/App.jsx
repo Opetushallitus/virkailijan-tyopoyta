@@ -9,7 +9,7 @@ import urls from '../data/virkailijan-tyopoyta-urls.json'
 // Components
 import Menu from './menu/Menu'
 import Notifications from './notifications/Notifications'
-import UnpublishedNotifications from './notifications/UnpublishedNotifications'
+import UnpublishedNotifications from './unpublishedNotifications/UnpublishedNotifications'
 import Timeline from './timeline/Timeline'
 import Editor from './editor/Editor'
 import Tabs from './common/tabs/Tabs'
@@ -202,7 +202,6 @@ class App extends React.Component {
             dateFormat={state.dateFormat}
             editor={state.editor}
             tags={state.tags.items}
-            isLoading={state.editor.isLoading}
           />
         </Modal>
 
@@ -211,12 +210,12 @@ class App extends React.Component {
           title={translate('julktiedotteet')}
           isVisible={state.unpublishedNotifications.isVisible}
           variant="large"
-          onCloseButtonClick={controller.notifications.toggleUnpublishedNotifications}
+          onCloseButtonClick={controller.unpublishedNotifications.toggle}
         >
           <UnpublishedNotifications
-            controller={controller}
+            controller={controller.unpublishedNotifications}
             locale={state.locale}
-            items={state.unpublishedNotifications.items}
+            notifications={state.unpublishedNotifications}
           />
         </Modal>
       </div>

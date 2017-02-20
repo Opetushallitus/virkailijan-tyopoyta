@@ -6,6 +6,7 @@ import editNotification from './editNotification'
 import editTimeline from './editTimeline'
 import view from '../view'
 import tags from '../tags'
+import unpublishedNotifications from '../unpublishedNotifications'
 import notifications from '../notifications'
 import timeline from '../timeline'
 import getData from '../../utils/getData'
@@ -43,7 +44,7 @@ function onFetchFailed (state, response) {
   const alert = createAlert({
     type: 'error',
     title: 'Julkaisun haku epäonnistui',
-    text: 'Sulje editori yrittääksesi uudelleen'
+    text: 'Sulje ja avaa editori uudestaan hakeaksesi uudelleen'
   })
 
   const newAlerts = R.append(alert, state.editor.alerts)
@@ -195,6 +196,7 @@ function onSaveComplete (state) {
     R.assocPath(['view', 'alerts'], newViewAlerts),
     R.assoc('view', view.emptyView()),
     R.assoc('tags', tags.reset()),
+    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
     R.assoc('notifications', notifications.reset()),
     R.assoc('timeline', timeline.emptyTimeline())
   )(state)

@@ -21,8 +21,7 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   editor: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool.isRequired
+  tags: PropTypes.array.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -64,8 +63,7 @@ function Editor (props) {
     locale,
     dateFormat,
     editor,
-    tags,
-    isLoading
+    tags
   } = props
 
   const {
@@ -75,7 +73,8 @@ function Editor (props) {
     hasSaveFailed,
     editedRelease,
     categories,
-    userGroups
+    userGroups,
+    isLoading
   } = editor
 
   const notification = editedRelease.notification

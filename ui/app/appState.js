@@ -4,6 +4,7 @@ import moment from 'moment'
 
 import view from './state/view'
 import tags from './state/tags'
+import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
 import timeline from './state/timeline'
 import editor from './state/editor/editor'
@@ -18,6 +19,7 @@ const dispatcher = new Dispatcher()
 const events = {
   view: view.events,
   tags: tags.events,
+  unpublishedNotifications: unpublishedNotifications.events,
   notifications: notifications.events,
   timeline: timeline.events,
   editor: editor.events
@@ -60,10 +62,7 @@ export function initAppState () {
     categories: testData.viewCategories,
     tags: tags.initialState,
     view: view.initialState,
-    unpublishedNotifications: {
-      isVisible: false,
-      items: []
-    },
+    unpublishedNotifications: unpublishedNotifications.initialState,
     notifications: notifications.initialState,
     timeline: timeline.initialState,
     editor: editor.initialState
@@ -89,9 +88,16 @@ export function initAppState () {
     [dispatcher.stream(events.tags.toggle)], tags.toggle,
     [dispatcher.stream(events.tags.setSelectedItems)], tags.setSelectedItems,
 
+    // Unpublished notifications
+    [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
+    [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFailed,
+    [dispatcher.stream(events.unpublishedNotifications.toggle)], unpublishedNotifications.toggle,
+    [dispatcher.stream(events.unpublishedNotifications.edit)], unpublishedNotifications.edit,
+    [dispatcher.stream(events.unpublishedNotifications.removeAlert)], unpublishedNotifications.removeAlert,
+
     // Notifications
-    [notifications.bus], notifications.onReceived,
-    [notifications.failedBus], notifications.onFailed,
+    [notifications.fetchBus], notifications.onReceived,
+    [notifications.fetchFailedBus], notifications.onFailed,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
     [dispatcher.stream(events.notifications.toggle)], notifications.toggle,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,

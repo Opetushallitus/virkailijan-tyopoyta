@@ -15,12 +15,20 @@ export function initController (dispatcher, events) {
     setSelectedItems: selected => dispatcher.push(events.tags.setSelectedItems, selected)
   }
 
+  const unpublishedNotifications = {
+    toggle: () => dispatcher.push(events.unpublishedNotifications.toggle),
+
+    edit: releaseId => dispatcher.push(events.unpublishedNotifications.edit, releaseId),
+
+    removeAlert: id => dispatcher.push(events.unpublishedNotifications.removeAlert, id)
+  }
+
   const notifications = {
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
-    edit: releaseId => dispatcher.push(events.notifications.edit, releaseId),
+    toggle: id => dispatcher.push(events.notifications.toggle, id),
 
-    toggleUnpublishedNotifications: releaseId => dispatcher.push(events.notifications.toggleUnpublishedNotifications(), releaseId)
+    edit: releaseId => dispatcher.push(events.notifications.edit, releaseId)
   }
 
   const timeline = {
@@ -94,11 +102,16 @@ export function initController (dispatcher, events) {
       setSelectedItems: tags.setSelectedItems
     },
 
+    unpublishedNotifications: {
+      toggle: unpublishedNotifications.toggle,
+      edit: unpublishedNotifications.edit,
+      removeAlert: unpublishedNotifications.removeAlert
+    },
+
     notifications: {
       getPage: notifications.getPage,
       toggle: notifications.toggle,
-      edit: notifications.edit,
-      toggleUnpublishedNotifications: notifications.toggleUnpublishedNotifications
+      edit: notifications.edit
     },
 
     timeline: {
