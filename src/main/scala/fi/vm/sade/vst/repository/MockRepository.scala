@@ -43,6 +43,8 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   def nextReleaseId(): Long = releases.get().values.map(_.id).max +1
 
   def notifications(): Iterable[Option[Notification]] = releases.get().values.map(_.notification)
+  def nextTimelineId: Long = releases.get().values.flatMap(_.timeline).map(_.id).max + 1
+
   private def nextNotificationId = notifications().flatMap(_.map(_.id)).max + 1
 
   def getReleases : Future[Seq[Release]] = Future(
@@ -53,13 +55,18 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     notification.copy(id = nextNotificationId, releaseId = releaseId)
   }
 
+  def persistTimeline(releaseId: Long, timelineItem: TimelineItem): TimelineItem = {
+    timelineItem.copy(id = nextTimelineId, releaseId = releaseId)
+  }
+
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
     println("Received release: "+ releaseUpdate)
     val id = nextReleaseId()
     val persistedRelease =
       Release(id = id,
         notification = releaseUpdate.notification.map(persistNotification(id, _)),
-        timeline = releaseUpdate.timeline, categories = releaseUpdate.categories,
+        timeline = releaseUpdate.timeline.map(persistTimeline(id, _)),
+        categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
     releases.set(releases.get() + (id -> persistedRelease))
@@ -100,6 +107,9 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   override def unpublished(): Future[Seq[Release]] = Future(
     releases.get.filter(_._2.notification.get.publishDate.toEpochDay > LocalDate.now.toEpochDay).values.toList
   )
+
+  override def unpublishedNotifications(): Future[Seq[Notification]] =
+    Future(releases.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
 
   override def categories(): Future[Seq[Category]] = Future(Seq.empty)
 
@@ -147,6 +157,5 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
       1
     }
   }
-
 
 }

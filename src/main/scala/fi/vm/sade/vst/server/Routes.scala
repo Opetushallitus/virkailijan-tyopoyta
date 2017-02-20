@@ -64,14 +64,16 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
             case Failure(e) ⇒
               complete(StatusCodes.InternalServerError, e.getMessage)
           }
-
-
-
         }
       } ~
-      path("notifications"){
-        parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
-          (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
+      pathPrefix("notifications"){
+        pathEnd {
+          parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
+            (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
+          }
+        } ~
+        path("unpublished") {
+          sendResponse(releaseRepository.unpublishedNotifications())
         }
       } ~
       path("unpublished"){
