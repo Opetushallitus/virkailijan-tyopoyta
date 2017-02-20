@@ -74,6 +74,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
         }
       } ~
+      path("unpublished"){
+        sendResponse(releaseRepository.unpublished)
+      } ~
       path("categories"){sendResponse(releaseRepository.categories())} ~
       path("timeline"){
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {

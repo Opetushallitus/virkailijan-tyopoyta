@@ -16,6 +16,7 @@ trait ReleaseRepository{
   def tags() : Future[Seq[Tag]]
   def categories(): Future[Seq[Category]]
   def release(id: Long): Future[Option[Release]]
+  def unpublished() : Future[Seq[Release]]
 
   def deleteRelease(id: Long): Future[Int]
   def addRelease(release: ReleaseUpdate) : Future[Release]

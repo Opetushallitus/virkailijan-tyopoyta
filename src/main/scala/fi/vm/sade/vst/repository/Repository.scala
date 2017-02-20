@@ -340,4 +340,5 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     }
   }
   override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
+  override def unpublished(): Future[Seq[Release]] = ???
 }
