@@ -25,7 +25,7 @@ const events = {
   editor: editor.events
 }
 
-// const authUrl = '/virkailijan-tyopoyta/login'
+const authUrl = '/virkailijan-tyopoyta/login'
 
 const controller = initController(dispatcher, events)
 
@@ -34,7 +34,7 @@ export function getController () {
 }
 
 function onUserReceived (state, response) {
-  console.log('Received user')
+  console.log('Received user:' + JSON.stringify(response))
 
   const month = moment().format('M')
   const year = moment().format('YYYY')
@@ -52,9 +52,9 @@ function onUserReceived (state, response) {
 
 export function initAppState () {
   //Disabloidaan auth kunnes saadaan testattua
-  // const userS = Bacon.fromPromise(fetch(authUrl, {mode: 'no-cors'}).then(resp => {
-  //   resp.json()
-  // }))
+  const userS = Bacon.fromPromise(fetch(authUrl).then(resp => {
+    resp.json()
+  }))
 
   const initialState = {
     locale: 'fi',
@@ -68,12 +68,10 @@ export function initAppState () {
     editor: editor.initialState
   }
 
-  onUserReceived(initialState, { language: 'fi' })
-
   return Bacon.update(
     initialState,
 
-    // [userS], onUserReceived,
+    [userS], onUserReceived,
 
     // View
     [view.alertsBus], view.onAlertsReceived,
