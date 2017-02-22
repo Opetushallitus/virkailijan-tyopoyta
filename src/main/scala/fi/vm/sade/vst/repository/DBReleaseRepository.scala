@@ -17,7 +17,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   val (cat, rc) = (CategoryTable.syntax, ReleaseCategoryTable.syntax)
 
-
   private def findRelease(id: Long): Option[Release] =
     withSQL[Release]{
       select
@@ -196,7 +195,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       insert.into(NotificationTable).namedValues(
         n.releaseId -> releaseId,
         n.publishDate -> notification.publishDate,
-        n.expiryDate -> notification.publishDate
+        n.expiryDate -> notification.expiryDate
       )
     }.updateAndReturnGeneratedKey().apply()
   }
@@ -213,9 +212,20 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
+  private def insertNotificationTags(notificationId: Long, tagId: Long) = {
+    val nt = NotificationTagTable.column
+    withSQL {
+      insert.into(NotificationTagTable).namedValues(
+        nt.notificationId -> notificationId,
+        nt.tagId -> tagId
+      )
+    }.update().apply()
+  }
+
   private def addNotification(releaseId: Long, notification: Notification): Long = {
       val notificationId: Long = insertNotification(releaseId, notification)
-      notification.content.values.map(insertNotificationContent(notificationId, _))
+      notification.content.values.foreach(insertNotificationContent(notificationId, _))
+      notification.tags.foreach(t => insertNotificationTags(notificationId, t))
       notificationId
   }
 
@@ -266,6 +276,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       }
     }
   }
+
+  override def unpublished(): Future[Seq[Release]] = ???
 //  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
 
   override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {

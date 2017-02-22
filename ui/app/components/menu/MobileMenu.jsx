@@ -7,18 +7,14 @@ import Translation from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  unpublishedNotifications: PropTypes.array.isRequired,
   isMobileMenuVisible: PropTypes.bool.isRequired
 }
 
 function MobileMenu (props) {
   const {
     controller,
-    unpublishedNotifications,
     isMobileMenuVisible
   } = props
-
-  const hasUnpublishedNotifications = unpublishedNotifications.length
 
   return (
     <div className="md-hide lg-hide flex flex-wrap justify-center col-12">
@@ -38,17 +34,13 @@ function MobileMenu (props) {
         <Translation trans="uusisisalto" />
       </Button>
 
-      {
-        hasUnpublishedNotifications
-          ? <Button
-            className="button-link col-12 sm-col-4 gray"
-            onClick={controller.toggleUnpublishedNotifications}
-          >
-            <Icon className="mr1" name="files-o" />
-            <Translation trans="julktiedotteet" />
-          </Button>
-          : null
-      }
+      <Button
+        className="button-link col-12 sm-col-4 gray"
+        onClick={controller.unpublishedNotifications.toggle}
+      >
+        <Icon className="mr1" name="files-o" />
+        <Translation trans="julktiedotteet" />
+      </Button>
     </div>
   )
 }

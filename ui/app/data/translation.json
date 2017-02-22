@@ -1174,5 +1174,10 @@
     "locale": "fi",
     "key": "paivitasivu",
     "value": "Päivitä sivu hakeaksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "eijulkaisemattomiatiedotteita",
+    "value": "Ei julkaisemattomia tiedotteita"
   }
 ]

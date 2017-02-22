@@ -29,7 +29,7 @@ function QuickTagSelect (props) {
           variant="small"
           options={options}
           selectedOptions={selectedOptions}
-          onChange={controller.toggleTag}
+          onChange={controller.toggle}
         />
       </div>
     </div>

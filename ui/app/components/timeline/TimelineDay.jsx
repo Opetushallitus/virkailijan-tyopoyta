@@ -21,7 +21,7 @@ function TimelineDay (props) {
     <div className="timeline-day relative col-12 sm-col-6 md-col-12 lg-col-6">
       {items.map((item, index) =>
         <TimelineItem
-          key={`timelineItem${item.id}`}
+          key={`timelineItem${item.id}Release${item.releaseId}`}
           index={index}
           dateFormat={dateFormat}
           releaseId={item.releaseId}

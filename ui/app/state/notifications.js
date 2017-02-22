@@ -8,17 +8,23 @@ import createAlert from '../utils/createAlert'
 
 const url = '/virkailijan-tyopoyta/api/notifications'
 
-const bus = new Bacon.Bus()
-const failedBus = new Bacon.Bus()
+const fetchBus = new Bacon.Bus()
+const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
-  console.log('Fetching releases')
+  console.log('Fetching notifications')
 
   getData({
     url: url,
-    onSuccess: notifications => bus.push(notifications),
-    onError: error => failedBus.push(error)
+    onSuccess: notifications => fetchBus.push(notifications),
+    onError: error => fetchFailedBus.push(error)
   })
+}
+
+function reset () {
+  fetch()
+
+  return emptyNotifications()
 }
 
 function onReceived (state, response) {
@@ -78,33 +84,6 @@ function updateSearch (state, search) {
   return R.assoc('filter', search, state)
 }
 
-function toggleTag (state, value) {
-  console.log('Toggled tag with value', value)
-
-  const isSelected = state.notifications.selectedTags.indexOf(value) >= 0
-  let newTags = []
-
-  // Remove an already selected tag
-  if (isSelected) {
-    newTags = state.notifications.selectedTags.filter(tag => (tag !== value))
-  } else {
-    // Set tag to state if not selected
-    newTags = state.notifications.selectedTags.concat(value)
-  }
-
-  return setSelectedTags(state, newTags)
-}
-
-function setSelectedTags (state, value) {
-  console.log('Updating selected notification tags', value)
-
-  return R.assocPath(
-    ['notifications', 'selectedTags'],
-    value,
-    state
-  )
-}
-
 // Expand/contract notification
 function toggle (state, id) {
   console.log('Toggling notification', id)
@@ -124,39 +103,37 @@ function edit (state, id) {
   return editor.toggle(state, id, 'edit-notification')
 }
 
+function emptyNotifications () {
+  return {
+    items: [],
+    expanded: [],
+    isLoading: false,
+    isInitialLoad: true
+  }
+}
+
 // Events for appState
 const events = {
   getPage,
   updateSearch,
-  toggleTag,
-  setSelectedTags,
   toggle,
   edit,
   toggleUnpublishedNotifications
 }
 
-const initialState = {
-  items: [],
-  expanded: [],
-  tags: [],
-  tagsLoading: true,
-  selectedTags: [],
-  isLoading: false,
-  isInitialLoad: true
-}
+const initialState = emptyNotifications()
 
 const notifications = {
-  bus,
-  failedBus,
+  fetchBus,
+  fetchFailedBus,
   events,
   initialState,
   fetch,
+  reset,
   onReceived,
   onFailed,
   getPage,
   updateSearch,
-  toggleTag,
-  setSelectedTags,
   toggle,
   edit,
   toggleUnpublishedNotifications

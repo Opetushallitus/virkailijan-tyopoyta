@@ -63,7 +63,7 @@ class Timeline extends React.Component {
       })
   }
 
-  // Only update if timeline items has changed or loading has failed
+  // Only update if timeline items have changed or loading has failed
   shouldComponentUpdate (nextProps, nextState) {
     const newTimeline = nextProps.timeline
     const timeline = this.props.timeline

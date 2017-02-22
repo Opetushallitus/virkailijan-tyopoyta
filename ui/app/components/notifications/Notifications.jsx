@@ -10,9 +10,11 @@ import Delay from '../common/Delay'
 import { translate } from '../common/Translations'
 
 const propTypes = {
-  controller: PropTypes.object.isRequired,
+  notificationsController: PropTypes.object.isRequired,
+  tagsController: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
-  notifications: PropTypes.object.isRequired
+  notifications: PropTypes.object.isRequired,
+  tags: PropTypes.object.isRequired
 }
 
 // Get quick selection tags
@@ -34,29 +36,28 @@ class Notifications extends React.Component {
           node.scrollHeight - (node.scrollHeight / 10)
 
         if (isLoadingHeightBreakpoint) {
-          this.props.controller.getPage()
+          this.props.notificationsController.getPage()
         }
       })
   }
 
   render () {
     const {
-      controller,
+      notificationsController,
+      tagsController,
       locale,
-      notifications
+      notifications,
+      tags
     } = this.props
 
     const {
       isLoading,
       isInitialLoad,
       items,
-      expanded,
-      tags,
-      tagsLoading,
-      selectedTags
+      expanded
     } = notifications
 
-    const quickTags = getQuickTags(tags)
+    const quickTags = getQuickTags(tags.items)
 
     return (
       <div>
@@ -64,25 +65,25 @@ class Notifications extends React.Component {
 
         <NotificationTagSelect
           locale={locale}
-          options={tags}
-          selectedOptions={selectedTags}
-          controller={controller}
+          options={tags.items}
+          selectedOptions={tags.selectedItems}
+          controller={tagsController}
           isInitialLoad={isInitialLoad}
-          isLoading={tagsLoading}
+          isLoading={tags.isLoading}
         />
 
         <div
           className={`notification-tag-select-container mb3 border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right
-          ${isInitialLoad || tagsLoading || tags.length === 0 ? 'p3' : 'pt2 px2 pb1'}`}
+          ${isInitialLoad || tags.isLoading || tags.items.length === 0 ? 'p3' : 'pt2 px2 pb1'}`}
         >
           {
-            isInitialLoad || tagsLoading || tags.length === 0
+            isInitialLoad || tags.isLoading || tags.items.length === 0
               ? null
               : <QuickTagSelect
                 locale={locale}
                 options={quickTags}
-                selectedOptions={selectedTags}
-                controller={controller}
+                selectedOptions={tags.selectedItems}
+                controller={tagsController}
               />
           }
         </div>
@@ -100,10 +101,10 @@ class Notifications extends React.Component {
           {items.map(notification =>
             <Notification
               key={notification.id}
-              controller={controller}
+              controller={notificationsController}
               locale={locale}
               notification={notification}
-              tags={tags}
+              tags={tags.items}
               expandedNotifications={expanded}
             />
           )}

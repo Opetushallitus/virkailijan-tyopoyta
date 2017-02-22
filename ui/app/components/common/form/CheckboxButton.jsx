@@ -42,7 +42,7 @@ function CheckboxButton (props) {
     onChange
   } = props
 
-  const handleOnChange = () => {
+  const handleChange = () => {
     onChange(id)
   }
 
@@ -56,7 +56,7 @@ function CheckboxButton (props) {
         className="hide"
         type="checkbox"
         checked={checked}
-        onChange={handleOnChange}
+        onChange={handleChange}
       />
 
       <span className={`${classList.join(' ')} ${variant === 'small' ? 'px1' : 'p1'}`}>

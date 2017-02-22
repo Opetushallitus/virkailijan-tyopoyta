@@ -9,7 +9,7 @@ import urls from '../data/virkailijan-tyopoyta-urls.json'
 // Components
 import Menu from './menu/Menu'
 import Notifications from './notifications/Notifications'
-import UnpublishedNotifications from './notifications/UnpublishedNotifications'
+import UnpublishedNotifications from './unpublishedNotifications/UnpublishedNotifications'
 import Timeline from './timeline/Timeline'
 import Editor from './editor/Editor'
 import Tabs from './common/tabs/Tabs'
@@ -166,9 +166,11 @@ class App extends React.Component {
               </div>
 
               <Notifications
-                controller={controller.notifications}
+                notificationsController={controller.notifications}
+                tagsController={controller.tags}
                 locale={state.locale}
                 notifications={state.notifications}
+                tags={state.tags}
               />
             </section>
 
@@ -198,8 +200,8 @@ class App extends React.Component {
             controller={controller.editor}
             locale={state.locale}
             dateFormat={state.dateFormat}
-            notificationTags={state.notifications.tags}
-            state={state.editor}
+            editor={state.editor}
+            tags={state.tags.items}
           />
         </Modal>
 
@@ -208,12 +210,12 @@ class App extends React.Component {
           title={translate('julktiedotteet')}
           isVisible={state.unpublishedNotifications.isVisible}
           variant="large"
-          onCloseButtonClick={controller.notifications.toggleUnpublishedNotifications}
+          onCloseButtonClick={controller.unpublishedNotifications.toggle}
         >
           <UnpublishedNotifications
-            controller={controller}
+            controller={controller.unpublishedNotifications}
             locale={state.locale}
-            items={state.unpublishedNotifications.items}
+            notifications={state.unpublishedNotifications}
           />
         </Modal>
       </div>

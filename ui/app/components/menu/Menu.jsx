@@ -12,7 +12,6 @@ const propTypes = {
   categories: PropTypes.array.isRequired,
   selectedCategories: PropTypes.array.isRequired,
   notificationsLoaded: PropTypes.bool.isRequired,
-  unpublishedNotifications: PropTypes.array.isRequired,
   isMobileMenuVisible: PropTypes.bool.isRequired
 }
 
@@ -23,11 +22,8 @@ function Menu (props) {
     categories,
     selectedCategories,
     notificationsLoaded,
-    unpublishedNotifications,
     isMobileMenuVisible
   } = props
-
-  const hasUnpublishedNotifications = unpublishedNotifications.length
 
   return (
     <div className="menu-container">
@@ -42,7 +38,6 @@ function Menu (props) {
       >
         <MobileMenu
           controller={controller}
-          unpublishedNotifications={unpublishedNotifications}
           isMobileMenuVisible={isMobileMenuVisible}
         />
 
@@ -82,16 +77,12 @@ function Menu (props) {
           <br />
 
           {/*Display unpublished notifications*/}
-          {
-            hasUnpublishedNotifications
-              ? <Button
-                className="button-link regular right-align px0 py1"
-                onClick={controller.notifications.toggleUnpublishedNotifications}
-              >
-                {translate('julktiedotteet')}
-              </Button>
-              : null
-          }
+          <Button
+            className="button-link regular right-align px0 py1"
+            onClick={controller.unpublishedNotifications.toggle}
+          >
+            {translate('julktiedotteet')}
+          </Button>
         </div>
       </section>
     </div>

@@ -9,8 +9,6 @@ import './resources/styles/app.css'
 const controller = getController()
 const appState = initAppState()
 
-console.log(controller)
-
 appState.onValue((state) => {
   render(
     <App

@@ -8,8 +8,11 @@ import PreviewRelease from './PreviewRelease'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
+import Alert from '../common/Alert'
 import Popup from '../common/Popup'
-import Translation, { translate } from '../common/Translations'
+import Delay from '../common/Delay'
+import Spinner from '../common/Spinner'
+import { translate } from '../common/Translations'
 
 import getTimelineItems from './getTimelineItems'
 
@@ -17,8 +20,8 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
-  notificationTags: PropTypes.array.isRequired,
-  state: PropTypes.object.isRequired
+  editor: PropTypes.object.isRequired,
+  tags: PropTypes.array.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -59,19 +62,20 @@ function Editor (props) {
     controller,
     locale,
     dateFormat,
-    notificationTags,
-    state
+    editor,
+    tags
   } = props
 
   const {
+    alerts,
     selectedTab,
     isPreviewed,
-    isLoading,
     hasSaveFailed,
     editedRelease,
     categories,
-    userGroups
-  } = state
+    userGroups,
+    isLoading
+  } = editor
 
   const notification = editedRelease.notification
   const timeline = editedRelease.timeline
@@ -112,6 +116,20 @@ function Editor (props) {
         }
       </h2>
 
+      {/*Alerts*/}
+      <div className={`my3 ${alerts.length > 0 ? '' : 'display-none'}`}>
+        {alerts.map(alert =>
+          <Alert
+            key={alert.id}
+            id={alert.id}
+            type={alert.type}
+            title={alert.title}
+            text={alert.text}
+            onCloseButtonClick={controller.removeAlert}
+          />
+        )}
+      </div>
+
       {/*Tabs and release's state*/}
       <div className="flex flex-wrap px3">
         <Tabs className="md-col-8 mb0">
@@ -120,11 +138,15 @@ function Editor (props) {
             selectedTab={selectedTab}
             onClick={controller.toggleTab}
           >
-            <Translation trans="tiedote" />
+            {translate('tiedote')}
 
-            <span className="lowercase">
-              &nbsp;({translate(notificationValidationStateString)})
-            </span>
+            {
+              isLoading
+                ? null
+                : <span className="lowercase">
+                  &nbsp;({translate(notificationValidationStateString)})
+                </span>
+            }
           </TabItem>
 
           <TabItem
@@ -132,15 +154,19 @@ function Editor (props) {
             selectedTab={selectedTab}
             onClick={controller.toggleTab}
           >
-            <Translation trans="aikajana" />
+            {translate('aikajana')}
 
-            <span className="lowercase">
-              &nbsp;({
-                completeTimelineItems.length
-                  ? completeTimelineItems.length
-                  : translate('eisisaltoa')
-              })
-            </span>
+            {
+              isLoading
+                ? null
+                : <span className="lowercase">
+                  &nbsp;({
+                    completeTimelineItems.length
+                      ? completeTimelineItems.length
+                      : translate('eisisaltoa')
+                  })
+                </span>
+            }
           </TabItem>
 
           <TabItem
@@ -148,7 +174,7 @@ function Editor (props) {
             selectedTab={selectedTab}
             onClick={controller.toggleTab}
           >
-            <Translation trans="kohdennus" />
+            {translate('kohdennus')}
           </TabItem>
         </Tabs>
 
@@ -157,7 +183,11 @@ function Editor (props) {
           className="h5 caps muted md-flex flex-auto items-center justify-end
           mt2 md-mt0 md-border-bottom border-gray-lighten-2"
         >
-          {translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}
+          {
+            isLoading
+              ? null
+              : <span>{translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}</span>
+          }
         </div>
       </div>
 
@@ -165,34 +195,52 @@ function Editor (props) {
       <div className="tab-content px3">
         {/*Notification*/}
         <section className={`tab-pane ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
-          <EditNotification
-            locale={locale}
-            dateFormat={dateFormat}
-            controller={controller.editNotification}
-            release={editedRelease}
-            notificationTags={notificationTags}
-          />
+          {
+            isLoading
+              ? <Delay time={1000}>
+                <Spinner isVisible />
+              </Delay>
+              : <EditNotification
+                locale={locale}
+                dateFormat={dateFormat}
+                controller={controller.editNotification}
+                notification={editedRelease.notification}
+                tags={tags}
+              />
+          }
         </section>
 
         {/*Timeline*/}
         <section className={`tab-pane ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
-          <EditTimeline
-            locale={locale}
-            dateFormat={dateFormat}
-            controller={controller.editTimeline}
-            release={editedRelease}
-          />
+          {
+            isLoading
+              ? <Delay time={1000}>
+                <Spinner isVisible />
+              </Delay>
+              : <EditTimeline
+                locale={locale}
+                dateFormat={dateFormat}
+                controller={controller.editTimeline}
+                release={editedRelease}
+              />
+          }
         </section>
 
         {/*Categories and user groups*/}
         <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
-          <Targeting
-            locale={locale}
-            controller={controller.editRelease}
-            categories={categories}
-            userGroups={userGroups}
-            release={editedRelease}
-          />
+          {
+            isLoading
+              ? <Delay time={1000}>
+                <Spinner isVisible />
+              </Delay>
+              : <Targeting
+                locale={locale}
+                controller={controller.editRelease}
+                categories={categories}
+                userGroups={userGroups}
+                release={editedRelease}
+              />
+          }
         </section>
       </div>
 

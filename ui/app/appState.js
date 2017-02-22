@@ -4,6 +4,7 @@ import moment from 'moment'
 
 import view from './state/view'
 import tags from './state/tags'
+import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
 import timeline from './state/timeline'
 import editor from './state/editor/editor'
@@ -17,12 +18,14 @@ const dispatcher = new Dispatcher()
 
 const events = {
   view: view.events,
-  timeline: timeline.events,
+  tags: tags.events,
+  unpublishedNotifications: unpublishedNotifications.events,
   notifications: notifications.events,
+  timeline: timeline.events,
   editor: editor.events
 }
 
-// const authUrl = '/virkailijan-tyopoyta/login'
+const authUrl = '/virkailijan-tyopoyta/login'
 
 const controller = initController(dispatcher, events)
 
@@ -31,7 +34,7 @@ export function getController () {
 }
 
 function onUserReceived (state, response) {
-  console.log('Received user')
+  console.log('Received user:' + JSON.stringify(response))
 
   const month = moment().format('M')
   const year = moment().format('YYYY')
@@ -49,30 +52,26 @@ function onUserReceived (state, response) {
 
 export function initAppState () {
   //Disabloidaan auth kunnes saadaan testattua
-  // const userS = Bacon.fromPromise(fetch(authUrl, {mode: 'no-cors'}).then(resp => {
-  //   resp.json()
-  // }))
+  const userS = Bacon.fromPromise(fetch(authUrl).then(resp => {
+    resp.json()
+  }))
 
   const initialState = {
     locale: 'fi',
     dateFormat: 'D.M.YYYY',
     categories: testData.viewCategories,
+    tags: tags.initialState,
     view: view.initialState,
-    unpublishedNotifications: {
-      isVisible: false,
-      items: []
-    },
+    unpublishedNotifications: unpublishedNotifications.initialState,
     notifications: notifications.initialState,
     timeline: timeline.initialState,
     editor: editor.initialState
   }
 
-  onUserReceived(initialState, { language: 'fi' })
-
   return Bacon.update(
     initialState,
 
-    // [userS], onUserReceived,
+    [userS], onUserReceived,
 
     // View
     [view.alertsBus], view.onAlertsReceived,
@@ -84,13 +83,20 @@ export function initAppState () {
     // Tags
     [tags.bus], tags.onReceived,
     [tags.failedBus], tags.onFailed,
+    [dispatcher.stream(events.tags.toggle)], tags.toggle,
+    [dispatcher.stream(events.tags.setSelectedItems)], tags.setSelectedItems,
+
+    // Unpublished notifications
+    [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
+    [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFailed,
+    [dispatcher.stream(events.unpublishedNotifications.toggle)], unpublishedNotifications.toggle,
+    [dispatcher.stream(events.unpublishedNotifications.edit)], unpublishedNotifications.edit,
+    [dispatcher.stream(events.unpublishedNotifications.removeAlert)], unpublishedNotifications.removeAlert,
 
     // Notifications
-    [notifications.bus], notifications.onReceived,
-    [notifications.failedBus], notifications.onFailed,
+    [notifications.fetchBus], notifications.onReceived,
+    [notifications.fetchFailedBus], notifications.onFailed,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
-    [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
-    [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.toggle)], notifications.toggle,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
     [dispatcher.stream(events.notifications.toggleUnpublishedNotifications)], notifications.toggleUnpublishedNotifications,
@@ -99,17 +105,20 @@ export function initAppState () {
     [timeline.bus], timeline.onReceived,
     [timeline.failedBus], timeline.onFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
-    [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
+    [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
     [dispatcher.stream(events.timeline.edit)], timeline.edit,
 
     // Editor
-    [editor.savedReleasesBus], editor.onSaveComplete,
-    [editor.failedReleasesBus], editor.onSaveFailed,
+    [editor.saveBus], editor.onSaveComplete,
+    [editor.saveFailedBus], editor.onSaveFailed,
+    [editor.fetchBus], editor.onReleaseReceived,
+    [editor.fetchFailedBus], editor.onFetchFailed,
     [dispatcher.stream(events.editor.toggle)], editor.toggle,
     [dispatcher.stream(events.editor.toggleTab)], editor.toggleTab,
     [dispatcher.stream(events.editor.togglePreview)], editor.togglePreview,
     [dispatcher.stream(events.editor.toggleHasSaveFailed)], editor.toggleHasSaveFailed,
+    [dispatcher.stream(events.editor.removeAlert)], editor.removeAlert,
     [dispatcher.stream(events.editor.save)], editor.save,
 
     [dispatcher.stream(events.editor.editRelease.update)], editor.editRelease.update,
@@ -124,7 +133,8 @@ export function initAppState () {
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
 
     [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
-    [dispatcher.stream(events.editor.editNotification.updateTags)], editor.editNotification.updateTags,
+    [dispatcher.stream(events.editor.editNotification.toggleTag)], editor.editNotification.toggleTag,
+    [dispatcher.stream(events.editor.editNotification.setSelectedTags)], editor.editNotification.setSelectedTags,
     [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent
   )
 }
