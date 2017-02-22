@@ -10,7 +10,7 @@ INSERT INTO release (
   1,
   FALSE,
   0,
-  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
+  CAST('2018-12-29 13:27:000' AS TIMESTAMP),
   NULL,
   NULL,
   FALSE
@@ -26,7 +26,7 @@ INSERT INTO notification (
 ) VALUES (
   1,
   1,
-  CAST('2016-12-30' AS DATE),
+  CAST('2018-12-30' AS DATE),
   NULL,
   FALSE,
   FALSE
@@ -41,7 +41,7 @@ INSERT INTO notification_content (
 ) VALUES (
   1,
   'fi',
-  '<p><strong>AIKU</strong>-palvelussa käyttökatko 16.6.2016 kello 01:00-03:00</p>',
+  '<p><strong>AIKU</strong>-palvelussa käyttökatko 16.6.2018 kello 01:00-03:00</p>',
   'Häiriötiedote',
   'Häiriötiedote'
 );
@@ -53,7 +53,7 @@ INSERT INTO timeline_item (
 ) VALUES (
   1,
   1,
-  CAST('2016-05-23' AS DATE)
+  CAST('2018-05-23' AS DATE)
 );
 
 INSERT INTO timeline_content (

@@ -5,11 +5,10 @@ import akka.http.scaladsl.model.ContentTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
-import com.softwaremill.session._
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.{Release, JsonSupport}
+import fi.vm.sade.vst.model.{User, Release, JsonSupport}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.AuthenticationService
 import fi.vm.sade.vst.service.EmailService

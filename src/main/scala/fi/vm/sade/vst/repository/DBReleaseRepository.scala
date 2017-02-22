@@ -277,8 +277,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
-  override def unpublished: Future[Seq[Release]] = ???
-//  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
+  override def unpublished: Future[Seq[Release]] = {
+    val result = withSQL[Release] {
+      select.from(ReleaseTable as r)
+        .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
+        .where.gt(n.publishDate, LocalDate.now)
+    }.map(ReleaseTable(r)).list.apply().map(r => release(r.id))
+    Future.sequence(result).map(_.flatten.toSeq)
+  }
 
   override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
     val releases = Future.sequence(for(_ <- 1 to amount) yield generateRelease(month))
