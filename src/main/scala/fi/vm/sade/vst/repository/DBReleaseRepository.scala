@@ -240,10 +240,10 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
         .join(TimelineTable as tl).on(r.id, tl.releaseId)
         .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
         .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
-        .where(sqls.toAndConditionOpt(
+        .where.between(tl.date, startDate, endDate)
+        .and(sqls.toAndConditionOpt(
           categories.map(cs => sqls.in(rc.categoryId, cs))
         ))
-        .and.between(tl.date, startDate, endDate)
     }
 
     sql.one(ReleaseTable(r)).toManies(
