@@ -51,8 +51,7 @@ function onUserReceived (state, response) {
 }
 
 export function initAppState () {
-  //Disabloidaan auth kunnes saadaan testattua
-  const userS = Bacon.fromPromise(fetch(authUrl).then(resp => {
+  const userS = Bacon.fromPromise(fetch(authUrl, { credentials: 'same-origin' }).then(resp => {
     resp.json()
   }))
 
