@@ -44,6 +44,7 @@ case class Notification(id: Long,
                         initialStartDate: Option[LocalDate],
                         content: Map[String, NotificationContent] = Map.empty,
                         tags: Seq[Long] = List.empty,
+                        sendEmail: Boolean = false,
                         deleted: Boolean = false)
 
 

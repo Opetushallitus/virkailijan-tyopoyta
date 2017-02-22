@@ -40,6 +40,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           HttpResponse(entity = HttpEntity(`application/json`, Json.toJson(result).toString()))
         }
       case Failure(e) ⇒
+        println(s"Exception in route execution")
+        println(s"${e.getLocalizedMessage}")
+        println(e)
         complete(StatusCodes.InternalServerError, e.getMessage)
     }
   }
@@ -56,6 +59,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           HttpResponse(entity = HttpEntity(`text/html(UTF-8)`, result.toString))
         }
       case Failure(e) ⇒
+        println(s"Exception in route execution")
+        println(s"${e.getLocalizedMessage}")
+        println(e)
         complete(ToResponseMarshallable(s"Error: $e"))
     }
   }

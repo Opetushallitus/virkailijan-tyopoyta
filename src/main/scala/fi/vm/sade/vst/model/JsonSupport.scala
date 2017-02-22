@@ -90,6 +90,7 @@ trait JsonSupport {
       (JsPath \ "initialStartDate").readNullable[LocalDate](dateReads) and
       (JsPath \ "content").read[Map[String, NotificationContent]] and
       (JsPath \ "tags").read[Seq[Long]] and
+      Reads.pure(false) and
       Reads.pure(false)
     )(Notification.apply _)
 

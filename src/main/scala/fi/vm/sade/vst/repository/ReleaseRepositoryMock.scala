@@ -37,12 +37,13 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     case None => println("Error parsing release JSON")
   }
 
-  releasesMap.set(sortReleasesByPublishDate(initReleases))
+  releasesMap.set(initReleases)
 
   def nextReleaseId: Long = releasesMap.get().values.map(_.id).max +1
 
   def notifications: Iterable[Option[Notification]] = releasesMap.get().values.map(_.notification)
   private def nextNotificationId: Long = notifications.flatMap(_.map(_.id)).max + 1
+  def nextTimelineId: Long = releasesMap.get().values.flatMap(_.timeline).map(_.id).max + 1
 
   def getReleases : Future[Seq[Release]] = Future(
     releasesMap.get().values.toList
@@ -66,7 +67,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
         categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
-    releasesMap.set(sortReleasesByPublishDate(releasesMap.get() + (id -> persistedRelease)))
+    releasesMap.set(releasesMap.get() + (id -> persistedRelease))
     Future{persistedRelease}
   }
 
@@ -101,9 +102,12 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
   override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
     Future(releasesMap.get.values.flatMap(_.notification).toList)
 
+  override def unpublishedNotifications(): Future[Seq[Notification]] =
+    Future(releasesMap.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
+
   override def categories: Future[Seq[Category]] = Future(Seq.empty)
 
-  override def release(id: Long): Future[Option[Release]] = Future(releases.get.get(id))
+  override def release(id: Long): Future[Option[Release]] = Future(releasesMap.get.get(id))
 
   override def releases: Future[Iterable[Release]] = Future(releasesMap.get.values)
 
@@ -113,7 +117,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     for( a <- 1 to amount){
       val id = nextReleaseId
       val release = generateRelease(id, month)
-      releasesMap.set(sortReleasesByPublishDate(releasesMap.get() + (id -> release)))
+      releasesMap.set(releasesMap.get() + (id -> release))
     }
     Future(releasesMap.get().values.toList)
   }
@@ -150,5 +154,4 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
       1
     }
   }
-
 }

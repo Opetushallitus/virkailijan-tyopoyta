@@ -9,6 +9,8 @@ import scala.concurrent.Future
 import scalikejdbc._
 import Tables._
 
+import scala.util.Random
+
 class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
   val (r, n, c, nt, t, tl, tc) =
     (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax)
@@ -166,7 +168,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   def release(id: Long): Future[Option[Release]] = {
     Future {
       val release = findRelease(id)
-
       release.map(r => r.copy(
         notification = notificationForRelease(r),
         timeline = timelineForRelease(r)))
@@ -247,11 +248,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
       DB futureLocalTx { implicit session => {
         Future {
-
           val releaseId = insertRelease(releaseUpdate)
           val notificationId = releaseUpdate.notification.map(addNotification(releaseId, _))
           releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
-
           findRelease(releaseId).get
         }
       }
@@ -267,5 +266,51 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       }
     }
   }
-  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
+//  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
+
+  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
+    val releases = Future.sequence(for(_ <- 1 to amount) yield generateRelease(month))
+    val result = releases.map(_.flatten)
+    result
+  }
+
+  // Some helper functions for release generation
+  private def addNewRelease(release: Release): Long = {
+    val releaseCol = ReleaseTable.column
+    val id: Long = withSQL {
+      insert.into(ReleaseTable).namedValues(
+        releaseCol.createdBy -> release.createdBy,
+        releaseCol.createdAt -> release.createdAt,
+        releaseCol.modifiedBy -> release.modifiedBy,
+        releaseCol.modifiedAt -> release.modifiedAt,
+        releaseCol.deleted -> release.deleted,
+        releaseCol.sendEmail -> release.sendEmail
+      )
+    }.updateAndReturnGeneratedKey.apply()
+    id
+  }
+  private def mockText: String = {
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+      "Phasellus convallis sapien neque, vitae porta risus luctus sed. " +
+      "Morbi placerat elementum massa nec porta. Sed massa sapien, semper at ullamcorper eu, vestibulum non diam. " +
+      "Aenean eleifend ut nisl et commodo. Nunc accumsan ante ac diam tristique, eget luctus nulla consequat. " +
+      "Mauris a volutpat nibh. Nunc vel dapibus ex, quis aliquet nunc. In congue diam quis ultricies malesuada. " +
+      "Aenean cursus purus ut erat tempor, non finibus sapien pharetra. Phasellus malesuada, sem vitae bibendum egestas, " +
+      "nunc velit cursus diam, id auctor erat ante at ante. Nulla libero lectus, bibendum id placerat vel, " +
+      "fringilla quis nisi. Donec dapibus scelerisque risus, lobortis tempor erat. Aenean scelerisque nec metus at " +
+      "consequat. Suspendisse vel fermentum erat. Duis id elit convallis, suscipit dolor in, tincidunt " +
+      "turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum " +
+      "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
+  }
+  private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty, createdBy = 0, createdAt = LocalDate.now())
+  private def generateRelease(month: YearMonth): Future[Option[Release]] = {
+    val releaseId = addNewRelease(emptyRelease)
+    val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
+    val startDate = month.atDay(startDay)
+    val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
+    val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
+    val notification = Notification(releaseId, releaseId, startDate, Option(endDate), Option(startDate), Map("fi" -> notificationContent))
+    addNotification(releaseId, notification)
+    release(releaseId)
+  }
 }
