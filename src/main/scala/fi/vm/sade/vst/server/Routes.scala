@@ -10,7 +10,7 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.JsonSupport
+import fi.vm.sade.vst.model.{JsonSupport, User}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.AuthenticationService
 import play.api.libs.json.{Json, Writes}
@@ -116,7 +116,8 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
         path("login") {
           optionalSession(oneOff, usingCookies) {
             case Some(uid) => complete(serialize(uid))
-            case None => redirect(authenticationService.loginUrl, StatusCodes.Found)
+            case None => complete(Json.toJson(User(name = "", language = "fi", roles = Seq.empty)).toString())
+//              redirect(authenticationService.loginUrl, StatusCodes.Found)
           }
         } ~
         path("authenticate") {
