@@ -74,7 +74,7 @@ CREATE TABLE user_category(
   category_id INTEGER NOT NULL REFERENCES category(id)
 );
 
-CREATE TABLE email_events(
+CREATE TABLE email_event(
   id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
   created_at TIMESTAMP NOT NULL,
   release_id INTEGER NOT NULL REFERENCES release(id),
