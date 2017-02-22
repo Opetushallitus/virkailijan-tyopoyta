@@ -1,138 +1,17 @@
 package fi.vm.sade.vst.repository
 
-import java.time.{LocalDate, YearMonth}
-
 import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model._
-import scalikejdbc._
-
+import java.time.{LocalDate, YearMonth}
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scalikejdbc._
+import Tables._
 
-import scalikejdbc.jsr310._
+import scala.util.Random
 
-object NotificationTable extends SQLSyntaxSupport[Notification] {
-  override val tableName = "notification"
-
-  def apply(n: SyntaxProvider[Notification])(rs: WrappedResultSet): Notification = apply(n.resultName)(rs)
-
-  def apply(n: ResultName[Notification])(rs: WrappedResultSet): Notification =
-    Notification(id = rs.get(n.id),
-      releaseId = rs.get(n.releaseId),
-      publishDate = rs.localDate(n.publishDate),
-      expiryDate = None,
-      initialStartDate = None)
-
-  def opt(n: SyntaxProvider[Notification])(rs: WrappedResultSet): Option[Notification] =
-    rs.longOpt(n.resultName.releaseId).map(_ => NotificationTable(n)(rs))
-}
-
-object NotificationContentTable extends SQLSyntaxSupport[NotificationContent] {
-  override val tableName = "notification_content"
-
-  def apply(n: SyntaxProvider[NotificationContent])(rs: WrappedResultSet): NotificationContent = apply(n.resultName)(rs)
-
-  def apply(n: ResultName[NotificationContent])(rs: WrappedResultSet): NotificationContent =
-    NotificationContent(rs.get(n.notificationId), rs.get(n.language), rs.get(n.title), rs.get(n.text))
-
-  def opt(c: SyntaxProvider[NotificationContent])(rs: WrappedResultSet): Option[NotificationContent] =
-    rs.longOpt(c.resultName.notificationId).map(_ => NotificationContentTable(c)(rs))
-}
-
-object TagTable extends SQLSyntaxSupport[Tag] {
-  override val tableName = "tag"
-
-  def apply(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Tag = apply(t.resultName)(rs)
-
-  def apply(t: ResultName[Tag])(rs: WrappedResultSet): Tag = Tag(rs.get(t.id), rs.get(t.name))
-
-  def opt(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Option[Tag] =
-    rs.longOpt(t.resultName.id).map(_ => TagTable(t)(rs))
-}
-
-object NotificationTagTable extends SQLSyntaxSupport[NotificationTags] {
-  override val tableName = "notification_tag"
-
-  def apply(n: SyntaxProvider[NotificationTags])(rs: WrappedResultSet): NotificationTags = apply(n.resultName)(rs)
-
-  def apply(n: ResultName[NotificationTags])(rs: WrappedResultSet): NotificationTags =
-    NotificationTags(rs.get(n.notificationId), rs.get(n.tagId))
-
-  def opt(nt: SyntaxProvider[NotificationTags])(rs: WrappedResultSet): Option[NotificationTags] =
-    rs.longOpt(nt.resultName.tagId).map(_ => NotificationTagTable(nt)(rs))
-}
-
-object ReleaseTable extends SQLSyntaxSupport[Release] {
-  override val tableName = "release"
-
-  def apply(n: SyntaxProvider[Release])(rs: WrappedResultSet): Release = apply(n.resultName)(rs)
-
-  def apply(r: ResultName[Release])(rs: WrappedResultSet): Release = Release(
-    id = rs.get(r.id),
-    createdBy = rs.get(r.createdBy),
-    createdAt = rs.get(r.createdAt))
-}
-
-object TimelineTable extends SQLSyntaxSupport[TimelineItem] {
-  override val tableName = "timeline_item"
-
-  def apply(tl: SyntaxProvider[TimelineItem])(rs: WrappedResultSet): TimelineItem = apply(tl.resultName)(rs)
-
-  def apply(tl: ResultName[TimelineItem])(rs: WrappedResultSet): TimelineItem = TimelineItem(rs.get(tl.id), rs.get(tl.releaseId), rs.get(tl.date))
-
-  def opt(tl: SyntaxProvider[TimelineItem])(rs: WrappedResultSet): Option[TimelineItem] =
-    rs.longOpt(tl.resultName.id).map(_ => TimelineTable(tl)(rs))
-}
-
-object TimelineContentTable extends SQLSyntaxSupport[TimelineContent] {
-  override val tableName = "timeline_content"
-
-  def apply(c: SyntaxProvider[TimelineContent])(rs: WrappedResultSet): TimelineContent = apply(c.resultName)(rs)
-
-  def apply(c: ResultName[TimelineContent])(rs: WrappedResultSet): TimelineContent =
-    TimelineContent(rs.get(c.timelineId), rs.get(c.language), rs.get(c.text))
-
-  def opt(c: SyntaxProvider[TimelineContent])(rs: WrappedResultSet): Option[TimelineContent] =
-    rs.longOpt(c.resultName.timelineId).map(_ => TimelineContentTable(c)(rs))
-}
-
-object CategoryTable extends SQLSyntaxSupport[Category] {
-  override val tableName = "category"
-
-  def apply(cat: SyntaxProvider[Category])(rs: WrappedResultSet): Category = apply(cat.resultName)(rs)
-
-  def apply(cat: ResultName[Category])(rs: WrappedResultSet): Category =
-    Category(rs.get(cat.id), rs.get(cat.name))
-
-  def opt(cat: SyntaxProvider[Category])(rs: WrappedResultSet): Option[Category] =
-    rs.longOpt(cat.resultName.id).map(_ => CategoryTable(cat)(rs))
-}
-
-object ReleaseCategoryTable extends SQLSyntaxSupport[ReleaseCategory] {
-  override val tableName = "release_category"
-
-  def apply(n: SyntaxProvider[ReleaseCategory])(rs: WrappedResultSet): ReleaseCategory = apply(n.resultName)(rs)
-
-  def apply(n: ResultName[ReleaseCategory])(rs: WrappedResultSet): ReleaseCategory =
-    ReleaseCategory(rs.get(n.releaseId), rs.get(n.categoryId))
-
-  def opt(c: SyntaxProvider[ReleaseCategory])(rs: WrappedResultSet): Option[ReleaseCategory] =
-    rs.longOpt(c.resultName.categoryId).map(_ => ReleaseCategoryTable(c)(rs))
-}
-
-class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
-
-
-  Class.forName("org.postgresql.Driver")
-  ConnectionPool.singleton(config.url, config.username, config.password)
-
-  private val pageLength: Int = config.pageLength
-
-  private def offset(page: Int) = math.max(page-1, 0) * pageLength
-
-  implicit val session = AutoSession
-
+class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
   val (r, n, c, nt, t, tl, tc) =
     (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax)
 
@@ -202,7 +81,7 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     }.list.apply().flatten
   }
 
-  private def listUnpublishedNotifications(): Seq[Notification] = {
+  private def listUnpublishedNotifications: Seq[Notification] = {
     val sql: SQL[Release, NoExtractor] = withSQL[Release]{
       notificationJoins
         .where.gt(n.publishDate, LocalDate.now())
@@ -257,9 +136,10 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     }.list.apply().flatten
   }
 
-  def tags(): Future[Seq[Tag]] = Future{withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply}
 
-  def categories(): Future[Seq[Category]] = Future {
+  def tags: Future[Seq[Tag]] = Future{withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply}
+
+  def categories: Future[Seq[Category]] = Future {
     withSQL{select.from(CategoryTable as cat)}.map(CategoryTable(cat)).list.apply
   }
 
@@ -269,9 +149,9 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     }
   }
 
-  override def unpublishedNotifications(): Future[Seq[Notification]] = {
+  override def unpublishedNotifications: Future[Seq[Notification]] = {
     Future{
-      listUnpublishedNotifications()
+      listUnpublishedNotifications
     }
   }
 
@@ -287,10 +167,15 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
   def release(id: Long): Future[Option[Release]] = {
     Future {
       val release = findRelease(id)
-
       release.map(r => r.copy(
         notification = notificationForRelease(r),
         timeline = timelineForRelease(r)))
+    }
+  }
+
+  def releases: Future[Iterable[Release]] = {
+    Future {
+      withSQL(select.from(ReleaseTable as r)).map(ReleaseTable(r)).list.apply
     }
   }
 
@@ -373,11 +258,9 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
       DB futureLocalTx { implicit session => {
         Future {
-
           val releaseId = insertRelease(releaseUpdate)
           val notificationId = releaseUpdate.notification.map(addNotification(releaseId, _))
           releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
-
           findRelease(releaseId).get
         }
       }
@@ -393,6 +276,68 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
       }
     }
   }
-  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
-  override def unpublished(): Future[Seq[Release]] = ???
+
+  override def unpublished: Future[Seq[Release]] = {
+    val result = withSQL[Release] {
+      select.from(ReleaseTable as r)
+        .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
+        .where.gt(n.publishDate, LocalDate.now)
+    }.map(ReleaseTable(r)).list.apply().map(r => release(r.id))
+    Future.sequence(result).map(_.flatten.toSeq)
+  }
+
+  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
+    val releases = Future.sequence(for(_ <- 1 to amount) yield generateRelease(month))
+    val result = releases.map(_.flatten)
+    result
+  }
+
+  // Some helper functions for release generation
+  private def addNewRelease(release: Release): Long = {
+    val releaseCol = ReleaseTable.column
+    val id: Long = withSQL {
+      insert.into(ReleaseTable).namedValues(
+        releaseCol.createdBy -> release.createdBy,
+        releaseCol.createdAt -> release.createdAt,
+        releaseCol.modifiedBy -> release.modifiedBy,
+        releaseCol.modifiedAt -> release.modifiedAt,
+        releaseCol.deleted -> release.deleted,
+        releaseCol.sendEmail -> release.sendEmail
+      )
+    }.updateAndReturnGeneratedKey.apply()
+    id
+  }
+  private def mockText: String = {
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+      "Phasellus convallis sapien neque, vitae porta risus luctus sed. " +
+      "Morbi placerat elementum massa nec porta. Sed massa sapien, semper at ullamcorper eu, vestibulum non diam. " +
+      "Aenean eleifend ut nisl et commodo. Nunc accumsan ante ac diam tristique, eget luctus nulla consequat. " +
+      "Mauris a volutpat nibh. Nunc vel dapibus ex, quis aliquet nunc. In congue diam quis ultricies malesuada. " +
+      "Aenean cursus purus ut erat tempor, non finibus sapien pharetra. Phasellus malesuada, sem vitae bibendum egestas, " +
+      "nunc velit cursus diam, id auctor erat ante at ante. Nulla libero lectus, bibendum id placerat vel, " +
+      "fringilla quis nisi. Donec dapibus scelerisque risus, lobortis tempor erat. Aenean scelerisque nec metus at " +
+      "consequat. Suspendisse vel fermentum erat. Duis id elit convallis, suscipit dolor in, tincidunt " +
+      "turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum " +
+      "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
+  }
+  private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty, createdBy = 0, createdAt = LocalDate.now)
+  private def generateRelease(month: YearMonth): Future[Option[Release]] = {
+    val releaseId = addNewRelease(emptyRelease)
+    val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
+    val startDate = month.atDay(startDay)
+    val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
+    val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
+    val notification = Notification(releaseId, releaseId, startDate, Option(endDate), Option(startDate), Map("fi" -> notificationContent))
+    addNotification(releaseId, notification)
+    generateTimeLine(releaseId, startDate, endDate)
+    release(releaseId)
+  }
+  private def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): Unit = {
+    val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1)+startDate.getDayOfMonth
+    val publishDate = LocalDate.of(startDate.getYear, startDate.getMonth, day)
+    val timelineItem = TimelineItem(releaseId, releaseId, publishDate, Map.empty)
+    val timelineId = insertTimelineItem(releaseId, timelineItem)
+    val timelineContent = TimelineContent(timelineId, "fi", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
+    insertTimelineContent(timelineId, timelineContent)
+  }
 }

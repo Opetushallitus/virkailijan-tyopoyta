@@ -11,11 +11,11 @@ import scala.concurrent.Future
 import scala.util.Random
 
 
-class MockRepository() extends ReleaseRepository with JsonSupport {
+class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
 
   private val mockText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus convallis sapien neque, vitae porta risus luctus sed. Morbi placerat elementum massa nec porta. Sed massa sapien, semper at ullamcorper eu, vestibulum non diam. Aenean eleifend ut nisl et commodo. Nunc accumsan ante ac diam tristique, eget luctus nulla consequat. Mauris a volutpat nibh. Nunc vel dapibus ex, quis aliquet nunc. In congue diam quis ultricies malesuada. Aenean cursus purus ut erat tempor, non finibus sapien pharetra. Phasellus malesuada, sem vitae bibendum egestas, nunc velit cursus diam, id auctor erat ante at ante. Nulla libero lectus, bibendum id placerat vel, fringilla quis nisi. Donec dapibus scelerisque risus, lobortis tempor erat. Aenean scelerisque nec metus at consequat. Suspendisse vel fermentum erat. Duis id elit convallis, suscipit dolor in, tincidunt turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
 
-  private val releases = new AtomicReference(Map[Long, Release]())
+  private val releasesMap = new AtomicReference(Map[Long, Release]())
 
   private val notificationTags = parseTags(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/tags.json")).mkString).get
 
@@ -23,7 +23,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     notificationTags.filter(t => names.contains(t.name)).map(_.id.toInt)
   }
 
-  def tags(): Future[List[Tag]] = Future{notificationTags}
+  def tags: Future[List[Tag]] = Future{notificationTags}
 
   private val releasesList = parseReleases(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/releases.json")).mkString)
 
@@ -33,22 +33,20 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     case Some(p) =>
       p.foreach((release: Release) => {
         initReleases += (release.id -> release)
-      }
-      )
+      })
     case None => println("Error parsing release JSON")
   }
 
-  releases.set(initReleases)
+  releasesMap.set(initReleases)
 
-  def nextReleaseId(): Long = releases.get().values.map(_.id).max +1
+  def nextReleaseId: Long = releasesMap.get().values.map(_.id).max +1
 
-  def notifications(): Iterable[Option[Notification]] = releases.get().values.map(_.notification)
-  def nextTimelineId: Long = releases.get().values.flatMap(_.timeline).map(_.id).max + 1
-
-  private def nextNotificationId = notifications().flatMap(_.map(_.id)).max + 1
+  def notifications: Iterable[Option[Notification]] = releasesMap.get().values.map(_.notification)
+  private def nextNotificationId: Long = notifications.flatMap(_.map(_.id)).max + 1
+  def nextTimelineId: Long = releasesMap.get().values.flatMap(_.timeline).map(_.id).max + 1
 
   def getReleases : Future[Seq[Release]] = Future(
-    releases.get().values.toList
+    releasesMap.get().values.toList
   )
 
   def persistNotification(releaseId: Long, notification: Notification): Notification = {
@@ -61,7 +59,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
     println("Received release: "+ releaseUpdate)
-    val id = nextReleaseId()
+    val id = nextReleaseId
     val persistedRelease =
       Release(id = id,
         notification = releaseUpdate.notification.map(persistNotification(id, _)),
@@ -69,7 +67,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
         categories = releaseUpdate.categories,
         createdBy = 0, createdAt = LocalDate.now())
 
-    releases.set(releases.get() + (id -> persistedRelease))
+    releasesMap.set(releasesMap.get() + (id -> persistedRelease))
     Future{persistedRelease}
   }
 
@@ -81,7 +79,7 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
     var timelineItems: List[TimelineItem] = List()
     var days: Map[String, List[TimelineItem]] = Map()
-    releases.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
+    releasesMap.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
       p._2.timeline.foreach( (t: TimelineItem) => {
         timelineItems = t :: timelineItems
       })
@@ -102,18 +100,20 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
   }
 
   override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
-    Future(releases.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay >= _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
+    Future(releasesMap.get.values.flatMap(_.notification).toList)
 
-  override def unpublished(): Future[Seq[Release]] = Future(
-    releases.get.filter(_._2.notification.get.publishDate.toEpochDay > LocalDate.now.toEpochDay).values.toList
+  override def unpublished: Future[Seq[Release]] = Future(
+    releasesMap.get.filter(_._2.notification.get.publishDate.toEpochDay > LocalDate.now.toEpochDay).values.toList
   )
 
-  override def unpublishedNotifications(): Future[Seq[Notification]] =
-    Future(releases.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
+  override def unpublishedNotifications: Future[Seq[Notification]] =
+    Future(releasesMap.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
 
-  override def categories(): Future[Seq[Category]] = Future(Seq.empty)
+  override def categories: Future[Seq[Category]] = Future(Seq.empty)
 
-  override def release(id: Long): Future[Option[Release]] = Future(releases.get.get(id))
+  override def release(id: Long): Future[Option[Release]] = Future(releasesMap.get.get(id))
+
+  override def releases: Future[Iterable[Release]] = Future(releasesMap.get.values)
 
   override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
 
@@ -121,10 +121,11 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     for( a <- 1 to amount){
       val id = nextReleaseId
       val release = generateRelease(id, month)
-      releases.set(releases.get() + (id -> release))
+      releasesMap.set(releasesMap.get() + (id -> release))
     }
-    Future(releases.get().values.toList)
+    Future(releasesMap.get().values.toList)
   }
+
   def generateRelease(id: Long, month: YearMonth): Release ={
     val notificationId = 1
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
@@ -153,9 +154,8 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
 
   override def deleteRelease(id: Long): Future[Int] = {
     Future{
-      releases.set(releases.get() - id)
+      releasesMap.set(releasesMap.get() - id)
       1
     }
   }
-
 }
