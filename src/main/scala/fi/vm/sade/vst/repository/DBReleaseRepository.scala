@@ -238,7 +238,7 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
         .from(ReleaseTable as r)
         .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
         .join(TimelineTable as tl).on(r.id, tl.releaseId)
-        .join(NotificationTable as n).on(r.id, n.releaseId)
+        .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
         .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
         .where(sqls.toAndConditionOpt(
           categories.map(cs => sqls.in(rc.categoryId, cs))
@@ -348,7 +348,7 @@ class DBReleaseRepository(config: DBConfig) extends ReleaseRepository{
     val t = TimelineTable.column
     withSQL {
       insert.into(TimelineTable).namedValues(
-        t.releaseId -> item.releaseId,
+        t.releaseId -> releaseId,
         t.date -> item.date
       )
     }.updateAndReturnGeneratedKey().apply()
