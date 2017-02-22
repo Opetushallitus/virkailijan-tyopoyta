@@ -117,12 +117,12 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .from(ReleaseTable as r)
         .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
         .join(TimelineTable as tl).on(r.id, tl.releaseId)
-        .join(NotificationTable as n).on(r.id, n.releaseId)
+        .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
         .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
-        .where(sqls.toAndConditionOpt(
+        .where.between(tl.date, startDate, endDate)
+        .and(sqls.toAndConditionOpt(
           categories.map(cs => sqls.in(rc.categoryId, cs))
         ))
-        .and.between(tl.date, startDate, endDate)
     }
 
     sql.one(ReleaseTable(r)).toManies(
@@ -233,7 +233,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val t = TimelineTable.column
     withSQL {
       insert.into(TimelineTable).namedValues(
-        t.releaseId -> item.releaseId,
+        t.releaseId -> releaseId,
         t.date -> item.date
       )
     }.updateAndReturnGeneratedKey().apply()
