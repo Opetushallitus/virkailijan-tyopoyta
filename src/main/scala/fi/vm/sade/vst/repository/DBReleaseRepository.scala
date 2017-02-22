@@ -320,7 +320,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       "turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum " +
       "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
   }
-  private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty, createdBy = 0, createdAt = LocalDate.now())
+  private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty, createdBy = 0, createdAt = LocalDate.now)
   private def generateRelease(month: YearMonth): Future[Option[Release]] = {
     val releaseId = addNewRelease(emptyRelease)
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
@@ -329,6 +329,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
     val notification = Notification(releaseId, releaseId, startDate, Option(endDate), Option(startDate), Map("fi" -> notificationContent))
     addNotification(releaseId, notification)
+    generateTimeLine(releaseId, startDate, endDate)
     release(releaseId)
+  }
+  private def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): Unit = {
+    val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1)+startDate.getDayOfMonth
+    val publishDate = LocalDate.of(startDate.getYear, startDate.getMonth, day)
+    val timelineItem = TimelineItem(releaseId, releaseId, publishDate, Map.empty)
+    val timelineId = insertTimelineItem(releaseId, timelineItem)
+    val timelineContent = TimelineContent(timelineId, "fi", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
+    insertTimelineContent(timelineId, timelineContent)
   }
 }
