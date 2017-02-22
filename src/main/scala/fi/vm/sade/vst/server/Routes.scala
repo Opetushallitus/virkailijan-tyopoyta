@@ -95,7 +95,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           }
         } ~
         path("unpublished") {
-          sendResponse(releaseRepository.unpublishedNotifications())
+          sendResponse(releaseRepository.unpublishedNotifications)
         }
       } ~
       path("unpublished"){

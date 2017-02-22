@@ -81,7 +81,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.list.apply().flatten
   }
 
-  private def listUnpublishedNotifications(): Seq[Notification] = {
+  private def listUnpublishedNotifications: Seq[Notification] = {
     val sql: SQL[Release, NoExtractor] = withSQL[Release]{
       notificationJoins
         .where.gt(n.publishDate, LocalDate.now())
@@ -149,9 +149,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
-  override def unpublishedNotifications(): Future[Seq[Notification]] = {
+  override def unpublishedNotifications: Future[Seq[Notification]] = {
     Future{
-      listUnpublishedNotifications()
+      listUnpublishedNotifications
     }
   }
 
@@ -277,7 +277,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
-  override def unpublished(): Future[Seq[Release]] = ???
+  override def unpublished: Future[Seq[Release]] = ???
 //  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = ???
 
   override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
