@@ -3,13 +3,9 @@ package fi.vm.sade.vst.repository
 import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
-import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.util.Random
 import scalikejdbc._
 import Tables._
-
-import scala.util.Random
 
 class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
   val (r, n, c, nt, t, tl, tc) =
@@ -137,46 +133,32 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
 
-  def tags: Future[Seq[Tag]] = Future{withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply}
+  def tags: Seq[Tag] = withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply
 
-  def categories: Future[Seq[Category]] = Future {
-    withSQL{select.from(CategoryTable as cat)}.map(CategoryTable(cat)).list.apply
+  def categories: Seq[Category] = withSQL{select.from(CategoryTable as cat)}.map(CategoryTable(cat)).list.apply
+
+  override def notifications(categories: RowIds, tags: RowIds, page: Int): Seq[Notification] = {
+    listNotifications(categories, tags, page)
   }
 
-  override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] = {
-    Future{
-      listNotifications(categories, tags, page)
-    }
+  override def unpublishedNotifications: Seq[Notification] = listUnpublishedNotifications
+
+  override def timeline(categories: RowIds, month: YearMonth): Timeline = {
+    val eventsForMonth = listTimeline(categories, month)
+    val dayEvents: Map[String, Seq[TimelineItem]] = eventsForMonth.groupBy(tl => tl.date.getDayOfMonth.toString)
+
+    Timeline(month.getMonthValue, month.getYear, dayEvents)
   }
 
-  override def unpublishedNotifications: Future[Seq[Notification]] = {
-    Future{
-      listUnpublishedNotifications
-    }
+  def release(id: Long): Option[Release] = {
+    val release = findRelease(id)
+    release.map(r => r.copy(
+      notification = notificationForRelease(r),
+      timeline = timelineForRelease(r)))
   }
 
-  override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
-    Future{
-      val eventsForMonth = listTimeline(categories, month)
-      val dayEvents: Map[String, Seq[TimelineItem]] = eventsForMonth.groupBy(tl => tl.date.getDayOfMonth.toString)
-
-      Timeline(month.getMonthValue, month.getYear, dayEvents)
-    }
-  }
-
-  def release(id: Long): Future[Option[Release]] = {
-    Future {
-      val release = findRelease(id)
-      release.map(r => r.copy(
-        notification = notificationForRelease(r),
-        timeline = timelineForRelease(r)))
-    }
-  }
-
-  def releases: Future[Iterable[Release]] = {
-    Future {
-      withSQL(select.from(ReleaseTable as r)).map(ReleaseTable(r)).list.apply
-    }
+  def releases: Iterable[Release] = {
+    withSQL(select.from(ReleaseTable as r)).map(ReleaseTable(r)).list.apply
   }
 
   private def insertRelease(releaseUpdate: ReleaseUpdate): Long = {
@@ -189,7 +171,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.updateAndReturnGeneratedKey().apply()
   }
 
-  private def insertNotification(releaseId: Long, notification: Notification): Long ={
+  private def insertNotification(releaseId: Long, notification: Notification): Long = {
     val n = NotificationTable.column
     withSQL {
       insert.into(NotificationTable).namedValues(
@@ -200,7 +182,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.updateAndReturnGeneratedKey().apply()
   }
 
-  private def insertNotificationContent(notificationId: Long, content: NotificationContent) = {
+  private def insertNotificationContent(notificationId: Long, content: NotificationContent): Int = {
     val nc = NotificationContentTable.column
     withSQL {
       insert.into(NotificationContentTable).namedValues(
@@ -212,7 +194,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
-  private def insertNotificationTags(notificationId: Long, tagId: Long) = {
+  private def insertNotificationTags(notificationId: Long, tagId: Long): Int = {
     val nt = NotificationTagTable.column
     withSQL {
       insert.into(NotificationTagTable).namedValues(
@@ -255,41 +237,37 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       item.content.values.foreach(insertTimelineContent(itemId, _))
   }
 
-  override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
-      DB futureLocalTx { implicit session => {
-        Future {
-          val releaseId = insertRelease(releaseUpdate)
-          val notificationId = releaseUpdate.notification.map(addNotification(releaseId, _))
-          releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
-          findRelease(releaseId).get
-        }
-      }
+  override def addRelease(releaseUpdate: ReleaseUpdate): Option[Release] = {
+    DB localTx { implicit session =>
+      val releaseId = insertRelease(releaseUpdate)
+      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, _))
+      releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
+      findRelease(releaseId)
     }
   }
 
-  override def deleteRelease(id: Long): Future[Int] = {
+  override def deleteRelease(id: Long): Int = {
     val r = ReleaseTable.column
-    DB futureLocalTx { implicit session => {
-      Future {
-        withSQL{update(ReleaseTable).set(r.deleted -> true)}.update().apply()
-        }
-      }
+    DB localTx { implicit session =>
+      withSQL{update(ReleaseTable).set(r.deleted -> true)}.update().apply()
     }
   }
 
-  override def unpublished: Future[Seq[Release]] = {
+  override def unpublished: Seq[Release] = {
     val result = withSQL[Release] {
       select.from(ReleaseTable as r)
         .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
         .where.gt(n.publishDate, LocalDate.now)
-    }.map(ReleaseTable(r)).list.apply().map(r => release(r.id))
-    Future.sequence(result).map(_.flatten.toSeq)
+    }
+    result.map(ReleaseTable(r))
+      .list.apply()
+      .flatMap(r => release(r.id))
+      .toSeq
   }
 
-  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
-    val releases = Future.sequence(for(_ <- 1 to amount) yield generateRelease(month))
-    val result = releases.map(_.flatten)
-    result
+  override def generateReleases(amount: Int, month: YearMonth): Seq[Release] = {
+    val releases = for(_ <- 1 to amount) yield generateRelease(month)
+    releases.flatten
   }
 
   // Some helper functions for release generation
@@ -321,7 +299,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
   }
   private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty, createdBy = 0, createdAt = LocalDate.now)
-  private def generateRelease(month: YearMonth): Future[Option[Release]] = {
+  private def generateRelease(month: YearMonth): Option[Release] = {
     val releaseId = addNewRelease(emptyRelease)
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
     val startDate = month.atDay(startDay)
