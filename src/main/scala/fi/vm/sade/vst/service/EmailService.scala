@@ -12,7 +12,7 @@ object EmailService extends RepositoryModule with GroupEmailComponent {
 
   val groupEmailService: GroupEmailService = new TempEmailService
 
-  def sendEmails(releases: Iterable[Release], eventType: EmailEventType) = {
+  def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
     val filteredReleases = releases.filterNot(releaseEventExists)
     val emailsToReleases = filteredReleases.flatMap { release =>
       val emails = emailsForUserGroup(userGroupsForRelease(release))

@@ -76,7 +76,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
     get{
       path("release"){
         parameters("id".as[Long]) { id =>
-          val release = releaseRepository.release(id)
+          val release = Future(releaseRepository.release(id))
           onComplete(release) {
             case Success(result) ⇒
               result match {
@@ -91,27 +91,30 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
       pathPrefix("notifications"){
         pathEnd {
           parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
-            (categories, tags, page) => sendResponse(releaseRepository.notifications(categories, tags, page))
+            (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page)))
           }
         } ~
         path("unpublished") {
-          sendResponse(releaseRepository.unpublishedNotifications)
+          sendResponse(Future(releaseRepository.unpublishedNotifications))
         }
       } ~
       path("unpublished"){
-        sendResponse(releaseRepository.unpublished)
+        sendResponse(Future(releaseRepository.unpublished))
       } ~
-      path("categories"){sendResponse(releaseRepository.categories)} ~
+      path("categories"){sendResponse(Future(releaseRepository.categories))} ~
       path("timeline"){
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
-          (categories, year, month) => sendResponse(releaseRepository.timeline(categories, parseMonth(year, month)))
+          (categories, year, month) => sendResponse(Future(releaseRepository.timeline(categories, parseMonth(year, month))))
         }
       } ~
-      path("tags"){sendResponse(releaseRepository.tags)} ~
-      path("emailhtml"){sendHtml(releaseRepository.releases.map(releases => EmailService.sendEmails(releases, EmailService.TimedEmail)))} ~
+      path("tags"){sendResponse(Future(releaseRepository.tags))} ~
+      path("emailhtml"){sendHtml(Future {
+        val releases = releaseRepository.releases.flatMap(r => releaseRepository.release(r.id))
+        EmailService.sendEmails(releases, EmailService.TimedEmail)
+      })} ~
       path("generate"){
         parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
-          (amount, year, month) => sendResponse(releaseRepository.generateReleases(amount, parseMonth(year, month)))
+          (amount, year, month) => sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
         }
       }
 
@@ -121,7 +124,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
         entity(as[String]) { json =>
           val release = parseReleaseUpdate(json)
           release match {
-            case Some(r) => sendResponse(releaseRepository.addRelease(r).map(sendInstantEmails))
+            case Some(r) => sendResponse(Future(releaseRepository.addRelease(r).map(sendInstantEmails)))
             case None => complete(StatusCodes.BadRequest)
           }
         }
@@ -129,7 +132,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
     } ~
     delete {
       path("releases"){
-        entity(as[String]) { id => sendResponse(releaseRepository.deleteRelease(id.toLong)) }
+        entity(as[String]) { id => sendResponse(Future(releaseRepository.deleteRelease(id.toLong))) }
       }
     }
   }

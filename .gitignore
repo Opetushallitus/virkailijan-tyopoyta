@@ -19,3 +19,6 @@ dependency-reduced-pom.xml
 build
 **/.DS_Store
 .iml
+.swn
+.swo
+.swp

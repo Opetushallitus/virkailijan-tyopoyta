@@ -1,13 +1,8 @@
 package fi.vm.sade.vst.repository
 
-import java.time.{LocalDate, YearMonth}
-
 import fi.vm.sade.vst.model.{JsonSupport, ReleaseUpdate, _}
+import java.time.{LocalDate, YearMonth}
 import java.util.concurrent.atomic.AtomicReference
-
-import scala.collection.immutable.{ListMap, Seq => Seq}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.Random
 
 
@@ -23,7 +18,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     notificationTags.filter(t => names.contains(t.name)).map(_.id.toInt)
   }
 
-  def tags: Future[List[Tag]] = Future{notificationTags}
+  def tags: List[Tag] = notificationTags
 
   private val releasesList = parseReleases(scala.io.Source.fromInputStream(getClass.getResourceAsStream("/data/releases.json")).mkString)
 
@@ -45,9 +40,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
   private def nextNotificationId: Long = notifications.flatMap(_.map(_.id)).max + 1
   def nextTimelineId: Long = releasesMap.get().values.flatMap(_.timeline).map(_.id).max + 1
 
-  def getReleases : Future[Seq[Release]] = Future(
-    releasesMap.get().values.toList
-  )
+  def getReleases: Seq[Release] = releasesMap.get().values.toList
 
   def persistNotification(releaseId: Long, notification: Notification): Notification = {
     notification.copy(id = nextNotificationId, releaseId = releaseId)
@@ -57,8 +50,7 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     timelineItem.copy(id = nextTimelineId, releaseId = releaseId)
   }
 
-  override def addRelease(releaseUpdate: ReleaseUpdate): Future[Release] = {
-    println("Received release: "+ releaseUpdate)
+  override def addRelease(releaseUpdate: ReleaseUpdate): Option[Release] = {
     val id = nextReleaseId
     val persistedRelease =
       Release(id = id,
@@ -68,15 +60,10 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
         createdBy = 0, createdAt = LocalDate.now())
 
     releasesMap.set(releasesMap.get() + (id -> persistedRelease))
-    Future{persistedRelease}
+    Option(persistedRelease)
   }
 
-  //  def sortReleasesByPublishDate(releases: Map[Long, Release]): Map[Long, Release] = {
-  //    ListMap(releases.toSeq.sortBy(- _._2.notification.get.publishDate.toEpochDay):_*)
-  //  }
-
-
-  override def timeline(categories: RowIds, month: YearMonth): Future[Timeline] = {
+  override def timeline(categories: RowIds, month: YearMonth): Timeline = {
     var timelineItems: List[TimelineItem] = List()
     var days: Map[String, List[TimelineItem]] = Map()
     releasesMap.get().filter(_._2.timeline.nonEmpty)foreach(p =>{
@@ -96,34 +83,31 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
         case None => days += (day.toString -> List(t))
       }
     })
-    Future{Timeline(startDate.getMonthValue,startDate.getYear,days)}
+    Timeline(startDate.getMonthValue,startDate.getYear,days)
   }
 
-  override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
-    Future(releasesMap.get.values.flatMap(_.notification).toList)
+  override def notifications(categories: RowIds, tags: RowIds, page: Int): Seq[Notification] =
+    releasesMap.get.values.flatMap(_.notification).toList
 
-  override def unpublished: Future[Seq[Release]] = Future(
+  override def unpublished: Seq[Release] =
     releasesMap.get.filter(_._2.notification.get.publishDate.toEpochDay > LocalDate.now.toEpochDay).values.toList
-  )
 
-  override def unpublishedNotifications: Future[Seq[Notification]] =
-    Future(releasesMap.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
+  override def unpublishedNotifications: Seq[Notification] =
+    releasesMap.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay < _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay)
 
-  override def categories: Future[Seq[Category]] = Future(Seq.empty)
+  override def categories: Seq[Category] = Seq.empty
 
-  override def release(id: Long): Future[Option[Release]] = Future(releasesMap.get.get(id))
+  override def release(id: Long): Option[Release] = releasesMap.get.get(id)
 
-  override def releases: Future[Iterable[Release]] = Future(releasesMap.get.values)
+  override def releases: Iterable[Release] = releasesMap.get.values
 
-  override def generateReleases(amount: Int, month: YearMonth): Future[Seq[Release]] = {
-
-    println(amount, month)
+  override def generateReleases(amount: Int, month: YearMonth): Seq[Release] = {
     for( a <- 1 to amount){
       val id = nextReleaseId
       val release = generateRelease(id, month)
       releasesMap.set(releasesMap.get() + (id -> release))
     }
-    Future(releasesMap.get().values.toList)
+    releasesMap.get().values.toList
   }
 
   def generateRelease(id: Long, month: YearMonth): Release ={
@@ -131,7 +115,6 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
     val startDate = month.atDay(startDay)
     val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
-    println(startDate, endDate)
     val notificationContent = NotificationContent(id,"fi",month+"-"+startDay+" Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
 
     val notification = Notification(id,id,startDate,Option(endDate),Option(startDate),Map("fi" -> notificationContent))
@@ -144,18 +127,14 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
   }
 
   def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): TimelineItem = {
-
     val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1)+startDate.getDayOfMonth
-    println(startDate, endDate, endDate.getDayOfMonth - startDate.getDayOfMonth,day)
     val publisDate = LocalDate.of(startDate.getYear, startDate.getMonth, day)
     val timelineContent = TimelineContent(releaseId,"fi", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
     TimelineItem(releaseId,releaseId,publisDate,Map("fi" -> timelineContent))
   }
 
-  override def deleteRelease(id: Long): Future[Int] = {
-    Future{
-      releasesMap.set(releasesMap.get() - id)
-      1
-    }
+  override def deleteRelease(id: Long): Int = {
+    releasesMap.set(releasesMap.get() - id)
+    1
   }
 }
