@@ -21,46 +21,24 @@ class Timeline extends React.Component {
     super(props)
 
     this.loadTimeline = this.loadTimeline.bind(this)
-    this.mouseEnterTimer = null
+    this.moveTimeline = this.moveTimeline.bind(this)
   }
 
   componentDidMount () {
-    // Scrolling event stream for loading next/previous months
+    const menuContainer = document.querySelector('.menu-container')
+    this.timeline.style.height = menuContainer ? '75vh' : '80vh'
+
+    // Load next or previous month when scrolling the timeline
     Bacon
       .fromEvent(this.timeline, 'scroll')
       .debounce(100)
       .onValue(event => this.loadTimeline(event))
 
-    // Delayed mouseenter event stream to hide window scrollbar
+    // Keep timeline in viewport when scrolling the page
     Bacon
-      .fromEvent(this.timeline, 'mouseenter')
-      .onValue(() => {
-        this.mouseEnterTimer = setTimeout(() => {
-          const body = document.body
-          const scrollbarWidth = window.innerWidth - body.clientWidth
-
-          body.classList.add('overflow-hidden')
-          body.style.marginRight = `${scrollbarWidth}px`
-          document.querySelector('.menu-container').style.right = `${scrollbarWidth}px`
-          document.querySelector('.timeline-container').style.right = `${scrollbarWidth}px`
-        }, 200)
-      })
-
-    // Mouseleave event stream to display window scrollbar
-    Bacon
-      .fromEvent(this.timeline, 'mouseleave')
-      .onValue(() => {
-        clearTimeout(this.mouseEnterTimer)
-
-        const body = document.body
-
-        if (body.classList.contains('overflow-hidden')) {
-          body.classList.remove('overflow-hidden')
-          body.style.marginRight = 0
-          document.querySelector('.menu-container').style.right = 0
-          document.querySelector('.timeline-container').style.right = 0
-        }
-      })
+      .fromEvent(window, 'scroll')
+      .debounce(100)
+      .onValue(() => this.moveTimeline())
   }
 
   // Only update if timeline items have changed or loading has failed
@@ -110,6 +88,21 @@ class Timeline extends React.Component {
     }
   }
 
+  moveTimeline () {
+    const virkailijaRaamit = document.querySelector('header')
+    const menuContainer = document.querySelector('.menu-container')
+    const menuHeight = menuContainer ? menuContainer.clientHeight : 0
+    const topOffset = virkailijaRaamit.clientHeight + menuHeight
+
+    if (window.pageYOffset > topOffset) {
+      this.timeline.style.top = `${window.pageYOffset - topOffset}px`
+      this.timeline.style.height = '95vh'
+    } else {
+      this.timeline.style.top = 0
+      this.timeline.style.height = menuContainer ? '75vh' : '80vh'
+    }
+  }
+
   render () {
     const {
       controller,
@@ -136,7 +129,7 @@ class Timeline extends React.Component {
 
         <div
           ref={timeline => (this.timeline = timeline)}
-          className={`timeline-viewport timeline-line relative
+          className={`timeline-viewport timeline-line
           ${isInitialLoad ? 'display-none' : ''}`}
         >
           <h2 className="hide">{translate('tapahtumatalkaen')} {currentDate}</h2>

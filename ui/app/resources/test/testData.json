@@ -95,92 +95,91 @@
       }
     }
   ],
-  "notificationTags": [
-    {
-      "id": 1,
-      "name_fi": "Perusopetus",
-      "isQuickTag": true
-    },
-    {
-      "id": 2,
-      "name_fi": "Toinen aste",
-      "isQuickTag": false
-    },
-    {
-      "id": 3,
-      "name_fi": "Valinnat",
-      "isQuickTag": false
-    },
-    {
-      "id": 4,
-      "name_fi": "ePerusteet",
-      "isQuickTag": true
-    }
-  ],
-  "viewCategories": [
+  "categories": [
     {
       "id": 1,
       "name_fi": "Perusopetus"
     },
     {
       "id": 2,
-      "name_fi": "Toinen aste"
+      "name_fi": "Lukio-opetus"
     },
     {
       "id": 3,
-      "name_fi": "Korkeakoulutus"
-    }
-  ],
-  "releaseCategories": [
-    {
-      "id": 1,
-      "name_fi": "Perusopetus"
-    },
-    {
-      "id": 2,
-      "name_fi": "Yhteishaku (lukiot)"
-    },
-    {
-      "id": 3,
-      "name_fi": "Yhteishaku (ammat.)"
+      "name_fi": "KK"
     },
     {
       "id": 4,
-      "name_fi": "Erkkahaut"
+      "name_fi": "Vapaa sivistystyö"
+    }
+  ],
+  "tags": [
+    {
+      "id": 1,
+      "name_fi": "Perusopetus ja toinen aste",
+      "categories": [1, 2],
+      "items": [
+        {
+          "id": 1,
+          "name_fi": "Aikataulut"
+        },
+        {
+          "id": 2,
+          "name_fi": "Kielikoe"
+        }
+      ]
     },
     {
-      "id": 5,
-      "name_fi": "Pervako-haut"
+      "id": 2,
+      "name_fi": "Korkeakoulutus",
+      "categories": [3],
+      "items": [
+        {
+          "id": 3,
+          "name_fi": "Erillishaku"
+        },
+        {
+          "id": 4,
+          "name_fi": "Hakulomakkeen hallinta"
+        }
+      ]
     },
     {
-      "id": 6,
-      "name_fi": "Korkeakoulut"
-    },
-    {
-      "id": 7,
-      "name_fi": "Lukiokoulutus"
-    },
-    {
-      "id": 8,
-      "name_fi": "Ammatilinen koulutus"
-    },
-    {
-      "id": 9,
-      "name_fi": "Vapaan sivistystyön koulutus"
+      "id": 3,
+      "name_fi": "Vapaa sivistystyö",
+      "categories": [4],
+      "items": [
+        {
+          "id": 5,
+          "name_fi": "Käyttöoikeudet"
+        },
+        {
+          "id": 6,
+          "name_fi": "Hakulomakkeen hallinta"
+        }
+      ]
     }
   ],
   "userGroups": [
     {
-      "id": 1,
-      "name_fi": "Organisaatiotietojen ylläpitäjä"
-    },
-    {
       "id": 2,
-      "name_fi": "Opinto-ohjaaja"
+      "name_fi": "Pääkäyttäjä",
+      "categories": [1, 2, 3, 4]
     },
     {
       "id": 3,
-      "name_fi": "2asterajapinnat"
+      "name_fi": "Opinto-ohjaaja",
+      "categories": [1, 2]
+    },
+    {
+      "id": 4,
+      "name_fi": "Oppilaitos- ja tarjontakäyttäjä",
+      "categories": [3]
+    },
+    {
+      "id": 5,
+      "name_fi": "Tiedonsiirtäjä",
+      "categories": [4]
     }
   ]
 }

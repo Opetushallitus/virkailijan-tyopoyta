@@ -11,18 +11,26 @@ const url = '/virkailijan-tyopoyta/api/notifications'
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
-function fetch () {
+function fetch (page) {
   console.log('Fetching notifications')
+
+  if (!page) {
+    console.error('No page given for fetching notifications')
+    return
+  }
 
   getData({
     url: url,
+    searchParams: {
+      page: page
+    },
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
   })
 }
 
 function reset () {
-  fetch()
+  fetch(1)
 
   return emptyNotifications()
 }
@@ -30,10 +38,24 @@ function reset () {
 function onReceived (state, response) {
   console.log('Received notifications')
 
-  const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
-  const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
+  const notifications = state.notifications
+  const items = notifications.items
+  const newItems = items.concat(response)
+  const page = notifications.currentPage
 
-  return R.assocPath(['notifications', 'items'], response, stateWithoutLoading)
+  // Only increment page after initial load
+  const newPage = notifications.isInitialLoad ? 1 : page + 1
+
+  // Result is an empty array = no more notifications
+  const hasPagesLeft = response.length > 0
+
+  return R.compose(
+    R.assocPath(['notifications', 'currentPage'], newPage),
+    R.assocPath(['notifications', 'items'], newItems),
+    R.assocPath(['notifications', 'hasPagesLeft'], hasPagesLeft),
+    R.assocPath(['notifications', 'isLoading'], false),
+    R.assocPath(['notifications', 'isInitialLoad'], false)
+  )(state)
 }
 
 function onFailed (state) {
@@ -51,33 +73,12 @@ function onFailed (state) {
   return stateWithoutLoading
 }
 
-function toggleUnpublishedNotifications (state, releaseId) {
-  console.log('Toggling unpublished notifications')
+function getPage (state, page) {
+  console.log('Get notifications page', page)
 
-  const body = document.body
+  fetch(page)
 
-  if (state.unpublishedNotifications.isVisible) {
-    body.classList.remove('overflow-hidden')
-  } else {
-    body.classList.add('overflow-hidden')
-  }
-
-  const newState = R.assocPath(
-    ['unpublishedNotifications', 'isVisible'],
-    !state.unpublishedNotifications.isVisible, state
-  )
-
-  if (releaseId > 0) {
-    return toggleEditor(newState, releaseId)
-  }
-
-  return newState
-}
-
-function getPage (state, value) {
-  console.log('Get notifications from page')
-
-  return R.assoc('isLoading', value.isLoading, state)
+  return R.assocPath(['notifications', 'isLoading'], true, state)
 }
 
 function updateSearch (state, search) {
@@ -107,6 +108,8 @@ function emptyNotifications () {
   return {
     items: [],
     expanded: [],
+    currentPage: 1,
+    hasPagesLeft: true,
     isLoading: false,
     isInitialLoad: true
   }
@@ -114,11 +117,10 @@ function emptyNotifications () {
 
 // Events for appState
 const events = {
-  getPage,
   updateSearch,
+  getPage,
   toggle,
-  edit,
-  toggleUnpublishedNotifications
+  edit
 }
 
 const initialState = emptyNotifications()
@@ -132,11 +134,10 @@ const notifications = {
   reset,
   onReceived,
   onFailed,
-  getPage,
   updateSearch,
+  getPage,
   toggle,
-  edit,
-  toggleUnpublishedNotifications
+  edit
 }
 
 export default notifications

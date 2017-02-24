@@ -16,12 +16,14 @@ const propTypes = {
   ]),
   maxLength: PropTypes.number.isRequired,
   isRequired: PropTypes.bool,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
+  onBlur: PropTypes.func
 }
 
 const defaultProps = {
   value: '',
-  isRequired: false
+  isRequired: false,
+  onBlur: null
 }
 
 function LimitedTextField (props) {
@@ -31,10 +33,11 @@ function LimitedTextField (props) {
     value,
     maxLength,
     isRequired,
-    onChange
+    onChange,
+    onBlur
   } = props
 
-  const handleOnChange = event => {
+  const handleChange = event => {
     onChange(event.target.value)
   }
 
@@ -55,7 +58,8 @@ function LimitedTextField (props) {
         type="text"
         name={name}
         value={value}
-        onChange={handleOnChange}
+        onChange={handleChange}
+        onBlur={onBlur}
       />
     </Field>
   )

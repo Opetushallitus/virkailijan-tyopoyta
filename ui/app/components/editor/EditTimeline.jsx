@@ -8,7 +8,8 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
-  release: PropTypes.object.isRequired
+  releaseId: PropTypes.number.isRequired,
+  timeline: PropTypes.array.isRequired
 }
 
 function EditTimeline (props) {
@@ -16,11 +17,12 @@ function EditTimeline (props) {
     locale,
     dateFormat,
     controller,
-    release
+    releaseId,
+    timeline
   } = props
 
   const handleAddItemClick = () => {
-    controller.add(release)
+    controller.add(releaseId, timeline)
   }
 
   return (
@@ -29,7 +31,7 @@ function EditTimeline (props) {
         <Translation trans="muokkaaaikajanantapahtumia" />
       </h3>
 
-      {release.timeline.map((item, index) =>
+      {timeline.map((item, index) =>
         <EditTimelineItem
           key={item.id}
           item={item}

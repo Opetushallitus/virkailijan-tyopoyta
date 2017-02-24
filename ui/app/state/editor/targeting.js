@@ -1,47 +1,8 @@
 import R from 'ramda'
 
 import editor from './editor'
-import timeline from './editTimeline'
 import { validate, rules } from './validation'
 
-function emptyContent (id, language) {
-  return {
-    notificationId: id,
-    text: '',
-    title: '',
-    language
-  }
-}
-
-function emptyNotification () {
-  return {
-    id: -1,
-    releaseId: -1,
-    startDate: null,
-    createdAt: null,
-    endDate: null,
-    content: {
-      fi: emptyContent(-1, 'fi'),
-      sv: emptyContent(-1, 'sv')
-    },
-    tags: [],
-    validationState: 'empty'
-  }
-}
-
-function emptyRelease () {
-  return {
-    id: -1,
-    sendEmail: false,
-    notification: emptyNotification(),
-    timeline: [timeline.newItem(-1, [])],
-    categories: [],
-    userGroups: [],
-    focusedCategory: null,
-    focusedUserGroups: [],
-    validationState: 'empty'
-  }
-}
 
 function update (state, { prop, value }) {
   console.log('Updating release', prop, value)
@@ -71,32 +32,31 @@ function toggleUserGroup (state, value) {
   return update(state, { prop: 'userGroups', value: newGroups })
 }
 
-function updateFocusedCategory (state, value) {
-  return update(state, { prop: 'focusedCategory', value })
-}
+function toggleTag (state, id) {
+  console.log('Toggled tag with id', id)
 
-function toggleFocusedUserGroup (state, value) {
-  const groups = state.editor.editedRelease.focusedUserGroups
-  const newGroups = editor.toggleValue(value, groups)
+  const selectedTags = state.editor.editedRelease.notification.tags
+  const newSelectedTags = R.contains(id, selectedTags)
+    ? R.reject(selected => selected === id, selectedTags)
+    : R.append(id, selectedTags)
 
-  return update(state, { prop: 'focusedUserGroups', value: newGroups })
+  return editor.editNotification.update(state, { prop: 'tags', value: newSelectedTags })
 }
 
 // Events for appState
 const events = {
+  update,
   toggleCategory,
   toggleUserGroup,
-  updateFocusedCategory,
-  toggleFocusedUserGroup
+  toggleTag
 }
 
 const editRelease = {
   events,
-  emptyRelease,
+  update,
   toggleCategory,
   toggleUserGroup,
-  updateFocusedCategory,
-  toggleFocusedUserGroup
+  toggleTag
 }
 
 export default editRelease

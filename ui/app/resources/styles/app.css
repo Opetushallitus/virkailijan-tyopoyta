@@ -1,6 +1,7 @@
 /* External components */
 @import "draft-js/dist/Draft.css";
 @import "react-datepicker";
+@import "font-awesome";
 @import "semantic-ui-css/components/dropdown";
 @import "semantic-ui-css/components/transition";
 @import "virkailija-style-guide/oph-styles-min.css";

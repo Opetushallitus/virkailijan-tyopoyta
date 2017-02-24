@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react'
 import moment from 'moment'
-import { Dropdown } from 'semantic-ui-react'
 
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
@@ -9,14 +8,13 @@ import TextEditor from '../texteditor/TextEditor'
 import { translate } from '../common/Translations'
 
 import getFormattedDate from './getFormattedDate'
-import mapDropdownOptions from '../utils/mapDropdownOptions'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired
+  saveDraft: PropTypes.func.isRequired
 }
 
 function EditNotification (props) {
@@ -25,7 +23,7 @@ function EditNotification (props) {
     dateFormat,
     controller,
     notification,
-    tags
+    saveDraft
   } = props
 
   // Handle non-existing language properties in notification.content
@@ -34,14 +32,6 @@ function EditNotification (props) {
 
   // Add 2 hours for first days of months, otherwise the previous months' last days are also selectable
   const minDate = moment().add(2, 'hours')
-
-  const handleTagsChange = (event, { value }) => {
-    controller.setSelectedTags(value)
-  }
-
-  const handleTagClick = (event, { value }) => {
-    controller.toggleTag(value)
-  }
 
   /*
     Updates startDate
@@ -94,6 +84,7 @@ function EditNotification (props) {
             maxLength={200}
             isRequired
             onChange={controller.updateContent('fi', 'title')}
+            onBlur={saveDraft}
           />
         </div>
 
@@ -140,67 +131,39 @@ function EditNotification (props) {
         </div>
       </div>
 
-      <div className="flex flex-wrap">
-        {/*Tags*/}
-        <div className="col-12 sm-col-6 sm-pr2">
-          <Field
-            label={translate('tiedotteenavainsanat')}
-            name="notification-tags"
+      {/*Publishing period*/}
+      <div className="md-flex flex-wrap col-12 sm-col-6">
+        <div className="md-col-6 lg-col-5 md-pr2">
+          {/*Publish date*/}
+          <DateField
+            label={translate('julkaisupvm')}
+            name="notification-start-date"
+            locale={locale}
+            dateFormat={dateFormat}
+            date={notification.startDate}
+            minDate={minDate}
+            selectsStart
+            startDate={notification.startDate}
+            endDate={notification.endDate}
             isRequired
-          >
-            <Dropdown
-              className="semantic-ui"
-              fluid
-              multiple
-              name="notification-tags"
-              noResultsMessage={translate('eiavainsanoja')}
-              onChange={handleTagsChange}
-              onLabelClick={handleTagClick}
-              options={mapDropdownOptions(tags, locale)}
-              placeholder={translate('lisaaavainsanoja')}
-              search
-              selection
-              value={notification.tags}
-            />
-          </Field>
+            onChange={handleStartDateChange}
+          />
         </div>
 
-        {/*Publishing period*/}
-        <div className="md-flex flex-wrap col-12 sm-col-6 sm-pl2">
-          <div className="md-col-6 lg-col-5 md-pr2">
-            {/*Publish date*/}
-            <DateField
-              label={translate('julkaisupvm')}
-              name="notification-start-date"
-              locale={locale}
-              dateFormat={dateFormat}
-              date={notification.startDate}
-              minDate={minDate}
-              selectsStart
-              startDate={notification.startDate}
-              endDate={notification.endDate}
-              isRequired
-              onChange={handleStartDateChange}
-            />
-          </div>
-
-          <div className="md-col-6 lg-col-5 md-pl2">
-            {/*Expiry date*/}
-            <DateField
-              label={translate('poistumispvm')}
-              name="notification-end-date"
-              locale={locale}
-              dateFormat={dateFormat}
-              date={notification.endDate}
-              minDate={minDate}
-              selectsEnd
-              startDate={notification.startDate}
-              endDate={notification.endDate}
-              popoverAttachment="top right"
-              popoverTargetAttachment="bottom right"
-              onChange={handleEndDateChange}
-            />
-          </div>
+        <div className="md-col-6 lg-col-5 md-pl2">
+          {/*Expiry date*/}
+          <DateField
+            label={translate('poistumispvm')}
+            name="notification-end-date"
+            locale={locale}
+            dateFormat={dateFormat}
+            date={notification.endDate}
+            minDate={minDate}
+            selectsEnd
+            startDate={notification.startDate}
+            endDate={notification.endDate}
+            onChange={handleEndDateChange}
+          />
         </div>
       </div>
     </div>

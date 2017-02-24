@@ -7,10 +7,12 @@ const propTypes = {
     PropTypes.node
   ]).isRequired,
   checked: PropTypes.bool,
+  value: PropTypes.number,
   onChange: PropTypes.func.isRequired
 }
 
 const defaultProps = {
+  value: null,
   checked: false
 }
 
@@ -18,6 +20,7 @@ function Checkbox (props) {
   const {
     label,
     checked,
+    value,
     onChange
   } = props
 
@@ -27,6 +30,7 @@ function Checkbox (props) {
         className="hide"
         type="checkbox"
         checked={checked}
+        value={value}
         onChange={onChange}
       />
 

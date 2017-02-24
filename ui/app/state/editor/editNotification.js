@@ -2,6 +2,31 @@ import R from 'ramda'
 
 import { validate, rules } from './validation'
 
+function emptyContent (id, language) {
+  return {
+    notificationId: id,
+    text: '',
+    title: '',
+    language
+  }
+}
+
+function emptyNotification () {
+  return {
+    id: -1,
+    releaseId: -1,
+    startDate: null,
+    createdAt: null,
+    endDate: null,
+    content: {
+      fi: emptyContent(-1, 'fi'),
+      sv: emptyContent(-1, 'sv')
+    },
+    tags: [],
+    validationState: 'empty'
+  }
+}
+
 function update (state, {prop, value}) {
   console.log('Updating notification', prop, value)
 
@@ -19,37 +44,19 @@ function update (state, {prop, value}) {
   return R.assocPath(path, validatedNotification, state)
 }
 
-function toggleTag (state, id) {
-  console.log('Toggled tag with id', id)
-
-  const selectedTags = state.editor.editedRelease.notification.tags
-  const newSelectedTags = R.contains(id, selectedTags)
-    ? R.reject(selected => selected === id, selectedTags)
-    : R.append(id, selectedTags)
-
-  return setSelectedTags(state, newSelectedTags)
-}
-
-function setSelectedTags (state, selected) {
-  return update(state, { prop: 'tags', value: selected })
-}
-
 function updateContent (state, { prop, language, value }) {
   return update(state, { prop: ['content', language, prop], value })
 }
 
 const events = {
   update,
-  toggleTag,
-  setSelectedTags,
   updateContent
 }
 
 const editNotification = {
   events,
+  emptyNotification,
   update,
-  toggleTag,
-  setSelectedTags,
   updateContent
 }
 

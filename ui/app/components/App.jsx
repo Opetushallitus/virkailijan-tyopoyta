@@ -107,18 +107,6 @@ class App extends React.Component {
 
     return (
       <div>
-        {/*Menu*/}
-        <Menu
-          controller={controller}
-          locale={state.locale}
-          dateFormat={state.dateFormat}
-          categories={state.categories}
-          selectedCategories={state.view.categories}
-          notificationsLoaded={state.notifications.isInitialLoad}
-          unpublishedNotifications={state.unpublishedNotifications.items}
-          isMobileMenuVisible={state.view.isMobileMenuVisible}
-        />
-
         {/*Alerts*/}
         <div className="fixed bottom-0 right-0 mb2 mr2 z2">
           {state.view.alerts.map(alert =>
@@ -134,8 +122,19 @@ class App extends React.Component {
         </div>
 
         {/*Content*/}
-        <div className="container content content-has-menu mx-auto">
-          <div className={`flex flex-wrap col-12`}>
+        <div className="container mx-auto">
+          {/*Menu*/}
+          <Menu
+            controller={controller}
+            locale={state.locale}
+            dateFormat={state.dateFormat}
+            categories={state.categories}
+            selectedCategories={state.view.categories}
+            notificationsLoaded={state.notifications.isInitialLoad}
+            isMobileMenuVisible={state.view.isMobileMenuVisible}
+          />
+
+          <div className={`flex flex-wrap col-12 mt3`}>
             {/*Notification/timeline view selection for small screens*/}
             <Tabs className="md-hide lg-hide">
               <TabItem
@@ -159,7 +158,7 @@ class App extends React.Component {
 
             {/*Notifications*/}
             <section
-              className={`col-12 md-col-7 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
+              className={`col-12 md-col-7 pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
               <div className="alert alert-warning block mb3 py2">
                 Haku ei ole vielä toiminnassa
@@ -175,7 +174,7 @@ class App extends React.Component {
             </section>
 
             {/*Timeline*/}
-            <section className={`timeline-container ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
+            <section className={`col-12 md-col-5 relative ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
               <Timeline
                 controller={controller.timeline}
                 locale={state.locale}
@@ -201,7 +200,9 @@ class App extends React.Component {
             locale={state.locale}
             dateFormat={state.dateFormat}
             editor={state.editor}
-            tags={state.tags.items}
+            userGroups={state.userGroups}
+            categories={state.categories}
+            tags={state.tags}
           />
         </Modal>
 

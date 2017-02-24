@@ -3,95 +3,118 @@ import R from 'ramda'
 import { Dropdown } from 'semantic-ui-react'
 
 import UserGroupButton from './UserGroupButton'
-import Button from '../common/buttons/Button'
 import Field from '../common/form/Field'
 import Fieldset from '../common/form/Fieldset'
+import Checkbox from '../common/form/Checkbox'
 import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
-import Icon from '../common/Icon'
 import { translate } from '../common/Translations'
+import * as testData from '../../resources/test/testData.json'
 
 import mapDropdownOptions from '../utils/mapDropdownOptions'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
-  categories: PropTypes.array,
   userGroups: PropTypes.array.isRequired,
+  categories: PropTypes.array.isRequired,
+  // tags: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
-}
-
-const defaultProps = {
-  categories: []
 }
 
 function Targeting (props) {
   const {
     locale,
     controller,
-    categories,
     userGroups,
+    categories,
+    // tags,
     release
   } = props
+
+  const handleCategoryChange = event => {
+    // Change checkbox value to int for consistency
+    const value = parseInt(event.target.value, 10)
+
+    controller.toggleCategory(value)
+  }
+
+  const itemHasCategory = (item, selectedCategories) => {
+    // "All user groups" selection has id -1, display it always
+    return item.id === -1
+      ? true
+      : R.length(R.intersection(item.categories, selectedCategories))
+  }
+
+  const isCategoryChecked = (id, categories) => {
+    return R.contains(id, categories)
+  }
+
+  // Returns a translation key representing if user has selected categories
+  const getUserGroupsString = hasSelectedCategories => {
+    return hasSelectedCategories
+      ? 'valittujenkategorioidenryhmat'
+      : 'kaikkikayttooikeusryhmat'
+  }
 
   const handleUserGroupsChange = (event, { value }) => {
     controller.toggleUserGroup(value)
   }
 
-  const handleFocusedCategoryChange = (event, { value }) => {
-    controller.updateFocusedCategory(value)
-  }
-
-  const handleFocusedUserGroupsChange = (event, { value }) => {
-    controller.toggleFocusedUserGroup(value)
-  }
-
-  /* Get unselected user groups for Dropdown options */
-  const getUnselectedUserGroups = (groups, selectedGroups) => {
-    return R.reject(
-      group => R.contains(group.id, selectedGroups),
-      groups
-    )
+  // Returns all user groups or those linked to selected categories
+  const getFilteredUserGroups = (userGroups, selectedCategories) => {
+    return selectedCategories.length
+      ? R.filter(userGroup => itemHasCategory(userGroup, selectedCategories), userGroups)
+      : userGroups
   }
 
   const unselectedUserGroups = release.userGroups
-    ? getUnselectedUserGroups(userGroups, release.userGroups)
-    : userGroups
-
-  const unselectedFocusedUserGroups = release.focusedUserGroups
-    ? getUnselectedUserGroups(userGroups, release.focusedUserGroups)
-    : userGroups
+    ? R.reject(
+      userGroup => R.contains(userGroup.id, release.userGroups),
+      getFilteredUserGroups(userGroups, release.categories)
+    )
+    : []
 
   const getUserGroupName = (id, groups, locale) => {
     return R.find(R.propEq('id', id))(groups)[`name_${locale}`]
   }
 
-  // Add a 'No category' option for clearing the focused category dropdown
-  const focusedCategoryOptions = [{ value: null, text: translate('eikategoriaa') }]
-    .concat(mapDropdownOptions(categories, locale))
+  // Returns all tags or those linked to selected categories
+  const getFilteredTags = (tags, selectedCategories) => {
+    return selectedCategories.length
+      ? R.filter(tag => itemHasCategory(tag, selectedCategories), tags)
+      : tags
+  }
 
-  const selectedCategories = release.categories || []
+  const filteredTags = getFilteredTags(testData.tags, release.categories)
 
   return (
     <div>
       <h2 className="hide">{translate('julkkategoriaryhma')}</h2>
 
-      <div className="flex flex-wrap mb3">
+      <div className="flex flex-wrap mb3 px3">
         {/*Categories*/}
-        <div className="col-12 sm-pr2">
-          <Fieldset isRequired legend={translate('julkkategoria')}>
-            <CheckboxButtonGroup
-              locale={locale}
-              htmlId="release-category"
-              options={categories}
-              selectedOptions={selectedCategories}
-              onChange={controller.toggleCategory}
-            />
+        <div className="col-12 sm-col-3 sm-pr2">
+          <Fieldset legend={translate('julkkategoria')}>
+            {categories.map(category =>
+              <div key={`releaseCategory${category.id}`} className="mb1">
+                <Checkbox
+                  label={category[`name_${locale}`]}
+                  checked={isCategoryChecked(category.id, release.categories)}
+                  value={category.id}
+                  onChange={handleCategoryChange}
+                />
+              </div>
+            )}
           </Fieldset>
         </div>
 
         {/*User groups*/}
-        <div className="col-12 sm-col-6 sm-pr2">
-          <Field name="release-usergroups-search" label={translate('julkryhma')}>
+        <div className="col-12 sm-col-4 sm-px2">
+          <Field
+            name="release-usergroups-search"
+            label={translate(getUserGroupsString(release.categories.length))}
+            isRequired
+          >
             <Dropdown
               className="semantic-ui"
               fluid
@@ -108,7 +131,7 @@ function Targeting (props) {
           </Field>
         </div>
 
-        <div className="col-12 sm-col-6 sm-pl2">
+        <div className="col-12 sm-col-4 sm-pl2">
           <div className="invisible xs-hide sm-hide mb1">{translate('valitutryhmat')}</div>
 
           {
@@ -124,131 +147,26 @@ function Targeting (props) {
               : null
           }
         </div>
+      </div>
 
-        {/*Focus targeting*/}
-        <div className="col-12 mt3 bg-gray-lighten-5">
-          <Button className="button-link left-align col-12">
-            <div className="inline-block mr1">{translate('kohdennatarkemmin')}</div>
-            <Icon name="chevron-down" />
-          </Button>
+      <div className="mb3 p3 border-top border-bottom border-gray-lighten-3">
+        <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
-          <div className="flex flex-wrap col-12 mb2 px2">
-            <div className="col-12 sm-col-6 mb3">
-              <div className="radio-button-group">
-                <label
-                  className="radio-button"
-                  htmlFor="focus-category"
-                >
-                  <input
-                    id="focus-category"
-                    className="radio-button-input"
-                    name="focus-targeting"
-                    type="radio"
-                  />
-
-                  <span className="radio-button-text">Kohdenna kategoriaan</span>
-                </label>
-
-                <label
-                  className="radio-button"
-                  htmlFor="focus-user-group"
-                >
-                  <input
-                    id="focus-user-group"
-                    className="radio-button-input"
-                    name="focus-targeting"
-                    type="radio"
-                  />
-
-                  <span className="radio-button-text">Kohdenna käyttöoikeusryhmään</span>
-                </label>
-              </div>
-            </div>
-
-            {/*Category*/}
-            <div className="col-12">
-              <div className="md-col-6 md-pr2">
-                <Field name="release-focused-category-search" label={translate('valitsekategoria')}>
-                  <Dropdown
-                    className="semantic-ui"
-                    fluid
-                    name="release-focused-category"
-                    noResultsMessage={translate('eikategorioita')}
-                    onChange={handleFocusedCategoryChange}
-                    options={focusedCategoryOptions}
-                    placeholder={translate('haekategoria')}
-                    search
-                    selection
-                    value={release.focusedCategory || ''}
-                  />
-                </Field>
-              </div>
-            </div>
-
-            {/*Category user groups*/}
-            <div className="col-12">
-              <div className="md-col-6 sm-pr2">
-                <Field name="release-focused-category-usergroups-search" label={translate('valitsekayttooikeusryhmat')}>
-                  <Dropdown
-                    className="semantic-ui"
-                    disabled
-                    fluid
-                    multiple
-                    name="release-focused-category-usergroups"
-                    noResultsMessage={translate('eiryhma')}
-                    options={[]}
-                    placeholder={translate('lisaaryhma')}
-                    search
-                    selection
-                    value={[]}
-                  />
-                </Field>
-              </div>
-            </div>
-          </div>
-
-          {/*User groups*/}
-          <div className="flex flex-wrap col-12 mb2 px2">
-            <div className="col-12 sm-col-6 sm-pr2">
-              <Field name="release-focused-usergroups-search" label={translate('valitsekayttooikeusryhmat')}>
-                <Dropdown
-                  className="semantic-ui"
-                  fluid
-                  multiple
-                  name="release-focused-usergroups"
-                  noResultsMessage={translate('eiryhma')}
-                  onChange={handleFocusedUserGroupsChange}
-                  options={mapDropdownOptions(unselectedFocusedUserGroups, locale)}
-                  placeholder={translate('lisaaryhma')}
-                  search
-                  selection
-                  value={[]}
-                />
-              </Field>
-            </div>
-
-            <div className="col-12 sm-col-6 sm-pl2">
-              <div className="invisible xs-hide sm-hide mb1">{translate('valitutryhmat')}</div>
-
-              {
-                release.focusedUserGroups
-                  ? release.focusedUserGroups.map(group =>
-                    <UserGroupButton
-                      key={`focusedUsergroup${group}`}
-                      id={group}
-                      text={getUserGroupName(group, userGroups, locale)}
-                      onClick={controller.toggleFocusedUserGroup}
-                    />
-                  )
-                  : null
-              }
-            </div>
-          </div>
-        </div>
+        {filteredTags.map(tags =>
+          <Fieldset key={`notificationTags${tags.id}`} legend={tags[`name_${locale}`]}>
+            <CheckboxButtonGroup
+              locale={locale}
+              htmlId="notification-tags"
+              options={tags.items}
+              selectedOptions={release.notification.tags}
+              onChange={controller.toggleTag}
+            />
+          </Fieldset>
+        )}
       </div>
 
       {/*Targeting selection name*/}
-      <div className="center">
+      <div className="center px3">
         <label
           className="block md-inline-block mb1 md-mb0 mr2"
           htmlFor="targeting-name"
@@ -267,6 +185,5 @@ function Targeting (props) {
 }
 
 Targeting.propTypes = propTypes
-Targeting.defaultProps = defaultProps
 
 export default Targeting

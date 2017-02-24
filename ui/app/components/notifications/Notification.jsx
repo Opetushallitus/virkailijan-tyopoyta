@@ -7,7 +7,7 @@ import Tag from '../common/Tag'
 import Icon from '../common/Icon'
 import Button from '../common/buttons/Button'
 import EditButton from '../common/buttons/EditButton'
-import Translation from '../common/Translations'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
@@ -81,8 +81,8 @@ function Notification (props) {
           className="button-link absolute top-0 right-0 z2 gray-lighten-1"
           title={
             isExpanded
-              ? <Translation trans="naytakatkelma" />
-              : <Translation trans="naytatiedote" />
+              ? translate('naytakatkelma')
+              : translate('naytatiedote')
           }
           onClick={handleNotificationClick}
         >
@@ -90,8 +90,8 @@ function Notification (props) {
 
           <span className="hide">
             { isExpanded
-              ? <Translation trans="naytakatkelma" />
-              : <Translation trans="naytatiedote" />
+              ? translate('naytakatkelma')
+              : translate('naytatiedote')
             }
           </span>
         </Button>

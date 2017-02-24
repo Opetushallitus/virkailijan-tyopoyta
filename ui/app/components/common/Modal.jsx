@@ -43,15 +43,15 @@ class Modal extends React.Component {
 
     return (
       <div
-        className={`overlay ${isVisible ? 'overlay-is-visible' : 'display-none'}`}
+        className={`oph-overlay ${isVisible ? 'oph-overlay-is-visible' : ''}`}
         tabIndex="-1"
         role="dialog"
         onClick={this.handleOverlayClick}
       >
         <label className="hide" aria-label>{title}</label>
 
-        <div className={`modal ${variant === 'large' ? 'modal-lg' : ''}`}>
-          <div ref={modal => (this.modal = modal)} className="modal-dialog">
+        <div className={`oph-modal ${variant === 'large' ? 'oph-modal-big' : ''}`}>
+          <div ref={modal => (this.modal = modal)} className="oph-modal-dialog">
             <CloseButton disabled={isCloseDisabled} onClick={onCloseButtonClick} />
 
             {/*Modal content*/}

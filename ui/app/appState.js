@@ -2,8 +2,9 @@ import Bacon from 'baconjs'
 import R from 'ramda'
 import moment from 'moment'
 
-import view from './state/view'
 import tags from './state/tags'
+import userGroups from './state/userGroups'
+import view from './state/view'
 import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
 import timeline from './state/timeline'
@@ -40,7 +41,7 @@ function onUserReceived (state, response) {
   const year = moment().format('YYYY')
 
   tags.fetch()
-  notifications.fetch()
+  notifications.fetch(1)
 
   timeline.fetch({
     month,
@@ -59,7 +60,10 @@ export function initAppState () {
   const initialState = {
     locale: 'fi',
     dateFormat: 'D.M.YYYY',
-    categories: testData.viewCategories,
+    userGroups: userGroups.initialState,
+    categories: {
+      items: testData.categories
+    },
     tags: tags.initialState,
     view: view.initialState,
     unpublishedNotifications: unpublishedNotifications.initialState,
@@ -75,18 +79,22 @@ export function initAppState () {
 
     // [userS], onUserReceived,
 
-    // View
-    [view.alertsBus], view.onAlertsReceived,
-    [dispatcher.stream(events.view.toggleCategory)], view.toggleCategory,
-    [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
-    [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
-    [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,
-
     // Tags
     [tags.bus], tags.onReceived,
     [tags.failedBus], tags.onFailed,
     [dispatcher.stream(events.tags.toggle)], tags.toggle,
     [dispatcher.stream(events.tags.setSelectedItems)], tags.setSelectedItems,
+
+    // User groups
+    [userGroups.fetchBus], userGroups.onReceived,
+    [userGroups.fetchFailedBus], userGroups.onFailed,
+
+     // View
+    [view.alertsBus], view.onAlertsReceived,
+    [dispatcher.stream(events.view.toggleCategory)], view.toggleCategory,
+    [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
+    [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
+    [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,
 
     // Unpublished notifications
     [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
@@ -122,12 +130,7 @@ export function initAppState () {
     [dispatcher.stream(events.editor.toggleHasSaveFailed)], editor.toggleHasSaveFailed,
     [dispatcher.stream(events.editor.removeAlert)], editor.removeAlert,
     [dispatcher.stream(events.editor.save)], editor.save,
-
-    [dispatcher.stream(events.editor.editRelease.update)], editor.editRelease.update,
-    [dispatcher.stream(events.editor.editRelease.toggleCategory)], editor.editRelease.toggleCategory,
-    [dispatcher.stream(events.editor.editRelease.toggleUserGroup)], editor.editRelease.toggleUserGroup,
-    [dispatcher.stream(events.editor.editRelease.updateFocusedCategory)], editor.editRelease.updateFocusedCategory,
-    [dispatcher.stream(events.editor.editRelease.toggleFocusedUserGroup)], editor.editRelease.toggleFocusedUserGroup,
+    [dispatcher.stream(events.editor.saveDraft)], editor.saveDraft,
 
     [dispatcher.stream(events.editor.editTimeline.update)], editor.editTimeline.update,
     [dispatcher.stream(events.editor.editTimeline.updateContent)], editor.editTimeline.updateContent,
@@ -135,8 +138,11 @@ export function initAppState () {
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
 
     [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
-    [dispatcher.stream(events.editor.editNotification.toggleTag)], editor.editNotification.toggleTag,
-    [dispatcher.stream(events.editor.editNotification.setSelectedTags)], editor.editNotification.setSelectedTags,
-    [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent
+    [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
+
+    [dispatcher.stream(events.editor.targeting.update)], editor.targeting.update,
+    [dispatcher.stream(events.editor.targeting.toggleCategory)], editor.targeting.toggleCategory,
+    [dispatcher.stream(events.editor.targeting.toggleUserGroup)], editor.targeting.toggleUserGroup,
+    [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag
   )
 }

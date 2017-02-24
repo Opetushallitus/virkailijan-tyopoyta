@@ -360,15 +360,8 @@
 
 /* Menu */
 .menu-container {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  max-width: var(--container-width);
-  margin: 0 auto;
-  padding: 0 var(--space-2);
-  background-color: var(--gray-lighten-5);
-  z-index: var(--z3);
+  height: var(--space-4);
+  z-index: var(--z1);
 }
 
 .menu {
@@ -387,14 +380,6 @@
 }
 
 /* Notifications */
-.content {
-  margin-top: var(--space-3);
-}
-
-.content-has-menu {
-  margin-top: 8rem;
-}
-
 .notification {
   /* Notifications overlap the notification tag dropdown if z-index isn't set */
   z-index: 1;
@@ -408,59 +393,17 @@
   color: var(--link-color-hover);
 }
 
-.notification-tag-select-container {
-  margin-top: -1px;
-}
-
-.semantic-ui.ui.selection.notification-tag-select {
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-@media (--breakpoint-sm) {
-  .content-has-menu {
-    margin-top: 6rem;
-  }
-}
-
-@media (--breakpoint-md) {
-  .content-has-menu {
-    margin-top: 8rem;
-  }
-}
-
 /* Timeline */
 
-.timeline-container {
-  width: 100%;
-  margin-top: var(--space-3);
-}
-
 .timeline-viewport {
-  height: 85vh;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 75vh;
   overflow-y: scroll;
-}
-
-@media (--breakpoint-md) {
-  .timeline-container {
-    position: fixed;
-    right: 0;
-    left: 0;
-    max-width: var(--container-width);
-    margin: 0 auto;
-  }
-
-  .timeline-viewport {
-    position: absolute;
-    right: var(--space-2);
-    width: 38%;
-  }
-}
-
-@media (--breakpoint-lg) {
-  .timeline-viewport {
-    width: 40%;
-  }
+  transition: top, height;
+  transition-duration: .3s;
+  transition-timing-function: ease;
 }
 
 .timeline {

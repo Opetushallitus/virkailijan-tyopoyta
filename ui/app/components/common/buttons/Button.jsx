@@ -24,7 +24,7 @@ function Button (props) {
 
   return (
     <button
-      className={`button ${className}`}
+      className={`oph-button ${className}`}
       type="button"
       {...rest}
     >

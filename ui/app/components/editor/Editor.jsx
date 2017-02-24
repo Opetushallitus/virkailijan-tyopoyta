@@ -21,7 +21,9 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   editor: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired
+  userGroups: PropTypes.object.isRequired,
+  categories: PropTypes.object.isRequired,
+  tags: PropTypes.object.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -42,19 +44,16 @@ const getNotificationPublicationStateString = (createdAt, dateFormat) => {
   }
 }
 
-// Returns a translation key representing the notification's validation state
-const getNotificationValidationStateString = state => {
-  if (state === 'empty') {
-    return 'eisisaltoa'
-  }
+const notificationValidationStateKeys = {
+  'empty': 'eisisaltoa',
+  'incomplete': 'kesken',
+  'complete': 'taytetty'
+}
 
-  if (state === 'incomplete') {
-    return 'kesken'
-  }
-
-  if (state === 'complete') {
-    return 'valmis'
-  }
+const releaseValidationStateKeys = {
+  'empty': 'eikohdennettu',
+  'incomplete': 'kesken',
+  'complete': 'valmis'
 }
 
 function Editor (props) {
@@ -63,6 +62,8 @@ function Editor (props) {
     locale,
     dateFormat,
     editor,
+    userGroups,
+    categories,
     tags
   } = props
 
@@ -72,8 +73,6 @@ function Editor (props) {
     isPreviewed,
     hasSaveFailed,
     editedRelease,
-    categories,
-    userGroups,
     isLoading
   } = editor
 
@@ -92,7 +91,6 @@ function Editor (props) {
     ? notification.validationState || 'complete'
     : notification.validationState
 
-  const notificationValidationStateString = getNotificationValidationStateString(notification.validationState)
   const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
 
   const handleSubmit = event => {
@@ -144,7 +142,7 @@ function Editor (props) {
               isLoading
                 ? null
                 : <span className="lowercase">
-                  &nbsp;({translate(notificationValidationStateString)})
+                  &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
                 </span>
             }
           </TabItem>
@@ -175,6 +173,14 @@ function Editor (props) {
             onClick={controller.toggleTab}
           >
             {translate('kohdennus')}
+
+            {
+              isLoading
+                ? null
+                : <span className="lowercase">
+                  &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
+                </span>
+            }
           </TabItem>
         </Tabs>
 
@@ -192,9 +198,9 @@ function Editor (props) {
       </div>
 
       {/*Edit and target content*/}
-      <div className="tab-content px3">
+      <div className="tab-content">
         {/*Notification*/}
-        <section className={`tab-pane ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
+        <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
           {
             isLoading
               ? <Delay time={1000}>
@@ -205,13 +211,13 @@ function Editor (props) {
                 dateFormat={dateFormat}
                 controller={controller.editNotification}
                 notification={editedRelease.notification}
-                tags={tags}
+                saveDraft={controller.saveDraft}
               />
           }
         </section>
 
         {/*Timeline*/}
-        <section className={`tab-pane ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
+        <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
           {
             isLoading
               ? <Delay time={1000}>
@@ -221,7 +227,8 @@ function Editor (props) {
                 locale={locale}
                 dateFormat={dateFormat}
                 controller={controller.editTimeline}
-                release={editedRelease}
+                releaseId={editedRelease.id}
+                timeline={editedRelease.timeline}
               />
           }
         </section>
@@ -235,9 +242,10 @@ function Editor (props) {
               </Delay>
               : <Targeting
                 locale={locale}
-                controller={controller.editRelease}
-                categories={categories}
-                userGroups={userGroups}
+                controller={controller.targeting}
+                userGroups={userGroups.items}
+                categories={categories.items}
+                tags={tags.items}
                 release={editedRelease}
               />
           }
@@ -245,20 +253,42 @@ function Editor (props) {
       </div>
 
       {/*Preview*/}
-      { isPreviewed
-        ? <section className="pt3 px3 border-top border-gray-lighten-3">
-          <PreviewRelease
-            locale={locale}
-            categories={categories}
-            userGroups={userGroups}
-            release={editedRelease}
-          />
-        </section>
-        : null
+      {
+        isPreviewed
+          ? <section className="pt3 px3 border-top border-gray-lighten-3">
+            <PreviewRelease
+              locale={locale}
+              categories={categories.items}
+              userGroups={userGroups.items}
+              tags
+              release={editedRelease}
+            />
+          </section>
+          : null
       }
 
       {/*Form actions*/}
       <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
+        <div className={`${isLoading ? 'display-none' : ''}`}>
+          {
+            editedRelease.validationState === 'empty' || editedRelease.validationState === 'incomplete'
+              ? <div className="bold red mb1">&middot; {translate('kohdennuspuuttuu')}</div>
+              : null
+          }
+
+          {
+            notification.validationState === 'incomplete'
+              ? <div className="muted mb1">&middot; {translate('tiedotekesken')}</div>
+              : null
+          }
+
+          {
+            incompleteTimelineItems.length
+              ? <div className="muted mb1">&middot; {translate('aikajanakesken')}</div>
+              : null
+          }
+        </div>
+
         {/*Preview & publish*/}
         <Button
           className="editor-button-save button button-primary button-lg"

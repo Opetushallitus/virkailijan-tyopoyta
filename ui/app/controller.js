@@ -54,14 +54,16 @@ export function initController (dispatcher, events) {
 
     save: () => dispatcher.push(events.editor.save),
 
-    editRelease: {
-      toggleCategory: category => dispatcher.push(events.editor.editRelease.toggleCategory, category),
+    saveDraft: () => dispatcher.push(events.editor.saveDraft),
 
-      toggleUserGroup: value => dispatcher.push(events.editor.editRelease.toggleUserGroup, value),
+    targeting: {
+      update: (prop, value) => dispatcher.push(events.editor.targeting.update, { prop, value }),
 
-      updateFocusedCategory: value => dispatcher.push(events.editor.editRelease.updateFocusedCategory, value),
+      toggleCategory: id => dispatcher.push(events.editor.targeting.toggleCategory, id),
 
-      toggleFocusedUserGroup: value => dispatcher.push(events.editor.editRelease.toggleFocusedUserGroup, value)
+      toggleUserGroup: id => dispatcher.push(events.editor.targeting.toggleUserGroup, id),
+
+      toggleTag: id => dispatcher.push(events.editor.targeting.toggleTag, id)
     },
 
     editTimeline: {
@@ -70,15 +72,13 @@ export function initController (dispatcher, events) {
       updateContent: (id, language, prop) => value =>
         dispatcher.push(events.editor.editTimeline.updateContent, { id, language, prop, value }),
 
-      add: release => dispatcher.push(events.editor.editTimeline.add, release),
+      add: (releaseId, timeline) => dispatcher.push(events.editor.editTimeline.add, { id: releaseId, timeline }),
 
       remove: id => dispatcher.push(events.editor.editTimeline.remove, id)
     },
 
     editNotification: {
       update: (prop, value) => dispatcher.push(events.editor.editNotification.update, { prop, value }),
-
-      toggleTag: id => dispatcher.push(events.editor.editNotification.toggleTag, id),
 
       setSelectedTags: selected => dispatcher.push(events.editor.editNotification.setSelectedTags, selected),
 
@@ -128,11 +128,12 @@ export function initController (dispatcher, events) {
       toggleHasSaveFailed: editor.toggleHasSaveFailed,
       removeAlert: editor.removeAlert,
       save: editor.save,
-      editRelease: {
-        toggleCategory: editor.editRelease.toggleCategory,
-        toggleUserGroup: editor.editRelease.toggleUserGroup,
-        updateFocusedCategory: editor.editRelease.updateFocusedCategory,
-        toggleFocusedUserGroup: editor.editRelease.toggleFocusedUserGroup
+      saveDraft: editor.saveDraft,
+      targeting: {
+        update: editor.targeting.update,
+        toggleCategory: editor.targeting.toggleCategory,
+        toggleUserGroup: editor.targeting.toggleUserGroup,
+        toggleTag: editor.targeting.toggleTag
       },
       editTimeline: {
         update: editor.editTimeline.update,
@@ -142,8 +143,6 @@ export function initController (dispatcher, events) {
       },
       editNotification: {
         update: editor.editNotification.update,
-        toggleTag: editor.editNotification.toggleTag,
-        setSelectedTags: editor.editNotification.setSelectedTags,
         updateContent: editor.editNotification.updateContent
       }
     }

@@ -1,17 +1,17 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-import editRelease from './editRelease'
+import targeting from './targeting'
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
-import view from '../view'
 import tags from '../tags'
+import userGroups from '../userGroups'
+import view from '../view'
 import unpublishedNotifications from '../unpublishedNotifications'
 import notifications from '../notifications'
 import timeline from '../timeline'
 import getData from '../../utils/getData'
 import createAlert from '../../utils/createAlert'
-import * as testData from '../../resources/test/testData.json'
 
 const url = '/virkailijan-tyopoyta/api/release'
 
@@ -52,7 +52,7 @@ function onFetchFailed (state, response) {
   return R.compose(
     R.assocPath(['editor', 'isLoading'], false),
     R.assocPath(['editor', 'alerts'], newAlerts),
-    R.assocPath(['editor', 'editedRelease'], editRelease.emptyRelease())
+    R.assocPath(['editor', 'editedRelease'], targeting.emptyRelease())
   )(state)
 }
 
@@ -84,9 +84,15 @@ function cleanUpDocument (document) {
   )(document)
 }
 
-function removeDocumentProperties (key, value) {
+function editDocumentProperties (key, value) {
+  // Remove validationState
   if (key === 'validationState') {
     return undefined
+  }
+
+  // Set selected user groups to [], if "All user groups" was selected in the editor
+  if (key === 'userGroups' && R.contains(-1, value)) {
+    return []
   }
 
   return value
@@ -109,11 +115,14 @@ function toggle (state, releaseId = -1, selectedTab) {
     const newState = toggleTab(state, selectedTab)
 
     getRelease(releaseId)
+    userGroups.fetch()
 
     return R.assocPath(['editor', 'isVisible'], true, newState)
   } else {
   // Display notification tab when creating a new release
     const newState = toggleTab(state, 'edit-notification')
+
+    userGroups.fetch()
 
     return R.compose(
       R.assocPath(['editor', 'isVisible'], true),
@@ -146,6 +155,18 @@ function toggleHasSaveFailed (state, hasSaveFailed) {
   return R.assocPath(['editor', 'hasSaveFailed'], !state.editor.hasSaveFailed, state)
 }
 
+function emptyRelease () {
+  return {
+    id: -1,
+    sendEmail: false,
+    notification: editNotification.emptyNotification(),
+    timeline: [editTimeline.newItem(-1, [])],
+    categories: [],
+    userGroups: [],
+    validationState: 'empty'
+  }
+}
+
 function emptyEditor () {
   return {
     isVisible: false,
@@ -153,11 +174,8 @@ function emptyEditor () {
     isLoading: true,
     hasSaveFailed: false,
     alerts: [],
-    categories: testData.releaseCategories,
-    userGroups: testData.userGroups,
-    editedRelease: editRelease.emptyRelease(),
-    selectedTab: 'edit-notification',
-    onSave: removeDocumentProperties
+    editedRelease: emptyRelease(),
+    selectedTab: 'edit-notification'
   }
 }
 
@@ -172,7 +190,7 @@ function save (state) {
       headers: {
         'Content-type': 'application/json'
       },
-      body: JSON.stringify(cleanUpDocument(state.editor.editedRelease), state.editor.onSave)
+      body: JSON.stringify(cleanUpDocument(state.editor.editedRelease), editDocumentProperties)
     },
     onSuccess: json => saveBus.push(json),
     onError: error => saveFailedBus.push(error)
@@ -210,6 +228,16 @@ function onSaveFailed (state) {
   return R.assocPath(['editor', 'hasSaveFailed'], true, newState)
 }
 
+function saveDraft (state) {
+  console.log('Saving draft', state.editor.editedRelease)
+
+  // Only save if publishing state === draft
+
+  const draft = JSON.stringify(state.editor.editedRelease)
+
+  return state
+}
+
 // Events for appState
 const events = {
   toggle,
@@ -218,7 +246,8 @@ const events = {
   toggleHasSaveFailed,
   removeAlert,
   save,
-  editRelease: editRelease.events,
+  saveDraft,
+  targeting: targeting.events,
   editNotification: editNotification.events,
   editTimeline: editTimeline.events
 }
@@ -243,7 +272,8 @@ const editor = {
   toggleValue,
   removeAlert,
   save,
-  editRelease,
+  saveDraft,
+  targeting,
   editNotification,
   editTimeline
 }

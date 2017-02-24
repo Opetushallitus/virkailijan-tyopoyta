@@ -4,9 +4,7 @@ import Bacon from 'baconjs'
 // Components
 import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
-import QuickTagSelect from './QuickTagSelect'
 import Spinner from '../common/Spinner'
-import Delay from '../common/Delay'
 import { translate } from '../common/Translations'
 
 const propTypes = {
@@ -17,28 +15,44 @@ const propTypes = {
   tags: PropTypes.object.isRequired
 }
 
-// Get quick selection tags
-const getQuickTags = tags => {
-  return tags.slice(0, 3)
-}
-
 class Notifications extends React.Component {
+  constructor (props) {
+    super(props)
+
+    this.getNextPage = this.getNextPage.bind(this)
+  }
+
   componentDidMount () {
     // Create a stream from scrolling event
     Bacon
-      .fromEvent(this.notifications, 'scroll')
+      .fromEvent(window, 'scroll')
       .debounce(100)
-      .onValue((event) => {
-        const node = event.target
+      .onValue(() => {
+        // Get next page when scrolling to skeletonNotification
+        const isSkeletonNotificationVisible = window.scrollY >=
+          document.body.scrollHeight - window.innerHeight - this.skeletonNotification.clientHeight
 
-        // Check if user has scrolled to the bottom of the notification list - 10%
-        const isLoadingHeightBreakpoint = (node.offsetHeight + node.scrollTop) >=
-          node.scrollHeight - (node.scrollHeight / 10)
-
-        if (isLoadingHeightBreakpoint) {
-          this.props.notificationsController.getPage()
+        if (isSkeletonNotificationVisible) {
+          this.getNextPage()
         }
       })
+  }
+
+  getNextPage () {
+    const {
+      currentPage,
+      hasPagesLeft,
+      isLoading
+    } = this.props.notifications
+
+    // Check if new page is already being fetched and there are more notifications to get
+    if (isLoading || !hasPagesLeft) {
+      return
+    }
+
+    const nextPage = currentPage + 1
+
+    this.props.notificationsController.getPage(nextPage)
   }
 
   render () {
@@ -51,41 +65,25 @@ class Notifications extends React.Component {
     } = this.props
 
     const {
-      isLoading,
-      isInitialLoad,
       items,
-      expanded
+      expanded,
+      hasPagesLeft,
+      isInitialLoad
     } = notifications
-
-    const quickTags = getQuickTags(tags.items)
 
     return (
       <div>
         <h2 className="hide">{translate('tiedotteet')}</h2>
 
-        <NotificationTagSelect
-          locale={locale}
-          options={tags.items}
-          selectedOptions={tags.selectedItems}
-          controller={tagsController}
-          isInitialLoad={isInitialLoad}
-          isLoading={tags.isLoading}
-        />
-
-        <div
-          className={`notification-tag-select-container mb3 border border-gray-lighten-2 rounded-bottom-left rounded-bottom-right
-          ${isInitialLoad || tags.isLoading || tags.items.length === 0 ? 'p3' : 'pt2 px2 pb1'}`}
-        >
-          {
-            isInitialLoad || tags.isLoading || tags.items.length === 0
-              ? null
-              : <QuickTagSelect
-                locale={locale}
-                options={quickTags}
-                selectedOptions={tags.selectedItems}
-                controller={tagsController}
-              />
-          }
+        <div className="mb3">
+          <NotificationTagSelect
+            locale={locale}
+            options={tags.items}
+            selectedOptions={tags.selectedItems}
+            controller={tagsController}
+            isInitialLoad={isInitialLoad}
+            isLoading={tags.isLoading}
+          />
         </div>
 
         {/*Skeleton screen*/}
@@ -94,13 +92,16 @@ class Notifications extends React.Component {
           <div className="mb3 p3 rounded bg-white box-shadow" />
         </div>
 
-        <div
-          className={`notifications ${isInitialLoad ? 'display-none' : ''}`}
-          ref={notifications => { this.notifications = notifications }}
-        >
+        <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>
+          {
+            !isInitialLoad && items.length === 0
+              ? <div className="h3 center muted">{translate('eitiedotteita')}</div>
+              : null
+          }
+
           {items.map(notification =>
             <Notification
-              key={notification.id}
+              key={`notification${notification.id}`}
               controller={notificationsController}
               locale={locale}
               notification={notification}
@@ -108,17 +109,25 @@ class Notifications extends React.Component {
               expandedNotifications={expanded}
             />
           )}
+
+          <div
+            ref={skeletonNotification => (this.skeletonNotification = skeletonNotification)}
+            className={`mb3 p3 rounded bg-white box-shadow ${hasPagesLeft ? '' : 'display-none'}`}
+          />
         </div>
 
-        <Spinner isVisible />
+        <div className={`center py3 ${hasPagesLeft ? '' : 'display-none'}`}>
+          {/*Visually hidden button for accessibility*/}
+          <button
+            className="hide"
+            type="button"
+            onClick={this.getNextPage}
+          >
+            {translate('naytalisaatiedotteita')}
+          </button>
 
-        {
-          isLoading
-            ? <Delay time={1000}>
-              <Spinner isVisible />
-            </Delay>
-            : null
-        }
+          <Spinner isVisible={hasPagesLeft} />
+        </div>
       </div>
     )
   }

@@ -463,20 +463,6 @@
   },
   {
     "accesscount": 0,
-    "id": 15932,
-    "category": "virkailijan-tyopoyta",
-    "accessed": 1484304436669,
-    "created": 1484304436669,
-    "createdBy": "1.2.246.562.24.72453542949",
-    "modified": 1484304436669,
-    "modifiedBy": "1.2.246.562.24.72453542949",
-    "force": false,
-    "locale": "fi",
-    "key": "julkryhma",
-    "value": "Valittujen kategorioiden käyttöoikeusryhmät"
-  },
-  {
-    "accesscount": 0,
     "id": 15933,
     "category": "virkailijan-tyopoyta",
     "accessed": 1484304449710,
@@ -1048,7 +1034,7 @@
   {
     "locale": "fi",
     "key": "julkaisueditori",
-    "value": "Julkaisueditori"
+    "value": "Sisältöeditori"
   },
   {
     "locale": "fi",
@@ -1179,5 +1165,50 @@
     "locale": "fi",
     "key": "eijulkaisemattomiatiedotteita",
     "value": "Ei julkaisemattomia tiedotteita"
+  },
+  {
+    "locale": "fi",
+    "key": "naytalisaatiedotteita",
+    "value": "Näytä lisää tiedotteita"
+  },
+  {
+    "locale": "fi",
+    "key": "kaikkikayttooikeusryhmat",
+    "value": "Kaikki käyttöoikeusryhmät"
+  },
+  {
+    "locale": "fi",
+    "key": "valittujenkategorioidenryhmat",
+    "value": "Valittujen kategorioiden käyttöoikeusryhmät"
+  },
+  {
+    "locale": "fi",
+    "key": "taytetty",
+    "value": "täytetty"
+  },
+  {
+    "locale": "fi",
+    "key": "eikohdennettu",
+    "value": "ei kohdennettu"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennuspuuttuu",
+    "value": "Julkaisua ei ole kohdennettu - kohdenna vähintään yhdelle käyttöoikeusryhmälle sekä valitse ainakin yksi avainsana"
+  },
+  {
+    "locale": "fi",
+    "key": "tiedotekesken",
+    "value": "Tiedotteen julkaiseminen vaatii vähintään otsikon sekä julkaisupäivän"
+  },
+  {
+    "locale": "fi",
+    "key": "aikajanakesken",
+    "value": "Aikajanan julkaiseminen vaatii näytettävän tekstin sekä tapahtumapäivämäärän"
+  },
+  {
+    "locale": "fi",
+    "key": "eitiedotteita",
+    "value": "Ei tiedotteita"
   }
 ]

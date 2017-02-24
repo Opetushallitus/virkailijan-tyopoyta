@@ -27,7 +27,7 @@ function CloseButton (props) {
 
   return (
     <Button
-      className={`button-link button-close absolute top-0 right-0 ${className}`}
+      className={`oph-button oph-button-close ${className}`}
       title={translate(title)}
       disabled={disabled}
       onClick={onClick}

@@ -16,17 +16,17 @@ function UserGroupButton (props) {
     onClick
   } = props
 
-  const handleOnClick = () => {
+  const handleClick = () => {
     onClick(id)
   }
 
   return (
     <Button
       className="button-primary release-usergroup-button left-align
-              flex col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
+      flex items-center col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
       type="button"
       title={translate('poistakohderyhma')}
-      onClick={handleOnClick}
+      onClick={handleClick}
     >
       <span className="regular flex-auto pr1">{text}</span>
       <span className="h3 self-center self-end" aria-hidden>&times;</span>

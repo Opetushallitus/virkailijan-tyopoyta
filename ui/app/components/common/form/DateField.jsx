@@ -23,8 +23,6 @@ const propTypes = {
   startDate: PropTypes.string,
   endDate: PropTypes.string,
   placeholderText: PropTypes.string,
-  popoverAttachment: PropTypes.string,
-  popoverTargetAttachment: PropTypes.string,
   onChange: PropTypes.func.isRequired
 }
 
@@ -37,8 +35,6 @@ const defaultProps = {
   startDate: null,
   endDate: null,
   placeholderText: null,
-  popoverAttachment: 'top left',
-  popoverTargetAttachment: 'bottom left',
   selectsStart: false,
   selectsEnd: false
 }
@@ -59,8 +55,6 @@ function DateField (props) {
     startDate,
     endDate,
     placeholderText,
-    popoverAttachment,
-    popoverTargetAttachment,
     onChange
   } = props
 
@@ -91,8 +85,6 @@ function DateField (props) {
         endDate={moment(endDate, dateFormat)}
         showMonthDropdown
         todayButton={translate('tanaan')}
-        popoverAttachment={popoverAttachment}
-        popoverTargetAttachment={popoverTargetAttachment}
       />
     </Field>
   )

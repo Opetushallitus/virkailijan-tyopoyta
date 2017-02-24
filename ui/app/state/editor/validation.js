@@ -7,7 +7,7 @@ const isNotNull = value => value !== null
 // Validation rules
 export const rules = {
   release: {
-    categories: isNotEmpty
+    userGroups: isNotEmpty
   },
   notification: {
     'content.fi.title': isNotEmpty,

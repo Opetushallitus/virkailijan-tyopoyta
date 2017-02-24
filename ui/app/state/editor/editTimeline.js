@@ -49,9 +49,9 @@ function updateContent (state, { id, language, prop, value }) {
   return update(state, {id, prop: ['content', language, prop], value})
 }
 
-function add (state, release) {
-  const item = newItem(release.id, release.timeline)
-  const newTimeline = R.append(item, release.timeline.slice())
+function add (state, { releaseId, timeline }) {
+  const item = newItem(releaseId, timeline)
+  const newTimeline = R.append(item, timeline.slice())
 
   console.log('Adding new timeline item with id', item.id)
 

@@ -101,8 +101,16 @@ class MockRepository() extends ReleaseRepository with JsonSupport {
     Future{Timeline(startDate.getMonthValue,startDate.getYear,days)}
   }
 
-  override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] =
-    Future(releases.get.values.flatMap(_.notification).filter(LocalDate.now.toEpochDay >= _.publishDate.toEpochDay).toList.sortBy(-_.publishDate.toEpochDay))
+  override def notifications(categories: RowIds, tags: RowIds, page: Int): Future[Seq[Notification]] = {
+    Future(releases.get.values
+      .flatMap(_.notification)
+      .filter(LocalDate.now.toEpochDay >= _.publishDate.toEpochDay)
+      .toList
+      .sortBy(-_.publishDate.toEpochDay)
+      .drop(20 * page-1)
+      .take(20)
+    )
+  }
 
   override def unpublished(): Future[Seq[Release]] = Future(
     releases.get.filter(_._2.notification.get.publishDate.toEpochDay > LocalDate.now.toEpochDay).values.toList
