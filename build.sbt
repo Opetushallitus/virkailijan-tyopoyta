@@ -42,8 +42,6 @@ libraryDependencies ++= Seq(
 // DB dependencies
 libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.193",
-  "com.typesafe.slick" %% "slick" % "3.1.1",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1",
   "io.underscore" %% "slickless" % "0.3.0",
   "org.flywaydb" % "flyway-core" % "4.0.3",
   "org.postgresql" % "postgresql" % "9.4.1212",
@@ -51,5 +49,4 @@ libraryDependencies ++= Seq(
   "org.scalikejdbc" %% "scalikejdbc-config" % "2.5.0",
   "org.scalikejdbc" %% "scalikejdbc-jsr310" % "2.5.0",
   "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % "2.5.0",
-  "org.typelevel" %% "cats" % "0.8.1"
 )
