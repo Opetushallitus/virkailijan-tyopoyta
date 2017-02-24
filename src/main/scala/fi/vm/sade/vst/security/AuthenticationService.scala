@@ -5,6 +5,7 @@ import fi.vm.sade.utils.cas.CasClient
 import fi.vm.sade.utils.cas.CasClient.{ServiceTicket, Username}
 import fi.vm.sade.vst.AuthenticationConfig
 import fi.vm.sade.vst.model.User
+import java.net.URLEncoder
 
 import scala.util.{Failure, Success, Try}
 import scalaz.concurrent.Task
@@ -22,7 +23,10 @@ class AuthenticationService(val casClient: CasClient,
 
   val validateTicket: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId)
 
-  lazy val loginUrl =s"${config.casUrl}/login?service=${config.serviceId}/authenticate"
+  private lazy val servicePart = URLEncoder.encode(s"${config.serviceId}/authenticate", "UTF-8")
+
+  lazy val loginUrl =s"${config.casUrl}/login?service=$servicePart"
+
 
   private def createUser(ldapUser: LdapUser): User = User(ldapUser.lastName, "fi", ldapUser.roles)
 

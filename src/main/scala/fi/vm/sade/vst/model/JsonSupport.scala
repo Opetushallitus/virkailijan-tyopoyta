@@ -90,6 +90,7 @@ trait JsonSupport {
       (JsPath \ "initialStartDate").readNullable[LocalDate](dateReads) and
       (JsPath \ "content").read[Map[String, NotificationContent]] and
       (JsPath \ "tags").read[Seq[Long]] and
+      Reads.pure(false) and
       Reads.pure(false)
     )(Notification.apply _)
 
@@ -114,6 +115,7 @@ trait JsonSupport {
     (JsPath \ "createdAt").read[LocalDate](dateTimeReads) and
     (JsPath \ "modifiedBy").readNullable[Int] and
     (JsPath \ "modifiedAt").readNullable[LocalDate](dateTimeReads) and
+    Reads.pure(false) and
     Reads.pure(false)
     )(Release.apply _)
 

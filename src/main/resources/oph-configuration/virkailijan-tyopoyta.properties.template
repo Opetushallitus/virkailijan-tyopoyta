@@ -9,6 +9,6 @@ ldap.user.dn={{ldap_manager_userdn}}
 ldap.user.password={{ldap_manager_password}}
 
 #DB
-db.uri={{virkailijan_tyopoyta_db_uri:}}
+db.uri={{virkailijan_tyopoyta_db_uri}}
 db.username={{virkailijan_tyopoyta_db_username}}
 db.password={{virkailijan_tyopoyta_db_password}}

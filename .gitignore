@@ -18,3 +18,7 @@ dependency-reduced-pom.xml
 .gradle
 build
 **/.DS_Store
+.iml
+.swn
+.swo
+.swp
