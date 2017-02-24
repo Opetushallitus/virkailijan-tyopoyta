@@ -4,8 +4,8 @@ import fi.vm.sade.vst.DBConfig
 import org.flywaydb.core.Flyway
 
 class Migrations(dBConfig: DBConfig) {
-  private val commonLocation: String = "filesystem:migration/common"
-  private val h2Location: String = "filesystem:migration/h2"
+  private val commonLocation: String = "classpath:/migration/common"
+  private val h2Location: String = "classpath:/migration/h2"
   private val flyway = new Flyway()
   flyway.setDataSource(dBConfig.url, dBConfig.username, dBConfig.password)
 
