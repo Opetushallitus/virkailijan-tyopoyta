@@ -361,7 +361,6 @@
 /* Menu */
 .menu-container {
   height: var(--space-4);
-  z-index: var(--z1);
 }
 
 .menu {

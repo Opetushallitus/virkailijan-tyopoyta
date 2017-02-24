@@ -209,6 +209,8 @@ function onSaveComplete (state) {
 
   const newViewAlerts = R.append(alert, state.view.alerts)
 
+  document.body.classList.remove('overflow-hidden')
+
   return R.compose(
     R.assoc('editor', emptyEditor()),
     R.assocPath(['view', 'alerts'], newViewAlerts),
