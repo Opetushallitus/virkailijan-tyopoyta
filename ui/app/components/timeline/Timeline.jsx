@@ -90,9 +90,10 @@ class Timeline extends React.Component {
 
   moveTimeline () {
     const virkailijaRaamit = document.querySelector('header')
+    const virkailijaRaamitHeight = virkailijaRaamit ? virkailijaRaamit.clientHeight : 0
     const menuContainer = document.querySelector('.menu-container')
     const menuHeight = menuContainer ? menuContainer.clientHeight : 0
-    const topOffset = virkailijaRaamit.clientHeight + menuHeight
+    const topOffset = virkailijaRaamitHeight + menuHeight
 
     if (window.pageYOffset > topOffset) {
       this.timeline.style.top = `${window.pageYOffset - topOffset}px`
