@@ -82,6 +82,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       notificationJoins
         .where.gt(n.publishDate, LocalDate.now())
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
+        .orderBy(n.publishDate).desc
     }
     notificationsFromRS(sql)
 
@@ -97,6 +98,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
           tags.map(t => sqls.in(nt.tagId, t)),
           categories.map(categories => sqls.in(rc.categoryId, categories))
         ))
+        .orderBy(n.publishDate).desc
         .limit(pageLength)
         .offset(offset(page))
     }
