@@ -27,7 +27,7 @@ function emptyNotification () {
   }
 }
 
-function update (state, {prop, value}) {
+function update (state, { prop, value }) {
   console.log('Updating notification', prop, value)
 
   // Concatenate path and prop
@@ -36,12 +36,32 @@ function update (state, {prop, value}) {
     ? path.concat(prop)
     : R.append(prop, path)
 
-  const newState = R.assocPath(concatenatedPath, value, state)
+  const newState = R.assocPath(
+    path,
+    validate(
+      R.path(path, R.assocPath(concatenatedPath, value, state)),
+      rules(state.editor.editedRelease)['notification']
+    ),
+    state
+  )
 
-  // Validate notification
-  const validatedNotification = validate(R.path(path, newState), rules['notification'])
+  // Empty tags if validationState is empty
+  if (newState.validationState === 'empty') {
+    newState.tags = []
+  }
 
-  return R.assocPath(path, validatedNotification, state)
+  return R.assocPath(
+    ['editor', 'editedRelease'],
+    validate(
+      newState.editor.editedRelease,
+      rules(newState.editor.editedRelease)['release']
+    ),
+    newState
+  )
+}
+
+function updateTags (state, tags) {
+  return R.assocPath()
 }
 
 function updateContent (state, { prop, language, value }) {
@@ -57,7 +77,8 @@ const editNotification = {
   events,
   emptyNotification,
   update,
-  updateContent
+  updateContent,
+  updateTags
 }
 
 export default editNotification

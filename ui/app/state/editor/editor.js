@@ -32,6 +32,9 @@ function getRelease (id) {
 function onReleaseReceived (state, response) {
   console.log('Received release')
 
+  // TODO: Remove from production
+  response.userGroups = []
+
   return R.compose(
     R.assocPath(['editor', 'isLoading'], false),
     R.assocPath(['editor', 'editedRelease'], response)

@@ -78,14 +78,11 @@ function Targeting (props) {
     return R.find(R.propEq('id', id))(groups)[`name_${locale}`]
   }
 
-  // Returns all tags or those linked to selected categories
-  const getFilteredTags = (tags, selectedCategories) => {
+  const areTagsDisabled = (tags, selectedCategories) => {
     return selectedCategories.length
-      ? R.filter(tag => itemHasCategory(tag, selectedCategories), tags)
-      : tags
+      ? !itemHasCategory(tags, release.categories)
+      : false
   }
-
-  const filteredTags = getFilteredTags(testData.tags, release.categories)
 
   return (
     <div>
@@ -93,7 +90,7 @@ function Targeting (props) {
 
       <div className="flex flex-wrap mb3 px3">
         {/*Categories*/}
-        <div className="col-12 sm-col-3 sm-pr2">
+        <div className="col-12 lg-col-3 sm-pr2">
           <Fieldset legend={translate('julkkategoria')}>
             {categories.map(category =>
               <div key={`releaseCategory${category.id}`} className="mb1">
@@ -109,7 +106,7 @@ function Targeting (props) {
         </div>
 
         {/*User groups*/}
-        <div className="col-12 sm-col-4 sm-px2">
+        <div className="col-12 lg-col-4 lg-px2">
           <Field
             name="release-usergroups-search"
             label={translate(getUserGroupsString(release.categories.length))}
@@ -131,8 +128,8 @@ function Targeting (props) {
           </Field>
         </div>
 
-        <div className="col-12 sm-col-4 sm-pl2">
-          <div className="invisible xs-hide sm-hide mb1">{translate('valitutryhmat')}</div>
+        <div className="col-12 lg-col-4 lg-pl2">
+          <div className="invisible xs-hide sm-hide md-hide mb1">{translate('valitutryhmat')}</div>
 
           {
             release.userGroups
@@ -149,24 +146,30 @@ function Targeting (props) {
         </div>
       </div>
 
-      <div className="mb3 p3 border-top border-bottom border-gray-lighten-3">
-        <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
+      {
+        release.notification.validationState === 'empty'
+          ? null
+          : <div className="p3 border-top border-gray-lighten-3">
+            <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
-        {filteredTags.map(tags =>
-          <Fieldset key={`notificationTags${tags.id}`} legend={tags[`name_${locale}`]}>
-            <CheckboxButtonGroup
-              locale={locale}
-              htmlId="notification-tags"
-              options={tags.items}
-              selectedOptions={release.notification.tags}
-              onChange={controller.toggleTag}
-            />
-          </Fieldset>
-        )}
-      </div>
+            {testData.tags.map(tags =>
+              <Fieldset key={`notificationTags${tags.id}`} legend={tags[`name_${locale}`]}>
+                <CheckboxButtonGroup
+                  locale={locale}
+                  groupId={tags.id}
+                  htmlId="notification-tags"
+                  options={tags.items}
+                  selectedOptions={release.notification.tags}
+                  disabled={areTagsDisabled(tags, release.categories)}
+                  onChange={controller.toggleTag}
+                />
+              </Fieldset>
+            )}
+          </div>
+      }
 
       {/*Targeting selection name*/}
-      <div className="center px3">
+      <div className="center pt3 px3 border-top border-gray-lighten-3">
         <label
           className="block md-inline-block mb1 md-mb0 mr2"
           htmlFor="targeting-name"

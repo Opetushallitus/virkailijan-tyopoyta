@@ -5,6 +5,7 @@ import EditNotification from './EditNotification'
 import EditTimeline from './EditTimeline'
 import Targeting from './Targeting'
 import PreviewRelease from './PreviewRelease'
+import ValidationMessages from './ValidationMessages'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
@@ -260,7 +261,7 @@ function Editor (props) {
               locale={locale}
               categories={categories.items}
               userGroups={userGroups.items}
-              tags
+              tags={tags.items}
               release={editedRelease}
             />
           </section>
@@ -269,25 +270,17 @@ function Editor (props) {
 
       {/*Form actions*/}
       <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
-        <div className={`${isLoading ? 'display-none' : ''}`}>
-          {
-            editedRelease.validationState === 'empty' || editedRelease.validationState === 'incomplete'
-              ? <div className="bold red mb1">&middot; {translate('kohdennuspuuttuu')}</div>
-              : null
-          }
-
-          {
-            notification.validationState === 'incomplete'
-              ? <div className="muted mb1">&middot; {translate('tiedotekesken')}</div>
-              : null
-          }
-
-          {
-            incompleteTimelineItems.length
-              ? <div className="muted mb1">&middot; {translate('aikajanakesken')}</div>
-              : null
-          }
-        </div>
+        {/*Validation messages*/}
+        {
+          isLoading
+            ? null
+            : <ValidationMessages
+              release={editedRelease}
+              timeline={timeline}
+              emptyTimelineItems={emptyTimelineItems}
+              incompleteTimelineItems={incompleteTimelineItems}
+            />
+        }
 
         {/*Preview & publish*/}
         <Button

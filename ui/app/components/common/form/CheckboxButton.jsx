@@ -11,12 +11,14 @@ const propTypes = {
     PropTypes.node
   ]).isRequired,
   checked: PropTypes.bool,
+  disabled: PropTypes.bool,
   onChange: PropTypes.func.isRequired
 }
 
 const defaultProps = {
+  variant: 'regular',
   checked: false,
-  variant: 'regular'
+  disabled: false
 }
 
 const classList = [
@@ -39,6 +41,7 @@ function CheckboxButton (props) {
     variant,
     label,
     checked,
+    disabled,
     onChange
   } = props
 
@@ -56,6 +59,7 @@ function CheckboxButton (props) {
         className="hide"
         type="checkbox"
         checked={checked}
+        disabled={disabled}
         onChange={handleChange}
       />
 

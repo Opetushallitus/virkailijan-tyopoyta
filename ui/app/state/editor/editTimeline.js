@@ -38,7 +38,7 @@ function update (state, { id, prop, value }) {
 
   const newTimeline = [
     ...timeline.slice(0, index),
-    validate(newTimelineItem, rules['timelineItem']),
+    validate(newTimelineItem, rules(state.editor.editedRelease)['timelineItem']),
     ...timeline.slice(index + 1)
   ]
 

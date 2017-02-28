@@ -1,6 +1,8 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
+// TODO: Remove test data
+
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'

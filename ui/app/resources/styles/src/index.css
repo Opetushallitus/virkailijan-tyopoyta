@@ -283,6 +283,14 @@ fieldset {
   background-color: var(--link-color-hover);
 }
 
+.checkbox-button input:checked:disabled + .checkbox-button-text,
+.checkbox-button input:disabled + .checkbox-button-text {
+  color: var(--gray-lighten-3);
+  border-color: var(--gray-lighten-3);
+  background-color: var(--white);
+  pointer-events: none;
+}
+
 .radio-button-group {
   display: block;
   padding: var(--space-05);

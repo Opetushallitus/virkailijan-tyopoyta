@@ -10,6 +10,10 @@ const propTypes = {
   items: PropTypes.array.isRequired
 }
 
+const getSelectedTargetingName = (id, items, locale) => {
+  return R.find(R.propEq('id', id))(items)[`name_${locale}`]
+}
+
 function PreviewTargetingList (props) {
   const {
     locale,
@@ -18,18 +22,14 @@ function PreviewTargetingList (props) {
     items
   } = props
 
-  const getSelectedTargetingName = (id, items, locale) => {
-    return R.find(R.propEq('id', id))(items)[`name_${locale}`]
-  }
-
   return (
     <div>
-      <p>{translate(title)}</p>
+      <p className="bold pr2">{translate(title)}</p>
 
-      <ul className="list-reset ml3">
-        {selectedItems.map(item =>
-          <li key={`${title}${item}`} className="italic mb2">
-            {getSelectedTargetingName(item, items, locale)}
+      <ul className="list-reset">
+        {selectedItems.map(id =>
+          <li key={`${title}${id}`} className="mb1">
+            {getSelectedTargetingName(id, items, locale)}
           </li>
         )}
       </ul>

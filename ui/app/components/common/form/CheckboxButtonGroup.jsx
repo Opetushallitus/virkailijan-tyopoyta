@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import R from 'ramda'
 
 import CheckboxButton from './CheckboxButton'
 
@@ -8,16 +9,17 @@ const propTypes = {
   variant: PropTypes.string,
   options: PropTypes.array.isRequired,
   selectedOptions: PropTypes.array.isRequired,
+  disabled: PropTypes.bool,
   onChange: PropTypes.func.isRequired
 }
 
 const defaultProps = {
-  checked: false,
-  variant: 'regular'
+  variant: 'regular',
+  disabled: false
 }
 
 const isChecked = (selectedOptions, id) => {
-  return selectedOptions.indexOf(id) >= 0
+  return R.contains(id, selectedOptions)
 }
 
 function CheckboxButtonGroup (props) {
@@ -27,6 +29,7 @@ function CheckboxButtonGroup (props) {
     variant,
     options,
     selectedOptions,
+    disabled,
     onChange
   } = props
 
@@ -41,6 +44,7 @@ function CheckboxButtonGroup (props) {
             variant={variant}
             label={option[`name_${locale}`]}
             checked={isChecked(selectedOptions, option.id)}
+            disabled={disabled}
             onChange={onChange}
           />
         )

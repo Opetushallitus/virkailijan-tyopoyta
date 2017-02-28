@@ -1194,21 +1194,51 @@
   {
     "locale": "fi",
     "key": "kohdennuspuuttuu",
+    "value": "Julkaisua ei ole kohdennettu - kohdenna vähintään yhdelle käyttöoikeusryhmälle"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennusjaavainsanapuuttuu",
     "value": "Julkaisua ei ole kohdennettu - kohdenna vähintään yhdelle käyttöoikeusryhmälle sekä valitse ainakin yksi avainsana"
   },
   {
     "locale": "fi",
+    "key": "taytatiedotetaiaikajana",
+    "value": "Julkaiseminen vaatii joko tiedotteen tai vähintään yhden aikajanan tapahtuman täyttämisen"
+  },
+  {
+    "locale": "fi",
     "key": "tiedotekesken",
-    "value": "Tiedotteen julkaiseminen vaatii vähintään otsikon sekä julkaisupäivän"
+    "value": "Tiedotteen julkaiseminen vaatii vähintään otsikon, kuvauksen sekä julkaisupäivän"
   },
   {
     "locale": "fi",
     "key": "aikajanakesken",
-    "value": "Aikajanan julkaiseminen vaatii näytettävän tekstin sekä tapahtumapäivämäärän"
+    "value": "Aikajanan julkaiseminen vaatii näytettävän tekstin sekä tapahtumapäivämäärän kaikille tapahtumille"
   },
   {
     "locale": "fi",
     "key": "eitiedotteita",
     "value": "Ei tiedotteita"
+  },
+  {
+    "locale": "fi",
+    "key": "eiasetettu",
+    "value": "ei asetettu"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisunkategoriat",
+    "value": "Kategoria(t)"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisunkayttooikeusryhmat",
+    "value": "Käyttöoikeusryhmä(t)"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisunavainsanat",
+    "value": "Avainsana(t)"
   }
 ]

@@ -5,19 +5,23 @@ const isNotEmpty = value => value.length > 0
 const isNotNull = value => value !== null
 
 // Validation rules
-export const rules = {
-  release: {
-    userGroups: isNotEmpty
-  },
-  notification: {
-    'content.fi.title': isNotEmpty,
-    'content.fi.text': isNotEmpty,
-    tags: isNotEmpty,
-    startDate: isNotNull
-  },
-  timelineItem: {
-    'content.fi.text': isNotEmpty,
-    date: isNotNull
+export function rules (state) {
+  return {
+    release: {
+      userGroups: isNotEmpty,
+      'notification.tags': value => {
+        return state.notification.validationState !== 'empty' ? isNotEmpty(value) : null
+      }
+    },
+    notification: {
+      'content.fi.title': isNotEmpty,
+      'content.fi.text': isNotEmpty,
+      startDate: isNotNull
+    },
+    timelineItem: {
+      'content.fi.text': isNotEmpty,
+      date: isNotNull
+    }
   }
 }
 
@@ -30,6 +34,10 @@ export function validate (state, rules) {
   R.forEachObjIndexed((value, key) => {
     const path = key.split('.')
     const prop = R.path(path, state)
+
+    if (R.isNil(value(prop))) {
+      return
+    }
 
     values.push(value(prop))
   }, rules)

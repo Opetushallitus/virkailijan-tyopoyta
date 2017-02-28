@@ -80,8 +80,6 @@ export function initController (dispatcher, events) {
     editNotification: {
       update: (prop, value) => dispatcher.push(events.editor.editNotification.update, { prop, value }),
 
-      setSelectedTags: selected => dispatcher.push(events.editor.editNotification.setSelectedTags, selected),
-
       updateContent: (language, prop) => value =>
         dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value })
     }
