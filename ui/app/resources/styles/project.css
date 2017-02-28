@@ -86,16 +86,45 @@
 
 .semantic-ui.ui.dropdown .menu > .item {
   font-size: inherit;
+  display: flex;
+  flex-wrap: wrap;
   border-top: 0;
+}
+
+.semantic-ui.ui.dropdown .menu > .item > .text {
+  display: block;
+  width: 100%;
 }
 
 .semantic-ui.ui.dropdown .menu > .item:hover {
   background-color: var(--blue-lighten-4);
 }
 
-.ui.selection.dropdown .menu > .message {
+.semantic-ui.ui.selection.dropdown .menu > .message {
   color: var(--muted);
   padding: var(--space-1) var(--space-2);
+}
+
+.semantic-ui.ui.dropdown .menu > .item > .description {
+  display: block;
+  order: 2;
+  width: 100%;
+  margin-top: var(--space-1);
+  margin-left: 0;
+  color: var(--muted);
+}
+
+@media (--breakpoint-lg) {
+  .semantic-ui.ui.dropdown .menu > .item > .text {
+    width: 70%;
+    padding-right: var(--space-2);
+  }
+
+  .semantic-ui.ui.dropdown .menu > .item > .description {
+    text-align: right;
+    width: 30%;
+    margin-top: 0;
+  }
 }
 
 /* Draft.js */

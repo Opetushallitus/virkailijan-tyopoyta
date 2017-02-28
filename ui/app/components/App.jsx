@@ -160,13 +160,8 @@ class App extends React.Component {
             <section
               className={`col-12 md-col-7 pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
-              <div className="alert alert-warning block mb3 py2">
-                Haku ei ole vielä toiminnassa
-              </div>
-
               <Notifications
-                notificationsController={controller.notifications}
-                tagsController={controller.tags}
+                controller={controller.notifications}
                 locale={state.locale}
                 notifications={state.notifications}
                 tags={state.tags}

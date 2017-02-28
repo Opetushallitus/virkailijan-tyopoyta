@@ -2,8 +2,9 @@ import Bacon from 'baconjs'
 import R from 'ramda'
 import moment from 'moment'
 
-import tags from './state/tags'
+import categories from './state/categories'
 import userGroups from './state/userGroups'
+import tags from './state/tags'
 import view from './state/view'
 import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
@@ -12,14 +13,12 @@ import editor from './state/editor/editor'
 
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
-import * as testData from './resources/test/testData.json'
 // import urls from './data/virkailijan-tyopoyta-urls.json'
 
 const dispatcher = new Dispatcher()
 
 const events = {
   view: view.events,
-  tags: tags.events,
   unpublishedNotifications: unpublishedNotifications.events,
   notifications: notifications.events,
   timeline: timeline.events,
@@ -40,6 +39,8 @@ function onUserReceived (state, response) {
   const month = moment().format('M')
   const year = moment().format('YYYY')
 
+  categories.fetch()
+  userGroups.fetch()
   tags.fetch()
   notifications.fetch(1)
 
@@ -52,17 +53,18 @@ function onUserReceived (state, response) {
 }
 
 export function initAppState () {
-  const userS = Bacon.fromPromise(fetch(authUrl, { credentials: 'same-origin' }).then(resp => {
-    resp.json()
-  }))
+  const userS = Bacon.fromPromise(
+    window.fetch(authUrl, {
+      credentials: 'same-origin'
+    })
+      .then(resp => { resp.json() })
+  )
 
   const initialState = {
     locale: 'fi',
     dateFormat: 'D.M.YYYY',
     userGroups: userGroups.initialState,
-    categories: {
-      items: testData.categories
-    },
+    categories: categories.initialState,
     tags: tags.initialState,
     view: view.initialState,
     unpublishedNotifications: unpublishedNotifications.initialState,
@@ -76,15 +78,17 @@ export function initAppState () {
 
     [userS], onUserReceived,
 
-    // Tags
-    [tags.bus], tags.onReceived,
-    [tags.failedBus], tags.onFailed,
-    [dispatcher.stream(events.tags.toggle)], tags.toggle,
-    [dispatcher.stream(events.tags.setSelectedItems)], tags.setSelectedItems,
+    // Categories
+    [categories.fetchBus], categories.onReceived,
+    [categories.fetchFailedBus], categories.onFailed,
 
     // User groups
     [userGroups.fetchBus], userGroups.onReceived,
     [userGroups.fetchFailedBus], userGroups.onFailed,
+
+    // Tags
+    [tags.fetchBus], tags.onReceived,
+    [tags.fetchFailedBus], tags.onFailed,
 
      // View
     [view.alertsBus], view.onAlertsReceived,
@@ -103,14 +107,15 @@ export function initAppState () {
     // Notifications
     [notifications.fetchBus], notifications.onReceived,
     [notifications.fetchFailedBus], notifications.onFailed,
+    [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
+    [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
     [dispatcher.stream(events.notifications.toggle)], notifications.toggle,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
-    [dispatcher.stream(events.notifications.toggleUnpublishedNotifications)], notifications.toggleUnpublishedNotifications,
 
     // Timeline
-    [timeline.bus], timeline.onReceived,
-    [timeline.failedBus], timeline.onFailed,
+    [timeline.fetchBus], timeline.onReceived,
+    [timeline.fetchFailedBus], timeline.onFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,

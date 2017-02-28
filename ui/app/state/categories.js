@@ -8,54 +8,54 @@ import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 import * as testData from '../resources/test/testData.json'
 
-const url = '/virkailijan-tyopoyta/api/tags'
+const url = '/virkailijan-tyopoyta/api/categories'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
-  console.log('Fetching tags')
+  console.log('Fetching categories')
 
   // getData({
   //   url: url,
-  //   onSuccess: tags => fetchBus.push(tags),
+  //   onSuccess: categories => fetchBus.push(categories),
   //   onError: error => fetchFailedBus.push(error)
   // })
 
-  fetchBus.push(testData.tags)
+  fetchBus.push(testData.categories)
 }
 
-function onReceived (state, tags) {
-  console.log('Received tags')
+function onReceived (state, categories) {
+  console.log('Received categories')
 
   return R.compose(
-    R.assocPath(['tags', 'items'], tags),
-    R.assocPath(['tags', 'isLoading'], false)
+    R.assocPath(['categories', 'items'], categories),
+    R.assocPath(['categories', 'isLoading'], false)
   )(state)
 }
 
 function onFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Avainsanojen haku epäonnistui',
+    title: 'Kategorioiden haku epäonnistui',
     text: 'Päivitä sivu hakeaksesi uudelleen'
   })
 
   view.alertsBus.push(alert)
 
-  return R.assocPath(['tags', 'isLoading'], false, state)
+  return R.assocPath(['categories', 'isLoading'], false, state)
 }
 
-function emptyTags () {
+function emptyCategories () {
   return {
     items: [],
     isLoading: true
   }
 }
 
-const initialState = emptyTags()
+const initialState = emptyCategories()
 
-const tags = {
+const categories = {
   fetchBus,
   fetchFailedBus,
   initialState,
@@ -64,4 +64,4 @@ const tags = {
   onFailed
 }
 
-export default tags
+export default categories

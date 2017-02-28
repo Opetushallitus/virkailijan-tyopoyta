@@ -9,8 +9,8 @@ import createAlert from '../utils/createAlert'
 
 const url = '/virkailijan-tyopoyta/api/timeline'
 
-const bus = new Bacon.Bus()
-const failedBus = new Bacon.Bus()
+const fetchBus = new Bacon.Bus()
+const fetchFailedBus = new Bacon.Bus()
 
 function fetch (options) {
   console.log('Fetching timeline')
@@ -26,8 +26,8 @@ function fetch (options) {
       month,
       year
     },
-    onSuccess: timeline => bus.push(timeline),
-    onError: (error) => failedBus.push(error)
+    onSuccess: timeline => fetchBus.push(timeline),
+    onError: (error) => fetchFailedBus.push(error)
   })
 }
 
@@ -257,8 +257,8 @@ const events = {
 const initialState = emptyTimeline()
 
 const timeline = {
-  bus,
-  failedBus,
+  fetchBus,
+  fetchFailedBus,
   events,
   initialState,
   onReceived,

@@ -8,8 +8,7 @@ import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
 const propTypes = {
-  notificationsController: PropTypes.object.isRequired,
-  tagsController: PropTypes.object.isRequired,
+  controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   notifications: PropTypes.object.isRequired,
   tags: PropTypes.object.isRequired
@@ -52,13 +51,12 @@ class Notifications extends React.Component {
 
     const nextPage = currentPage + 1
 
-    this.props.notificationsController.getPage(nextPage)
+    this.props.controller.getPage(nextPage)
   }
 
   render () {
     const {
-      notificationsController,
-      tagsController,
+      controller,
       locale,
       notifications,
       tags
@@ -79,8 +77,8 @@ class Notifications extends React.Component {
           <NotificationTagSelect
             locale={locale}
             options={tags.items}
-            selectedOptions={tags.selectedItems}
-            controller={tagsController}
+            selectedOptions={notifications.tags}
+            controller={controller}
             isInitialLoad={isInitialLoad}
             isLoading={tags.isLoading}
           />
@@ -102,7 +100,7 @@ class Notifications extends React.Component {
           {items.map(notification =>
             <Notification
               key={`notification${notification.id}`}
-              controller={notificationsController}
+              controller={controller}
               locale={locale}
               notification={notification}
               tags={tags.items}

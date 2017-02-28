@@ -102,22 +102,42 @@
     },
     {
       "id": 2,
-      "name_fi": "Lukio-opetus"
+      "name_fi": "Lukiokoulutus"
     },
     {
       "id": 3,
-      "name_fi": "KK"
+      "name_fi": "Yhteishaut (lukiot)"
     },
     {
       "id": 4,
-      "name_fi": "Vapaa sivistystyö"
+      "name_fi": "Ammatillinen koulutus"
+    },
+    {
+      "id": 5,
+      "name_fi": "Yhteishaut (amm.)"
+    },
+    {
+      "id": 6,
+      "name_fi": "PJVK-haut"
+    },
+    {
+      "id": 7,
+      "name_fi": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haku"
+    },
+    {
+      "id": 8,
+      "name_fi": "Korkeakoulutus"
+    },
+    {
+      "id": 9,
+      "name_fi": "Vapaan sivistystyön koulutus"
     }
   ],
   "tags": [
     {
       "id": 1,
       "name_fi": "Perusopetus ja toinen aste",
-      "categories": [1, 2],
+      "categories": [1, 2, 3, 4, 5, 6, 7],
       "items": [
         {
           "id": 1,
@@ -126,36 +146,136 @@
         {
           "id": 2,
           "name_fi": "Kielikoe"
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "name_fi": "Korkeakoulutus",
-      "categories": [3],
-      "items": [
+        },
         {
           "id": 3,
-          "name_fi": "Erillishaku"
+          "name_fi": "Koski"
         },
         {
           "id": 4,
-          "name_fi": "Hakulomakkeen hallinta"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "name_fi": "Vapaa sivistystyö",
-      "categories": [4],
-      "items": [
+          "name_fi": "Kehitystyö"
+        },
         {
           "id": 5,
           "name_fi": "Käyttöoikeudet"
         },
         {
           "id": 6,
+          "name_fi": "Opintopolku-info"
+        },
+        {
+          "id": 7,
+          "name_fi": "Opo-paketti"
+        },
+        {
+          "id": 8,
+          "name_fi": "Oppivalmiustesti"
+        },
+        {
+          "id": 9,
+          "name_fi": "Pääsy- ja soveltuvuuskoe"
+        },
+        {
+          "id": 10,
+          "name_fi": "Tarjonta"
+        },
+        {
+          "id": 11,
+          "name_fi": "Tiedonsiirrot"
+        },
+        {
+          "id": 12,
+          "name_fi": "Tilastot"
+        },
+        {
+          "id": 13,
+          "name_fi": "Valinnat"
+        },
+        {
+          "id": 14,
+          "name_fi": "Raportit"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name_fi": "Korkeakoulutus",
+      "categories": [8],
+      "items": [
+        {
+          "id": 15,
+          "name_fi": "Aikataulut"
+        },
+        {
+          "id": 16,
+          "name_fi": "Erillishaku"
+        },
+        {
+          "id": 17,
           "name_fi": "Hakulomakkeen hallinta"
+        },
+        {
+          "id": 18,
+          "name_fi": "Kehitystyö"
+        },
+        {
+          "id": 19,
+          "name_fi": "Käyttöoikeudet"
+        },
+        {
+          "id": 20,
+          "name_fi": "Lisähaku"
+        },
+        {
+          "id": 21,
+          "name_fi": "Opintopolku-info"
+        },
+        {
+          "id": 22,
+          "name_fi": "Opo-paketti"
+        },
+        {
+          "id": 23,
+          "name_fi": "Raportit"
+        },
+        {
+          "id": 24,
+          "name_fi": "Tarjonta"
+        },
+        {
+          "id": 25,
+          "name_fi": "Tiedonsiirrot"
+        },
+        {
+          "id": 26,
+          "name_fi": "Tilastot"
+        },
+        {
+          "id": 27,
+          "name_fi": "Valinnat"
+        },
+        {
+          "id": 28,
+          "name_fi": "Valintakoe"
+        },
+        {
+          "id": 29,
+          "name_fi": "Yhteishaku"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name_fi": "Vapaa sivistystyö",
+      "categories": [9],
+      "items": [
+        {
+          "id": 30,
+          "name_fi": "Käyttöoikeudet"
+        },
+        {
+          "id": 31,
+          "name_fi": "Tarjonta"
         }
       ]
     }

@@ -2,11 +2,13 @@ import React, { PropTypes } from 'react'
 
 // Components
 import MobileMenu from './MobileMenu'
+// import CategorySelect from './CategorySelect'
 import Button from '../common/buttons/Button'
 import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
+  // categories: PropTypes.object.isRequired,
   notificationsLoaded: PropTypes.bool.isRequired,
   isMobileMenuVisible: PropTypes.bool.isRequired
 }
@@ -14,6 +16,7 @@ const propTypes = {
 function Menu (props) {
   const {
     controller,
+    // categories,
     notificationsLoaded,
     isMobileMenuVisible
   } = props
@@ -35,6 +38,8 @@ function Menu (props) {
         />
         {/*Actions*/}
         <div className="flex items-center xs-hide sm-hide">
+          {/*Filter view by category*/}
+
           {/*Create a new release*/}
           <Button
             className="button-link h3 bold px0 mr3 py1"

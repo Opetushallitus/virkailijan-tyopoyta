@@ -153,7 +153,7 @@ function Targeting (props) {
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
             {testData.tags.map(tags =>
-              <Fieldset key={`notificationTags${tags.id}`} legend={tags[`name_${locale}`]}>
+              <Fieldset key={`notificationTagGroup${tags.id}`} legend={tags[`name_${locale}`]}>
                 <CheckboxButtonGroup
                   locale={locale}
                   groupId={tags.id}

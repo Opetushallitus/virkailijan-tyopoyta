@@ -11,7 +11,7 @@ const url = '/virkailijan-tyopoyta/api/notifications'
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
-function fetch (page) {
+function fetch (page, tags = []) {
   console.log('Fetching notifications')
 
   if (!page) {
@@ -22,7 +22,8 @@ function fetch (page) {
   getData({
     url: url,
     searchParams: {
-      page: page
+      page,
+      tags: tags.join(',')
     },
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
@@ -81,8 +82,26 @@ function getPage (state, page) {
   return R.assocPath(['notifications', 'isLoading'], true, state)
 }
 
-function updateSearch (state, search) {
-  return R.assoc('filter', search, state)
+function toggleTag (state, id) {
+  console.log('Toggled tag with id', id)
+
+  const selectedTags = state.notifications.tags
+  const newSelectedTags = R.contains(id, selectedTags)
+    ? R.reject(selected => selected === id, selectedTags)
+    : R.append(id, selectedTags)
+
+  return setSelectedTags(state, newSelectedTags)
+}
+
+function setSelectedTags (state, selected) {
+  console.log('Updating selected tags', selected)
+
+  fetch(1, selected)
+
+  return R.compose(
+    R.assocPath(['notifications', 'tags'], selected),
+    R.assocPath(['notifications', 'items'], [])
+  )(state)
 }
 
 // Expand/contract notification
@@ -109,6 +128,7 @@ function emptyNotifications () {
     items: [],
     expanded: [],
     currentPage: 1,
+    tags: [],
     hasPagesLeft: true,
     isLoading: false,
     isInitialLoad: true
@@ -117,7 +137,8 @@ function emptyNotifications () {
 
 // Events for appState
 const events = {
-  updateSearch,
+  toggleTag,
+  setSelectedTags,
   getPage,
   toggle,
   edit
@@ -134,7 +155,8 @@ const notifications = {
   reset,
   onReceived,
   onFailed,
-  updateSearch,
+  toggleTag,
+  setSelectedTags,
   getPage,
   toggle,
   edit

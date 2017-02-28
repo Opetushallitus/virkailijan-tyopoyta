@@ -9,12 +9,6 @@ export function initController (dispatcher, events) {
     removeAlert: id => dispatcher.push(events.view.removeAlert, id)
   }
 
-  const tags = {
-    toggle: id => dispatcher.push(events.tags.toggle, id),
-
-    setSelectedItems: selected => dispatcher.push(events.tags.setSelectedItems, selected)
-  }
-
   const unpublishedNotifications = {
     toggle: () => dispatcher.push(events.unpublishedNotifications.toggle),
 
@@ -24,6 +18,10 @@ export function initController (dispatcher, events) {
   }
 
   const notifications = {
+    toggleTag: id => dispatcher.push(events.notifications.toggleTag, id),
+
+    setSelectedTags: selected => dispatcher.push(events.notifications.setSelectedTags, selected),
+
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
     toggle: id => dispatcher.push(events.notifications.toggle, id),
@@ -95,11 +93,6 @@ export function initController (dispatcher, events) {
       toggleMenu: view.toggleMenu
     },
 
-    tags: {
-      toggle: tags.toggle,
-      setSelectedItems: tags.setSelectedItems
-    },
-
     unpublishedNotifications: {
       toggle: unpublishedNotifications.toggle,
       edit: unpublishedNotifications.edit,
@@ -107,6 +100,8 @@ export function initController (dispatcher, events) {
     },
 
     notifications: {
+      toggleTag: notifications.toggleTag,
+      setSelectedTags: notifications.setSelectedTags,
       getPage: notifications.getPage,
       toggle: notifications.toggle,
       edit: notifications.edit
