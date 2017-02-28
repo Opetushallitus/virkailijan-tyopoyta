@@ -33,7 +33,7 @@ function onReleaseReceived (state, response) {
   console.log('Received release')
 
   // TODO: Remove from production
-  response.userGroups = []
+  response.userGroups = response.userGroups || []
 
   return R.compose(
     R.assocPath(['editor', 'isLoading'], false),
