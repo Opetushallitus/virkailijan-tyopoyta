@@ -55,7 +55,8 @@ function onUserReceived (state, response) {
 export function initAppState () {
   const userS = Bacon.fromPromise(
     window.fetch(authUrl, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      mode: 'no-cors'
     })
       .then(resp => { resp.json() })
   )

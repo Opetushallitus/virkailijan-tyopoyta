@@ -6,7 +6,7 @@ import java.nio.file.Paths
 import com.typesafe.config.{Config, ConfigFactory}
 import fi.vm.sade.security.ldap.LdapConfig
 
-case class AuthenticationConfig(casUrl: String, serviceId: String, memoizeDuration: Int)
+case class AuthenticationConfig(casUrl: String, serviceId: String, casUsername: String, casPassword: String, kayttooikeusUri: String,  memoizeDuration: Int)
 case class ServerConfig(port: Int)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
@@ -21,10 +21,15 @@ trait Configuration {
     config.getString("ldap.user.dn"),
     config.getString("ldap.user.password"))
 
-  private val casUrl = config.getString("cas.url")
-  private val casService = config.getString("virkailijan-tyopoyta.cas.service")
 
-  lazy val authenticationConfig = AuthenticationConfig(casUrl, s"$casService", 10)
+  lazy val authenticationConfig = AuthenticationConfig(
+    config.getString("cas.url"),
+    config.getString("virkailijan-tyopoyta.cas.service"),
+    config.getString("virkailijan-tyopoyta.cas.user"),
+    config.getString("virkailijan-tyopoyta.cas.password"),
+    config.getString("kayttooikeus.url"),
+    10)
+
   lazy val serverConfig = ServerConfig(config.getInt("server.port"))
   lazy val loginPage = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl = config.getString("oph.logo.url")

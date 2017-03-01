@@ -15,7 +15,7 @@ function getData (options) {
     url,
     searchParams = null,
     time = minute,
-    requestOptions = {},
+    requestOptions = {credentials: 'same-origin'},
     onSuccess,
     onError
   } = options
