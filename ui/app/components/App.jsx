@@ -127,7 +127,6 @@ class App extends React.Component {
           <Menu
             controller={controller}
             locale={state.locale}
-            dateFormat={state.dateFormat}
             categories={state.categories}
             selectedCategories={state.view.categories}
             notificationsLoaded={state.notifications.isInitialLoad}

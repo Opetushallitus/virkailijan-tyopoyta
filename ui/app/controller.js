@@ -2,6 +2,8 @@ export function initController (dispatcher, events) {
   const view = {
     toggleCategory: category => dispatcher.push(events.view.toggleCategory, category),
 
+    setSelectedCategories: selected => { dispatcher.push(events.view.setSelectedCategories, selected) },
+
     toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
 
     toggleMenu: () => dispatcher.push(events.view.toggleMenu),
@@ -50,7 +52,7 @@ export function initController (dispatcher, events) {
 
     removeAlert: id => dispatcher.push(events.editor.removeAlert, id),
 
-    save: () => dispatcher.push(events.editor.save),
+    save: id => dispatcher.push(events.editor.save, id),
 
     saveDraft: () => dispatcher.push(events.editor.saveDraft),
 
@@ -86,8 +88,8 @@ export function initController (dispatcher, events) {
   return {
     // View
     view: {
-      update: view.update,
       toggleCategory: view.toggleCategory,
+      setSelectedCategories: view.setSelectedCategories,
       toggleTab: view.toggleTab,
       removeAlert: view.removeAlert,
       toggleMenu: view.toggleMenu
