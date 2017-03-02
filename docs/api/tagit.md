@@ -12,8 +12,7 @@ Määrittää, mihin kategorioihin liittyvät tagiryhmät palautetaan.
 ##Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
-taulukko, joka sisältää tagiryhmät JSON-muodossa. Ryhmät on järjestetty
-id:n mukaan nousevasti.
+taulukko, joka sisältää tagiryhmät JSON-muodossa, järjestettynä id:n mukaan nousevasti.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
