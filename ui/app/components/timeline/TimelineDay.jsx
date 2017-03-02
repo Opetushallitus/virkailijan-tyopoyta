@@ -23,10 +23,9 @@ function TimelineDay (props) {
         <TimelineItem
           key={`timelineItem${item.id}Release${item.releaseId}`}
           index={index}
+          locale={locale}
           dateFormat={dateFormat}
-          releaseId={item.releaseId}
-          date={item.date}
-          text={item.content[locale].text}
+          item={item}
           onEditButtonClick={onEditButtonClick}
         />
       )}

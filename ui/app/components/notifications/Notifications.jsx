@@ -4,6 +4,7 @@ import Bacon from 'baconjs'
 // Components
 import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
+import NotificationsPlaceholder from './NotificationsPlaceholder'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
@@ -19,19 +20,23 @@ class Notifications extends React.Component {
     super(props)
 
     this.getNextPage = this.getNextPage.bind(this)
+    this.isLastPageLoaded = this.isLastPageLoaded.bind(this)
   }
 
   componentDidMount () {
-    // Create a stream from scrolling event
+    // Get next page when scrolling to placeholder notification
     Bacon
       .fromEvent(window, 'scroll')
       .debounce(100)
       .onValue(() => {
-        // Get next page when scrolling to skeletonNotification
-        const isSkeletonNotificationVisible = window.scrollY >=
-          document.body.scrollHeight - window.innerHeight - this.skeletonNotification.clientHeight
+        if (this.isLastPageLoaded()) {
+          return
+        }
 
-        if (isSkeletonNotificationVisible) {
+        const isPlaceholderVisible = window.scrollY >=
+          document.body.scrollHeight - window.innerHeight - this.placeholderNotification.clientHeight
+
+        if (isPlaceholderVisible) {
           this.getNextPage()
         }
       })
@@ -40,18 +45,23 @@ class Notifications extends React.Component {
   getNextPage () {
     const {
       currentPage,
-      hasPagesLeft,
       isLoading
     } = this.props.notifications
 
-    // Check if new page is already being fetched and there are more notifications to get
-    if (isLoading || !hasPagesLeft) {
+    // Check if new page is already being fetched
+    if (isLoading) {
       return
     }
 
     const nextPage = currentPage + 1
 
     this.props.controller.getPage(nextPage)
+  }
+
+  isLastPageLoaded () {
+    const pageLength = 20
+
+    return this.props.notifications.items.length <= pageLength * this.props.notifications.currentPage
   }
 
   render () {
@@ -65,7 +75,6 @@ class Notifications extends React.Component {
     const {
       items,
       expanded,
-      hasPagesLeft,
       isInitialLoad
     } = notifications
 
@@ -84,11 +93,12 @@ class Notifications extends React.Component {
           />
         </div>
 
-        {/*Skeleton screen*/}
-        <div className={isInitialLoad ? '' : 'display-none'}>
-          <div className="mb3 p3 rounded bg-white box-shadow" />
-          <div className="mb3 p3 rounded bg-white box-shadow" />
-        </div>
+        {/*Placeholder to display on initial load*/}
+        {
+          isInitialLoad
+            ? <NotificationsPlaceholder />
+            : null
+        }
 
         <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>
           {
@@ -108,24 +118,32 @@ class Notifications extends React.Component {
             />
           )}
 
-          <div
-            ref={skeletonNotification => (this.skeletonNotification = skeletonNotification)}
-            className={`mb3 p3 rounded bg-white box-shadow ${hasPagesLeft ? '' : 'display-none'}`}
-          />
+          {
+            this.isLastPageLoaded()
+              ? null
+              : <div
+                ref={placeholderNotification => (this.placeholderNotification = placeholderNotification)}
+                className="mb3 p3 rounded bg-white box-shadow"
+              />
+          }
         </div>
 
-        <div className={`center py3 ${hasPagesLeft ? '' : 'display-none'}`}>
-          {/*Visually hidden button for accessibility*/}
-          <button
-            className="hide"
-            type="button"
-            onClick={this.getNextPage}
-          >
-            {translate('naytalisaatiedotteita')}
-          </button>
+        {
+          this.isLastPageLoaded()
+            ? null
+            : <div className="center py3">
+              {/*Visually hidden button for accessibility*/}
+              <button
+                className="hide"
+                type="button"
+                onClick={this.getNextPage}
+              >
+                {translate('naytalisaatiedotteita')}
+              </button>
 
-          <Spinner isVisible={hasPagesLeft} />
-        </div>
+              <Spinner isVisible />
+            </div>
+        }
       </div>
     )
   }

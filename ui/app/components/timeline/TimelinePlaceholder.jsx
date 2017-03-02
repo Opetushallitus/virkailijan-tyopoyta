@@ -4,7 +4,7 @@ import Spinner from '../common/Spinner'
 import Delay from '../common/Delay'
 import { translate } from '../common/Translations'
 
-function TimelineSkeleton (props) {
+function TimelinePlaceholder (props) {
   return (
     <div className="timeline-viewport timeline-line relative">
       <div className="sm-center md-left-align lg-center relative">
@@ -39,4 +39,4 @@ function TimelineSkeleton (props) {
   )
 }
 
-export default TimelineSkeleton
+export default TimelinePlaceholder

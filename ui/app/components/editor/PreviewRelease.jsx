@@ -122,7 +122,7 @@ function PreviewRelease (props) {
 
             {/*Tags*/}
             {
-              release.notification.tags
+              release.notification.tags.length > 0
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
                     locale={locale}

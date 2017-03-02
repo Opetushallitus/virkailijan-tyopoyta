@@ -31,26 +31,43 @@ function NotificationTagSelect (props) {
     controller.toggleTag(value)
   }
 
+  /*
+    Dropdown component takes options as an array of objects:
+    [
+      {
+        value: [option's value],
+        text: [displayed text],
+        description: [displayed description]
+      },
+      ...
+    ]
+
+    Returns options sorted by name
+  */
   const mappedOptions = (options, locale) => {
-    return R.flatten(
+    const name = `name_${locale}`
+
+    const mappedOptions = R.flatten(
       R.map(option => R.map(item =>
         R.compose(
-          R.omit(['id', `name_${locale}`]),
+          R.omit(['id', name]),
           R.assoc('value', item.id),
-          R.assoc('text', item[`name_${locale}`]),
-          R.assoc('description', option[`name_${locale}`])
+          R.assoc('text', item[name]),
+          R.assoc('description', option[name])
         )(item), option.items),
       options)
     )
+
+    return R.sortBy(R.prop('text'))(mappedOptions)
   }
 
   return (
     <div>
-      <label className="hide" htmlFor="notification-tags-search">{translate('suodatatiedotteita')}</label>
+      <label className="hide" htmlFor="notification-tag-select-search">{translate('suodatatiedotteita')}</label>
 
       <Dropdown
-        className="semantic-ui"
-        name="notifications-tags"
+        className="notification-tag-select semantic-ui"
+        name="notification-tag-select"
         fluid
         multiple
         noResultsMessage={translate('eitunnisteita')}

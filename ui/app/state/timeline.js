@@ -3,6 +3,7 @@ import Bacon from 'baconjs'
 import moment from 'moment'
 
 import view from './view'
+import notifications from './notifications'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
@@ -224,6 +225,12 @@ function getPreviousMonth (state) {
   fetch(previousMonthAndYear)
 
   return R.assocPath(['timeline', 'isLoadingPrevious'], true, state)
+}
+
+function getRelatedNotification (state, id) {
+  console.log('Fetching notification with id', id)
+
+  notifications.fetch
 }
 
 function edit (state, id) {
