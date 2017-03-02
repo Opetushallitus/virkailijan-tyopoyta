@@ -9,7 +9,7 @@ case class Category(id: Long, name: String)
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
 
 
-case class User(name: String, language: String, roles: Seq[String])
+case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma])
 
 case class ReleaseCategory(releaseId: Long, categoryId: Long)
 case class NotificationTags(notificationId: Long, tagId: Long)
@@ -57,3 +57,9 @@ case class ReleaseUpdate(id: Long,
 case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, content: Map[String, TimelineContent] = Map.empty)
 
 case class EmailEvent(id: Long, createdAt: LocalDate, releaseId: Long, eventType: String)
+
+case class Kayttooikeusryhma(id: Long, name: String, description: List[KayttoikeusDescription])
+
+case class Kayttooikeus(palveluName: String, role: String)
+
+case class KayttoikeusDescription(text: String, lang: String)

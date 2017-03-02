@@ -8,17 +8,19 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.{User, Release, JsonSupport}
+import fi.vm.sade.vst.model.{JsonSupport, Release, User}
 import fi.vm.sade.vst.repository.ReleaseRepository
-import fi.vm.sade.vst.security.AuthenticationService
+import fi.vm.sade.vst.security.{UserService, KayttooikeusService}
 import fi.vm.sade.vst.service.EmailService
 import java.time.YearMonth
+
 import play.api.libs.json.{Json, Writes}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class Routes(authenticationService: AuthenticationService, releaseRepository: ReleaseRepository) extends Directives with JsonSupport {
+class Routes(authenticationService: UserService, kayttooikeusService: KayttooikeusService, releaseRepository: ReleaseRepository) extends Directives with JsonSupport {
 
   val sessionConfig: SessionConfig = SessionConfig.default("some_very_long_secret_and_random_string_some_very_long_secret_and_random_string")
   implicit val sessionManager = new SessionManager[String](sessionConfig)
@@ -117,7 +119,6 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           (amount, year, month) => sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
         }
       }
-
     } ~
     post {
       path("release") {
@@ -143,8 +144,7 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
         path("login") {
           optionalSession(oneOff, usingCookies) {
             case Some(uid) => complete(serialize(uid))
-            case None => complete(Json.toJson(User(name = "", language = "fi", roles = Seq.empty)).toString())
-//              redirect(authenticationService.loginUrl, StatusCodes.Found)
+            case None => redirect(authenticationService.loginUrl, StatusCodes.Found)
           }
         } ~
         path("authenticate") {
@@ -165,9 +165,9 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
       } ~
       pathPrefix("api") {
         //Disabloidaan auth toistaiseksi kunnes saadaan testtua
-//          requiredSession(oneOff, usingCookies) { session =>
+        requiredSession(oneOff, usingCookies) { session =>
           apiRoutes
-//          }
+        }
       }
     }
   }

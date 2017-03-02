@@ -1,7 +1,15 @@
 server.port={{palvelu_portti}}
+virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}
 
+
+#CAS
 cas.url={{cas_url}}
 virkailijan-tyopoyta.cas.service={{host_virkailija}}/virkailijan-tyopoyta
+virkailijan-tyopoyta.cas.user={{virkailijan_tyopoyta_cas_user}}
+virkailijan-tyopoyta.cas.password={{virkailijan_tyopoyta_cas_password}}
+
+#Käyttöoikeuspalvelu
+kayttooikeus.uri={{host_virkailija}}/kayttooikeus-service
 
 # LDAP
 ldap.server.host={{host_ldap}}
