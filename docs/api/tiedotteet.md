@@ -20,8 +20,10 @@ Määrittää, mihin kategorioihin liittyvät tiedotteet palautetaan.
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 JSON-objekti, jossa on löydettyjen tiedotteiden kokonaismäärä sekä
 taulukko, joka sisältää tiedotteet JSON-muodossa. Tiedotteet on järjestetty
-laskevasti julkaisupäivämäärän mukaan. Häiriötiedotteet palautetaan aina
-items-taulukon ensimmäisinä, riippumatta tags- ja categories-parametreistä.
+laskevasti julkaisupäivämäärän mukaan. 
+
+Häiriötiedotteet palautetaan aina items-taulukon ensimmäisinä, 
+riippumatta tags- ja categories-parametreistä.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
