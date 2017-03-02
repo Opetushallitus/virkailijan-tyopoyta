@@ -27,7 +27,7 @@ function getData (options) {
   requestOptions.headers['Cache-Control'] = 'no-store'
   requestOptions.headers['Pragma'] = 'no-cache'
   // Set credentials: same-origin to allow sending cookies
-  requestOptions.credentials = 'same-origin'
+  requestOptions.headers['Credentials'] = 'same-origin'
 
   const timeout = new Promise((resolve, reject) => {
     setTimeout(reject, time)
