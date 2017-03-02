@@ -102,7 +102,7 @@ app.config([ '$routeProvider', '$httpProvider', function($routeProvider, $httpPr
 } ]);
 
 app.factory('Profiles', function($resource) {
-	
+
     return $resource(SERVICE_URL_BASE + "session/defaultprofile", {}, {
         post: {
         		method:   "POST",
@@ -382,7 +382,13 @@ app.filter('forLoop', function() {
     };
 });
 
-app.run(["SessionPoll", function(SessionPoll) {
+app.run(["SessionPoll", function(SessionPoll, $http, $cookies) {
+    $http.defaults.headers.common['clientSubSystemCode'] = "virkailijan-tyopoyta.virkailijan-stp.frontend";
+    $http.defaults.headers.common['caller-id'] = "virkailijan-tyopoyta.virkailijan-stp.frontend";
+    if ($cookies['CSRF']) {
+        $http.defaults.headers.common['CSRF'] = $cookies['CSRF'];
+    }
+
     SessionPoll.get({});
 }]);
 
