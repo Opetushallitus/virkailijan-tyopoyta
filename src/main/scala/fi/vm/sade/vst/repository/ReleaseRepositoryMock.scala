@@ -5,7 +5,7 @@ import java.time.{LocalDate, YearMonth}
 import java.util.concurrent.atomic.AtomicReference
 import scala.util.Random
 
-
+/*
 class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
 
   private val mockText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus convallis sapien neque, vitae porta risus luctus sed. Morbi placerat elementum massa nec porta. Sed massa sapien, semper at ullamcorper eu, vestibulum non diam. Aenean eleifend ut nisl et commodo. Nunc accumsan ante ac diam tristique, eget luctus nulla consequat. Mauris a volutpat nibh. Nunc vel dapibus ex, quis aliquet nunc. In congue diam quis ultricies malesuada. Aenean cursus purus ut erat tempor, non finibus sapien pharetra. Phasellus malesuada, sem vitae bibendum egestas, nunc velit cursus diam, id auctor erat ante at ante. Nulla libero lectus, bibendum id placerat vel, fringilla quis nisi. Donec dapibus scelerisque risus, lobortis tempor erat. Aenean scelerisque nec metus at consequat. Suspendisse vel fermentum erat. Duis id elit convallis, suscipit dolor in, tincidunt turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
@@ -138,3 +138,4 @@ class ReleaseRepositoryMock() extends ReleaseRepository with JsonSupport {
     1
   }
 }
+*/

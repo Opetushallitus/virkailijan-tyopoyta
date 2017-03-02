@@ -17,4 +17,6 @@ trait ReleaseRepository{
   def addRelease(release: ReleaseUpdate): Option[Release]
   def unpublishedNotifications: Seq[Notification]
   def generateReleases(amount: Int, month: YearMonth): Seq[Release]
+  def setUserProfile(uid: String, categories: RowIds, email: Boolean): Option[UserProfile]
+  def userProfile(uid: String): Option[UserProfile]
 }

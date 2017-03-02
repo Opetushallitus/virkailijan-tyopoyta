@@ -11,6 +11,12 @@ case class NotificationContent(notificationId: Long, language: String, title: St
 
 case class User(name: String, language: String, roles: Seq[String])
 
+case class UserProfile(uid: String,
+                       categories: Seq[Long] = Seq.empty,
+                       sendEmail: Boolean = false
+                      )
+case class UserCategory(userId: String, categoryId: Long)
+
 case class ReleaseCategory(releaseId: Long, categoryId: Long)
 case class NotificationTags(notificationId: Long, tagId: Long)
 

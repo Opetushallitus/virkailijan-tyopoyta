@@ -107,4 +107,26 @@ object Tables {
       )
     }
   }
+
+  object UserProfileTable extends SQLSyntaxSupport[UserProfile]{
+    override val tableName = "user_profile"
+    def apply(n: SyntaxProvider[UserProfile])(rs: WrappedResultSet): UserProfile = apply(n.resultName)(rs)
+    def apply(r: ResultName[UserProfile])(rs: WrappedResultSet): UserProfile = UserProfile(
+      uid = rs.get(r.uid),
+      sendEmail = rs.get(r.sendEmail)
+    )
+  }
+
+  object UserCategoryTable extends SQLSyntaxSupport[UserCategory]{
+    override val tableName = "user_category"
+    def apply(n: SyntaxProvider[UserCategory])(rs: WrappedResultSet): UserCategory = apply(n.resultName)(rs)
+    def apply(r: ResultName[UserCategory])(rs: WrappedResultSet): UserCategory = UserCategory(
+      userId = rs.get(r.userId),
+      categoryId = rs.get(r.categoryId)
+    )
+
+    def opt(c: SyntaxProvider[UserCategory])(rs: WrappedResultSet): Option[UserCategory] =
+      rs.longOpt(c.resultName.categoryId).map(_ => UserCategoryTable(c)(rs))
+  }
+
 }

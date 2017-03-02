@@ -114,7 +114,20 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
       })} ~
       path("generate"){
         parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
-          (amount, year, month) => sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
+          (amount, year, month) => {
+            sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
+          }
+        }
+      } ~
+      path("user") {
+        extractRequest { request =>
+          val ticket = request.uri.query().get("ticket")
+          ticket match {
+            case Some(t) => {
+              sendResponse(Future(releaseRepository.userProfile(authenticationService.uid(t))))
+            }
+            case None => complete(StatusCodes.Unauthorized)
+          }
         }
       }
 
@@ -126,6 +139,17 @@ class Routes(authenticationService: AuthenticationService, releaseRepository: Re
           release match {
             case Some(r) => sendResponse(Future(releaseRepository.addRelease(r).map(sendInstantEmails)))
             case None => complete(StatusCodes.BadRequest)
+          }
+        }
+      } ~
+      path("user") {
+        extractRequest { request =>
+          parameters("categories".as(CsvSeq[Long]).?, "email".as[Boolean]) { (categories, email) =>
+            val ticket = request.uri.query().get("ticket")
+            ticket match {
+              case Some(t) => sendResponse(Future(releaseRepository.setUserProfile(authenticationService.uid(t),categories,email)))
+              case None => complete(StatusCodes.Unauthorized)
+            }
           }
         }
       }

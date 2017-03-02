@@ -149,12 +149,23 @@ trait JsonSupport {
     (JsPath \ "name").read[String]
   )(Category.apply _)
 
+  implicit val userProfileWrites: Writes[UserProfile] = (
+    (JsPath \ "uid").write[String] and
+      (JsPath \ "categories").write[Seq[Long]] and
+      (JsPath \ "sendEmail").write[Boolean]
+    )(unlift(UserProfile.unapply))
+
   def parseRelease(jsString: String): Option[Release] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseReads)
     result.asOpt
   }
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] ={
+    val jsonVal = Json.parse(jsString)
+    val result = Json.fromJson(jsonVal)(releaseUpdateReads)
+    result.asOpt
+  }
+  def parseUserProfileUpdate(jsString: String): Option[ReleaseUpdate] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseUpdateReads)
     result.asOpt

@@ -53,4 +53,11 @@ class AuthenticationService(val casClient: CasClient,
       case _ => None
     }
   }
+
+  def uid(ticket: String): String = {
+    val uid =Try(validateTicket(ticket).unsafePerformSync).recoverWith({
+      case t => Failure(new IllegalArgumentException(s"Cas ticket $ticket rejected", t))
+    })
+    uid.toString
+  }
 }
