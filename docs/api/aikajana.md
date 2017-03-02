@@ -26,26 +26,26 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ```
 {
-  "month": 3,
-  "year": 2017,
-  "days": {
-    1: [
-      {
-        "id": 1,
-        "releaseId": 1,
-        "notificationId": 1,
-        "date": "1.3.2017"
-        "content": {
-          "fi": {
-            "timelineId": 1,
-            "language": "fi",
-            "text": "<p>Koetulokset</p>"
-          },
-          "sv": { [sisältö ruotsiksi] }
-        }
-      },
-      ...
-    ]
-  }
+    "month": 3,
+    "year": 2017,
+    "days": {
+        1: [
+            {
+                "id": 1,
+                "releaseId": 1,
+                "notificationId": 1,
+                "date": "1.3.2017"
+                "content": {
+                    "fi": {
+                        "timelineId": 1,
+                        "language": "fi",
+                        "text": "<p>Koetulokset</p>"
+                    },
+                    "sv": { [sisältö ruotsiksi] }
+                }
+            },
+            ...
+        ]
+    }
 }
 ```

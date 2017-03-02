@@ -17,11 +17,11 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ```
 [
-  {
-    "id": 1,
-    "name_fi": "Perusopetus",
-    "name_sv": "Grundläggande utbildning"
-  },
-  ...
+    {
+        "id": 1,
+        "name_fi": "Perusopetus",
+        "name_sv": "Grundläggande utbildning"
+    },
+    ...
 ]
 ```

@@ -23,20 +23,20 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ```
 [
-  {
-    "id": 1,
-    "name_fi": "Perusopetus ja toinen aste",
-    "name_sv": "Grundläggande utbildning och andra grad",
-    "categories": [1, 2],
-    "items": [
-      {
+    {
         "id": 1,
-        "name_fi": "Aikataulut",
-        "name_sv": "Tidtabeller"
-      },
-      ...
-    ]    
-  },
+        "name_fi": "Perusopetus ja toinen aste",
+        "name_sv": "Grundläggande utbildning och andra grad",
+        "categories": [1, 2],
+        "items": [
+            {
+                "id": 1,
+                "name_fi": "Aikataulut",
+                "name_sv": "Tidtabeller"
+            },
+          ...
+        ]    
+    },
   ...
 ]
 ```

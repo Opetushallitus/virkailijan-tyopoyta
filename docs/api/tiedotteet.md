@@ -31,29 +31,29 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ```
 {
-  "count": 22,
-  "items": [
-    {
-      "id": 1,
-      "releaseId": 1,
-      "content": {
-        "fi": {
-          "language": "fi",
-          "notificationId": 6,
-          "title": "Versiopäivitys 13.3. klo 8:00-8.15"
-          "text": "<p>Opintopolussa versiopäivitys 13.3. klo 8:00-8.30</p>"
+    "count": 22,
+    "items": [
+        {
+            "id": 1,
+            "releaseId": 1,
+            "content": {
+                "fi": {
+                    "language": "fi",
+                    "notificationId": 6,
+                    "title": "Versiopäivitys 13.3. klo 8:00-8.15"
+                    "text": "<p>Opintopolussa versiopäivitys 13.3. klo 8:00-8.30</p>"
+                },
+                "sv": { [sisältö ruotsiksi] }
+            },
+            "initialStartDate": "1.3.2017",
+            "startDate": "1.3.2017",
+            "endDate": "13.3.2017",
+            "tags": [1, 2],
+            "categories": [3],
+            "createdAt": "28.2.2017",
+            "creator": "NN"
         },
-        "sv": { [sisältö ruotsiksi] }
-      },
-      "initialStartDate": "1.3.2017",
-      "startDate": "1.3.2017",
-      "endDate": "13.3.2017",
-      "tags": [1, 2],
-      "categories": [3],
-      "createdAt": "28.2.2017",
-      "creator": "NN"
-    },
-    ...
-  ]
+        ...
+    ]
 }
 ```

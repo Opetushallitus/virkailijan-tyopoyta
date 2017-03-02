@@ -17,26 +17,26 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ```
 [
-  {
-    "id": 2,
-    "releaseId": 2,
-    "content": {
-      "fi": {
-        "language": "fi",
-        "notificationId": 2,
-        "title": "Häiriötiedote"
-        "text": "<p>Opintopolussa käyttökatko 1.4. klo 9:00-9.15</p>"
-      },
-      "sv": { [sisältö ruotsiksi] }
+    {
+        "id": 2,
+        "releaseId": 2,
+        "content": {
+            "fi": {
+                "language": "fi",
+                "notificationId": 2,
+                "title": "Häiriötiedote"
+                "text": "<p>Opintopolussa käyttökatko 1.4. klo 9:00-9.15</p>"
+            },
+            "sv": { [sisältö ruotsiksi] }
+        },
+        "initialStartDate": "15.3.2017",
+        "startDate": "15.3.2017",
+        "endDate": "1.4.2017",
+        "tags": [3],
+        "categories": [4],
+        "createdAt": "10.3.2017",
+        "creator": "NN"
     },
-    "initialStartDate": "15.3.2017",
-    "startDate": "15.3.2017",
-    "endDate": "1.4.2017",
-    "tags": [3],
-    "categories": [4],
-    "createdAt": "10.3.2017",
-    "creator": "NN"
-  },
-  ...
+    ...
 ]
 ```

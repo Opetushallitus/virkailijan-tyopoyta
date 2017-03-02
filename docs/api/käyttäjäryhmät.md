@@ -18,12 +18,12 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ```
 [
-  {
-    "id": 1,
-    "name_fi": "Opinto-ohjaaja",
-    "name_sv": "Huvudanvändare",
-    "categories": [1, 2, 3]
-  },
-  ...
+    {
+        "id": 1,
+        "name_fi": "Opinto-ohjaaja",
+        "name_sv": "Huvudanvändare",
+        "categories": [1, 2, 3]
+    },
+    ...
 ]
 ```
