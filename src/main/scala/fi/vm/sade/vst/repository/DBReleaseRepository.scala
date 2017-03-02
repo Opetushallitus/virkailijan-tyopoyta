@@ -125,11 +125,12 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     sql.one(ReleaseTable(r)).toManies(
       rs => TimelineTable.opt(tl)(rs),
-      rs => TimelineContentTable.opt(tc)(rs))
+      rs => TimelineContentTable.opt(tc)(rs),
+      rs => NotificationTable.opt(n)(rs))
       .map {
-        (rel, timeline, content) =>  timeline.map(tl =>
+        (rel, timeline, content, notification) =>  timeline.map(tl =>
         tl.copy(content = content.filter(_.timelineId == tl.id).groupBy(_.language).transform((_, v) => v.head),
-                notificationId = rel.notification.map(_.id))
+                notificationId = notification.headOption.map(_.id))
       )
     }.list.apply().flatten
   }

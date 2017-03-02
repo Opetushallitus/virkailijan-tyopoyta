@@ -126,11 +126,12 @@ trait JsonSupport {
     (JsPath \ "categories").read[List[Long]]
   )(ReleaseUpdate.apply _)
 
-  implicit val userWrites: Writes[User] = (
-    (JsPath \ "name").write[String] and
-    (JsPath \ "language").write[String] and
-    (JsPath \ "roles").write[Seq[String]]
-  )(unlift(User.unapply))
+  implicit val userWrites: Writes[User] = Writes { user =>
+    Json.obj(
+      "lang" -> user.language,
+      "isAdmin" -> user.isAdmin
+    )
+  }
 
   def releasesReads: Reads[List[Release]] = {
     JsPath.read[List[Release]]
@@ -148,6 +149,26 @@ trait JsonSupport {
     (JsPath \ "id").read[Long] and
     (JsPath \ "name").read[String]
   )(Category.apply _)
+
+  implicit val kayttoikeusDescriptionReads: Reads[KayttoikeusDescription] = (
+    (JsPath \ "text").read[String] and
+    (JsPath \ "lang").read[String]
+  )(KayttoikeusDescription.apply _)
+
+  implicit val kayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
+    (JsPath \ "id").read[Long] and
+    (JsPath \ "name").read[String] and
+    (JsPath \ "descriptions" \ "texts").read[List[KayttoikeusDescription]]
+  )(Kayttooikeusryhma.apply _)
+
+  implicit val kayttooikeusReads: Reads[Kayttooikeus] = (
+    (JsPath \ "palveluName").read[String] and
+    (JsPath \ "rooli").read[String]
+  )(Kayttooikeus.apply _)
+
+  def readKayttooikeusryhmat: Reads[List[Kayttooikeusryhma]] = JsPath.read[List[Kayttooikeusryhma]]
+
+  def readKayttooikeudet: Reads[List[Kayttooikeus]] = JsPath.read[List[Kayttooikeus]]
 
   implicit val userProfileWrites: Writes[UserProfile] = (
     (JsPath \ "uid").write[String] and
@@ -180,6 +201,17 @@ trait JsonSupport {
     val result = Json.fromJson(jsonVal)(tagsReads)
     result.asOpt
   }
+
+  def parseKayttooikeusryhmat(jsString: String): Option[List[Kayttooikeusryhma]] = {
+    val jsonVal = Json.parse(jsString)
+    Json.fromJson(jsonVal)(readKayttooikeusryhmat).asOpt
+  }
+
+  def parseKayttooikedet(jsString: String): Option[List[Kayttooikeus]] = {
+    val jsonVal = Json.parse(jsString)
+    Json.fromJson(jsonVal)(readKayttooikeudet).asOpt
+  }
+
   def serialize[T](obj: T)(implicit tjs: Writes[T]): String ={
     Json.toJson[T](obj).toString()
   }

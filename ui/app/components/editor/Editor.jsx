@@ -98,7 +98,7 @@ function Editor (props) {
     event.preventDefault()
 
     if (isPreviewed) {
-      controller.save()
+      controller.save(editedRelease.id)
     } else {
       controller.togglePreview(true)
     }

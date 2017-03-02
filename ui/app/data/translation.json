@@ -1240,5 +1240,30 @@
     "locale": "fi",
     "key": "julkaisunavainsanat",
     "value": "Avainsana(t)"
+  },
+  {
+    "locale": "fi",
+    "key": "haetaankategorioita",
+    "value": "Haetaan kategorioita"
+  },
+  {
+    "locale": "fi",
+    "key": "eikategorioita",
+    "value": "Ei kategorioita"
+  },
+  {
+    "locale": "fi",
+    "key": "suodatanakymaa",
+    "value": "Suodata tiedotteita ja aikajanaa"
+  },
+  {
+    "locale": "fi",
+    "key": "suodatanakymaakategorioilla",
+    "value": "Suodata tiedotteita ja aikajanaa kategorioilla"
+  },
+  {
+    "locale": "fi",
+    "key": "suodatatiedotteita",
+    "value": "Suodata tiedotteita avainsanoilla"
   }
 ]

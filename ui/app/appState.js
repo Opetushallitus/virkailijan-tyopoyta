@@ -55,7 +55,8 @@ function onUserReceived (state, response) {
 export function initAppState () {
   const userS = Bacon.fromPromise(
     window.fetch(authUrl, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      mode: 'no-cors'
     })
       .then(resp => { resp.json() })
   )
@@ -93,6 +94,7 @@ export function initAppState () {
      // View
     [view.alertsBus], view.onAlertsReceived,
     [dispatcher.stream(events.view.toggleCategory)], view.toggleCategory,
+    [dispatcher.stream(events.view.setSelectedCategories)], view.setSelectedCategories,
     [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
     [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,

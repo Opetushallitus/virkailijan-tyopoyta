@@ -39,7 +39,14 @@ function Notification (props) {
     R.pipe(R.take(length), R.append('…'), R.join(''))
   )
 
+  const getTagName = (id, locale, tags) => {
+    return R.prop(`name_${locale}`,
+      R.find(R.propEq('id', id))(tags)
+    )
+  }
+
   const content = notification.content[locale]
+  const flattenedTags = R.flatten(R.pluck('items', tags))
 
   // Strip HTML tags from text
   // TODO: do not use regex
@@ -127,10 +134,10 @@ function Notification (props) {
 
         {/*Tags*/}
         <span className="mx2">
-          {tags.filter(tag => { return notification.tags.indexOf(tag.id) >= 0 }).map(tag =>
+          {notification.tags.map(tag =>
             <Tag
-              key={`notification.id.${tag.id}`}
-              text={tag['name_' + locale]}
+              key={`notificationTag${tag.id}`}
+              text={getTagName(tag, locale, flattenedTags)}
             />
           )}
         </span>

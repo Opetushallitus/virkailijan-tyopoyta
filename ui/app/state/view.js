@@ -1,6 +1,10 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
+import tags from './tags'
+import notifications from './notifications'
+import timeline from './timeline'
+
 const alertsBus = new Bacon.Bus()
 
 function update (state, { prop, value }) {
@@ -21,7 +25,11 @@ function toggleCategory (state, category) {
     ? R.reject(c => c === category, categories)
     : R.append(category, categories)
 
-  return update(state, { prop: 'categories', value: newCategories })
+  return setSelectedCategories(state, newCategories)
+}
+
+function setSelectedCategories (state, selected) {
+  return update(state, { prop: 'categories', value: selected })
 }
 
 function toggleTab (state, selectedTab) {
@@ -52,6 +60,7 @@ function emptyView () {
 // Events for appState
 const events = {
   toggleCategory,
+  setSelectedCategories,
   toggleTab,
   toggleMenu,
   removeAlert
@@ -65,6 +74,7 @@ const view = {
   initialState,
   onAlertsReceived,
   toggleCategory,
+  setSelectedCategories,
   toggleTab,
   toggleMenu,
   removeAlert,

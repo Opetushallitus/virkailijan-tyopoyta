@@ -46,7 +46,7 @@ function NotificationTagSelect (props) {
 
   return (
     <div>
-      <label className="hide" htmlFor="notification-tags-search">Hae tunnisteita</label>
+      <label className="hide" htmlFor="notification-tags-search">{translate('suodatatiedotteita')}</label>
 
       <Dropdown
         className="semantic-ui"

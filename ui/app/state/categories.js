@@ -30,7 +30,8 @@ function onReceived (state, categories) {
 
   return R.compose(
     R.assocPath(['categories', 'items'], categories),
-    R.assocPath(['categories', 'isLoading'], false)
+    R.assocPath(['categories', 'isLoading'], false),
+    R.assocPath(['categories', 'isInitialLoad'], false)
   )(state)
 }
 
@@ -43,13 +44,17 @@ function onFailed (state) {
 
   view.alertsBus.push(alert)
 
-  return R.assocPath(['categories', 'isLoading'], false, state)
+  return R.compose(
+    R.assocPath(['categories', 'isLoading'], false),
+    R.assocPath(['categories', 'isInitialLoad'], false)
+  )(state)
 }
 
 function emptyCategories () {
   return {
     items: [],
-    isLoading: true
+    isLoading: true,
+    isInitialLoad: true
   }
 }
 

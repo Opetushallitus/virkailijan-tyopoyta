@@ -15,17 +15,19 @@ function getData (options) {
     url,
     searchParams = null,
     time = minute,
-    requestOptions = {},
+    requestOptions = {credentials: 'same-origin'},
     onSuccess,
     onError
   } = options
 
   const urlWithParams = `${url}${searchParams ? getSearchParamsString(searchParams) : ''}`
 
-  // Don't cache responses, since IE11 always returns the cached response
   requestOptions.headers = requestOptions.headers || {}
+  // Don't cache responses, since IE11 always returns the cached response
   requestOptions.headers['Cache-Control'] = 'no-store'
   requestOptions.headers['Pragma'] = 'no-cache'
+  // Set credentials: same-origin to allow sending cookies
+  requestOptions.headers['Credentials'] = 'same-origin'
 
   const timeout = new Promise((resolve, reject) => {
     setTimeout(reject, time)

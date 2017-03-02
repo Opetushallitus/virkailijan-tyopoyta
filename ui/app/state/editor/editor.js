@@ -4,7 +4,6 @@ import Bacon from 'baconjs'
 import targeting from './targeting'
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
-import tags from '../tags'
 import userGroups from '../userGroups'
 import view from '../view'
 import unpublishedNotifications from '../unpublishedNotifications'
@@ -182,8 +181,13 @@ function emptyEditor () {
   }
 }
 
-function save (state) {
-  console.log('Saving document')
+function save (state, id) {
+  console.log('Saving release')
+
+  // POST for new releases, PUT for updating
+  // const method = id === -1
+  //   ? 'POST'
+  //   : 'PUT'
 
   getData({
     url: url,
@@ -218,7 +222,6 @@ function onSaveComplete (state) {
     R.assoc('editor', emptyEditor()),
     R.assocPath(['view', 'alerts'], newViewAlerts),
     R.assoc('view', view.emptyView()),
-    R.assoc('tags', tags.reset()),
     R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
     R.assoc('notifications', notifications.reset()),
     R.assoc('timeline', timeline.emptyTimeline())
