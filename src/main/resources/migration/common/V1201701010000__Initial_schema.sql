@@ -65,12 +65,12 @@ CREATE TABLE release_rights(
 );
 
 CREATE TABLE user_profile(
-  id VARCHAR(200) NOT NULL PRIMARY KEY,
+  uid VARCHAR(200) NOT NULL PRIMARY KEY,
   send_email BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE user_category(
-  user_id INTEGER NOT NULL REFERENCES user_profile(id),
+  user_id INTEGER NOT NULL REFERENCES user_profile(uid),
   category_id INTEGER NOT NULL REFERENCES category(id)
 );
 

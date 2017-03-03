@@ -194,6 +194,7 @@ function save (state, id) {
     requestOptions: {
       method: 'POST',
       dataType: 'json',
+      credentials: 'same-origin',
       headers: {
         'Content-type': 'application/json'
       },

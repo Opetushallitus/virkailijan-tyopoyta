@@ -8,8 +8,8 @@ import scalikejdbc._
 import Tables._
 
 class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
-  val (r, n, c, nt, t, tl, tc, u, uc) =
-    (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax, UserProfileTable.syntax, UserCategoryTable.syntax)
+  val (r, n, c, nt, t, tl, tc) =
+    (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax)
 
   val (cat, rc) = (CategoryTable.syntax, ReleaseCategoryTable.syntax)
 
@@ -322,24 +322,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     insertTimelineContent(timelineId, timelineContent)
   }
 
-  override def setUserProfile(uid: String, categories: RowIds, email: Boolean): Option[UserProfile] = ???
-
   private def addUserProfile(uid: String, category: Long) = ??? /*: Long = {
     val id: Long = withSQL {
       update.apply()
     }.updateAndReturnGeneratedKey.apply()
   }
 */
-  override def userProfile(uid: String): Option[UserProfile] = {
-    withSQL[UserProfile]{
-      select
-        .from(UserProfileTable as u)
-        .leftJoin(UserCategoryTable as uc).on(u.uid, uc.userId)
-        .where.eq(u.uid, uid)
-    }.one(UserProfileTable(u))
-      .toMany(
-        us => UserCategoryTable.opt(uc)(us)
-      ).map( (userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
-      .single.apply()
-  }
+
 }
