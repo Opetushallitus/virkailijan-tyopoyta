@@ -14,5 +14,5 @@ trait AuthenticationModule extends Configuration {
   lazy val casUtils: CasUtils = wire[CasUtils]
   lazy val ldapClient: LdapClient = wire[LdapClient]
   lazy val kayttooikeusService: KayttooikeusService = wire[KayttooikeusService]
-  lazy val authenticationService: UserService = wire[UserService]
+
 }

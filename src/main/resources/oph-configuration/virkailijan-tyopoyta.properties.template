@@ -9,7 +9,7 @@ virkailijan-tyopoyta.cas.user={{virkailijan_tyopoyta_cas_user}}
 virkailijan-tyopoyta.cas.password={{virkailijan_tyopoyta_cas_password}}
 
 #Käyttöoikeuspalvelu
-kayttooikeus.uri={{host_virkailija}}/kayttooikeus-service
+kayttooikeus.url={{host_virkailija}}/kayttooikeus-service
 
 # LDAP
 ldap.server.host={{host_ldap}}
