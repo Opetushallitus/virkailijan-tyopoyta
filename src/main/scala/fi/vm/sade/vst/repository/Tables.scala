@@ -112,6 +112,7 @@ object Tables {
     override val tableName = "user_profile"
     def apply(n: SyntaxProvider[UserProfile])(rs: WrappedResultSet): UserProfile = apply(n.resultName)(rs)
     def apply(r: ResultName[UserProfile])(rs: WrappedResultSet): UserProfile = UserProfile(
+      id = rs.get(r.id),
       uid = rs.get(r.uid),
       sendEmail = rs.get(r.sendEmail)
     )

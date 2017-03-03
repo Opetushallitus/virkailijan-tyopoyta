@@ -171,6 +171,7 @@ trait JsonSupport {
   def readKayttooikeudet: Reads[List[Kayttooikeus]] = JsPath.read[List[Kayttooikeus]]
 
   implicit val userProfileWrites: Writes[UserProfile] = (
+    (JsPath \ "id").write[Long] and
     (JsPath \ "uid").write[String] and
       (JsPath \ "categories").write[Seq[Long]] and
       (JsPath \ "sendEmail").write[Boolean]

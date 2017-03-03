@@ -326,7 +326,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     DB localTx { implicit session =>
       withSQL {
-        update(UserProfileTable).set(u.sendEmail -> email)
+        update(UserProfileTable).set(u.sendEmail -> email).where.eq(u.uid, uid)
       }.update().apply()
     }
 
@@ -337,7 +337,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val userProfile = withSQL[UserProfile]{
       select
         .from(UserProfileTable as u)
-        .leftJoin(UserCategoryTable as uc).on(u.uid, uc.userId)
+        .leftJoin(UserCategoryTable as uc).on(u.id, uc.userId)
         .where.eq(u.uid, uid)
     }.one(UserProfileTable(u))
       .toMany(
@@ -347,9 +347,10 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     userProfile match {
       case Some(_) => userProfile
       case None =>  {
+        val uCol = UserProfileTable.column
         withSQL {
           insert.into(UserProfileTable).namedValues(
-            u.uid -> uid
+            uCol.uid -> uid
           )
         }.update().apply()
         this.userProfile(uid)

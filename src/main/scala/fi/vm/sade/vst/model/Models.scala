@@ -11,7 +11,8 @@ case class NotificationContent(notificationId: Long, language: String, title: St
 
 case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma])
 
-case class UserProfile(uid: String,
+case class UserProfile(id: Long,
+                       uid: String,
                        categories: Seq[Long] = Seq.empty,
                        sendEmail: Boolean = false
                       )
