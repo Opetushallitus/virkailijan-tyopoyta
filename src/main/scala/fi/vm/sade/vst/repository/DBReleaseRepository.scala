@@ -322,16 +322,19 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     insertTimelineContent(timelineId, timelineContent)
   }
 
-  override def setUserProfile(uid: String, categories: RowIds, email: Boolean): Option[UserProfile] = ???
+  override def setUserProfile(uid: String, categories: RowIds, email: Boolean): Option[UserProfile] ={
 
-  private def addUserProfile(uid: String, category: Long) = ??? /*: Long = {
-    val id: Long = withSQL {
-      update.apply()
-    }.updateAndReturnGeneratedKey.apply()
+    DB localTx { implicit session =>
+      withSQL {
+        update(UserProfileTable).set(u.sendEmail -> email)
+      }.update().apply()
+    }
+
+    userProfile(uid)
   }
-*/
+
   override def userProfile(uid: String): Option[UserProfile] = {
-    withSQL[UserProfile]{
+    val userProfile = withSQL[UserProfile]{
       select
         .from(UserProfileTable as u)
         .leftJoin(UserCategoryTable as uc).on(u.uid, uc.userId)
@@ -341,5 +344,17 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         us => UserCategoryTable.opt(uc)(us)
       ).map( (userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
       .single.apply()
+    userProfile match {
+      case Some(_) => userProfile
+      case None =>  {
+        withSQL {
+          insert.into(UserProfileTable).namedValues(
+            u.uid -> uid
+          )
+        }.update().apply()
+        this.userProfile(uid)
+      }
+    }
+
   }
 }

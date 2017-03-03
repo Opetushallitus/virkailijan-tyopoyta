@@ -53,7 +53,7 @@ class UserService(val casUtils: CasUtils,
   }
 
   def uid(ticket: String): String = {
-    val uid =Try(validateTicket(ticket).unsafePerformSync).recoverWith({
+    val uid =Try(casUtils.validateTicket(ticket)).recoverWith({
       case t => Failure(new IllegalArgumentException(s"Cas ticket $ticket rejected", t))
     })
     uid.toString

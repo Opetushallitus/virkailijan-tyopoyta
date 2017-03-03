@@ -189,9 +189,9 @@ class Routes(authenticationService: UserService, kayttooikeusService: Kayttooike
       } ~
       pathPrefix("api") {
         //Disabloidaan auth toistaiseksi kunnes saadaan testtua
-        requiredSession(oneOff, usingCookies) { session =>
+        //requiredSession(oneOff, usingCookies) { session =>
           apiRoutes
-        }
+        //}
       }
     }
   }
