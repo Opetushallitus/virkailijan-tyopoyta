@@ -5,7 +5,7 @@ import moment from 'moment'
 // Components
 import TimelineHeading from './TimelineHeading'
 import TimelineDay from './TimelineDay'
-import TimelineSkeleton from './TimelineSkeleton'
+import TimelinePlaceholder from './TimelinePlaceholder'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
@@ -28,6 +28,8 @@ class Timeline extends React.Component {
     const menuContainer = document.querySelector('.menu-container')
     this.timeline.style.height = menuContainer ? '75vh' : '80vh'
 
+    const body = document.body
+
     // Load next or previous month when scrolling the timeline
     Bacon
       .fromEvent(this.timeline, 'scroll')
@@ -39,6 +41,25 @@ class Timeline extends React.Component {
       .fromEvent(window, 'scroll')
       .debounce(100)
       .onValue(() => this.moveTimeline())
+
+    //  If page has a scrollbar, hide/display it when mousing over the timeline
+    Bacon
+      .fromEvent(this.timeline, 'mouseenter')
+      .onValue(() => {
+        const scrollBarWidth = window.innerWidth - document.body.clientWidth
+
+        if (scrollBarWidth) {
+          body.classList.add('overflow-hidden')
+          body.style.marginRight = `${scrollBarWidth}px`
+        }
+      })
+
+    Bacon
+      .fromEvent(this.timeline, 'mouseleave')
+      .onValue(() => {
+        body.classList.remove('overflow-hidden')
+        body.style.marginRight = 0
+      })
   }
 
   // Only update if timeline items have changed or loading has failed
@@ -122,10 +143,11 @@ class Timeline extends React.Component {
 
     return (
       <div>
-        {/*Skeleton screen*/}
+        {/*Placeholder to display on initial load*/}
         {
-          isInitialLoad &&
-            <TimelineSkeleton />
+          isInitialLoad
+            ? <TimelinePlaceholder />
+            : null
         }
 
         <div

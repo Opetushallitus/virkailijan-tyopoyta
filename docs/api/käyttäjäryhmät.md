@@ -9,8 +9,7 @@
 ##Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
-taulukko, joka sisältää kaikki käyttäjäryhmät JSON-muodossa. Ryhmät on
-järjestetty nousevasti id:n mukaan.
+taulukko, joka sisältää kaikki käyttäjäryhmät JSON-muodossa järjestettynä nousevasti id:n mukaan.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 

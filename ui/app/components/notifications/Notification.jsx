@@ -46,7 +46,10 @@ function Notification (props) {
   }
 
   const content = notification.content[locale]
-  const flattenedTags = R.flatten(R.pluck('items', tags))
+  const allTags = R.flatten(R.pluck('items', tags))
+
+  // Sort tag IDs to list them in the same order in all rendered notifications
+  const sortedNotificationTags = notification.tags.sort()
 
   // Strip HTML tags from text
   // TODO: do not use regex
@@ -59,8 +62,6 @@ function Notification (props) {
   const isExpanded = expandedNotifications.indexOf(notification.id) > -1
 
   const classList = [
-    `notification-${notification.type}`,
-    `${isExpandable ? 'notification-is-expandable' : ''}`,
     'relative',
     'mb3',
     'pt2',
@@ -71,11 +72,12 @@ function Notification (props) {
     'border-gray-lighten-3',
     'rounded',
     'bg-white',
-    'box-shadow'
+    'box-shadow',
+    `${isExpandable ? 'notification-is-expandable' : ''}`
   ]
 
   return (
-    <div className="notification relative">
+    <div id={`notification${notification.id}`} className="notification relative">
       {/*Title for screen readers*/}
       <h3 className="hide">
         {content.title}
@@ -134,10 +136,10 @@ function Notification (props) {
 
         {/*Tags*/}
         <span className="mx2">
-          {notification.tags.map(tag =>
+          {sortedNotificationTags.map(tag =>
             <Tag
-              key={`notificationTag${tag.id}`}
-              text={getTagName(tag, locale, flattenedTags)}
+              key={`notificationTag${tag}`}
+              text={getTagName(tag, locale, allTags)}
             />
           )}
         </span>

@@ -105,28 +105,6 @@
   padding: var(--space-1) var(--space-2);
 }
 
-.semantic-ui.ui.dropdown .menu > .item > .description {
-  display: block;
-  order: 2;
-  width: 100%;
-  margin-top: var(--space-1);
-  margin-left: 0;
-  color: var(--muted);
-}
-
-@media (--breakpoint-lg) {
-  .semantic-ui.ui.dropdown .menu > .item > .text {
-    width: 70%;
-    padding-right: var(--space-2);
-  }
-
-  .semantic-ui.ui.dropdown .menu > .item > .description {
-    text-align: right;
-    width: 30%;
-    margin-top: 0;
-  }
-}
-
 /* Draft.js */
 
 .RichEditor-root {
@@ -408,6 +386,34 @@
 }
 
 /* Notifications */
+.notification-tag-select.semantic-ui.ui.dropdown .menu > .item:not(.selected, :hover):nth-of-type(even) {
+  background-color: var(--gray-lighten-6);
+}
+
+.notification-tag-select.semantic-ui.ui.dropdown .menu > .item > .description {
+  font-size: var(--h5);
+  display: block;
+  order: 2;
+  width: 100%;
+  margin-top: var(--space-1);
+  margin-left: 0;
+  color: var(--muted);
+}
+
+@media (--breakpoint-lg) {
+  .notification-tag-select.semantic-ui.ui.dropdown .menu > .item > .text {
+    display: inline-block;
+    width: auto;
+    padding-right: var(--space-2);
+  }
+
+  .notification-tag-select.semantic-ui.ui.dropdown .menu > .item > .description {
+    display: inline-block;
+    width: auto;
+    margin-top: 0;
+  }
+}
+
 .notification {
   /* Notifications overlap the notification tag dropdown if z-index isn't set */
   z-index: 1;
@@ -548,7 +554,8 @@
 
 /* TODO: Contrast */
 .timeline-item a {
-  color: var(--blue-lighten-3);
+  text-decoration: underline;
+  color: var(--white);
 }
 
 .timeline-item a:hover,

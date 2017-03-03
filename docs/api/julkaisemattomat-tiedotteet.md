@@ -9,7 +9,8 @@
 ##Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
-taulukko, joka sisältää julkaisemattomat tiedotteet JSON-muodossa. Tiedotteet on järjestetty laskevasti julkaisupäivämäärän mukaan.
+taulukko, joka sisältää julkaisemattomat tiedotteet JSON-muodossa. 
+Tiedotteet on järjestetty laskevasti julkaisupäivämäärän mukaan.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 

@@ -18,6 +18,8 @@ Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 JSON-objekti, joka sisältää haetun kuukauden, vuoden sekä tapahtumia sisältävät
 päivät JSON-objektina. Tapahtumat on järjestetty tapahtumapäivämäärän mukaan nousevasti.
 
+*NotificationId* on *null*, jos tiedotetta ei ole ollenkaan tai se on julkaisematon. 
+
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki

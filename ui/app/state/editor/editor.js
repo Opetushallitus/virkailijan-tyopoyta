@@ -79,14 +79,14 @@ function cleanNotification (notification) {
     : null
 }
 
-function cleanUpDocument (document) {
+function cleanUpRelease (document) {
   return R.compose(
     R.assoc('timeline', cleanTimeline(document.timeline)),
     R.assoc('notification', cleanNotification(document.notification))
   )(document)
 }
 
-function editDocumentProperties (key, value) {
+function editReleaseProperties (key, value) {
   // Remove validationState
   if (key === 'validationState') {
     return undefined
@@ -197,7 +197,10 @@ function save (state, id) {
       headers: {
         'Content-type': 'application/json'
       },
-      body: JSON.stringify(cleanUpDocument(state.editor.editedRelease), editDocumentProperties)
+      body: JSON.stringify(
+        cleanUpRelease(state.editor.editedRelease),
+        editReleaseProperties
+      )
     },
     onSuccess: json => saveBus.push(json),
     onError: error => saveFailedBus.push(error)

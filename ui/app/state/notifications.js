@@ -47,13 +47,9 @@ function onReceived (state, response) {
   // Only increment page after initial load
   const newPage = notifications.isInitialLoad ? 1 : page + 1
 
-  // Result is an empty array = no more notifications
-  const hasPagesLeft = response.length > 0
-
   return R.compose(
     R.assocPath(['notifications', 'currentPage'], newPage),
     R.assocPath(['notifications', 'items'], newItems),
-    R.assocPath(['notifications', 'hasPagesLeft'], hasPagesLeft),
     R.assocPath(['notifications', 'isLoading'], false),
     R.assocPath(['notifications', 'isInitialLoad'], false)
   )(state)
@@ -129,7 +125,6 @@ function emptyNotifications () {
     expanded: [],
     currentPage: 1,
     tags: [],
-    hasPagesLeft: true,
     isLoading: false,
     isInitialLoad: true
   }

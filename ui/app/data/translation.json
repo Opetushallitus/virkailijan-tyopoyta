@@ -1265,5 +1265,10 @@
     "locale": "fi",
     "key": "suodatatiedotteita",
     "value": "Suodata tiedotteita avainsanoilla"
+  },
+  {
+    "locale": "fi",
+    "key": "naytatapahtumantiedote",
+    "value": "Näytä tiedote"
   }
 ]

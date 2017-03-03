@@ -35,8 +35,7 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
                 "title": "Versiopäivitys 13.3. klo 8:00-8.15"
                 "text": "<p>Opintopolussa versiopäivitys 13.3. klo 8:00-8.30</p>"
             },
-            "sv": { [sisältö ruotsiksi] }
-        },
+            "sv": { [s
         "initialStartDate": "1.3.2017",
         "startDate": "1.3.2017",
         "endDate": "13.3.2017",

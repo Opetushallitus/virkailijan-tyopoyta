@@ -16,7 +16,6 @@ function emptyNotification () {
     id: -1,
     releaseId: -1,
     startDate: null,
-    createdAt: null,
     endDate: null,
     content: {
       fi: emptyContent(-1, 'fi'),

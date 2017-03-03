@@ -27,7 +27,7 @@ function Menu (props) {
 
   return (
     <div className="menu-container flex items-stretch">
-      {/*Skeleton screen*/}
+      {/*Placeholder to display on initial load*/}
       <div
         className={`col-12 border-bottom border-gray-lighten-2 ${notificationsLoaded ? '' : 'display-none'}`}
       />
