@@ -32,7 +32,7 @@ tiedote JSON-muotoisena objektina.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+##Esimerkki 
 
 `/virkailijan-tyopoyta/api/notifications?page=1&tags=1,2&categories=3,4`
 
