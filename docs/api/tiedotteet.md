@@ -27,7 +27,8 @@ laskevasti julkaisupäivämäärän mukaan.
 Häiriötiedotteet palautetaan aina items-taulukon ensimmäisinä, 
 riippumatta tags- ja categories-parametreistä.
 
-Jos kutsussa on id, palautetaan vain yksi tiedote.
+Jos kutsussa on id, vastauksen items-ominaisuudessa on pelkästään id:tä vastaava 
+tiedote JSON-muotoisena objektina.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
@@ -61,5 +62,14 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
         },
         ...
     ]
+}
+```
+
+`/virkailijan-tyopoyta/api/notifications?id=1`
+
+```
+{
+    "count": 1,
+    "items": { [tiedote JSON-muodossa] }
 }
 ```
