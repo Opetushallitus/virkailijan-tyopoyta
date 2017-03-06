@@ -9,12 +9,13 @@ case class Category(id: Long, name: String)
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
 
 
-case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma])
+case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma], profile: Option[UserProfile])
 
-case class UserProfile(uid: String,
+case class UserProfile(id: Long,
+                       uid: String,
                        categories: Seq[Long] = Seq.empty,
-                       sendEmail: Boolean = false
-                      )
+                       sendEmail: Boolean = false)
+
 case class UserCategory(userId: String, categoryId: Long)
 
 case class ReleaseCategory(releaseId: Long, categoryId: Long)

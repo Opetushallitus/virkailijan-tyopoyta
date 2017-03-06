@@ -126,12 +126,6 @@ trait JsonSupport {
     (JsPath \ "categories").read[List[Long]]
   )(ReleaseUpdate.apply _)
 
-  implicit val userWrites: Writes[User] = Writes { user =>
-    Json.obj(
-      "lang" -> user.language,
-      "isAdmin" -> user.isAdmin
-    )
-  }
 
   def releasesReads: Reads[List[Release]] = {
     JsPath.read[List[Release]]
@@ -161,16 +155,33 @@ trait JsonSupport {
     (JsPath \ "descriptions" \ "texts").read[List[KayttoikeusDescription]]
   )(Kayttooikeusryhma.apply _)
 
+  implicit val kayttooikeusryhmaWrites: Writes[Kayttooikeusryhma] = Writes { group =>
+    Json.obj(
+      "id" -> group.id,
+      "name" -> group.name
+    )
+  }
+
   implicit val kayttooikeusReads: Reads[Kayttooikeus] = (
     (JsPath \ "palveluName").read[String] and
     (JsPath \ "rooli").read[String]
   )(Kayttooikeus.apply _)
+
+  implicit val userWrites: Writes[User] = Writes { user =>
+    Json.obj(
+      "lang" -> user.language,
+      "isAdmin" -> user.isAdmin,
+      "groups" -> user.groups,
+      "profile" -> user.profile
+    )
+  }
 
   def readKayttooikeusryhmat: Reads[List[Kayttooikeusryhma]] = JsPath.read[List[Kayttooikeusryhma]]
 
   def readKayttooikeudet: Reads[List[Kayttooikeus]] = JsPath.read[List[Kayttooikeus]]
 
   implicit val userProfileWrites: Writes[UserProfile] = (
+    (JsPath \ "id").write[Long] and
     (JsPath \ "uid").write[String] and
       (JsPath \ "categories").write[Seq[Long]] and
       (JsPath \ "sendEmail").write[Boolean]

@@ -8,5 +8,6 @@ trait RepositoryModule extends Configuration {
 
   lazy val releaseRepository: ReleaseRepository = wire[DBReleaseRepository]
   lazy val emailRepository: EmailRepository = wire[DBEmailRepository]
+  lazy val userRepository: UserRepository = wire[DBUserRepository]
   lazy val migrations: Migrations = wire[Migrations]
 }
