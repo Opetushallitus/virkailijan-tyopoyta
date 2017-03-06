@@ -22,6 +22,7 @@ function emptyNotification () {
       sv: emptyContent(-1, 'sv')
     },
     tags: [],
+    flags: [],
     validationState: 'empty'
   }
 }

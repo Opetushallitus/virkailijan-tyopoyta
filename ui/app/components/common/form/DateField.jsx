@@ -36,7 +36,8 @@ const defaultProps = {
   endDate: null,
   placeholderText: null,
   selectsStart: false,
-  selectsEnd: false
+  selectsEnd: false,
+  onKeyUp: null
 }
 
 function DateField (props) {

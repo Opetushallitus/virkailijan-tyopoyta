@@ -188,7 +188,6 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
       } ~
       pathPrefix("api") {
         apiRoutes
-        }
       }
     }
   }

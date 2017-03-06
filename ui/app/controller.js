@@ -12,7 +12,9 @@ export function initController (dispatcher, events) {
   }
 
   const unpublishedNotifications = {
-    toggle: () => dispatcher.push(events.unpublishedNotifications.toggle),
+    open: eventTargetId => dispatcher.push(events.unpublishedNotifications.open, eventTargetId),
+
+    close: () => dispatcher.push(events.unpublishedNotifications.close),
 
     edit: releaseId => dispatcher.push(events.unpublishedNotifications.edit, releaseId),
 
@@ -34,15 +36,20 @@ export function initController (dispatcher, events) {
   const timeline = {
     getPreloadedMonth: () => dispatcher.push(events.timeline.getPreloadedMonth),
 
-    getNextMonth: (year, month) => dispatcher.push(events.timeline.getNextMonth, { year, month }),
+    getNextMonth: () => dispatcher.push(events.timeline.getNextMonth),
 
-    getPreviousMonth: (year, month) => dispatcher.push(events.timeline.getPreviousMonth, { year, month }),
+    getPreviousMonth: () => dispatcher.push(events.timeline.getPreviousMonth),
+
+    getRelatedNotification: id => dispatcher.push(events.timeline.getRelatedNotification, id),
 
     edit: releaseId => dispatcher.push(events.timeline.edit, releaseId)
   }
 
   const editor = {
-    toggle: (releaseId, selectedTab) => dispatcher.push(events.editor.toggle, releaseId, selectedTab),
+    open: (eventTargetId, releaseId, selectedTab) =>
+      dispatcher.push(events.editor.open, eventTargetId, releaseId, selectedTab),
+
+    close: (releaseId, selectedTab) => dispatcher.push(events.editor.close, releaseId, selectedTab),
 
     toggleTab: selectedTab => dispatcher.push(events.editor.toggleTab, selectedTab),
 
@@ -96,7 +103,8 @@ export function initController (dispatcher, events) {
     },
 
     unpublishedNotifications: {
-      toggle: unpublishedNotifications.toggle,
+      open: unpublishedNotifications.open,
+      close: unpublishedNotifications.close,
       edit: unpublishedNotifications.edit,
       removeAlert: unpublishedNotifications.removeAlert
     },
@@ -113,11 +121,13 @@ export function initController (dispatcher, events) {
       getPreloadedMonth: timeline.getPreloadedMonth,
       getNextMonth: timeline.getNextMonth,
       getPreviousMonth: timeline.getPreviousMonth,
+      getRelatedNotification: timeline.getRelatedNotification,
       edit: timeline.edit
     },
 
     editor: {
-      toggle: editor.toggle,
+      open: editor.open,
+      close: editor.close,
       toggleTab: editor.toggleTab,
       togglePreview: editor.togglePreview,
       toggleHasSaveFailed: editor.toggleHasSaveFailed,

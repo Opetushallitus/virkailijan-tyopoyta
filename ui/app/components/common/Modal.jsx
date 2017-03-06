@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react'
 
 import CloseButton from './buttons/CloseButton'
+import { translate } from './Translations'
 
 const propTypes = {
   title: PropTypes.string.isRequired,
-  isVisible: PropTypes.bool,
   isCloseDisabled: PropTypes.bool,
   variant: PropTypes.string,
   onCloseButtonClick: PropTypes.func.isRequired,
@@ -12,16 +12,40 @@ const propTypes = {
 }
 
 const defaultProps = {
-  isVisible: false,
   isCloseDisabled: false,
-  variant: 'regular'
+  variant: ''
 }
 
 class Modal extends React.Component {
   constructor (props) {
     super(props)
 
+    this.handleEscKeyUp = this.handleEscKeyUp.bind(this)
     this.handleOverlayClick = this.handleOverlayClick.bind(this)
+    this.handleBackToTopLinkClick = this.handleBackToTopLinkClick.bind(this)
+  }
+
+  componentDidMount () {
+    // Focus on modal when opening it
+    this.modal.focus()
+
+    // Animate the overlay
+    this.overlay.classList.add('oph-overlay-bg')
+
+    this.overlay.addEventListener('keyup', this.handleEscKeyUp)
+  }
+
+  componentWillUnmount () {
+    this.overlay.removeEventListener('keyup', this.handleEscKeyUp)
+  }
+
+  // Close modal on esc key press
+  handleEscKeyUp (event) {
+    const isEscKey = event.which === 27
+
+    if (isEscKey && !this.props.isCloseDisabled) {
+      this.props.onCloseButtonClick()
+    }
   }
 
   // Close modal on clicking the overlay if closing isn't disabled
@@ -31,31 +55,55 @@ class Modal extends React.Component {
     }
   }
 
+  // Focus to close button when clicking / focusing out from 'Back to dialog top' link for keyboard usability
+  handleBackToTopLinkClick (event) {
+    event.preventDefault()
+
+    this.modal.focus()
+  }
+
   render () {
     const {
       title,
-      isVisible,
-      isCloseDisabled,
       variant,
+      isCloseDisabled,
       onCloseButtonClick,
       children
     } = this.props
 
     return (
       <div
-        className={`oph-overlay ${isVisible ? 'oph-overlay-is-visible' : ''}`}
-        tabIndex="-1"
+        ref={overlay => (this.overlay = overlay)}
+        className="oph-overlay oph-overlay-is-visible"
         role="dialog"
+        aria-labelledby={`modal-${title}`}
         onClick={this.handleOverlayClick}
       >
-        <label className="hide" aria-label>{title}</label>
+        <div className={`oph-modal ${variant === '' ? '' : `oph-modal-${variant}`}`} role="document">
+          <div
+            ref={modal => (this.modal = modal)}
+            className="oph-modal-dialog animated"
+            tabIndex="-1"
+          >
+            <h2 id={`#modal-${title}`} className="hide">{title}</h2>
 
-        <div className={`oph-modal ${variant === 'large' ? 'oph-modal-big' : ''}`}>
-          <div ref={modal => (this.modal = modal)} className="oph-modal-dialog">
-            <CloseButton disabled={isCloseDisabled} onClick={onCloseButtonClick} />
+            <CloseButton
+              disabled={isCloseDisabled}
+              onClick={onCloseButtonClick}
+            />
 
             {/*Modal content*/}
-            {isVisible ? children : null}
+            {children}
+
+            {/*'Back to dialog top' link*/}
+            <a
+              className="oph-link oph-modal-back-to-top-link absolute bottom-0 right-0 mb1 mr2 is-visible-on-focus"
+              href="#"
+              onClick={this.handleBackToTopLinkClick}
+              onBlur={this.handleBackToTopLinkClick}
+            >
+              {translate('palaadialoginalkuun')}
+            </a>
           </div>
         </div>
       </div>

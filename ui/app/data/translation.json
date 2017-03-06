@@ -1270,5 +1270,15 @@
     "locale": "fi",
     "key": "naytatapahtumantiedote",
     "value": "Näytä tiedote"
+  },
+  {
+    "locale": "fi",
+    "key": "palaadialoginalkuun",
+    "value": "Palaa dialogin alkuun"
+  },
+  {
+    "locale": "fi",
+    "key": "naytakaikkitiedotteet",
+    "value": "Näytä kaikki tiedotteet"
   }
 ]

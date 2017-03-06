@@ -121,6 +121,47 @@ class App extends React.Component {
           )}
         </div>
 
+        {/*Modals*/}
+
+        {/*Editor*/}
+        {
+          state.editor.isVisible
+            ? <Modal
+              title={translate('julkaisueditori')}
+              variant="big"
+              isCloseDisabled={state.editor.isLoading}
+              onCloseButtonClick={controller.editor.close}
+            >
+              <Editor
+                controller={controller.editor}
+                locale={state.locale}
+                dateFormat={state.dateFormat}
+                editor={state.editor}
+                userGroups={state.userGroups}
+                categories={state.categories}
+                tags={state.tags}
+              />
+            </Modal>
+            : null
+        }
+
+        {/*Unpublished notifications*/}
+        {
+          state.unpublishedNotifications.isVisible
+            ? <Modal
+              title={translate('julktiedotteet')}
+              variant="big"
+              onCloseButtonClick={controller.unpublishedNotifications.close}
+            >
+              <UnpublishedNotifications
+                controller={controller.unpublishedNotifications}
+                locale={state.locale}
+                notifications={state.unpublishedNotifications}
+              />
+            </Modal>
+            : null
+        }
+
         {/*Content*/}
         <div className="container mx-auto">
           {/*Menu*/}
@@ -178,41 +219,6 @@ class App extends React.Component {
             </section>
           </div>
         </div>
-
-        {/*Modals*/}
-
-        {/*Editor*/}
-        <Modal
-          title={translate('julkaisueditori')}
-          isVisible={state.editor.isVisible}
-          isCloseDisabled={state.editor.isLoading}
-          variant="large"
-          onCloseButtonClick={controller.editor.toggle}
-        >
-          <Editor
-            controller={controller.editor}
-            locale={state.locale}
-            dateFormat={state.dateFormat}
-            editor={state.editor}
-            userGroups={state.userGroups}
-            categories={state.categories}
-            tags={state.tags}
-          />
-        </Modal>
-
-        {/*Unpublished notifications*/}
-        <Modal
-          title={translate('julktiedotteet')}
-          isVisible={state.unpublishedNotifications.isVisible}
-          variant="large"
-          onCloseButtonClick={controller.unpublishedNotifications.toggle}
-        >
-          <UnpublishedNotifications
-            controller={controller.unpublishedNotifications}
-            locale={state.locale}
-            notifications={state.unpublishedNotifications}
-          />
-        </Modal>
       </div>
     )
   }

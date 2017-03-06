@@ -75,6 +75,7 @@ class Notifications extends React.Component {
     const {
       items,
       expanded,
+      isLoading,
       isInitialLoad
     } = notifications
 
@@ -102,7 +103,7 @@ class Notifications extends React.Component {
 
         <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>
           {
-            !isInitialLoad && items.length === 0
+            !isInitialLoad && !isLoading && items.length === 0
               ? <div className="h3 center muted">{translate('eitiedotteita')}</div>
               : null
           }

@@ -7,6 +7,7 @@ import Tag from '../common/Tag'
 import Icon from '../common/Icon'
 import Button from '../common/buttons/Button'
 import EditButton from '../common/buttons/EditButton'
+import CloseButton from '../common/buttons/CloseButton'
 import { translate } from '../common/Translations'
 
 const propTypes = {
@@ -34,6 +35,10 @@ function Notification (props) {
     controller.edit(notification.releaseId)
   }
 
+  const handleCloseRelatedNotificationButtonClick = () => {
+    controller.getPage(1)
+  }
+
   const truncate = length => R.when(
     R.propSatisfies(R.gt(R.__, length), 'length'),
     R.pipe(R.take(length), R.append('…'), R.join(''))
@@ -45,6 +50,7 @@ function Notification (props) {
     )
   }
 
+  const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
   const content = notification.content[locale]
   const allTags = R.flatten(R.pluck('items', tags))
 
@@ -58,7 +64,7 @@ function Notification (props) {
   const excerptLength = 100
   const excerpt = truncate(excerptLength)(parsedText)
 
-  const isExpandable = parsedText.length > excerptLength
+  const isExpandable = parsedText.length > excerptLength && !isRelatedToTimelineItem
   const isExpanded = expandedNotifications.indexOf(notification.id) > -1
 
   const classList = [
@@ -77,34 +83,48 @@ function Notification (props) {
   ]
 
   return (
-    <div id={`notification${notification.id}`} className="notification relative">
+    <div
+      id={`notification${notification.id}`}
+      className={`notification relative ${isRelatedToTimelineItem ? 'animated animation-pulse' : ''}`}
+    >
       {/*Title for screen readers*/}
       <h3 className="hide">
         {content.title}
       </h3>
 
-      {/*'Show more/less' button*/}
-      {/*Display button if text is longer than excerpt length*/}
-      {isExpandable
-        ? <Button
-          className="button-link absolute top-0 right-0 z2 gray-lighten-1"
-          title={
-            isExpanded
-              ? translate('naytakatkelma')
-              : translate('naytatiedote')
-          }
-          onClick={handleNotificationClick}
-        >
-          <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
-
-          <span className="hide">
-            { isExpanded
-              ? translate('naytakatkelma')
-              : translate('naytatiedote')
+      {/*Expand/contract button*/}
+      {
+        isExpandable
+          ? <Button
+            className="button-link absolute top-0 right-0 z2 gray-lighten-1"
+            title={
+              isExpanded
+                ? translate('naytakatkelma')
+                : translate('naytatiedote')
             }
-          </span>
-        </Button>
-        : null
+            onClick={handleNotificationClick}
+          >
+            <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
+
+            <span className="hide">
+              { isExpanded
+                ? translate('naytakatkelma')
+                : translate('naytatiedote')
+              }
+            </span>
+          </Button>
+          : null
+      }
+
+      {/*Close related notification, resets the notification list*/}
+      {
+        isRelatedToTimelineItem
+          ? <CloseButton
+            className="z2"
+            title="naytakaikkitiedotteet"
+            onClick={handleCloseRelatedNotificationButtonClick}
+          />
+          : null
       }
 
       {/*Edit button*/}
@@ -122,7 +142,7 @@ function Notification (props) {
         {/*Content*/}
         <div className="mb2">
           {
-            isExpanded || !isExpandable
+            isExpanded || !isExpandable || notification.isRelatedToTimelineItem
               ? renderHTML(content.text)
               : excerpt
           }

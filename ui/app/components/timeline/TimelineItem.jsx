@@ -4,12 +4,14 @@ import renderHTML from 'react-render-html'
 
 import EditButton from '../common/buttons/EditButton'
 import { translate } from '../common/Translations'
+import animate from '../utils/animate'
 
 const propTypes = {
   index: PropTypes.number.isRequired,
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   item: PropTypes.object.isRequired,
+  onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
   onEditButtonClick: PropTypes.func.isRequired
 }
 
@@ -19,10 +21,12 @@ function TimelineItem (props) {
     locale,
     dateFormat,
     item,
+    onDisplayRelatedNotificationLinkClick,
     onEditButtonClick
   } = props
 
   const {
+    id,
     releaseId,
     notificationId,
     date,
@@ -34,25 +38,24 @@ function TimelineItem (props) {
 
     const notificationId = item.notificationId
     const relatedNotification = document.querySelector(`#notification${notificationId}`)
-    const animationTime = 1000
 
-    // If the notification exists on the page and previous animation isn't done, move to and animate it
-    if (relatedNotification && !relatedNotification.classList.contains('animated')) {
+    // If the notification exists on the page, scroll to and animate it
+    if (relatedNotification) {
       window.location.href = `#notification${notificationId}`
 
-      relatedNotification.classList.add('animated', 'animation-pulse')
-
-      // Remove classes after animation is finished
-      setTimeout(() => {
-        relatedNotification.classList.remove('animated', 'animation-pulse')
-      }, animationTime)
+      animate({
+        node: relatedNotification,
+        animation: 'pulse',
+        duration: 1000
+      })
     } else {
       // Else get related notification
+      onDisplayRelatedNotificationLinkClick(item.releaseId)
     }
   }
 
   const handleEditButtonClick = () => {
-    onEditButtonClick(releaseId, 'edit-timeline')
+    onEditButtonClick(releaseId)
   }
 
   const momentDate = moment(date, dateFormat)
@@ -95,7 +98,11 @@ function TimelineItem (props) {
       }
 
       {/*Edit button*/}
-      <EditButton className="absolute top-0 right-0 white" onClick={handleEditButtonClick} />
+      <EditButton
+        id={`edit-timeline-release${releaseId}-item${id}`}
+        className="absolute top-0 right-0 white"
+        onClick={handleEditButtonClick}
+      />
     </div>
   )
 }

@@ -194,6 +194,7 @@ class Timeline extends React.Component {
                         dateFormat={dateFormat}
                         items={month.days[key]}
                         onEditButtonClick={controller.edit}
+                        onDisplayRelatedNotificationLinkClick={controller.getRelatedNotification}
                       />
                     )}
                   </div>

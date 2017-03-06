@@ -42,7 +42,7 @@ function onUserReceived (state, response) {
   categories.fetch()
   userGroups.fetch()
   tags.fetch()
-  notifications.fetch(1)
+  notifications.fetch({ page: 1 })
 
   timeline.fetch({
     month,
@@ -102,7 +102,8 @@ export function initAppState () {
     // Unpublished notifications
     [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
     [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFailed,
-    [dispatcher.stream(events.unpublishedNotifications.toggle)], unpublishedNotifications.toggle,
+    [dispatcher.stream(events.unpublishedNotifications.open)], unpublishedNotifications.open,
+    [dispatcher.stream(events.unpublishedNotifications.close)], unpublishedNotifications.close,
     [dispatcher.stream(events.unpublishedNotifications.edit)], unpublishedNotifications.edit,
     [dispatcher.stream(events.unpublishedNotifications.removeAlert)], unpublishedNotifications.removeAlert,
 
@@ -121,6 +122,7 @@ export function initAppState () {
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
+    [dispatcher.stream(events.timeline.getRelatedNotification)], timeline.getRelatedNotification,
     [dispatcher.stream(events.timeline.edit)], timeline.edit,
 
     // Editor
@@ -128,7 +130,8 @@ export function initAppState () {
     [editor.saveFailedBus], editor.onSaveFailed,
     [editor.fetchBus], editor.onReleaseReceived,
     [editor.fetchFailedBus], editor.onFetchFailed,
-    [dispatcher.stream(events.editor.toggle)], editor.toggle,
+    [dispatcher.stream(events.editor.open)], editor.open,
+    [dispatcher.stream(events.editor.close)], editor.close,
     [dispatcher.stream(events.editor.toggleTab)], editor.toggleTab,
     [dispatcher.stream(events.editor.togglePreview)], editor.togglePreview,
     [dispatcher.stream(events.editor.toggleHasSaveFailed)], editor.toggleHasSaveFailed,

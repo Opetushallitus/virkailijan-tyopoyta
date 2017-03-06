@@ -16,6 +16,20 @@ function MobileMenu (props) {
     isMobileMenuVisible
   } = props
 
+  const handleOpenEditorButtonClick = event => {
+    // Send event target id to set focus back to button when closing the editor
+    const id = event.target.getAttribute('id')
+
+    controller.editor.open(`#${id}`)
+  }
+
+  const handleOpenUnpublishedNotificationsButtonClick = event => {
+    // Send event target id to set focus back to button when closing the editor
+    const id = event.target.getAttribute('id')
+
+    controller.unpublishedNotifications.open(`#${id}`)
+  }
+
   return (
     <div className="md-hide lg-hide flex flex-wrap justify-center col-12">
       <Button
@@ -28,7 +42,7 @@ function MobileMenu (props) {
 
       <Button
         className="button-link col-6 sm-col-4 gray"
-        onClick={controller.editor.toggle}
+        onClick={handleOpenEditorButtonClick}
       >
         <Icon className="mr1" name="plus" />
         <Translation trans="uusisisalto" />
@@ -36,7 +50,7 @@ function MobileMenu (props) {
 
       <Button
         className="button-link col-12 sm-col-4 gray"
-        onClick={controller.unpublishedNotifications.toggle}
+        onClick={handleOpenUnpublishedNotificationsButtonClick}
       >
         <Icon className="mr1" name="files-o" />
         <Translation trans="julktiedotteet" />

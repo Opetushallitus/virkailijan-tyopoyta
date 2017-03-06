@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react'
 import moment from 'moment'
 
+import TextEditor from '../texteditor/TextEditor'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
 import LimitedTextField from '../common/form/LimitedTextField'
-import TextEditor from '../texteditor/TextEditor'
+import Checkbox from '../common/form/Checkbox'
 import { translate } from '../common/Translations'
 
 import getFormattedDate from './getFormattedDate'
@@ -32,6 +33,10 @@ function EditNotification (props) {
 
   // Add 2 hours for first days of months, otherwise the previous months' last days are also selectable
   const minDate = moment().add(2, 'hours')
+
+  const handleIsDisruptionNotificationCheckboxChange = () => {
+    console.log('is disruption notice')
+  }
 
   /*
     Updates startDate
@@ -98,7 +103,13 @@ function EditNotification (props) {
           />
         </div>
 
-        {/*<Checkbox className="mb2" label="Häiriötiedote" />*/}
+        <div className="mb2">
+          <Checkbox
+            label="Häiriötiedote"
+            onChange={handleIsDisruptionNotificationCheckboxChange}
+            value="DISRUPTION"
+          />
+        </div>
       </div>
 
       {/*Description*/}

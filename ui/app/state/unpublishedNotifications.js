@@ -50,34 +50,41 @@ function onFailed (state) {
   )(state)
 }
 
-function toggle (state, releaseId) {
-  console.log('Toggling unpublished notifications')
+function open (state, eventTargetId) {
+  console.log('Opening unpublished notifications')
 
-  const body = document.body
+  // Set eventTargetId to focus on the element which was clicked to open the editor on closing
+  const newState = R.compose(
+    R.assocPath(['unpublishedNotifications', 'eventTargetId'], eventTargetId),
+    R.assocPath(['unpublishedNotifications', 'isVisible'], true),
+  )(state)
 
-  if (state.unpublishedNotifications.isVisible) {
-    body.classList.remove('overflow-hidden')
-  } else {
-    body.classList.add('overflow-hidden')
+  // Hide page scrollbar
+  document.body.classList.remove('overflow-hidden')
 
-    // Only fetch notifications when none exist
-    if (state.unpublishedNotifications.items.length === 0) {
-      fetch()
-    }
+  // Only fetch notifications when none exist
+  if (state.unpublishedNotifications.items.length === 0) {
+    fetch()
+
+    return R.assocPath(['unpublishedNotifications', 'isLoading'], true, newState)
   }
 
-  return R.compose(
-    R.assocPath(['unpublishedNotifications', 'isVisible'], !state.unpublishedNotifications.isVisible),
-    R.assocPath(['unpublishedNotifications', 'alerts'], [])
-  )(state)
+  return newState
 }
 
-function edit (state, id) {
-  console.log('Editing unpublished notification with id ', id)
+function close (state) {
+  // Focus on element which was clicked to open the modal dialog
+  document.querySelector(state.unpublishedNotifications.eventTargetId).focus()
 
-  const newState = R.assocPath(['unpublishedNotifications', 'isVisible'], false, state)
+  return R.assoc('unpublishedNotifications', emptyState(), state)
+}
 
-  return editor.toggle(newState, id, 'edit-notification')
+function edit (state, releaseId) {
+  console.log('Editing unpublished notification with release id ', releaseId)
+
+  const newState = close(state)
+
+  return editor.open(newState, null, releaseId, 'edit-notification')
 }
 
 function removeAlert (state, id) {
@@ -92,6 +99,7 @@ function emptyState () {
   return {
     alerts: [],
     items: [],
+    eventTargetId: '',
     isLoading: false,
     isVisible: false
   }
@@ -99,7 +107,8 @@ function emptyState () {
 
 // Events for appState
 const events = {
-  toggle,
+  open,
+  close,
   edit,
   removeAlert
 }
@@ -115,7 +124,8 @@ const notifications = {
   reset,
   onReceived,
   onFailed,
-  toggle,
+  open,
+  close,
   edit,
   removeAlert
 }

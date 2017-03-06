@@ -228,15 +228,13 @@ function getPreviousMonth (state) {
 }
 
 function getRelatedNotification (state, id) {
-  console.log('Fetching notification with id', id)
-
-  notifications.fetch
+  return notifications.getNotificationById(state, id)
 }
 
-function edit (state, id) {
-  console.log('Editing timeline item with id ', id)
+function edit (state, releaseId) {
+  console.log('Editing timeline item with release id ', releaseId)
 
-  return editor.toggle(state, id, 'edit-timeline')
+  return editor.open(state, null, releaseId, 'edit-timeline')
 }
 
 function emptyTimeline () {
@@ -258,6 +256,7 @@ const events = {
   getCurrentMonth,
   getNextMonth,
   getPreviousMonth,
+  getRelatedNotification,
   edit
 }
 
@@ -275,6 +274,7 @@ const timeline = {
   getPreloadedMonth,
   getPreviousMonth,
   getNextMonth,
+  getRelatedNotification,
   edit,
   emptyTimeline
 }

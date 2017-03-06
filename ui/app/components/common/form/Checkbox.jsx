@@ -2,12 +2,12 @@ import React, { PropTypes } from 'react'
 import Icon from '../Icon'
 
 const propTypes = {
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]).isRequired,
+  label: PropTypes.string.isRequired,
   checked: PropTypes.bool,
-  value: PropTypes.number,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]).isRequired,
   onChange: PropTypes.func.isRequired
 }
 
@@ -27,15 +27,15 @@ function Checkbox (props) {
   return (
     <label className="checkbox">
       <input
-        className="hide"
+        className="checkbox-input hide"
         type="checkbox"
         checked={checked}
         value={value}
         onChange={onChange}
       />
 
+      <span className="checkbox-text">{label}</span>
       <Icon className="mr1 primary" name={`${checked ? 'check-' : ''}square-o`} />
-      {label}
     </label>
   )
 }
