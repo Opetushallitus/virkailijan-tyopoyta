@@ -38,7 +38,7 @@ function TimelineItem (props) {
 
     const notificationId = item.notificationId
     const relatedNotification = document.querySelector(`#notification${notificationId}`)
-    const relatedNotificationExpandButton = relatedNotification.querySelector('.notification-expand-button')
+    const relatedNotificationExpandButton = document.querySelector(`#notification${notificationId} .notification-expand-button`)
 
     // If the notification exists on the page, scroll to, animate and toggle it
     if (relatedNotificationExpandButton) {
