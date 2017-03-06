@@ -134,19 +134,6 @@ function setSelectedTags (state, selected) {
   )(state)
 }
 
-// Expand/contract notification
-function toggle (state, id) {
-  console.log('Toggling notification', id)
-
-  const index = state.notifications.expanded.indexOf(id)
-
-  const newState = index >= 0
-    ? R.remove(index, 1, state.notifications.expanded)
-    : R.append(id, state.notifications.expanded)
-
-  return R.assocPath(['notifications', 'expanded'], newState, state)
-}
-
 function edit (state, releaseId) {
   console.log('Editing notification with release id ', releaseId)
 
@@ -156,7 +143,6 @@ function edit (state, releaseId) {
 function emptyNotifications () {
   return {
     items: [],
-    expanded: [],
     currentPage: 1,
     tags: [],
     isLoading: false,
@@ -169,7 +155,6 @@ const events = {
   toggleTag,
   setSelectedTags,
   getPage,
-  toggle,
   edit
 }
 
@@ -188,7 +173,6 @@ const notifications = {
   setSelectedTags,
   getPage,
   getNotificationById,
-  toggle,
   edit
 }
 

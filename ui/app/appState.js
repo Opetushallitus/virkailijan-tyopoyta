@@ -113,7 +113,6 @@ export function initAppState () {
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
-    [dispatcher.stream(events.notifications.toggle)], notifications.toggle,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
 
     // Timeline

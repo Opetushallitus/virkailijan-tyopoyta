@@ -28,8 +28,6 @@ export function initController (dispatcher, events) {
 
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
-    toggle: id => dispatcher.push(events.notifications.toggle, id),
-
     edit: releaseId => dispatcher.push(events.notifications.edit, releaseId)
   }
 
@@ -113,7 +111,6 @@ export function initController (dispatcher, events) {
       toggleTag: notifications.toggleTag,
       setSelectedTags: notifications.setSelectedTags,
       getPage: notifications.getPage,
-      toggle: notifications.toggle,
       edit: notifications.edit
     },
 

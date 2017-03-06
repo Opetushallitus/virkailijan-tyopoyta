@@ -14,7 +14,6 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
-  expandedNotifications: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired
 }
 
@@ -23,12 +22,17 @@ function Notification (props) {
     locale,
     controller,
     notification,
-    tags,
-    expandedNotifications
+    tags
   } = props
 
   const handleNotificationClick = () => {
-    controller.toggle(notification.id)
+    if (!isExpandable) {
+      return
+    }
+
+    const node = document.querySelector(`#notification${notification.id}`)
+
+    node.classList.toggle('notification-is-expanded')
   }
 
   const handleEditButtonClick = () => {
@@ -38,11 +42,6 @@ function Notification (props) {
   const handleCloseRelatedNotificationButtonClick = () => {
     controller.getPage(1)
   }
-
-  const truncate = length => R.when(
-    R.propSatisfies(R.gt(R.__, length), 'length'),
-    R.pipe(R.take(length), R.append('…'), R.join(''))
-  )
 
   const getTagName = (id, locale, tags) => {
     return R.prop(`name_${locale}`,
@@ -62,10 +61,7 @@ function Notification (props) {
   const parsedText = content.text.replace(/(<([^>]+)>)/ig, '')
 
   const excerptLength = 100
-  const excerpt = truncate(excerptLength)(parsedText)
-
-  const isExpandable = parsedText.length > excerptLength && !isRelatedToTimelineItem
-  const isExpanded = expandedNotifications.indexOf(notification.id) > -1
+  const isExpandable = parsedText.length > excerptLength
 
   const classList = [
     'relative',
@@ -85,7 +81,8 @@ function Notification (props) {
   return (
     <div
       id={`notification${notification.id}`}
-      className={`notification relative ${isRelatedToTimelineItem ? 'animated animation-pulse' : ''}`}
+      className={`notification relative
+      ${isRelatedToTimelineItem ? 'notification-is-expanded animated animation-pulse' : ''}`}
     >
       {/*Title for screen readers*/}
       <h3 className="hide">
@@ -94,25 +91,26 @@ function Notification (props) {
 
       {/*Expand/contract button*/}
       {
-        isExpandable
-          ? <Button
-            className="button-link absolute top-0 right-0 z2 gray-lighten-1"
-            title={
-              isExpanded
-                ? translate('naytakatkelma')
-                : translate('naytatiedote')
-            }
-            onClick={handleNotificationClick}
-          >
-            <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} />
+        isExpandable && !isRelatedToTimelineItem
+          ? <div className="absolute top-0 right-0 z2">
+            <Button
+              className="notification-expand-button button-link gray-lighten-1"
+              title={translate('naytatiedote')}
+              onClick={handleNotificationClick}
+            >
+              <Icon name="chevron-down" />
+              <span className="hide">{translate('naytatiedote')}</span>
+            </Button>
 
-            <span className="hide">
-              { isExpanded
-                ? translate('naytakatkelma')
-                : translate('naytatiedote')
-              }
-            </span>
-          </Button>
+            <Button
+              className="notification-contract-button button-link gray-lighten-1"
+              title={translate('naytakatkelma')}
+              onClick={handleNotificationClick}
+            >
+              <Icon name="chevron-up" />
+              <span className="hide">{translate('naytakatkelma')}</span>
+            </Button>
+          </div>
           : null
       }
 
@@ -140,12 +138,8 @@ function Notification (props) {
         </h3>
 
         {/*Content*/}
-        <div className="mb2">
-          {
-            isExpanded || !isExpandable || notification.isRelatedToTimelineItem
-              ? renderHTML(content.text)
-              : excerpt
-          }
+        <div className="col-12">
+          <div className="notification-content mb2">{renderHTML(content.text)}</div>
         </div>
 
         {/*Create date and creator's initials*/}

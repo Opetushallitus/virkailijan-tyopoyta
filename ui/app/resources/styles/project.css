@@ -427,6 +427,31 @@
   color: var(--link-color-hover);
 }
 
+.notification-expand-button {
+  display: block;
+}
+
+.notification-contract-button {
+  display: none;
+}
+
+.notification-is-expanded .notification-expand-button {
+  display: none;
+}
+
+.notification-is-expanded .notification-contract-button {
+  display: block;
+}
+
+.notification-content {
+  height: var(--base-line-height)rem;
+  overflow: hidden;
+}
+
+.notification-is-expanded .notification-content {
+  height: auto;
+}
+
 /* Timeline */
 
 .timeline-viewport {
