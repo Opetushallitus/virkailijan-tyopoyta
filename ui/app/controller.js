@@ -1,9 +1,5 @@
 export function initController (dispatcher, events) {
   const view = {
-    toggleCategory: category => dispatcher.push(events.view.toggleCategory, category),
-
-    setSelectedCategories: selected => { dispatcher.push(events.view.setSelectedCategories, selected) },
-
     toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
 
     toggleMenu: () => dispatcher.push(events.view.toggleMenu),
@@ -25,6 +21,8 @@ export function initController (dispatcher, events) {
     toggleTag: id => dispatcher.push(events.notifications.toggleTag, id),
 
     setSelectedTags: selected => dispatcher.push(events.notifications.setSelectedTags, selected),
+
+    toggleCategory: category => dispatcher.push(events.notifications.toggleCategory, category),
 
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
@@ -93,8 +91,6 @@ export function initController (dispatcher, events) {
   return {
     // View
     view: {
-      toggleCategory: view.toggleCategory,
-      setSelectedCategories: view.setSelectedCategories,
       toggleTab: view.toggleTab,
       removeAlert: view.removeAlert,
       toggleMenu: view.toggleMenu
@@ -110,6 +106,7 @@ export function initController (dispatcher, events) {
     notifications: {
       toggleTag: notifications.toggleTag,
       setSelectedTags: notifications.setSelectedTags,
+      toggleCategory: notifications.toggleCategory,
       getPage: notifications.getPage,
       edit: notifications.edit
     },

@@ -7,6 +7,7 @@ import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 
 const url = '/virkailijan-tyopoyta/api/notifications'
+const saveCategoriesUrl = '/virkailijan-tyopoyta/api/user'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -15,16 +16,11 @@ function fetch (options) {
   console.log('Fetching notifications')
 
   const {
-    page,
-    id,
-    tags
+    page = '',
+    id = '',
+    tags = tags ? tags.join('') : [],
+    categories = categories ? categories.join(',') : []
   } = options
-
-  const searchParams = {
-    page: page ? page : '',
-    id: id ? id : '',
-    tags: tags ? tags.join(',') : []
-  }
 
   if (!page && !id) {
     console.error('No page or id given for fetching notifications')
@@ -34,9 +30,25 @@ function fetch (options) {
   // TODO: Using /api/release to get a notification by id for now, remove when /api/notifications takes an id as parameter
   getData({
     url: id ? '/virkailijan-tyopoyta/api/release' : url,
-    searchParams,
+    searchParams: {
+      page,
+      id,
+      tags,
+      categories
+    },
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
+  })
+}
+
+function saveCategories (categories) {
+  getData({
+    url: saveCategoriesUrl,
+    searchParams: {
+      categories: categories ? categories.join(',') : []
+    },
+    onSuccess: () => {},
+    onError: error => { console.log(error) }
   })
 }
 
@@ -105,8 +117,9 @@ function getNotificationById (state, id) {
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),
     R.assocPath(['notifications', 'currentPage'], 1),
-    R.assocPath(['notifications', 'tags'], []),
     R.assocPath(['notifications', 'items'], []),
+    R.assocPath(['notifications', 'tags'], []),
+    R.assocPath(['notifications', 'categories'], [])
   )(state)
 }
 
@@ -134,6 +147,29 @@ function setSelectedTags (state, selected) {
   )(state)
 }
 
+function toggleCategory (state, category) {
+  const categories = state.notifications.categories
+  const newCategories = R.contains(category, categories)
+    ? R.reject(selected => selected === category, categories)
+    : R.append(category, categories)
+
+  // Save selected categories and get notifications filtered by categories
+  saveCategories(categories)
+
+  fetch({
+    page: 1,
+    tags: state.notifications.tags,
+    categories: newCategories
+  })
+
+  return R.compose(
+    R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'currentPage'], 1),
+    R.assocPath(['notifications', 'items'], []),
+    R.assocPath(['notifications', 'categories'], newCategories)
+  )(state)
+}
+
 function edit (state, releaseId) {
   console.log('Editing notification with release id ', releaseId)
 
@@ -145,6 +181,7 @@ function emptyNotifications () {
     items: [],
     currentPage: 1,
     tags: [],
+    categories: [],
     isLoading: false,
     isInitialLoad: true
   }
@@ -154,6 +191,7 @@ function emptyNotifications () {
 const events = {
   toggleTag,
   setSelectedTags,
+  toggleCategory,
   getPage,
   edit
 }
@@ -171,6 +209,7 @@ const notifications = {
   onFailed,
   toggleTag,
   setSelectedTags,
+  toggleCategory,
   getPage,
   getNotificationById,
   edit

@@ -34,7 +34,7 @@ export function getController () {
 }
 
 function onUserReceived (state, response) {
-  console.log('Received user:' + JSON.stringify(response))
+  console.log('Received user', JSON.stringify(response))
 
   const month = moment().format('M')
   const year = moment().format('YYYY')
@@ -93,8 +93,6 @@ export function initAppState () {
 
      // View
     [view.alertsBus], view.onAlertsReceived,
-    [dispatcher.stream(events.view.toggleCategory)], view.toggleCategory,
-    [dispatcher.stream(events.view.setSelectedCategories)], view.setSelectedCategories,
     [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
     [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,
@@ -112,6 +110,8 @@ export function initAppState () {
     [notifications.fetchFailedBus], notifications.onFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
+    [dispatcher.stream(events.notifications.toggleCategory)], notifications.toggleCategory,
+    [dispatcher.stream(events.notifications.setSelectedCategories)], notifications.setSelectedCategories,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
 

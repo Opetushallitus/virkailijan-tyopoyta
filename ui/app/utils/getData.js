@@ -16,7 +16,7 @@ function getData (options) {
     searchParams = null,
     maxRequestTime = minute,
     requestOptions = {},
-    onSuccess,
+    onSuccess = () => {},
     onError
   } = options
 

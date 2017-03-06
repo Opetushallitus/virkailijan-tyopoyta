@@ -1280,5 +1280,25 @@
     "locale": "fi",
     "key": "naytakaikkitiedotteet",
     "value": "Näytä kaikki tiedotteet"
+  },
+  {
+    "locale": "fi",
+    "key": "rajoitanakyviatiedotteita",
+    "value": "Rajoita näkyviä tiedotteita"
+  },
+  {
+    "locale": "fi",
+    "key": "eirajoituksia",
+    "value": "ei rajoituksia"
+  },
+  {
+    "locale": "fi",
+    "key": "rajausta",
+    "value": "rajausta"
+  },
+  {
+    "locale": "fi",
+    "key": "rajaus",
+    "value": "rajaus"
   }
 ]

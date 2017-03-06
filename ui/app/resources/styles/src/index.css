@@ -273,7 +273,6 @@ fieldset {
 
 .checkbox {
   display: flex;
-  align-items: center;
 }
 
 .checkbox:hover,
@@ -289,6 +288,11 @@ fieldset {
 
 .checkbox-text {
   order: 2;
+}
+
+.checkbox-icon {
+  /* Align icon with text */
+  margin-top: 4px;
 }
 
 .checkbox-button-text:hover,

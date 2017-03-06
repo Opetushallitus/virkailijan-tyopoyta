@@ -168,8 +168,6 @@ class App extends React.Component {
           <Menu
             controller={controller}
             locale={state.locale}
-            categories={state.categories}
-            selectedCategories={state.view.categories}
             notificationsLoaded={state.notifications.isInitialLoad}
             isMobileMenuVisible={state.view.isMobileMenuVisible}
           />
@@ -204,6 +202,7 @@ class App extends React.Component {
                 controller={controller.notifications}
                 locale={state.locale}
                 notifications={state.notifications}
+                categories={state.categories}
                 tags={state.tags}
               />
             </section>

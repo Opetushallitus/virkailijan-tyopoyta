@@ -35,7 +35,7 @@ function Checkbox (props) {
       />
 
       <span className="checkbox-text">{label}</span>
-      <Icon className="mr1 primary" name={`${checked ? 'check-' : ''}square-o`} />
+      <Icon className="checkbox-icon mr1 primary" name={`${checked ? 'check-' : ''}square-o`} />
     </label>
   )
 }
