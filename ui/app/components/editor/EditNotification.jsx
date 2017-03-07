@@ -15,6 +15,7 @@ const propTypes = {
   dateFormat: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
+  disruptionNotificationTag: PropTypes.object.isRequired,
   saveDraft: PropTypes.func.isRequired
 }
 
@@ -24,6 +25,7 @@ function EditNotification (props) {
     dateFormat,
     controller,
     notification,
+    disruptionNotificationTag,
     saveDraft
   } = props
 
@@ -35,7 +37,7 @@ function EditNotification (props) {
   const minDate = moment().add(2, 'hours')
 
   const handleIsDisruptionNotificationCheckboxChange = () => {
-    controller.toggleTag()
+    controller.setAsDisruptionNotification(disruptionNotificationTag.id)
   }
 
   /*
@@ -107,6 +109,8 @@ function EditNotification (props) {
           <Checkbox
             label={translate('hairiotiedote')}
             onChange={handleIsDisruptionNotificationCheckboxChange}
+            checked={notification.tags.indexOf(disruptionNotificationTag.id) > -1}
+            value={disruptionNotificationTag.id}
           />
         </div>
       </div>

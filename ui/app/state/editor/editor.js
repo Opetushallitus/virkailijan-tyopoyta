@@ -248,9 +248,10 @@ function onSaveComplete (state) {
 function onSaveFailed (state) {
   console.log('Saving release failed')
 
-  const newState = R.assocPath(['editor', 'isLoading'], false, state)
-
-  return R.assocPath(['editor', 'hasSaveFailed'], true, newState)
+  return R.compose(
+    R.assocPath(['editor', 'hasSaveFailed'], true),
+    R.assocPath(['editor', 'isLoading'], false)
+  )(state)
 }
 
 function saveDraft (state) {

@@ -34,7 +34,7 @@ export function getController () {
 }
 
 function onUserReceived (state, response) {
-  console.log('Received user', JSON.stringify(response))
+  console.log('Received user', response)
 
   const month = moment().format('M')
   const year = moment().format('YYYY')
@@ -139,13 +139,15 @@ export function initAppState () {
     [dispatcher.stream(events.editor.save)], editor.save,
     [dispatcher.stream(events.editor.saveDraft)], editor.saveDraft,
 
+    [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
+    [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
+    [dispatcher.stream(events.editor.editNotification.setAsDisruptionNotification)],
+    editor.editNotification.setAsDisruptionNotification,
+
     [dispatcher.stream(events.editor.editTimeline.update)], editor.editTimeline.update,
     [dispatcher.stream(events.editor.editTimeline.updateContent)], editor.editTimeline.updateContent,
     [dispatcher.stream(events.editor.editTimeline.add)], editor.editTimeline.add,
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
-
-    [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
-    [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
 
     [dispatcher.stream(events.editor.targeting.update)], editor.targeting.update,
     [dispatcher.stream(events.editor.targeting.toggleCategory)], editor.targeting.toggleCategory,

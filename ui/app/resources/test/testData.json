@@ -281,7 +281,9 @@
     },
     {
       "id": 4,
-      "name": "SPECIAL",
+      "type": "SPECIAL",
+      "name_fi": "",
+      "categories": [],
       "items": [
         {
           "id": 32,

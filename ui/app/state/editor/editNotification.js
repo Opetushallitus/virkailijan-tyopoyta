@@ -1,5 +1,6 @@
 import R from 'ramda'
 
+import targeting from './targeting'
 import { validate, rules } from './validation'
 
 function emptyContent (id, language) {
@@ -22,7 +23,6 @@ function emptyNotification () {
       sv: emptyContent(-1, 'sv')
     },
     tags: [],
-    flags: [],
     validationState: 'empty'
   }
 }
@@ -64,16 +64,22 @@ function updateContent (state, { prop, language, value }) {
   return update(state, { prop: ['content', language, prop], value })
 }
 
+function setAsDisruptionNotification (state, id) {
+  return targeting.toggleTag(state, id)
+}
+
 const events = {
   update,
-  updateContent
+  updateContent,
+  setAsDisruptionNotification
 }
 
 const editNotification = {
   events,
   emptyNotification,
   update,
-  updateContent
+  updateContent,
+  setAsDisruptionNotification
 }
 
 export default editNotification

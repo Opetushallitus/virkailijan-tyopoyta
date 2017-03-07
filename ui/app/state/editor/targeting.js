@@ -1,10 +1,7 @@
 import R from 'ramda'
 
-// TODO: Remove test data
-
 import editor from './editor'
 import { validate, rules } from './validation'
-import * as testData from '../../resources/test/testData.json'
 
 function update (state, { prop, value }) {
   console.log('Updating release', prop, value)
@@ -44,7 +41,6 @@ function toggleUserGroup (state, value) {
 
 function removeSelectedTags (state, categoryId) {
   const editedRelease = state.editor.editedRelease
-  const tags = testData.tags
   const selectedTags = editedRelease.notification.tags
   const selectedCategories = editedRelease.categories
 
@@ -53,7 +49,7 @@ function removeSelectedTags (state, categoryId) {
   }
 
   const allowedTags = R.pluck('id', R.flatten(R.pluck('items',
-    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), tags)
+    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tags.items)
   )))
 
   const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)

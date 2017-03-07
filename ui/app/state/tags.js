@@ -22,17 +22,18 @@ function fetch () {
   //   onError: error => fetchFailedBus.push(error)
   // })
 
-  // Reject tag group with special tags (name = 'SPECIAL')
-  const filteredTags = R.reject(tags => tags.name === 'SPECIAL')(testData.tags)
-
-  fetchBus.push(filteredTags)
+  fetchBus.push(testData.tags)
 }
 
 function onReceived (state, tags) {
   console.log('Received tags')
 
+  const regularTags = R.reject(tags => tags.type === 'SPECIAL')(tags)
+  const specialTags = R.prop('items', R.find(R.propEq('type', 'SPECIAL'))(tags))
+
   return R.compose(
-    R.assocPath(['tags', 'items'], tags),
+    R.assocPath(['tags', 'items'], regularTags),
+    R.assocPath(['tags', 'specialTags'], specialTags),
     R.assocPath(['tags', 'isLoading'], false)
   )(state)
 }
@@ -52,6 +53,7 @@ function onFailed (state) {
 function emptyTags () {
   return {
     items: [],
+    specialTags: [],
     isLoading: true
   }
 }

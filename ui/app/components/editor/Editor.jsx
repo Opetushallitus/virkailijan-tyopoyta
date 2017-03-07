@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 import moment from 'moment'
+import R from 'ramda'
 
 import EditNotification from './EditNotification'
 import EditTimeline from './EditTimeline'
@@ -93,6 +94,8 @@ function Editor (props) {
     : notification.validationState
 
   const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
+
+  const disruptionNotificationTag = R.find(R.propEq('type', 'DISRUPTION'))(tags.specialTags)
 
   const handleSubmit = event => {
     event.preventDefault()
@@ -212,6 +215,7 @@ function Editor (props) {
                 dateFormat={dateFormat}
                 controller={controller.editNotification}
                 notification={editedRelease.notification}
+                disruptionNotificationTag={disruptionNotificationTag}
                 saveDraft={controller.saveDraft}
               />
           }
@@ -308,7 +312,7 @@ function Editor (props) {
       {
         hasSaveFailed
           ? <Popup
-            target="-button-save"
+            target=".editor-button-save"
             type="error"
             position="right"
             title={translate('julkaisuepaonnistui')}

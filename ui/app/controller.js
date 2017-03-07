@@ -84,7 +84,9 @@ export function initController (dispatcher, events) {
       update: (prop, value) => dispatcher.push(events.editor.editNotification.update, { prop, value }),
 
       updateContent: (language, prop) => value =>
-        dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value })
+        dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value }),
+
+      setAsDisruptionNotification: id => dispatcher.push(events.editor.editNotification.setAsDisruptionNotification, id)
     }
   }
 
@@ -142,7 +144,8 @@ export function initController (dispatcher, events) {
       },
       editNotification: {
         update: editor.editNotification.update,
-        updateContent: editor.editNotification.updateContent
+        updateContent: editor.editNotification.updateContent,
+        setAsDisruptionNotification: editor.editNotification.setAsDisruptionNotification
       }
     }
   }
