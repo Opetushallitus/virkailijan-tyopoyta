@@ -318,12 +318,4 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val timelineContent = TimelineContent(timelineId, "fi", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
     insertTimelineContent(timelineId, timelineContent)
   }
-
-  private def addUserProfile(uid: String, category: Long) = ??? /*: Long = {
-    val id: Long = withSQL {
-      update.apply()
-    }.updateAndReturnGeneratedKey.apply()
-  }
-*/
-
 }
