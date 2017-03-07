@@ -14,11 +14,13 @@ Määrittää, mihin kategorioihin liittyvät tagiryhmät palautetaan.
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 taulukko, joka sisältää tagiryhmät JSON-muodossa järjestettynä id:n mukaan nousevasti.
 
+Erikoistagit (esim. "Häiriötiedote") palautetaan omassa tagiryhmässään.
+
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki
 
-`/virkailijan-tyopoyta/api/tags?categories=1,2`
+`/virkailijan-tyopoyta/api/tags?categories=1,4`
 
 ```
 [
@@ -36,6 +38,18 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
           ...
         ]    
     },
-  ...
+    {
+        "id": 4,
+        "name_fi": "SPECIAL",
+        "categories": [],
+        "items": [
+            {
+                "id": 10,
+                "name_fi": "Häiriötiedote",
+                "name_sv": "Störningsmeddelandet",
+                "type": "DISRUPTION"
+            }
+        ]
+    }
 ]
 ```
