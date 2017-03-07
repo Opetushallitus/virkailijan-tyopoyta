@@ -64,7 +64,7 @@ CREATE TABLE release_rights(
 );
 
 CREATE TABLE user_profile(
-  uid VARCHAR(200) NOT NULL,
+  uid VARCHAR(200) PRIMARY KEY NOT NULL,
   send_email BOOLEAN NOT NULL DEFAULT TRUE
 );
 
