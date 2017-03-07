@@ -131,7 +131,7 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
           entity(as[String]) { json =>
             val release = parseReleaseUpdate(json)
             release match {
-              case Some(r) => sendResponse(Future(releaseRepository.addRelease(r).map(sendInstantEmails)))
+              case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
               case None => complete(StatusCodes.BadRequest)
             }
           }

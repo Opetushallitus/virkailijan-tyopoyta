@@ -172,13 +172,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.updateAndReturnGeneratedKey().apply()
   }
 
-  private def insertNotification(releaseId: Long, notification: NotificationUpdate): Long = {
+  private def insertNotification(releaseId: Long, uid: String, notification: NotificationUpdate): Long = {
     val n = NotificationTable.column
     withSQL {
       insert.into(NotificationTable).namedValues(
         n.releaseId -> releaseId,
         n.publishDate -> notification.publishDate,
-        n.expiryDate -> notification.expiryDate
+        n.expiryDate -> notification.expiryDate,
+        n.createdBy -> uid,
+        n.createdAt -> LocalDate.now()
       )
     }.updateAndReturnGeneratedKey().apply()
   }
@@ -205,8 +207,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
-  private def addNotification(releaseId: Long, notification: NotificationUpdate): Long = {
-      val notificationId: Long = insertNotification(releaseId, notification)
+  private def addNotification(releaseId: Long, uid: String, notification: NotificationUpdate): Long = {
+      val notificationId: Long = insertNotification(releaseId, uid, notification)
       notification.content.values.foreach(insertNotificationContent(notificationId, _))
       notification.tags.foreach(t => insertNotificationTags(notificationId, t))
       notificationId
@@ -238,10 +240,10 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       item.content.values.foreach(insertTimelineContent(itemId, _))
   }
 
-  override def addRelease(releaseUpdate: ReleaseUpdate): Option[Release] = {
+  override def addRelease(uid: String, releaseUpdate: ReleaseUpdate): Option[Release] = {
     DB localTx { implicit session =>
       val releaseId = insertRelease(releaseUpdate)
-      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, _))
+      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, uid, _))
       releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
       findRelease(releaseId)
     }
@@ -267,7 +269,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   override def generateReleases(amount: Int, month: YearMonth): Seq[Release] = {
-    val releases = for(_ <- 1 to amount) yield generateRelease(month)
+    val releases = for(_ <- 1 to amount) yield generateRelease("testi", month)
     releases.flatten
   }
 
@@ -296,14 +298,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
   }
   private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty)
-  private def generateRelease(month: YearMonth): Option[Release] = {
+  private def generateRelease(uid: String, month: YearMonth): Option[Release] = {
     val releaseId = addNewRelease(emptyRelease)
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
     val startDate = month.atDay(startDay)
     val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
     val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
     val notification = NotificationUpdate(releaseId, releaseId, startDate, Option(endDate),  Map("fi" -> notificationContent), List.empty)
-    addNotification(releaseId, notification)
+    addNotification(releaseId, uid, notification)
     generateTimeLine(releaseId, startDate, endDate)
     release(releaseId)
   }
