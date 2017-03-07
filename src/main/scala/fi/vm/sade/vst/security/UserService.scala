@@ -2,7 +2,7 @@ package fi.vm.sade.vst.security
 
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.AuthenticationConfig
-import fi.vm.sade.vst.model.{User, UserProfile}
+import fi.vm.sade.vst.model.{User, UserProfile, UserProfileUpdate}
 import java.net.URLEncoder
 
 import fi.vm.sade.vst.repository.UserRepository
@@ -41,7 +41,7 @@ class UserService(val casUtils: CasUtils,
     }
   }
 
-  def setUserProfile(uid:String, userProfile :UserProfile) = userRepository.setUserProfile(uid,userProfile)
+  def setUserProfile(uid:String, userProfile: UserProfileUpdate) = userRepository.setUserProfile(uid,userProfile)
 
   def userProfile(uid: String) = userRepository.userProfile(uid)
 

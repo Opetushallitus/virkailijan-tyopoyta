@@ -16,7 +16,10 @@ object Tables {
         releaseId = rs.get(n.releaseId),
         publishDate = rs.localDate(n.publishDate),
         expiryDate = None,
-        initialStartDate = None)
+        createdBy = rs.get(n.createdBy),
+        createdAt = rs.get(n.createdAt),
+        modifiedBy = rs.get(n.createdBy),
+        modifiedAt = rs.get(n.createdAt))
     def opt(n: SyntaxProvider[Notification])(rs: WrappedResultSet): Option[Notification] =
       rs.longOpt(n.resultName.releaseId).map(_ => NotificationTable(n)(rs))
   }
@@ -54,9 +57,7 @@ object Tables {
     override val tableName = "release"
     def apply(n: SyntaxProvider[Release])(rs: WrappedResultSet): Release = apply(n.resultName)(rs)
     def apply(r: ResultName[Release])(rs: WrappedResultSet): Release = Release(
-      id = rs.get(r.id),
-      createdBy = rs.get(r.createdBy),
-      createdAt = rs.get(r.createdAt))
+      id = rs.get(r.id))
   }
 
   object TimelineTable extends SQLSyntaxSupport[TimelineItem]{
@@ -112,7 +113,6 @@ object Tables {
     override val tableName = "user_profile"
     def apply(n: SyntaxProvider[UserProfile])(rs: WrappedResultSet): UserProfile = apply(n.resultName)(rs)
     def apply(r: ResultName[UserProfile])(rs: WrappedResultSet): UserProfile = UserProfile(
-      id = rs.get(r.id),
       uid = rs.get(r.uid),
       sendEmail = rs.get(r.sendEmail)
     )

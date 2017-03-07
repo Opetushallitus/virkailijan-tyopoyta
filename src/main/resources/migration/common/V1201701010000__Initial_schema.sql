@@ -1,10 +1,6 @@
 CREATE TABLE release(
   id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  created_by INTEGER NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  modified_by INTEGER,
-  modified_at TIMESTAMP,
   send_email BOOLEAN
 );
 
@@ -14,9 +10,12 @@ CREATE TABLE notification(
   publish_date DATE NOT NULL,
   expiry_date DATE,
   send_email BOOLEAN NOT NULL DEFAULT FALSE,
+  created_by VARCHAR(24) NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  modified_by VARCHAR(24),
+  modified_at TIMESTAMP,
   deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
-
 CREATE TABLE notification_content(
   notification_id INTEGER NOT NULL REFERENCES notification(id),
   language VARCHAR(2) NOT NULL,
@@ -61,17 +60,16 @@ CREATE TABLE release_category(
 
 CREATE TABLE release_rights(
   release_id INTEGER NOT NULL REFERENCES release(id),
-  usergroup_id INTEGER NOT NULL
+  usergroup_id VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE user_profile(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
   uid VARCHAR(200) NOT NULL,
   send_email BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE user_category(
-  user_id INTEGER NOT NULL REFERENCES user_profile(id),
+  user_id VARCHAR(200) NOT NULL REFERENCES user_profile(uid),
   category_id INTEGER NOT NULL REFERENCES category(id)
 );
 

@@ -1,7 +1,7 @@
 package fi.vm.sade.vst.repository
 
 import fi.vm.sade.vst.DBConfig
-import fi.vm.sade.vst.model.UserProfile
+import fi.vm.sade.vst.model.{UserProfile, UserProfileUpdate}
 import fi.vm.sade.vst.repository.Tables.{UserCategoryTable, UserProfileTable}
 import scalikejdbc.select
 import scalikejdbc._
@@ -10,7 +10,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   val (u, uc) = (UserProfileTable.syntax, UserCategoryTable.syntax)
 
-  override def setUserProfile(uid: String, userProfileData: UserProfile): Option[UserProfile] ={
+  override def setUserProfile(uid: String, userProfileData: UserProfileUpdate): Option[UserProfile] ={
 
     DB localTx { implicit session =>
       withSQL {

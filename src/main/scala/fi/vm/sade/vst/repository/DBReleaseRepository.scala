@@ -67,13 +67,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   private def notificationsFromRS(sql: SQL[Release, NoExtractor]): Seq[Notification] = {
     sql.one(ReleaseTable(r)).toManies(
+      rs => ReleaseCategoryTable.opt(rc)(rs),
       rs => NotificationTable.opt(n)(rs),
       rs => NotificationContentTable.opt(c)(rs),
       rs => NotificationTagTable.opt(nt)(rs)).map {
-      (_, notifications, content, tags) =>
+      (_, categories, notifications, content, tags) =>
         notifications.headOption.map(n => n.copy(
           content = content.groupBy(_.language).transform((_, v) => v.head),
-          tags = tags.map(_.tagId)))
+          tags = tags.map(_.tagId),
+          categories = categories.map(_.categoryId)))
     }.list.apply().flatten
   }
 
@@ -88,7 +90,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   }
 
-  private def listNotifications(categories: RowIds, tags: RowIds, page: Int): Seq[Notification] = {
+  private def listNotifications(categories: RowIds, tags: RowIds, page: Int): NotificationList = {
     val sql: SQL[Release, NoExtractor] = withSQL[Release] {
       notificationJoins
         .where.not.gt(n.publishDate, LocalDate.now())
@@ -99,10 +101,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
           categories.map(categories => sqls.in(rc.categoryId, categories))
         ))
         .orderBy(n.publishDate).desc
-        .limit(pageLength)
-        .offset(offset(page))
     }
-    notificationsFromRS(sql)
+    val notifications = notificationsFromRS(sql)
+    NotificationList(notifications.size, notifications.slice(offset(page), offset(page) + pageLength))
   }
 
   private def listTimeline(categories: RowIds, month: YearMonth): Seq[TimelineItem] = {
@@ -140,7 +141,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   def categories: Seq[Category] = withSQL{select.from(CategoryTable as cat)}.map(CategoryTable(cat)).list.apply
 
-  override def notifications(categories: RowIds, tags: RowIds, page: Int): Seq[Notification] = {
+  override def notifications(categories: RowIds, tags: RowIds, page: Int): NotificationList = {
     listNotifications(categories, tags, page)
   }
 
@@ -167,14 +168,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def insertRelease(releaseUpdate: ReleaseUpdate): Long = {
     val r = ReleaseTable.column
     withSQL {
-      insert.into(ReleaseTable).namedValues(
-        r.createdBy -> 0,
-        r.createdAt -> LocalDate.now()
-      )
+      insert.into(ReleaseTable).namedValues()
     }.updateAndReturnGeneratedKey().apply()
   }
 
-  private def insertNotification(releaseId: Long, notification: Notification): Long = {
+  private def insertNotification(releaseId: Long, notification: NotificationUpdate): Long = {
     val n = NotificationTable.column
     withSQL {
       insert.into(NotificationTable).namedValues(
@@ -207,7 +205,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
-  private def addNotification(releaseId: Long, notification: Notification): Long = {
+  private def addNotification(releaseId: Long, notification: NotificationUpdate): Long = {
       val notificationId: Long = insertNotification(releaseId, notification)
       notification.content.values.foreach(insertNotificationContent(notificationId, _))
       notification.tags.foreach(t => insertNotificationTags(notificationId, t))
@@ -278,10 +276,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val releaseCol = ReleaseTable.column
     val id: Long = withSQL {
       insert.into(ReleaseTable).namedValues(
-        releaseCol.createdBy -> release.createdBy,
-        releaseCol.createdAt -> release.createdAt,
-        releaseCol.modifiedBy -> release.modifiedBy,
-        releaseCol.modifiedAt -> release.modifiedAt,
         releaseCol.deleted -> release.deleted,
         releaseCol.sendEmail -> release.sendEmail
       )
@@ -301,18 +295,19 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       "turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum " +
       "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
   }
-  private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty, createdBy = 0, createdAt = LocalDate.now)
+  private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty)
   private def generateRelease(month: YearMonth): Option[Release] = {
     val releaseId = addNewRelease(emptyRelease)
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
     val startDate = month.atDay(startDay)
     val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
     val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
-    val notification = Notification(releaseId, releaseId, startDate, Option(endDate), Option(startDate), Map("fi" -> notificationContent))
+    val notification = NotificationUpdate(releaseId, releaseId, startDate, Option(endDate),  Map("fi" -> notificationContent), List.empty)
     addNotification(releaseId, notification)
     generateTimeLine(releaseId, startDate, endDate)
     release(releaseId)
   }
+
   private def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): Unit = {
     val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1)+startDate.getDayOfMonth
     val publishDate = LocalDate.of(startDate.getYear, startDate.getMonth, day)
