@@ -51,7 +51,7 @@ CREATE TABLE notification_tag(
 
 CREATE TABLE category(
   id SERIAL NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(50) NOT NULL
+  name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE release_category(

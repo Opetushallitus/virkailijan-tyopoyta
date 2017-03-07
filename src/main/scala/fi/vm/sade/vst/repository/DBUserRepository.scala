@@ -2,7 +2,7 @@ package fi.vm.sade.vst.repository
 
 import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model.{UserProfile, UserProfileUpdate}
-import fi.vm.sade.vst.repository.Tables.{UserCategoryTable, UserProfileTable}
+import fi.vm.sade.vst.repository.Tables.{NotificationContentTable, UserCategoryTable, UserProfileTable}
 import scalikejdbc._
 
 class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo {
@@ -20,21 +20,38 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     ).map((userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
     .single.apply()
 
-  override def setUserProfile(uid: String, userProfileData: UserProfileUpdate): UserProfile ={
-
+  private def insertUserProfile(uid: String, userProfileUpdate: UserProfileUpdate) = {
+    val uc = UserProfileTable.column
     DB localTx { implicit session =>
       withSQL {
-        update(UserProfileTable).set(u.sendEmail -> userProfileData.sendEmail)
+        insert.into(UserProfileTable).namedValues(
+          uc.uid -> uid,
+          uc.sendEmail -> userProfileUpdate.sendEmail)
       }.update().apply()
     }
+    UserProfile(uid, userProfileUpdate.categories, userProfileUpdate.sendEmail)
+  }
 
-    userProfile(uid)
+  private def updateUserProfile(uid: String, userProfileUpdate: UserProfileUpdate) = {
+    DB localTx { implicit session =>
+      withSQL {
+        update(UserProfileTable).set(u.sendEmail -> userProfileUpdate.sendEmail)
+      }.update().apply()
+    }
+    UserProfile(uid, userProfileUpdate.categories, userProfileUpdate.sendEmail)
+  }
+
+  override def setUserProfile(uid: String, userProfileData: UserProfileUpdate): UserProfile ={
+    fetchUserProfile(uid) match {
+      case Some(userProfile) => updateUserProfile(uid, userProfileData)
+      case None => insertUserProfile(uid, userProfileData)
+    }
   }
 
   override def userProfile(uid: String): UserProfile = {
     fetchUserProfile(uid) match {
       case Some(userProfile) => userProfile
-      case None => setUserProfile(uid, UserProfileUpdate())
+      case None => insertUserProfile(uid, UserProfileUpdate())
     }
   }
 }

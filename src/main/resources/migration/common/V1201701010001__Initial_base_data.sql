@@ -75,3 +75,35 @@ INSERT INTO tag (
   'Häiriötiedote',
   'DISRUPTION'
 );
+
+INSERT INTO category (
+  id,
+  name
+) VALUES (
+  1,
+  'Perusopetus'
+), (
+  2,
+  'Lukiokoulutus'
+), (
+  3,
+  'Yhteishaut (lukiot)'
+), (
+  4,
+  'Ammatillinen koulutus'
+), (
+  5,
+  'Yhteishaut (amm.)'
+), (
+  6,
+  'PJVK-haut'
+), (
+  7,
+  'Erityisopetuksena järjestettävän ammatillisen koulutuksen haku'
+), (
+  8,
+  'Korkeakoulutus'
+), (
+  9,
+  'Vapaan sivistystyön koulutus'
+)

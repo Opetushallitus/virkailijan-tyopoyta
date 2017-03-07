@@ -9,7 +9,7 @@ case class Category(id: Long, name: String)
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
 
 
-case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma], profile: Option[UserProfile])
+case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma], profile: UserProfile)
 
 case class UserProfile(uid: String,
                        categories: Seq[Long] = Seq.empty,
