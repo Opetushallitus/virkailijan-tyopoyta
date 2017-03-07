@@ -109,7 +109,7 @@ trait JsonSupport {
   implicit val notificationListWrites: Writes[NotificationList] = Writes { notificationList =>
     Json.obj(
       "count" -> notificationList.totalAmount,
-      "notifications" -> notificationList.notifications
+      "items" -> notificationList.notifications
     )
   }
 
