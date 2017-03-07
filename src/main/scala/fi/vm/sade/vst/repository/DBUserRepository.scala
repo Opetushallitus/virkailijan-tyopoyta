@@ -10,10 +10,19 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   val (u, uc) = (UserProfileTable.syntax, UserCategoryTable.syntax)
 
-  override def setUserProfile(uid: String, categories: Option[Seq[Long]], email: Boolean): Option[UserProfile] = ???
+  override def setUserProfile(uid: String, userProfileData: UserProfile): Option[UserProfile] ={
+
+    DB localTx { implicit session =>
+      withSQL {
+        update(UserProfileTable).set(u.sendEmail -> userProfileData.sendEmail)
+      }.update().apply()
+    }
+
+    userProfile(uid)
+  }
 
   override def userProfile(uid: String): Option[UserProfile] = {
-    withSQL[UserProfile]{
+    val userProfile = withSQL[UserProfile] {
       select
         .from(UserProfileTable as u)
         .leftJoin(UserCategoryTable as uc).on(u.uid, uc.userId)
@@ -21,7 +30,18 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }.one(UserProfileTable(u))
       .toMany(
         us => UserCategoryTable.opt(uc)(us)
-      ).map( (userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
+      ).map((userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
       .single.apply()
+    userProfile match {
+      case Some(_) => userProfile
+      case None => {
+        withSQL {
+          insert.into(UserProfileTable).namedValues(
+            u.uid -> uid
+          )
+        }.update().apply()
+        this.userProfile(uid)
+      }
+    }
   }
 }

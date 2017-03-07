@@ -171,8 +171,8 @@ trait JsonSupport {
     Json.obj(
       "lang" -> user.language,
       "isAdmin" -> user.isAdmin,
-      "groups" -> user.groups,
-      "profile" -> user.profile
+      "groups" -> user.groups/*,
+      "profile" -> user.profile*/
     )
   }
 
@@ -183,9 +183,16 @@ trait JsonSupport {
   implicit val userProfileWrites: Writes[UserProfile] = (
     (JsPath \ "id").write[Long] and
     (JsPath \ "uid").write[String] and
-      (JsPath \ "categories").write[Seq[Long]] and
-      (JsPath \ "sendEmail").write[Boolean]
+    (JsPath \ "categories").write[Seq[Long]] and
+    (JsPath \ "sendEmail").write[Boolean]
     )(unlift(UserProfile.unapply))
+
+  implicit val userProfileReads: Reads[UserProfile] = (
+      (JsPath \ "id").read[Long] and
+      (JsPath \ "uid").read[String] and
+      (JsPath \ "categories").read[Seq[Long]] and
+      (JsPath \ "sendEmail").read[Boolean]
+    )(UserProfile.apply _)
 
   def parseRelease(jsString: String): Option[Release] ={
     val jsonVal = Json.parse(jsString)
@@ -197,9 +204,9 @@ trait JsonSupport {
     val result = Json.fromJson(jsonVal)(releaseUpdateReads)
     result.asOpt
   }
-  def parseUserProfileUpdate(jsString: String): Option[ReleaseUpdate] ={
+  def parseUserProfileUpdate(jsString: String): Option[UserProfile] ={
     val jsonVal = Json.parse(jsString)
-    val result = Json.fromJson(jsonVal)(releaseUpdateReads)
+    val result = Json.fromJson(jsonVal)(userProfileReads)
     result.asOpt
   }
   def parseReleases(jsString: String): Option[List[Release]] ={

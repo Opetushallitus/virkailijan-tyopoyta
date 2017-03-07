@@ -137,11 +137,18 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
           }
         } ~
           path("user") {
+
             extractRequest { request =>
-              parameters("categories".as(CsvSeq[Long]).?, "email".as[Boolean]) { (categories, email) =>
+              entity(as[String]) { json =>
+                val updateProfile = parseUserProfileUpdate(json)
                 val ticket = request.uri.query().get("ticket")
                 ticket match {
-                  case Some(t) => complete(StatusCodes.OK)//sendResponse(Future(releaseRepository.setUserProfile(uid,categories,email)))
+                  case Some(t) => {
+                    updateProfile match {
+                      case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
+                      case None => complete(StatusCodes.Unauthorized)
+                    }
+                  }
                   case None => complete(StatusCodes.Unauthorized)
                 }
               }
@@ -188,7 +195,6 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
       } ~
       pathPrefix("api") {
         apiRoutes
-        }
       }
     }
   }
