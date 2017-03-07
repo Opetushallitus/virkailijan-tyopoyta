@@ -43,6 +43,7 @@ a {
 a:hover,
 a:focus {
   color: var(--link-color-hover);
+  outline: none;
 }
 
 .lowercase {
@@ -133,6 +134,22 @@ a:focus {
 
 .box-shadow {
   box-shadow: var(--box-shadow);
+}
+
+.is-visible-on-focus {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+.is-visible-on-focus:focus {
+  position: relative;
+  height: auto;
+  width: auto;
+  overflow: auto;
+  clip: auto;
 }
 
 /* Tabs */
@@ -256,16 +273,26 @@ fieldset {
 
 .checkbox {
   display: flex;
-  align-items: center;
 }
 
-.checkbox:hover {
+.checkbox:hover,
+.checkbox-input:focus + .checkbox-text {
   color: var(--link-color-hover);
   cursor: pointer;
 }
 
-.checkbox input {
+.checkbox-input {
+  order: 1;
   margin-right: var(--space-1);
+}
+
+.checkbox-text {
+  order: 2;
+}
+
+.checkbox-icon {
+  /* Align icon with text */
+  margin-top: 4px;
 }
 
 .checkbox-button-text:hover,

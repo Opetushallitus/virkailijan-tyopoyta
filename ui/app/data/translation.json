@@ -1270,5 +1270,40 @@
     "locale": "fi",
     "key": "naytatapahtumantiedote",
     "value": "Näytä tiedote"
+  },
+  {
+    "locale": "fi",
+    "key": "palaadialoginalkuun",
+    "value": "Palaa dialogin alkuun"
+  },
+  {
+    "locale": "fi",
+    "key": "naytakaikkitiedotteet",
+    "value": "Näytä kaikki tiedotteet"
+  },
+  {
+    "locale": "fi",
+    "key": "rajoitanakyviatiedotteita",
+    "value": "Rajoita näkyviä tiedotteita"
+  },
+  {
+    "locale": "fi",
+    "key": "eirajoituksia",
+    "value": "ei rajoituksia"
+  },
+  {
+    "locale": "fi",
+    "key": "rajausta",
+    "value": "rajausta"
+  },
+  {
+    "locale": "fi",
+    "key": "rajaus",
+    "value": "rajaus"
+  },
+  {
+    "locale": "fi",
+    "key": "hairiotiedote",
+    "value": "Häiriötiedote"
   }
 ]

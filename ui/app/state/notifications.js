@@ -7,75 +7,141 @@ import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 
 const url = '/virkailijan-tyopoyta/api/notifications'
+const saveCategoriesUrl = '/virkailijan-tyopoyta/api/user'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
+const saveCategoriesFailedBus = new Bacon.Bus()
 
-function fetch (page, tags = []) {
+function fetch (options) {
   console.log('Fetching notifications')
 
-  if (!page) {
-    console.error('No page given for fetching notifications')
+  const {
+    page = '',
+    id = '',
+    tags = tags ? tags.join('') : [],
+    categories = categories ? categories.join(',') : []
+  } = options
+
+  if (!page && !id) {
+    console.error('No page or id given for fetching notifications')
     return
   }
 
+  // TODO: Using /api/release to get a notification by id for now, remove when /api/notifications takes an id as parameter
   getData({
-    url: url,
+    url: id ? '/virkailijan-tyopoyta/api/release' : url,
     searchParams: {
       page,
-      tags: tags.join(',')
+      id,
+      tags,
+      categories
     },
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
   })
 }
 
-function reset () {
-  fetch(1)
-
-  return emptyNotifications()
+function saveCategories (options) {
+  getData({
+    url: saveCategoriesUrl,
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(options)
+    },
+    onSuccess: () => {},
+    onError: error => saveCategoriesFailedBus.push(error)
+  })
 }
 
-function onReceived (state, response) {
+function onNotificationsReceived (state, response) {
   console.log('Received notifications')
+
+  // Response is either an array (page of notifications) or an object (single notification related to a timeline item)
+
+  // Set a property to notification related to timeline item for rendering
+  if (!R.isArrayLike(response)) {
+    response.notification.isRelatedToTimelineItem = true
+  }
 
   const notifications = state.notifications
   const items = notifications.items
-  const newItems = items.concat(response)
-  const page = notifications.currentPage
-
-  // Only increment page after initial load
-  const newPage = notifications.isInitialLoad ? 1 : page + 1
+  const newItems = R.isArrayLike(response) ? items.concat(response) : [response.notification]
 
   return R.compose(
-    R.assocPath(['notifications', 'currentPage'], newPage),
     R.assocPath(['notifications', 'items'], newItems),
     R.assocPath(['notifications', 'isLoading'], false),
     R.assocPath(['notifications', 'isInitialLoad'], false)
   )(state)
 }
 
-function onFailed (state) {
+function onFetchNotificationsFailed (state) {
   const alert = createAlert({
     type: 'error',
     title: 'Tiedotteiden haku epäonnistui',
     text: 'Päivitä sivu hakeaksesi uudelleen'
   })
 
-  const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
-  const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
+  view.alertsBus.push(alert)
+
+  return R.compose(
+    R.assocPath(['notifications', 'isInitialLoad'], false),
+    R.assocPath(['notifications', 'isLoading'], false)
+  )(state)
+}
+
+function onSaveCategoriesFailed (state) {
+  const alert = createAlert({
+    type: 'error',
+    title: 'Kategorioiden tallennus käyttäjätietoihin epäonnistui',
+    text: 'Valitse kategoria uudestaan yrittääksesi uudelleen'
+  })
 
   view.alertsBus.push(alert)
 
-  return stateWithoutLoading
+  return R.compose(
+    R.assocPath(['notifications', 'isInitialLoad'], false),
+    R.assocPath(['notifications', 'isLoading'], false)
+  )(state)
+}
+
+function reset (page) {
+  fetch({ page })
+
+  return emptyNotifications()
 }
 
 function getPage (state, page) {
   console.log('Get notifications page', page)
 
-  fetch(page)
+  fetch({ page })
 
-  return R.assocPath(['notifications', 'isLoading'], true, state)
+  const newPage = page === 1 ? 1 : state.notifications.currentPage + 1
+  const newItems = page === 1 ? [] : state.notifications.items
+
+  return R.compose(
+    R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'items'], newItems),
+    R.assocPath(['notifications', 'currentPage'], newPage)
+  )(state)
+}
+
+function getNotificationById (state, id) {
+  console.log('Get notification with id', id)
+
+  fetch({ id })
+
+  return R.compose(
+    R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'currentPage'], 1),
+    R.assocPath(['notifications', 'items'], []),
+    R.assocPath(['notifications', 'tags'], []),
+    R.assocPath(['notifications', 'categories'], [])
+  )(state)
 }
 
 function toggleTag (state, id) {
@@ -92,39 +158,56 @@ function toggleTag (state, id) {
 function setSelectedTags (state, selected) {
   console.log('Updating selected tags', selected)
 
-  fetch(1, selected)
+  fetch({ page: 1, tags: selected })
 
   return R.compose(
+    R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'currentPage'], 1),
     R.assocPath(['notifications', 'tags'], selected),
     R.assocPath(['notifications', 'items'], [])
   )(state)
 }
 
-// Expand/contract notification
-function toggle (state, id) {
-  console.log('Toggling notification', id)
+function toggleCategory (state, category) {
+  const categories = state.notifications.categories
+  const newCategories = R.contains(category, categories)
+    ? R.reject(selected => selected === category, categories)
+    : R.append(category, categories)
 
-  const index = state.notifications.expanded.indexOf(id)
+  // TODO: Set proper value for email
 
-  const newState = index >= 0
-    ? R.remove(index, 1, state.notifications.expanded)
-    : R.append(id, state.notifications.expanded)
+  // Save selected categories and get notifications filtered by categories
+  saveCategories({
+    email: false,
+    categories: newCategories
+  })
 
-  return R.assocPath(['notifications', 'expanded'], newState, state)
+  fetch({
+    page: 1,
+    tags: state.notifications.tags,
+    categories: newCategories
+  })
+
+  return R.compose(
+    R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'currentPage'], 1),
+    R.assocPath(['notifications', 'items'], []),
+    R.assocPath(['notifications', 'categories'], newCategories)
+  )(state)
 }
 
-function edit (state, id) {
-  console.log('Editing notification with id ', id)
+function edit (state, releaseId) {
+  console.log('Editing notification with release id ', releaseId)
 
-  return editor.toggle(state, id, 'edit-notification')
+  return editor.open(state, null, releaseId, 'edit-notification')
 }
 
 function emptyNotifications () {
   return {
     items: [],
-    expanded: [],
     currentPage: 1,
     tags: [],
+    categories: [],
     isLoading: false,
     isInitialLoad: true
   }
@@ -134,8 +217,8 @@ function emptyNotifications () {
 const events = {
   toggleTag,
   setSelectedTags,
+  toggleCategory,
   getPage,
-  toggle,
   edit
 }
 
@@ -144,16 +227,19 @@ const initialState = emptyNotifications()
 const notifications = {
   fetchBus,
   fetchFailedBus,
+  saveCategoriesFailedBus,
   events,
   initialState,
   fetch,
   reset,
-  onReceived,
-  onFailed,
+  onNotificationsReceived,
+  onFetchNotificationsFailed,
+  onSaveCategoriesFailed,
   toggleTag,
   setSelectedTags,
+  toggleCategory,
   getPage,
-  toggle,
+  getNotificationById,
   edit
 }
 

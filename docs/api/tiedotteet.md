@@ -2,12 +2,14 @@
 
 ##Endpoint
 
-`GET /virkailijan-tyopoyta/api/notifications?page={page}&tags={tags}&categories={categories}`
+`GET /virkailijan-tyopoyta/api/notifications?page={page}&id={id}&tags={tags}&categories={categories}`
 
 ##Parametrit
 
 page: *Valinnainen*. Sivunumero. Määrittää, monesko sivu tiedotteita palautetaan.
 Sivun pituus on 20 tiedotetta. Oletusarvo on 1.
+
+id: *Valinnainen*. Tiedotteen tunniste. Määrittää, mikä yksittäinen tiedote haetaan.
 
 tags: *Valinnainen.* Pilkuilla erotettu lista tagien id:eistä. Määrittää,
 mitä tageja sisältävät tiedotteet palautetaan.
@@ -25,9 +27,12 @@ laskevasti julkaisupäivämäärän mukaan.
 Häiriötiedotteet palautetaan aina items-taulukon ensimmäisinä, 
 riippumatta tags- ja categories-parametreistä.
 
+Jos kutsussa on id, vastauksen items-ominaisuudessa on pelkästään id:tä vastaava 
+tiedote JSON-muotoisena objektina.
+
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+##Esimerkki 
 
 `/virkailijan-tyopoyta/api/notifications?page=1&tags=1,2&categories=3,4`
 
@@ -57,5 +62,14 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
         },
         ...
     ]
+}
+```
+
+`/virkailijan-tyopoyta/api/notifications?id=1`
+
+```
+{
+    "count": 1,
+    "items": { [tiedote JSON-muodossa] }
 }
 ```

@@ -8,7 +8,6 @@ import Fieldset from '../common/form/Fieldset'
 import Checkbox from '../common/form/Checkbox'
 import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
 import { translate } from '../common/Translations'
-import * as testData from '../../resources/test/testData.json'
 
 import mapDropdownOptions from '../utils/mapDropdownOptions'
 
@@ -17,7 +16,7 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   userGroups: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
-  // tags: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
@@ -27,7 +26,7 @@ function Targeting (props) {
     controller,
     userGroups,
     categories,
-    // tags,
+    tags,
     release
   } = props
 
@@ -152,7 +151,7 @@ function Targeting (props) {
           : <div className="p3 border-top border-gray-lighten-3">
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
-            {testData.tags.map(tags =>
+            {tags.map(tags =>
               <Fieldset key={`notificationTagGroup${tags.id}`} legend={tags[`name_${locale}`]}>
                 <CheckboxButtonGroup
                   locale={locale}

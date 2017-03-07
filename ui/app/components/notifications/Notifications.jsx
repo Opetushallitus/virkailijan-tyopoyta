@@ -4,7 +4,9 @@ import Bacon from 'baconjs'
 // Components
 import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
+import NotificationCategoryCheckboxes from './NotificationCategoryCheckboxes'
 import NotificationsPlaceholder from './NotificationsPlaceholder'
+import Collapse from '../common/Collapse'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
@@ -12,7 +14,8 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   locale: PropTypes.string.isRequired,
   notifications: PropTypes.object.isRequired,
-  tags: PropTypes.object.isRequired
+  tags: PropTypes.object.isRequired,
+  categories: PropTypes.object.isRequired
 }
 
 class Notifications extends React.Component {
@@ -69,20 +72,32 @@ class Notifications extends React.Component {
       controller,
       locale,
       notifications,
-      tags
+      tags,
+      categories
     } = this.props
 
     const {
       items,
-      expanded,
+      isLoading,
       isInitialLoad
     } = notifications
+
+    const getNotificationSelectedCategoriesString = (categoriesAmount) => {
+      const amountString = categoriesAmount === 1
+        ? translate('rajaus')
+        : translate('rajausta')
+
+      return categoriesAmount === 0
+        ? translate('eirajoituksia')
+        : `${categoriesAmount} ${amountString}`
+    }
 
     return (
       <div>
         <h2 className="hide">{translate('tiedotteet')}</h2>
 
-        <div className="mb3">
+        {/*Filter notifications by tags*/}
+        <div className="mb2">
           <NotificationTagSelect
             locale={locale}
             options={tags.items}
@@ -93,6 +108,21 @@ class Notifications extends React.Component {
           />
         </div>
 
+        {/*Filter notifications by categories*/}
+        <Collapse
+          id="collapseNotificationCategories"
+          title={`${translate('rajoitanakyviatiedotteita')}
+          (${getNotificationSelectedCategoriesString(notifications.categories.length)})`}
+        >
+          <NotificationCategoryCheckboxes
+            controller={controller}
+            locale={locale}
+            categories={categories.items}
+            selectedCategories={notifications.categories}
+            isInitialLoad={categories.isInitialLoad}
+          />
+        </Collapse>
+
         {/*Placeholder to display on initial load*/}
         {
           isInitialLoad
@@ -102,7 +132,7 @@ class Notifications extends React.Component {
 
         <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>
           {
-            !isInitialLoad && items.length === 0
+            !isInitialLoad && !isLoading && items.length === 0
               ? <div className="h3 center muted">{translate('eitiedotteita')}</div>
               : null
           }
@@ -114,7 +144,6 @@ class Notifications extends React.Component {
               locale={locale}
               notification={notification}
               tags={tags.items}
-              expandedNotifications={expanded}
             />
           )}
 

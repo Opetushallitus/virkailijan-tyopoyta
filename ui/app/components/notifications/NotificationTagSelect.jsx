@@ -42,7 +42,7 @@ function NotificationTagSelect (props) {
       ...
     ]
 
-    Returns options sorted by name
+    Returns options sorted by text
   */
   const mappedOptions = (options, locale) => {
     const name = `name_${locale}`

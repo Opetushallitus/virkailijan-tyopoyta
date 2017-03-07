@@ -6,6 +6,7 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
+  onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
   onEditButtonClick: PropTypes.func.isRequired
 }
 
@@ -14,6 +15,7 @@ function TimelineDay (props) {
     locale,
     dateFormat,
     items,
+    onDisplayRelatedNotificationLinkClick,
     onEditButtonClick
   } = props
 
@@ -26,6 +28,7 @@ function TimelineDay (props) {
           locale={locale}
           dateFormat={dateFormat}
           item={item}
+          onDisplayRelatedNotificationLinkClick={onDisplayRelatedNotificationLinkClick}
           onEditButtonClick={onEditButtonClick}
         />
       )}

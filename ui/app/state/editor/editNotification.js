@@ -22,6 +22,7 @@ function emptyNotification () {
       sv: emptyContent(-1, 'sv')
     },
     tags: [],
+    flags: [],
     validationState: 'empty'
   }
 }
@@ -59,10 +60,6 @@ function update (state, { prop, value }) {
   )
 }
 
-function updateTags (state, tags) {
-  return R.assocPath()
-}
-
 function updateContent (state, { prop, language, value }) {
   return update(state, { prop: ['content', language, prop], value })
 }
@@ -76,8 +73,7 @@ const editNotification = {
   events,
   emptyNotification,
   update,
-  updateContent,
-  updateTags
+  updateContent
 }
 
 export default editNotification

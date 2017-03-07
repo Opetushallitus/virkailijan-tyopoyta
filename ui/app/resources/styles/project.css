@@ -427,6 +427,31 @@
   color: var(--link-color-hover);
 }
 
+.notification-expand-button {
+  display: block;
+}
+
+.notification-contract-button {
+  display: none;
+}
+
+.notification-is-expanded .notification-expand-button {
+  display: none;
+}
+
+.notification-is-expanded .notification-contract-button {
+  display: block;
+}
+
+.notification-content {
+  height: var(--base-line-height)rem;
+  overflow: hidden;
+}
+
+.notification-is-expanded .notification-content {
+  height: auto;
+}
+
 /* Timeline */
 
 .timeline-viewport {
@@ -603,4 +628,31 @@
 
 .invisible {
   visibility: hidden;
+}
+
+.oph-overlay {
+  display: none;
+  position: relative;
+  overflow: auto;
+  transition: var(--overlay-transition);
+  background-color: transparent;
+}
+
+.oph-overlay-bg {
+  background-color: var(--overlay-bg);
+}
+
+.oph-overlay-is-visible {
+  display: block;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z5);
+}
+
+:root {
+  --overlay-bg: rgba(0, 0, 0, .20);
+  --overlay-transition: background-color .3s ease;
 }

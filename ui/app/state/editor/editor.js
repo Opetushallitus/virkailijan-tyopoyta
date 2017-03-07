@@ -22,6 +22,7 @@ const fetchFailedBus = new Bacon.Bus()
 function getRelease (id) {
   getData({
     url: url,
+    method: 'GET',
     searchParams: { id },
     onSuccess: release => { fetchBus.push(release) },
     onError: error => { fetchFailedBus.push(error) }
@@ -79,11 +80,11 @@ function cleanNotification (notification) {
     : null
 }
 
-function cleanUpRelease (document) {
+function cleanUpRelease (release) {
   return R.compose(
-    R.assoc('timeline', cleanTimeline(document.timeline)),
-    R.assoc('notification', cleanNotification(document.notification))
-  )(document)
+    R.assoc('timeline', cleanTimeline(release.timeline)),
+    R.assoc('notification', cleanNotification(release.notification))
+  )(release)
 }
 
 function editReleaseProperties (key, value) {
@@ -100,37 +101,50 @@ function editReleaseProperties (key, value) {
   return value
 }
 
-function toggle (state, releaseId = -1, selectedTab) {
+function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notification') {
+  // Hide page scrollbar
   document.body.classList.add('overflow-hidden')
 
-  // Reset editor when closing
-  if (state.editor.isVisible) {
-    console.log('Closing editor')
+  userGroups.fetch()
 
-    document.body.classList.remove('overflow-hidden')
+  // Display correct tab on opening
+  const newState = toggleTab(state, selectedTab)
 
-    return R.assoc('editor', emptyEditor(), state)
-  } else if (releaseId > -1) {
-    // Display correct tab depending if user edits a notification or a timeline item
-    console.log('Toggling editor with release id', releaseId)
-
-    const newState = toggleTab(state, selectedTab)
+  if (releaseId > -1) {
+    console.log('Opening editor with release id', releaseId)
 
     getRelease(releaseId)
-    userGroups.fetch()
 
-    return R.assocPath(['editor', 'isVisible'], true, newState)
+    // Set eventTargetId to focus on the element which was clicked to open the editor on closing
+    return R.compose(
+      R.assocPath(['editor', 'isVisible'], true),
+      R.assocPath(['editor', 'isLoading'], true),
+      R.assocPath(['editor', 'eventTargetId'], eventTargetId)
+    )(newState)
   } else {
-  // Display notification tab when creating a new release
-    const newState = toggleTab(state, 'edit-notification')
-
-    userGroups.fetch()
+    console.log('Opening editor')
 
     return R.compose(
       R.assocPath(['editor', 'isVisible'], true),
-      R.assocPath(['editor', 'isLoading'], false)
+      R.assocPath(['editor', 'eventTargetId'], eventTargetId)
     )(newState)
   }
+}
+
+function close (state) {
+  console.log('Closing editor')
+
+  const eventTargetId = state.editor.eventTargetId
+
+  // Display page scrollbar
+  document.body.classList.remove('overflow-hidden')
+
+  // Focus on element which was clicked to open the editor
+  if (eventTargetId) {
+    document.querySelector(state.editor.eventTargetId).focus()
+  }
+
+  return R.assoc('editor', emptyEditor(), state)
 }
 
 function removeAlert (state, id) {
@@ -173,11 +187,12 @@ function emptyEditor () {
   return {
     isVisible: false,
     isPreviewed: false,
-    isLoading: true,
+    isLoading: false,
     hasSaveFailed: false,
     alerts: [],
     editedRelease: emptyRelease(),
-    selectedTab: 'edit-notification'
+    selectedTab: 'edit-notification',
+    eventTargetId: ''
   }
 }
 
@@ -219,17 +234,15 @@ function onSaveComplete (state) {
   })
 
   const newViewAlerts = R.append(alert, state.view.alerts)
-
-  document.body.classList.remove('overflow-hidden')
-
-  return R.compose(
-    R.assoc('editor', emptyEditor()),
+  const newState = R.compose(
     R.assocPath(['view', 'alerts'], newViewAlerts),
     R.assoc('view', view.emptyView()),
     R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
-    R.assoc('notifications', notifications.reset()),
+    R.assoc('notifications', notifications.reset(1)),
     R.assoc('timeline', timeline.emptyTimeline())
   )(state)
+
+  return close(newState)
 }
 
 function onSaveFailed (state) {
@@ -252,7 +265,8 @@ function saveDraft (state) {
 
 // Events for appState
 const events = {
-  toggle,
+  open,
+  close,
   toggleTab,
   togglePreview,
   toggleHasSaveFailed,
@@ -277,7 +291,8 @@ const editor = {
   onSaveFailed,
   onReleaseReceived,
   onFetchFailed,
-  toggle,
+  open,
+  close,
   toggleTab,
   togglePreview,
   toggleHasSaveFailed,
