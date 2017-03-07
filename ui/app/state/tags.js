@@ -22,7 +22,10 @@ function fetch () {
   //   onError: error => fetchFailedBus.push(error)
   // })
 
-  fetchBus.push(testData.tags)
+  // Reject tag group with special tags (name = 'SPECIAL')
+  const filteredTags = R.reject(tags => tags.name === 'SPECIAL')(testData.tags)
+
+  fetchBus.push(filteredTags)
 }
 
 function onReceived (state, tags) {

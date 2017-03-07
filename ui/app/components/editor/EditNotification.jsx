@@ -35,7 +35,7 @@ function EditNotification (props) {
   const minDate = moment().add(2, 'hours')
 
   const handleIsDisruptionNotificationCheckboxChange = () => {
-    console.log('is disruption notice')
+    controller.toggleTag()
   }
 
   /*
@@ -105,9 +105,8 @@ function EditNotification (props) {
 
         <div className="mb2">
           <Checkbox
-            label="Häiriötiedote"
+            label={translate('hairiotiedote')}
             onChange={handleIsDisruptionNotificationCheckboxChange}
-            value="DISRUPTION"
           />
         </div>
       </div>

@@ -278,6 +278,16 @@
           "name_fi": "Tarjonta"
         }
       ]
+    },
+    {
+      "id": 4,
+      "name": "SPECIAL",
+      "items": [
+        {
+          "id": 32,
+          "type": "DISRUPTION"
+        }
+      ]
     }
   ],
   "userGroups": [

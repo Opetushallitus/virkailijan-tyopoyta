@@ -4,6 +4,7 @@ import Button from './buttons/Button'
 import Icon from './Icon'
 
 const propTypes = {
+  id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired
 }
@@ -27,13 +28,19 @@ class Collapse extends React.Component {
 
   render () {
     const {
+      id,
       title,
       children
     } = this.props
 
     return (
       <div className={this.state.isVisible ? 'mb3' : 'mb2'}>
-        <Button className="button-link regular px0" onClick={this.handleToggleButtonClick}>
+        <Button
+          className="button-link regular px0"
+          onClick={this.handleToggleButtonClick}
+          aria-controls={id}
+          aria-expanded={this.state.isVisible}
+        >
           {title}
 
           <div className="inline-block ml1">
@@ -42,6 +49,7 @@ class Collapse extends React.Component {
         </Button>
 
         <div
+          id={`#${id}`}
           className={this.state.isVisible
             ? 'border-top border-bottom border-gray-lighten-2 p2'
             : 'display-none'}

@@ -110,6 +110,7 @@ class Notifications extends React.Component {
 
         {/*Filter notifications by categories*/}
         <Collapse
+          id="collapseNotificationCategories"
           title={`${translate('rajoitanakyviatiedotteita')}
           (${getNotificationSelectedCategoriesString(notifications.categories.length)})`}
         >

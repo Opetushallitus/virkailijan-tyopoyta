@@ -11,6 +11,7 @@ const saveCategoriesUrl = '/virkailijan-tyopoyta/api/user'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
+const saveCategoriesFailedBus = new Bacon.Bus()
 
 function fetch (options) {
   console.log('Fetching notifications')
@@ -41,24 +42,23 @@ function fetch (options) {
   })
 }
 
-function saveCategories (categories) {
+function saveCategories (options) {
   getData({
     url: saveCategoriesUrl,
-    searchParams: {
-      categories: categories ? categories.join(',') : []
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(options)
     },
     onSuccess: () => {},
-    onError: error => { console.log(error) }
+    onError: error => saveCategoriesFailedBus.push(error)
   })
 }
 
-function reset (page) {
-  fetch({ page })
-
-  return emptyNotifications()
-}
-
-function onReceived (state, response) {
+function onNotificationsReceived (state, response) {
   console.log('Received notifications')
 
   // Response is either an array (page of notifications) or an object (single notification related to a timeline item)
@@ -79,19 +79,40 @@ function onReceived (state, response) {
   )(state)
 }
 
-function onFailed (state) {
+function onFetchNotificationsFailed (state) {
   const alert = createAlert({
     type: 'error',
     title: 'Tiedotteiden haku epäonnistui',
     text: 'Päivitä sivu hakeaksesi uudelleen'
   })
 
-  const newState = R.assocPath(['notifications', 'isInitialLoad'], false, state)
-  const stateWithoutLoading = R.assocPath(['notifications', 'isLoading'], false, newState)
+  view.alertsBus.push(alert)
+
+  return R.compose(
+    R.assocPath(['notifications', 'isInitialLoad'], false),
+    R.assocPath(['notifications', 'isLoading'], false)
+  )(state)
+}
+
+function onSaveCategoriesFailed (state) {
+  const alert = createAlert({
+    type: 'error',
+    title: 'Kategorioiden tallennus käyttäjätietoihin epäonnistui',
+    text: 'Valitse kategoria uudestaan yrittääksesi uudelleen'
+  })
 
   view.alertsBus.push(alert)
 
-  return stateWithoutLoading
+  return R.compose(
+    R.assocPath(['notifications', 'isInitialLoad'], false),
+    R.assocPath(['notifications', 'isLoading'], false)
+  )(state)
+}
+
+function reset (page) {
+  fetch({ page })
+
+  return emptyNotifications()
 }
 
 function getPage (state, page) {
@@ -153,8 +174,13 @@ function toggleCategory (state, category) {
     ? R.reject(selected => selected === category, categories)
     : R.append(category, categories)
 
+  // TODO: Set proper value for email
+
   // Save selected categories and get notifications filtered by categories
-  saveCategories(categories)
+  saveCategories({
+    email: false,
+    categories: newCategories
+  })
 
   fetch({
     page: 1,
@@ -201,12 +227,14 @@ const initialState = emptyNotifications()
 const notifications = {
   fetchBus,
   fetchFailedBus,
+  saveCategoriesFailedBus,
   events,
   initialState,
   fetch,
   reset,
-  onReceived,
-  onFailed,
+  onNotificationsReceived,
+  onFetchNotificationsFailed,
+  onSaveCategoriesFailed,
   toggleTag,
   setSelectedTags,
   toggleCategory,

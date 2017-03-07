@@ -1300,5 +1300,10 @@
     "locale": "fi",
     "key": "rajaus",
     "value": "rajaus"
+  },
+  {
+    "locale": "fi",
+    "key": "hairiotiedote",
+    "value": "Häiriötiedote"
   }
 ]

@@ -106,8 +106,9 @@ export function initAppState () {
     [dispatcher.stream(events.unpublishedNotifications.removeAlert)], unpublishedNotifications.removeAlert,
 
     // Notifications
-    [notifications.fetchBus], notifications.onReceived,
-    [notifications.fetchFailedBus], notifications.onFailed,
+    [notifications.fetchBus], notifications.onNotificationsReceived,
+    [notifications.fetchFailedBus], notifications.onFetchNotificationsFailed,
+    [notifications.saveCategoriesFailedBus], notifications.onSaveCategoriesFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.toggleCategory)], notifications.toggleCategory,

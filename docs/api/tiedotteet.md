@@ -9,7 +9,7 @@
 page: *Valinnainen*. Sivunumero. Määrittää, monesko sivu tiedotteita palautetaan.
 Sivun pituus on 20 tiedotetta. Oletusarvo on 1.
 
-id: *Valinnainen*. Määrittää, mikä yksittäinen tiedote haetaan.
+id: *Valinnainen*. Tiedotteen tunniste. Määrittää, mikä yksittäinen tiedote haetaan.
 
 tags: *Valinnainen.* Pilkuilla erotettu lista tagien id:eistä. Määrittää,
 mitä tageja sisältävät tiedotteet palautetaan.
