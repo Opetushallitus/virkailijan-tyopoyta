@@ -2,7 +2,7 @@ package fi.vm.sade.vst.security
 
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.AuthenticationConfig
-import fi.vm.sade.vst.model.User
+import fi.vm.sade.vst.model.{User, UserProfile, UserProfileUpdate}
 import java.net.URLEncoder
 
 import fi.vm.sade.vst.repository.UserRepository
@@ -40,6 +40,8 @@ class UserService(val casUtils: CasUtils,
       case None => Failure(new IllegalStateException(s"User $uid not found in LDAP"))
     }
   }
+
+  def setUserProfile(uid:String, userProfile: UserProfileUpdate) = userRepository.setUserProfile(uid,userProfile)
 
   def userProfile(uid: String) = userRepository.userProfile(uid)
 

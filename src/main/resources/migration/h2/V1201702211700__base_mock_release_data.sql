@@ -1,18 +1,10 @@
 INSERT INTO release (
   id,
   deleted,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
   send_email
 ) VALUES (
   1,
   FALSE,
-  0,
-  CAST('2018-12-29 13:27:000' AS TIMESTAMP),
-  NULL,
-  NULL,
   FALSE
 );
 
@@ -21,12 +13,20 @@ INSERT INTO notification (
   release_id,
   publish_date,
   expiry_date,
+  created_by,
+  created_at,
+  modified_by,
+  modified_at,
   send_email,
   deleted
 ) VALUES (
   1,
   1,
   CAST('2018-12-30' AS DATE),
+  NULL,
+  '',
+  CAST('2018-12-29 13:27:000' AS TIMESTAMP),
+  NULL,
   NULL,
   FALSE,
   FALSE
@@ -69,18 +69,10 @@ INSERT INTO timeline_content (
 INSERT INTO release (
   id,
   deleted,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
   send_email
 ) VALUES (
   2,
   FALSE,
-  0,
-  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
-  NULL,
-  NULL,
   FALSE
 );
 
@@ -89,12 +81,20 @@ INSERT INTO notification (
   release_id,
   publish_date,
   expiry_date,
+  created_by,
+  created_at,
+  modified_by,
+  modified_at,
   send_email,
   deleted
 ) VALUES (
   2,
   2,
   CAST('2016-12-30' AS DATE),
+  NULL,
+  '',
+  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
+  NULL,
   NULL,
   FALSE,
   FALSE
@@ -117,18 +117,10 @@ INSERT INTO notification_content (
 INSERT INTO release (
   id,
   deleted,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
   send_email
 ) VALUES (
   3,
   FALSE,
-  0,
-  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
-  NULL,
-  NULL,
   FALSE
 );
 
@@ -137,12 +129,20 @@ INSERT INTO notification (
   release_id,
   publish_date,
   expiry_date,
+  created_by,
+  created_at,
+  modified_by,
+  modified_at,
   send_email,
   deleted
 ) VALUES (
   3,
   3,
   CAST('2016-12-30' AS DATE),
+  NULL,
+  '',
+  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
+  NULL,
   NULL,
   FALSE,
   FALSE
@@ -185,18 +185,10 @@ INSERT INTO timeline_content (
 INSERT INTO release (
   id,
   deleted,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
   send_email
 ) VALUES (
   4,
   FALSE,
-  0,
-  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
-  NULL,
-  NULL,
   FALSE
 );
 
@@ -205,12 +197,20 @@ INSERT INTO notification (
   release_id,
   publish_date,
   expiry_date,
+  created_by,
+  created_at,
+  modified_by,
+  modified_at,
   send_email,
   deleted
 ) VALUES (
   4,
   4,
   CAST('2016-05-23' AS DATE),
+  NULL,
+  '',
+  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
+  NULL,
   NULL,
   FALSE,
   FALSE
@@ -233,18 +233,10 @@ INSERT INTO notification_content (
 INSERT INTO release (
   id,
   deleted,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
   send_email
 ) VALUES (
   5,
   FALSE,
-  0,
-  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
-  NULL,
-  NULL,
   FALSE
 );
 
@@ -253,12 +245,20 @@ INSERT INTO notification (
   release_id,
   publish_date,
   expiry_date,
+  created_by,
+  created_at,
+  modified_by,
+  modified_at,
   send_email,
   deleted
 ) VALUES (
   5,
   5,
   CAST('2016-12-31' AS DATE),
+  NULL,
+  '',
+  CAST('2016-12-29 13:27:000' AS TIMESTAMP),
+  NULL,
   NULL,
   FALSE,
   FALSE
