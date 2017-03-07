@@ -16,7 +16,8 @@ trait JsonSupport {
 
   implicit val tagWrites: Writes[Tag] = (
     (JsPath \ "id").write[Long] and
-    (JsPath \ "name_fi").write[String]
+    (JsPath \ "name").write[String] and
+    (JsPath \ "type").write[Option[String]]
     )(unlift(Tag.unapply))
 
   implicit val timelineContentReads: Reads[TimelineContent] = (
@@ -79,7 +80,8 @@ trait JsonSupport {
 
   implicit val tagReads: Reads[Tag] = (
     (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String]
+    (JsPath \ "name").read[String] and
+    (JsPath \ "type").readNullable[String]
     )(Tag.apply _)
 
   implicit val notificationReads: Reads[NotificationUpdate] = (

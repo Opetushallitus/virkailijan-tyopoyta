@@ -3,7 +3,7 @@ package fi.vm.sade.vst.model
 import java.time.LocalDate
 
 
-case class Tag(id: Long, name: String)
+case class Tag(id: Long, name: String, tagType: Option[String])
 case class Category(id: Long, name: String)
 
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)

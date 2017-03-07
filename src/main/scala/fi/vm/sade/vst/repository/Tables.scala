@@ -37,7 +37,7 @@ object Tables {
   object TagTable extends SQLSyntaxSupport[Tag]{
     override val tableName = "tag"
     def apply(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Tag = apply(t.resultName)(rs)
-    def apply(t: ResultName[Tag])(rs: WrappedResultSet): Tag = Tag(rs.get(t.id), rs.get(t.name))
+    def apply(t: ResultName[Tag])(rs: WrappedResultSet): Tag = Tag(rs.get(t.id), rs.get(t.name), rs.get(t.tagType))
 
     def opt(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Option[Tag] =
       rs.longOpt(t.resultName.id).map(_ => TagTable(t)(rs))

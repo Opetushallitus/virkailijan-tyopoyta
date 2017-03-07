@@ -1,55 +1,77 @@
 INSERT INTO tag (
   id,
-  name
+  name,
+  tag_type
 ) VALUES (
   1,
-  'Aikataulut'
+  'Aikataulut',
+  NULL
 ), (
   2,
-  'Kielikoe'
+  'Kielikoe',
+  NULL
 ), (
   3,
-  'Koulutustarjonta'
+  'Koulutustarjonta',
+  NULL
 ), (
   4,
-  'Käyttöoikeudet'
+  'Käyttöoikeudet',
+  NULL
 ), (
   5,
-  'Opintopolku-info'
+  'Opintopolku-info',
+  NULL
 ), (
   6,
-  'Opo-paketti'
+  'Opo-paketti',
+  NULL
 ), (
   7,
-  'Oppimisvalmiustesti'
+  'Oppimisvalmiustesti',
+  NULL
 ), (
   8,
-  'Pääsy-ja soveltuvuuskoe'
+  'Pääsy-ja soveltuvuuskoe',
+  NULL
 ), (
   9,
-  'Raportit'
+  'Raportit',
+  NULL
 ), (
   10,
-  'Tiedonsiirrot'
+  'Tiedonsiirrot',
+  NULL
 ), (
   11,
-  'Tilastot'
+  'Tilastot',
+  NULL
 ), (
   12,
-  'Valinnat'
+  'Valinnat',
+  NULL
 ), (
   13,
-  'Erillishaku'
+  'Erillishaku',
+  NULL
 ), (
   14,
-  'Yhteishaku'
+  'Yhteishaku',
+  NULL
 ), (
   15,
-  'Lisähaku'
+  'Lisähaku',
+  NULL
 ), (
   16,
-  'Valintakoe'
+  'Valintakoe',
+  NULL
 ), (
   17,
-  'Hakulomakkeen hallinta'
+  'Hakulomakkeen hallinta',
+  NULL
+), (
+  18,
+  'Häiriötiedote',
+  'DISRUPTION'
 );

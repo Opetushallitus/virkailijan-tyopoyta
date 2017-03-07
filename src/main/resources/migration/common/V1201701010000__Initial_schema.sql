@@ -40,7 +40,8 @@ CREATE TABLE timeline_content(
 
 CREATE TABLE tag(
   id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  name VARCHAR(50) NOT NULL
+  name VARCHAR(50) NOT NULL,
+  tag_type VARCHAR(50)
 );
 
 CREATE TABLE notification_tag(
