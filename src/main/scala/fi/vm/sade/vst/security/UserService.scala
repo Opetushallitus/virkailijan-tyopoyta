@@ -45,6 +45,8 @@ class UserService(val casUtils: CasUtils,
 
   def userProfile(uid: String) = userRepository.userProfile(uid)
 
+  def serviceUserGroups = kayttooikeusService.appGroups
+
   def authenticate(ticket: String): Option[(String, User)] = {
 
     val uid = casUtils.validateTicket(ticket).recoverWith({

@@ -7,13 +7,13 @@ import scala.util.{Failure, Success, Try}
 
 class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) extends JsonSupport{
 
-  lazy val appRights: Seq[Kayttooikeusryhma] = fetchServiceKayttooikeudet()
-
   private val kayttooikeusClient = casUtils.serviceClient(config.kayttooikeusUri)
 
-  private def parseResponse(resp: Try[String]): Seq[Kayttooikeusryhma] = {
+  lazy val appGroups: Seq[Kayttooikeusryhma] = fetchServiceUsergroups().sortBy(_.id)
+
+  private def parseResponse(resp: Try[String], forUser: Boolean): Seq[Kayttooikeusryhma] = {
     resp match {
-      case Success(s) => parseKayttooikeusryhmat(s).getOrElse(List.empty)
+      case Success(s) => parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
       case Failure(e) => List.empty
     }
   }
@@ -27,18 +27,20 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) exte
     }
   }
 
-  private def filterRightsGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] =
+  private def filterUserGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] =
     groups.filter(g => rightsForGroup(g).exists(r => r.palveluName == "VIRKAILIJANTYOPOYTA"))
 
 
   def fetchRightsForUser(oid: String): Seq[Kayttooikeusryhma] = {
     val groupsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/henkilo/$oid", RequestMethod.GET)
 
-    parseResponse(groupsResponse)
+    val userRights = parseResponse(groupsResponse, forUser = true)
+
+    appGroups.toSet.intersect(userRights.toSet).toList
   }
 
-  def fetchServiceKayttooikeudet(): Seq[Kayttooikeusryhma] = {
+  def fetchServiceUsergroups(): Seq[Kayttooikeusryhma] = {
     val koResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/", RequestMethod.GET)
-    parseResponse(koResponse)
+    filterUserGroups(parseResponse(koResponse, forUser = false))
   }
 }

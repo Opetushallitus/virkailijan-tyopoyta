@@ -5,7 +5,7 @@ import fi.vm.sade.utils.cas._
 import fi.vm.sade.vst.AuthenticationConfig
 import org.http4s._
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 import scalaz.concurrent.Task
 
 
@@ -34,6 +34,16 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
       casParams, client.blaze.defaultClient, "virkailijan-tyopoyta")
 
+    private def handleResponse(response: Response): Try[String] = {
+      val body = EntityDecoder.decodeString(response).unsafePerformSync
+
+      if (response.status.isSuccess) {
+        Success(body)
+      } else {
+        Failure(new RuntimeException(body))
+      }
+    }
+
     def authenticatedRequest[A](uri: String, method: RequestMethod.Value): Try[String] = {
 
       val http4sMethod = method match {
@@ -45,7 +55,9 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
 
       val send = authenticatingClient.httpClient.toHttpService.run(req)
 
-      Try(send.unsafePerformSync).map((r: Response) => EntityDecoder.decodeString(r).unsafePerformSync)
+      val response = send.unsafePerformSync
+
+      Try(send.unsafePerformSync).flatMap(handleResponse)
     }
   }
 

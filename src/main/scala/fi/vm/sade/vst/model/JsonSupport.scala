@@ -133,20 +133,24 @@ trait JsonSupport {
   )(Category.apply _)
 
   implicit val kayttoikeusDescriptionReads: Reads[KayttoikeusDescription] = (
-    (JsPath \ "text").read[String] and
+    (JsPath \ "text").readNullable[String] and
     (JsPath \ "lang").read[String]
   )(KayttoikeusDescription.apply _)
 
-  implicit val kayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
+   val kayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
     (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String] and
-    (JsPath \ "descriptions" \ "texts").read[List[KayttoikeusDescription]]
+    (JsPath \ "description" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text))
   )(Kayttooikeusryhma.apply _)
+
+   val userKayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
+    (JsPath \ "ryhmaId").read[Long] and
+    (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text))
+    )(Kayttooikeusryhma.apply _)
 
   implicit val kayttooikeusryhmaWrites: Writes[Kayttooikeusryhma] = Writes { group =>
     Json.obj(
       "id" -> group.id,
-      "name" -> group.name
+      "description" -> group.description
     )
   }
 
@@ -164,7 +168,11 @@ trait JsonSupport {
     )
   }
 
-  def readKayttooikeusryhmat: Reads[List[Kayttooikeusryhma]] = JsPath.read[List[Kayttooikeusryhma]]
+  def readKayttooikeusryhmat(user: Boolean): Reads[List[Kayttooikeusryhma]] = {
+    implicit  val reads = if(user) userKayttooikeusryhmaReads else  kayttooikeusryhmaReads
+
+    JsPath.read[List[Kayttooikeusryhma]]
+  }
 
   def readKayttooikeudet: Reads[List[Kayttooikeus]] = JsPath.read[List[Kayttooikeus]]
 
@@ -201,9 +209,9 @@ trait JsonSupport {
 //    result.asOpt
 //  }
 
-  def parseKayttooikeusryhmat(jsString: String): Option[List[Kayttooikeusryhma]] = {
+  def parseKayttooikeusryhmat(jsString: String, forUser: Boolean): Option[List[Kayttooikeusryhma]] = {
     val jsonVal = Json.parse(jsString)
-    Json.fromJson(jsonVal)(readKayttooikeusryhmat).asOpt
+    Json.fromJson(jsonVal)(readKayttooikeusryhmat(forUser)).asOpt
   }
 
   def parseKayttooikedet(jsString: String): Option[List[Kayttooikeus]] = {

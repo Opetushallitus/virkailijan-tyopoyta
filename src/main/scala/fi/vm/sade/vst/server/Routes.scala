@@ -124,6 +124,9 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
         } ~
         path("user") {
           sendResponse(Future(userService.userProfile(uid)))
+        } ~
+        path("usergroups") {
+          sendResponse(Future(userService.serviceUserGroups))
         }
       } ~
       post {
