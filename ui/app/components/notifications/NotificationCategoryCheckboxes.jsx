@@ -7,7 +7,6 @@ import Spinner from '../common/Spinner'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
   selectedCategories: PropTypes.array.isRequired,
   isInitialLoad: PropTypes.bool.isRequired
@@ -16,7 +15,6 @@ const propTypes = {
 function NotificationCategoryCheckboxes (props) {
   const {
     controller,
-    locale,
     categories,
     selectedCategories,
     isInitialLoad
@@ -42,7 +40,7 @@ function NotificationCategoryCheckboxes (props) {
           : categories.map(category =>
             <div key={`notificationCategory${category.id}`} className="col-12 sm-col-6 lg-col-4 mb2 md-mb1 sm-pr1">
               <Checkbox
-                label={category[`name_${locale}`]}
+                label={category.name}
                 checked={isCategoryChecked(category.id, selectedCategories)}
                 value={category.id}
                 onChange={handleCategoryChange}

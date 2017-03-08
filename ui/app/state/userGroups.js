@@ -51,8 +51,7 @@ function onFailed (state) {
 function allUserGroupsItem () {
   return {
     id: -1,
-    'name_fi': 'Kohdenna kaikille käyttöoikeusryhmille',
-    'name_sv': ''
+    name: 'Kohdenna kaikille käyttöoikeusryhmille'
   }
 }
 

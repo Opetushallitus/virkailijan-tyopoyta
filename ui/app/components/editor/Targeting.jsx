@@ -12,7 +12,6 @@ import { translate } from '../common/Translations'
 import mapDropdownOptions from '../utils/mapDropdownOptions'
 
 const propTypes = {
-  locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   userGroups: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
@@ -22,7 +21,6 @@ const propTypes = {
 
 function Targeting (props) {
   const {
-    locale,
     controller,
     userGroups,
     categories,
@@ -73,8 +71,8 @@ function Targeting (props) {
     )
     : []
 
-  const getUserGroupName = (id, groups, locale) => {
-    return R.find(R.propEq('id', id))(groups)[`name_${locale}`]
+  const getUserGroupName = (id, groups) => {
+    return R.find(R.propEq('id', id))(groups).name
   }
 
   const areTagsDisabled = (tags, selectedCategories) => {
@@ -94,7 +92,7 @@ function Targeting (props) {
             {categories.map(category =>
               <div key={`releaseCategory${category.id}`} className="mb1">
                 <Checkbox
-                  label={category[`name_${locale}`]}
+                  label={category.name}
                   checked={isCategoryChecked(category.id, release.categories)}
                   value={category.id}
                   onChange={handleCategoryChange}
@@ -118,7 +116,7 @@ function Targeting (props) {
               name="release-usergroups"
               noResultsMessage={translate('eiryhma')}
               onChange={handleUserGroupsChange}
-              options={mapDropdownOptions(unselectedUserGroups, locale)}
+              options={mapDropdownOptions(unselectedUserGroups)}
               placeholder={translate('lisaaryhma')}
               search
               selection
@@ -136,7 +134,7 @@ function Targeting (props) {
                 <UserGroupButton
                   key={`userGroup${group}`}
                   id={group}
-                  text={getUserGroupName(group, userGroups, locale)}
+                  text={getUserGroupName(group, userGroups)}
                   onClick={controller.toggleUserGroup}
                 />
               )
@@ -152,9 +150,8 @@ function Targeting (props) {
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
             {tags.map(tags =>
-              <Fieldset key={`notificationTagGroup${tags.id}`} legend={tags[`name_${locale}`]}>
+              <Fieldset key={`notificationTagGroup${tags.id}`} legend={tags.name}>
                 <CheckboxButtonGroup
-                  locale={locale}
                   groupId={tags.id}
                   htmlId="notification-tags"
                   options={tags.items}

@@ -54,7 +54,7 @@ const notificationValidationStateKeys = {
 
 const releaseValidationStateKeys = {
   'empty': 'eikohdennettu',
-  'incomplete': 'kesken',
+  'incomplete': 'eikohdennettu',
   'complete': 'valmis'
 }
 

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 import Bacon from 'baconjs'
+import R from 'ramda'
 
 // Components
 import Notification from './Notification'
@@ -9,6 +10,8 @@ import NotificationsPlaceholder from './NotificationsPlaceholder'
 import Collapse from '../common/Collapse'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
+
+import getItemsForIDs from '../utils/getItemsForIDs'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
@@ -62,9 +65,12 @@ class Notifications extends React.Component {
   }
 
   isLastPageLoaded () {
-    const pageLength = 20
+    const {
+      items,
+      count
+    } = this.props.notifications
 
-    return this.props.notifications.items.length <= pageLength * this.props.notifications.currentPage
+    return items.length <= count
   }
 
   render () {
@@ -83,13 +89,9 @@ class Notifications extends React.Component {
     } = notifications
 
     const getNotificationSelectedCategoriesString = (categoriesAmount) => {
-      const amountString = categoriesAmount === 1
-        ? translate('rajaus')
-        : translate('rajausta')
-
       return categoriesAmount === 0
         ? translate('eirajoituksia')
-        : `${categoriesAmount} ${amountString}`
+        : categoriesAmount
     }
 
     return (
@@ -99,7 +101,6 @@ class Notifications extends React.Component {
         {/*Filter notifications by tags*/}
         <div className="mb2">
           <NotificationTagSelect
-            locale={locale}
             options={tags.items}
             selectedOptions={notifications.tags}
             controller={controller}
@@ -116,7 +117,6 @@ class Notifications extends React.Component {
         >
           <NotificationCategoryCheckboxes
             controller={controller}
-            locale={locale}
             categories={categories.items}
             selectedCategories={notifications.categories}
             isInitialLoad={categories.isInitialLoad}
@@ -143,7 +143,8 @@ class Notifications extends React.Component {
               controller={controller}
               locale={locale}
               notification={notification}
-              tags={tags.items}
+              categories={getItemsForIDs(notification.categories.sort(), categories.items)}
+              tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tags.items)))}
             />
           )}
 

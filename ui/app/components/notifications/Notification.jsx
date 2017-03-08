@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react'
-import R from 'ramda'
 import renderHTML from 'react-render-html'
 
 // Components
@@ -14,6 +13,7 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
+  categories: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired
 }
 
@@ -22,8 +22,21 @@ function Notification (props) {
     locale,
     controller,
     notification,
+    categories,
     tags
   } = props
+
+  const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
+  const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
+
+  const content = notification.content[locale]
+
+  // Strip HTML tags from text
+  // TODO: do not use regex
+  const parsedText = content.text.replace(/(<([^>]+)>)/ig, '')
+
+  const excerptLength = 100
+  const isExpandable = parsedText.length > excerptLength
 
   const handleNotificationClick = () => {
     if (!isExpandable) {
@@ -43,26 +56,6 @@ function Notification (props) {
     controller.getPage(1)
   }
 
-  const getTagName = (id, locale, tags) => {
-    return R.prop(`name_${locale}`,
-      R.find(R.propEq('id', id))(tags)
-    )
-  }
-
-  const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
-  const content = notification.content[locale]
-  const allTags = R.flatten(R.pluck('items', tags))
-
-  // Sort tag IDs to list them in the same order in all rendered notifications
-  const sortedNotificationTags = notification.tags.sort()
-
-  // Strip HTML tags from text
-  // TODO: do not use regex
-  const parsedText = content.text.replace(/(<([^>]+)>)/ig, '')
-
-  const excerptLength = 100
-  const isExpandable = parsedText.length > excerptLength
-
   const classList = [
     'relative',
     'mb3',
@@ -75,7 +68,8 @@ function Notification (props) {
     'rounded',
     'bg-white',
     'box-shadow',
-    `${isExpandable ? 'notification-is-expandable' : ''}`
+    `${isExpandable ? 'notification-is-expandable' : ''}`,
+    `${isDisruptionNotification ? 'notification-disruption' : ''}`
   ]
 
   return (
@@ -144,16 +138,24 @@ function Notification (props) {
 
         {/*Create date and creator's initials*/}
         <span className={`h6 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
-          <time className="mr1">{notification.created}</time>
-          {notification.creator}
+          <time className="mr1">{notification.createdAt}</time>
+          {notification.createdBy}
         </span>
 
-        {/*Tags*/}
+        {/*Categories & tags*/}
         <span className="mx2">
-          {sortedNotificationTags.map(tag =>
+          {categories.map(category =>
             <Tag
-              key={`notificationTag${tag}`}
-              text={getTagName(tag, locale, allTags)}
+              key={`notificationTag${category.id}`}
+              className="bg-blue-lighten-2"
+              text={category.name}
+            />
+          )}
+
+          {tags.map(tag =>
+            <Tag
+              key={`notificationTag${tag.id}`}
+              text={tag.name}
             />
           )}
         </span>

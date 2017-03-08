@@ -1293,16 +1293,6 @@
   },
   {
     "locale": "fi",
-    "key": "rajausta",
-    "value": "rajausta"
-  },
-  {
-    "locale": "fi",
-    "key": "rajaus",
-    "value": "rajaus"
-  },
-  {
-    "locale": "fi",
     "key": "hairiotiedote",
     "value": "Häiriötiedote"
   }

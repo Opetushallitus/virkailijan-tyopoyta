@@ -16,6 +16,8 @@ taulukko, joka sisältää tagiryhmät JSON-muodossa järjestettynä id:n mukaan
 
 Erikoistagit (esim. "Häiriötiedote") palautetaan omassa tagiryhmässään.
 
+Tagiryhmän sekä yksittäisen tagin *name*-ominaisuuden arvo on lokalisoitu käyttäjän kielen mukaan.
+
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki
@@ -26,27 +28,24 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 [
     {
         "id": 1,
-        "name_fi": "Perusopetus ja toinen aste",
-        "name_sv": "Grundläggande utbildning och andra grad",
+        "name": "Perusopetus ja toinen aste",
         "categories": [1, 2],
         "items": [
             {
                 "id": 1,
-                "name_fi": "Aikataulut",
-                "name_sv": "Tidtabeller"
+                "name": "Aikataulut"
             },
           ...
         ]    
     },
     {
         "id": 4,
-        "name_fi": "SPECIAL",
+        "name": "SPECIAL",
         "categories": [],
         "items": [
             {
                 "id": 10,
-                "name_fi": "Häiriötiedote",
-                "name_sv": "Störningsmeddelandet",
+                "name": "Häiriötiedote",
                 "type": "DISRUPTION"
             }
         ]

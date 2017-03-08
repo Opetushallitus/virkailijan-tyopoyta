@@ -3,16 +3,16 @@
   Map options to React Semantic UI Dropdown's options:
   [
     {
-      value: [options' id],
-      text: [options' localized text]
+      value: [option's id],
+      text: [option's name]
     },
     ...
   ]
 */
 
-export default function mapDropdownOptions (options, locale) {
+export default function mapDropdownOptions (options) {
   return options.map(option => ({
     value: option.id,
-    text: option[`name_${locale}`]
+    text: option.name
   }))
 }

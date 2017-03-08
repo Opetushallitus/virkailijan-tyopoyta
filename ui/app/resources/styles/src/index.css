@@ -80,6 +80,10 @@ a:focus {
   background-color: var(--blue-darken);
 }
 
+.bg-blue-lighten-2 {
+  background-color: var(--blue-lighten-2);
+}
+
 .bg-blue-lighten-4 {
   background-color: var(--blue-lighten-4);
 }

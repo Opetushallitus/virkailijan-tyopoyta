@@ -36,19 +36,19 @@ function update (state, { prop, value }) {
     ? path.concat(prop)
     : R.append(prop, path)
 
-  const newState = R.assocPath(
-    path,
-    validate(
-      R.path(path, R.assocPath(concatenatedPath, value, state)),
-      rules(state.editor.editedRelease)['notification']
-    ),
-    state
+  const validatedNotification = validate(
+    R.path(path, R.assocPath(concatenatedPath, value, state)),
+    rules(state.editor.editedRelease)['notification']
   )
 
-  // Empty tags if validationState is empty
-  if (newState.validationState === 'empty') {
-    newState.tags = []
+  // Remove all tags except those in state.tags.specialTags if notification is emptied
+  const specialTagIds = R.pluck('id', state.tags.specialTags)
+
+  if (validatedNotification.validationState === 'empty') {
+    validatedNotification.tags = R.filter(tag => R.contains(tag, specialTagIds), validatedNotification.tags)
   }
+
+  const newState = R.assocPath(path, validatedNotification, state)
 
   return R.assocPath(
     ['editor', 'editedRelease'],

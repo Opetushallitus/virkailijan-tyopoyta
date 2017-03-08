@@ -61,19 +61,23 @@ function saveCategories (options) {
 function onNotificationsReceived (state, response) {
   console.log('Received notifications')
 
-  // Response is either an array (page of notifications) or an object (single notification related to a timeline item)
+  /*
+    Response's 'items' property has either an array (page of notifications)
+    or an object (single notification related to a timeline item)
+  */
 
   // Set a property to notification related to timeline item for rendering
-  if (!R.isArrayLike(response)) {
+  if (!R.isArrayLike(response.items)) {
     response.notification.isRelatedToTimelineItem = true
   }
 
   const notifications = state.notifications
   const items = notifications.items
-  const newItems = R.isArrayLike(response) ? items.concat(response) : [response.notification]
+  const newItems = R.isArrayLike(response.items) ? items.concat(response.items) : [response.notification]
 
   return R.compose(
     R.assocPath(['notifications', 'items'], newItems),
+    R.assocPath(['notifications', 'count'], response.count),
     R.assocPath(['notifications', 'isLoading'], false),
     R.assocPath(['notifications', 'isInitialLoad'], false)
   )(state)
@@ -176,7 +180,7 @@ function toggleCategory (state, category) {
 
   // TODO: Set proper value for email
 
-  // Save selected categories and get notifications filtered by categories
+  // Save selected categories and get tags & notifications filtered by categories
   saveCategories({
     email: false,
     categories: newCategories
@@ -192,6 +196,7 @@ function toggleCategory (state, category) {
     R.assocPath(['notifications', 'isLoading'], true),
     R.assocPath(['notifications', 'currentPage'], 1),
     R.assocPath(['notifications', 'items'], []),
+    R.assocPath(['notifications', 'tags'], []),
     R.assocPath(['notifications', 'categories'], newCategories)
   )(state)
 }

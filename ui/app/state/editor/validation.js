@@ -25,7 +25,7 @@ export function rules (state) {
   }
 }
 
-// Returns a string representing editor's validation state
+// Returns the validated object with a 'validationState' property with value representing the validation result
 export function validate (state, rules) {
   const values = []
   let result

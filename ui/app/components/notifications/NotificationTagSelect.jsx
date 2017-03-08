@@ -6,7 +6,6 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
   options: PropTypes.array.isRequired,
   selectedOptions: PropTypes.array.isRequired,
   isLoading: PropTypes.bool.isRequired,
@@ -16,7 +15,6 @@ const propTypes = {
 function NotificationTagSelect (props) {
   const {
     controller,
-    locale,
     options,
     selectedOptions,
     isLoading,
@@ -44,16 +42,14 @@ function NotificationTagSelect (props) {
 
     Returns options sorted by text
   */
-  const mappedOptions = (options, locale) => {
-    const name = `name_${locale}`
-
+  const mappedOptions = (options) => {
     const mappedOptions = R.flatten(
       R.map(option => R.map(item =>
         R.compose(
-          R.omit(['id', name]),
+          R.omit(['id', 'name']),
           R.assoc('value', item.id),
-          R.assoc('text', item[name]),
-          R.assoc('description', option[name])
+          R.assoc('text', item.name),
+          R.assoc('description', option.name)
         )(item), option.items),
       options)
     )
@@ -73,7 +69,7 @@ function NotificationTagSelect (props) {
         noResultsMessage={translate('eitunnisteita')}
         onChange={handleChange}
         onLabelClick={handleLabelClick}
-        options={isInitialLoad ? [] : mappedOptions(options, locale)}
+        options={isInitialLoad ? [] : mappedOptions(options)}
         placeholder={isLoading || isInitialLoad ? translate('haetaantunnisteita') : translate('hakusana')}
         search
         selection

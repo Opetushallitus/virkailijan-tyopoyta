@@ -28,8 +28,8 @@ function fetch () {
 function onReceived (state, tags) {
   console.log('Received tags')
 
-  const regularTags = R.reject(tags => tags.type === 'SPECIAL')(tags)
-  const specialTags = R.prop('items', R.find(R.propEq('type', 'SPECIAL'))(tags))
+  const regularTags = R.reject(tags => tags.name === 'SPECIAL')(tags)
+  const specialTags = R.prop('items', R.find(R.propEq('name', 'SPECIAL'))(tags))
 
   return R.compose(
     R.assocPath(['tags', 'items'], regularTags),

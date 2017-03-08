@@ -1,7 +1,6 @@
 import Bacon from 'baconjs'
-import R from 'ramda'
-import moment from 'moment'
 
+import user from './state/user'
 import categories from './state/categories'
 import userGroups from './state/userGroups'
 import tags from './state/tags'
@@ -25,7 +24,18 @@ const events = {
   editor: editor.events
 }
 
-const authUrl = '/virkailijan-tyopoyta/login'
+const initialState = {
+  locale: 'fi',
+  dateFormat: 'D.M.YYYY',
+  userGroups: userGroups.initialState,
+  categories: categories.initialState,
+  tags: tags.initialState,
+  view: view.initialState,
+  unpublishedNotifications: unpublishedNotifications.initialState,
+  notifications: notifications.initialState,
+  timeline: timeline.initialState,
+  editor: editor.initialState
+}
 
 const controller = initController(dispatcher, events)
 
@@ -33,55 +43,19 @@ export function getController () {
   return controller
 }
 
-function onUserReceived (state, response) {
-  console.log('Received user', response)
-
-  const month = moment().format('M')
-  const year = moment().format('YYYY')
-
-  categories.fetch()
-  userGroups.fetch()
-  tags.fetch()
-  notifications.fetch({ page: 1 })
-
-  timeline.fetch({
-    month,
-    year
-  })
-
-  return R.assoc('user', response, state)
-}
-
 export function initAppState () {
-  const userS = Bacon.fromPromise(
-    window.fetch(authUrl, {
-      credentials: 'same-origin',
-      mode: 'no-cors'
-    })
-      .then(resp => { resp.json() })
-  )
-
-  const initialState = {
-    locale: 'fi',
-    dateFormat: 'D.M.YYYY',
-    userGroups: userGroups.initialState,
-    categories: categories.initialState,
-    tags: tags.initialState,
-    view: view.initialState,
-    unpublishedNotifications: unpublishedNotifications.initialState,
-    notifications: notifications.initialState,
-    timeline: timeline.initialState,
-    editor: editor.initialState
-  }
+  user.fetch()
 
   return Bacon.update(
     initialState,
 
-    [userS], onUserReceived,
+    // User
+    [user.fetchBus], user.onReceived,
+    [user.fetchFailedBus], user.onFetchFailed,
 
     // Categories
     [categories.fetchBus], categories.onReceived,
-    [categories.fetchFailedBus], categories.onFailed,
+    [categories.fetchFailedBus], categories.onFetchFailed,
 
     // User groups
     [userGroups.fetchBus], userGroups.onReceived,

@@ -452,6 +452,11 @@
   height: auto;
 }
 
+.notification-disruption {
+  border-left-width: 5px;
+  border-left-color: var(--red);
+}
+
 /* Timeline */
 
 .timeline-viewport {

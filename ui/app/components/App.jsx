@@ -167,7 +167,6 @@ class App extends React.Component {
           {/*Menu*/}
           <Menu
             controller={controller}
-            locale={state.locale}
             notificationsLoaded={state.notifications.isInitialLoad}
             isMobileMenuVisible={state.view.isMobileMenuVisible}
           />

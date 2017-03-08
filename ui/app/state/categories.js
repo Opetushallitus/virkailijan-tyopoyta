@@ -35,7 +35,7 @@ function onReceived (state, categories) {
   )(state)
 }
 
-function onFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
     title: 'Kategorioiden haku epäonnistui',
@@ -66,7 +66,7 @@ const categories = {
   initialState,
   fetch,
   onReceived,
-  onFailed
+  onFetchFailed
 }
 
 export default categories

@@ -4,7 +4,6 @@ import R from 'ramda'
 import CheckboxButton from './CheckboxButton'
 
 const propTypes = {
-  locale: PropTypes.string.isRequired,
   htmlId: PropTypes.string.isRequired,
   variant: PropTypes.string,
   options: PropTypes.array.isRequired,
@@ -24,7 +23,6 @@ const isChecked = (selectedOptions, id) => {
 
 function CheckboxButtonGroup (props) {
   const {
-    locale,
     htmlId,
     variant,
     options,
@@ -42,7 +40,7 @@ function CheckboxButtonGroup (props) {
             id={option.id}
             htmlId={htmlId}
             variant={variant}
-            label={option[`name_${locale}`]}
+            label={option.name}
             checked={isChecked(selectedOptions, option.id)}
             disabled={disabled}
             onChange={onChange}

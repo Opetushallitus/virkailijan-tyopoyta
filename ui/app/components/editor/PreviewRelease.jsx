@@ -4,24 +4,24 @@ import R from 'ramda'
 
 import PreviewTargetingList from './PreviewTargetingList'
 import { translate } from '../common/Translations'
-import * as testData from '../../resources/test/testData.json'
 
 import getTimelineItems from './getTimelineItems'
+import getItemsForIDs from '../utils/getItemsForIDs'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
-  // categories: PropTypes.array.isRequired,
+  categories: PropTypes.array.isRequired,
   userGroups: PropTypes.array.isRequired,
-  // tags: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
 function PreviewRelease (props) {
   const {
     locale,
-    // categories,
+    categories,
     userGroups,
-    // tags,
+    tags,
     release
   } = props
 
@@ -103,20 +103,16 @@ function PreviewRelease (props) {
             {/*Categories*/}
             <div className="col-12 md-col-4 md-mb3 md-pr2">
               <PreviewTargetingList
-                locale={locale}
                 title="julkaisunkategoriat"
-                items={testData.categories}
-                selectedItems={release.categories}
+                items={getItemsForIDs(release.categories, categories)}
               />
             </div>
 
             {/*User groups*/}
             <div className="col-12 md-col-4 md-mb3 md-pr2">
               <PreviewTargetingList
-                locale={locale}
                 title="julkaisunkayttooikeusryhmat"
-                items={userGroups}
-                selectedItems={release.userGroups}
+                items={getItemsForIDs(release.userGroups, userGroups)}
               />
             </div>
 
@@ -125,10 +121,8 @@ function PreviewRelease (props) {
               release.notification.tags.length > 0
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
-                    locale={locale}
                     title="julkaisunavainsanat"
-                    items={R.flatten(R.pluck('items', testData.tags))}
-                    selectedItems={notification.tags}
+                    items={getItemsForIDs(notification.tags, R.flatten(R.pluck('items', tags)))}
                   />
                 </div>
                 : null
