@@ -2,12 +2,9 @@
 
 ##Endpoint
 
-`GET /virkailijan-tyopoyta/api/tags?categories={categories}`
+`GET /virkailijan-tyopoyta/api/tags`
 
-##Parametrit
-
-categories: *Valinnainen.* Pilkuilla erotettu lista kategorioiden id:eistä.
-Määrittää, mihin kategorioihin liittyvät tagiryhmät palautetaan.    
+##Ei parametrejä
 
 ##Vastauksen muoto
 
