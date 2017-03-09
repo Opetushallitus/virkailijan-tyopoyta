@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react'
 import TimelineItem from './TimelineItem'
 
 const propTypes = {
-  locale: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   dateFormat: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
   onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
@@ -12,7 +12,7 @@ const propTypes = {
 
 function TimelineDay (props) {
   const {
-    locale,
+    user,
     dateFormat,
     items,
     onDisplayRelatedNotificationLinkClick,
@@ -25,7 +25,7 @@ function TimelineDay (props) {
         <TimelineItem
           key={`timelineItem${item.id}Release${item.releaseId}`}
           index={index}
-          locale={locale}
+          user={user}
           dateFormat={dateFormat}
           item={item}
           onDisplayRelatedNotificationLinkClick={onDisplayRelatedNotificationLinkClick}

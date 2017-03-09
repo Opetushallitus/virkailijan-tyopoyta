@@ -13,12 +13,15 @@ const url = '/virkailijan-tyopoyta/api/usergroups'
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
-function fetch () {
+function fetch (locale) {
   console.log('Fetching user groups')
 
   // getData({
   //   url: url,
-  //   onSuccess: tags => fetchBus.push(userGroups),
+  //   searchParams: {
+  //     locale
+  //   },
+  //   onSuccess: userGroups => fetchBus.push(userGroups),
   //   onError: error => fetchFailedBus.push(error)
   // })
 
@@ -39,8 +42,8 @@ function onReceived (state, userGroups) {
 function onFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Käyttäjäryhmien haku epäonnistui',
-    text: 'Sulje ja avaa editori uudestaan hakeaksesi uudelleen'
+    titleKey: 'kayttajaryhmienhakuepaonnistui',
+    textKey: 'suljejaavaaeditori'
   })
 
   editor.alertsBus.push(alert)

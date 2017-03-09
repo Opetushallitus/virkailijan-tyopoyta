@@ -125,8 +125,8 @@ function Editor (props) {
             key={alert.id}
             id={alert.id}
             type={alert.type}
-            title={alert.title}
-            text={alert.text}
+            titleKey={alert.titleKey}
+            textKey={alert.textKey}
             onCloseButtonClick={controller.removeAlert}
           />
         )}

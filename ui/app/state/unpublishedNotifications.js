@@ -38,8 +38,8 @@ function onReceived (state, response) {
 function onFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Julkaisemattomien tiedotteiden haku epäonnistui',
-    text: 'Sulje ja avaa dialogi uudestaan hakeaksesi uudelleen'
+    titleKey: 'julkaisemattomienhakuepaonnistui',
+    textKey: 'suljejaavaadialogi'
   })
 
   const newAlerts = R.append(alert, state.unpublishedNotifications.alerts)

@@ -1,30 +1,29 @@
 import React, { PropTypes } from 'react'
 
 import CloseButton from './buttons/CloseButton'
+import { translate } from './Translations'
 
 const types = ['info', 'success', 'warning', 'error', 'help']
 
 const propTypes = {
-  id: PropTypes.number,
+  id: PropTypes.number.isRequired,
   type: PropTypes.oneOf(types),
-  title: PropTypes.string.isRequired,
-  text: PropTypes.string,
+  titleKey: PropTypes.string.isRequired,
+  textKey: PropTypes.string,
   onCloseButtonClick: PropTypes.func.isRequired
 }
 
 const defaultProps = {
-  id: null,
   type: 'info',
-  variant: 'fullscreen',
-  text: null
+  textKey: null
 }
 
 function Alert (props) {
   const {
     id,
     type,
-    title,
-    text,
+    titleKey,
+    textKey,
     onCloseButtonClick
   } = props
 
@@ -35,11 +34,11 @@ function Alert (props) {
       <div className="alert-container">
         <CloseButton onClick={handleCloseButtonClick} />
 
-        <div className="alert-title">{title}</div>
+        <div className="alert-title">{translate(titleKey)}</div>
 
         {
-          text
-            ? <div className="alert-text">{text}</div>
+          textKey
+            ? <div className="alert-text">{translate(textKey)}</div>
             : null
         }
       </div>

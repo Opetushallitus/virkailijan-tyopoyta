@@ -38,11 +38,11 @@ function onReceived (state, tags) {
   )(state)
 }
 
-function onFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Avainsanojen haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
+    titleKey: 'avainsanojenhakuepaonnistui',
+    text: 'paivitasivu'
   })
 
   view.alertsBus.push(alert)
@@ -66,7 +66,7 @@ const tags = {
   initialState,
   fetch,
   onReceived,
-  onFailed
+  onFetchFailed
 }
 
 export default tags

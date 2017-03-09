@@ -11,7 +11,7 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   dateFormat: PropTypes.string.isRequired,
   timeline: PropTypes.object.isRequired
 }
@@ -25,9 +25,6 @@ class Timeline extends React.Component {
   }
 
   componentDidMount () {
-    const menuContainer = document.querySelector('.menu-container')
-    this.timeline.style.height = menuContainer ? '75vh' : '80vh'
-
     const body = document.body
 
     // Load next or previous month when scrolling the timeline
@@ -112,23 +109,20 @@ class Timeline extends React.Component {
   moveTimeline () {
     const virkailijaRaamit = document.querySelector('header')
     const virkailijaRaamitHeight = virkailijaRaamit ? virkailijaRaamit.clientHeight : 0
-    const menuContainer = document.querySelector('.menu-container')
-    const menuHeight = menuContainer ? menuContainer.clientHeight : 0
-    const topOffset = virkailijaRaamitHeight + menuHeight
 
-    if (window.pageYOffset > topOffset) {
-      this.timeline.style.top = `${window.pageYOffset - topOffset}px`
+    if (window.pageYOffset > virkailijaRaamitHeight) {
+      this.timeline.style.top = `${window.pageYOffset - virkailijaRaamitHeight}px`
       this.timeline.style.height = '95vh'
     } else {
       this.timeline.style.top = 0
-      this.timeline.style.height = menuContainer ? '75vh' : '80vh'
+      this.timeline.style.height = '80vh'
     }
   }
 
   render () {
     const {
       controller,
-      locale,
+      user,
       dateFormat,
       timeline
     } = this.props
@@ -190,7 +184,7 @@ class Timeline extends React.Component {
                     {Object.keys(month.days || {}).map(key =>
                       <TimelineDay
                         key={`timelineDay${key}.${month.month}.${month.year}`}
-                        locale={locale}
+                        user={user}
                         dateFormat={dateFormat}
                         items={month.days[key]}
                         onEditButtonClick={controller.edit}

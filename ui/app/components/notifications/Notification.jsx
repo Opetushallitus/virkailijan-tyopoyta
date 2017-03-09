@@ -2,16 +2,17 @@ import React, { PropTypes } from 'react'
 import renderHTML from 'react-render-html'
 
 // Components
-import Tag from '../common/Tag'
-import Icon from '../common/Icon'
 import Button from '../common/buttons/Button'
 import EditButton from '../common/buttons/EditButton'
 import CloseButton from '../common/buttons/CloseButton'
+import Conditional from '../common/Conditional'
+import Tag from '../common/Tag'
+import Icon from '../common/Icon'
 import { translate } from '../common/Translations'
 
 const propTypes = {
-  locale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
   categories: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired
@@ -19,8 +20,8 @@ const propTypes = {
 
 function Notification (props) {
   const {
-    locale,
     controller,
+    user,
     notification,
     categories,
     tags
@@ -29,7 +30,7 @@ function Notification (props) {
   const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
   const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
 
-  const content = notification.content[locale]
+  const content = notification.content[user.lang]
 
   // Strip HTML tags from text
   // TODO: do not use regex
@@ -39,10 +40,6 @@ function Notification (props) {
   const isExpandable = parsedText.length > excerptLength
 
   const handleNotificationClick = () => {
-    if (!isExpandable) {
-      return
-    }
-
     const node = document.querySelector(`#notification${notification.id}`)
 
     node.classList.toggle('notification-is-expanded')
@@ -120,12 +117,14 @@ function Notification (props) {
       }
 
       {/*Edit button*/}
-      <EditButton
-        className="absolute bottom-0 right-0 z2 gray-lighten-1"
-        onClick={handleEditButtonClick}
-      />
+      <Conditional isRendered={user.isAdmin}>
+        <EditButton
+          className="absolute bottom-0 right-0 z2 gray-lighten-1"
+          onClick={handleEditButtonClick}
+        />
+      </Conditional>
 
-      <div className={classList.join(' ')} onClick={handleNotificationClick}>
+      <div className={classList.join(' ')} onClick={isExpandable ? handleNotificationClick : null}>
         {/*Title*/}
         <h3 className="notification-heading h4 primary bold inline-block mb2 mr2" aria-hidden>
           {content.title}
@@ -137,7 +136,7 @@ function Notification (props) {
         </div>
 
         {/*Create date and creator's initials*/}
-        <span className={`h6 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
+        <span className={`h5 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
           <time className="mr1">{notification.createdAt}</time>
           {notification.createdBy}
         </span>

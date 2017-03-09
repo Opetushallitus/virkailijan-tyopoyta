@@ -43,6 +43,8 @@ function fetch (options) {
 }
 
 function saveCategories (options) {
+  console.log('Saving selected categories', options)
+
   getData({
     url: saveCategoriesUrl,
     requestOptions: {
@@ -86,8 +88,8 @@ function onNotificationsReceived (state, response) {
 function onFetchNotificationsFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Tiedotteiden haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
+    titleKey: 'tiedotteidenhakuepaonnistui',
+    textKey: 'paivitasivu'
   })
 
   view.alertsBus.push(alert)
@@ -101,8 +103,8 @@ function onFetchNotificationsFailed (state) {
 function onSaveCategoriesFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Kategorioiden tallennus käyttäjätietoihin epäonnistui',
-    text: 'Valitse kategoria uudestaan yrittääksesi uudelleen'
+    titleKey: 'kategorioidentallennusepaonnistui',
+    textKey: 'valitsekategoriauudelleen'
   })
 
   view.alertsBus.push(alert)
@@ -172,15 +174,15 @@ function setSelectedTags (state, selected) {
   )(state)
 }
 
-function toggleCategory (state, category) {
+function toggleCategory (state, id) {
+  console.log('Toggled category with id', id)
+
   const categories = state.notifications.categories
-  const newCategories = R.contains(category, categories)
-    ? R.reject(selected => selected === category, categories)
-    : R.append(category, categories)
+  const newCategories = R.contains(id, categories)
+    ? R.reject(selected => selected === id, categories)
+    : R.append(id, categories)
 
   // TODO: Set proper value for email
-
-  // Save selected categories and get tags & notifications filtered by categories
   saveCategories({
     email: false,
     categories: newCategories
@@ -196,7 +198,6 @@ function toggleCategory (state, category) {
     R.assocPath(['notifications', 'isLoading'], true),
     R.assocPath(['notifications', 'currentPage'], 1),
     R.assocPath(['notifications', 'items'], []),
-    R.assocPath(['notifications', 'tags'], []),
     R.assocPath(['notifications', 'categories'], newCategories)
   )(state)
 }

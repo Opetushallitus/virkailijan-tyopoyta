@@ -22,7 +22,7 @@ export function initController (dispatcher, events) {
 
     setSelectedTags: selected => dispatcher.push(events.notifications.setSelectedTags, selected),
 
-    toggleCategory: category => dispatcher.push(events.notifications.toggleCategory, category),
+    toggleCategory: id => dispatcher.push(events.notifications.toggleCategory, id),
 
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 

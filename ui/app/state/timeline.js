@@ -116,8 +116,8 @@ function onReceived (state, response) {
 function onFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Tapahtumien haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
+    titleKey: 'tapahtumienhakuepaonnistui',
+    textKey: 'paivitasivu'
   })
 
   const newState = R.assocPath(['timeline', 'isLoadingNext'], false, state)

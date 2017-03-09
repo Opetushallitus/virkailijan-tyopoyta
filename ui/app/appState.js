@@ -25,8 +25,8 @@ const events = {
 }
 
 const initialState = {
-  locale: 'fi',
   dateFormat: 'D.M.YYYY',
+  user: user.initialState,
   userGroups: userGroups.initialState,
   categories: categories.initialState,
   tags: tags.initialState,

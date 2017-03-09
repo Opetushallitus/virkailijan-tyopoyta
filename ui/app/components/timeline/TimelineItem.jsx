@@ -3,12 +3,13 @@ import moment from 'moment'
 import renderHTML from 'react-render-html'
 
 import EditButton from '../common/buttons/EditButton'
+import Conditional from '../common/Conditional'
 import { translate } from '../common/Translations'
 import animate from '../utils/animate'
 
 const propTypes = {
   index: PropTypes.number.isRequired,
-  locale: PropTypes.string.isRequired,
+  user: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
   item: PropTypes.object.isRequired,
   onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
@@ -18,7 +19,7 @@ const propTypes = {
 function TimelineItem (props) {
   const {
     index,
-    locale,
+    user,
     dateFormat,
     item,
     onDisplayRelatedNotificationLinkClick,
@@ -88,7 +89,7 @@ function TimelineItem (props) {
       }
 
       {/*Text*/}
-      <div className="h5 bold">{renderHTML(content[locale].text)}</div>
+      <div className="h5 bold">{renderHTML(content[user.lang].text)}</div>
 
       {/*Display related notification*/}
       { notificationId
@@ -103,11 +104,13 @@ function TimelineItem (props) {
       }
 
       {/*Edit button*/}
-      <EditButton
-        id={`edit-timeline-release${releaseId}-item${id}`}
-        className="absolute top-0 right-0 white"
-        onClick={handleEditButtonClick}
-      />
+      <Conditional isRendered={user.isAdmin}>
+        <EditButton
+          id={`edit-timeline-release${releaseId}-item${id}`}
+          className="absolute top-0 right-0 white"
+          onClick={handleEditButtonClick}
+        />
+      </Conditional>
     </div>
   )
 }

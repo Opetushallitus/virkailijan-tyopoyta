@@ -1,12 +1,9 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-// TODO: Remove test data
-
 import view from './view'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-import * as testData from '../resources/test/testData.json'
 
 const url = '/virkailijan-tyopoyta/api/categories'
 
@@ -16,13 +13,11 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching categories')
 
-  // getData({
-  //   url: url,
-  //   onSuccess: categories => fetchBus.push(categories),
-  //   onError: error => fetchFailedBus.push(error)
-  // })
-
-  fetchBus.push(testData.categories)
+  getData({
+    url: url,
+    onSuccess: categories => fetchBus.push(categories),
+    onError: error => fetchFailedBus.push(error)
+  })
 }
 
 function onReceived (state, categories) {
@@ -38,8 +33,8 @@ function onReceived (state, categories) {
 function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Kategorioiden haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
+    titleKey: 'kategorioidenhakuepaonnistui',
+    textKey: 'paivitasivu'
   })
 
   view.alertsBus.push(alert)

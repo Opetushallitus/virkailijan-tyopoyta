@@ -1,9 +1,9 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-import targeting from './targeting'
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
+import targeting from './targeting'
 import userGroups from '../userGroups'
 import view from '../view'
 import unpublishedNotifications from '../unpublishedNotifications'
@@ -46,8 +46,8 @@ function onFetchFailed (state, response) {
 
   const alert = createAlert({
     type: 'error',
-    title: 'Julkaisun haku epäonnistui',
-    text: 'Sulje ja avaa editori uudestaan hakeaksesi uudelleen'
+    titleKey: 'julkaisunhakuepaonnistui',
+    textKey: 'suljejaavaaeditori'
   })
 
   const newAlerts = R.append(alert, state.editor.alerts)
@@ -55,7 +55,7 @@ function onFetchFailed (state, response) {
   return R.compose(
     R.assocPath(['editor', 'isLoading'], false),
     R.assocPath(['editor', 'alerts'], newAlerts),
-    R.assocPath(['editor', 'editedRelease'], targeting.emptyRelease())
+    R.assocPath(['editor', 'editedRelease'], emptyRelease())
   )(state)
 }
 
@@ -105,7 +105,7 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
   // Hide page scrollbar
   document.body.classList.add('overflow-hidden')
 
-  userGroups.fetch()
+  userGroups.fetch(state.user.lang)
 
   // Display correct tab on opening
   const newState = toggleTab(state, selectedTab)
@@ -229,7 +229,7 @@ function onSaveComplete (state) {
 
   const alert = createAlert({
     type: 'success',
-    title: 'Julkaisu onnistui'
+    titleKey: 'julkaisuonnistui'
   })
 
   const newViewAlerts = R.append(alert, state.view.alerts)

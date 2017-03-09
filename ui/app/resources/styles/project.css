@@ -365,26 +365,6 @@
   }
 }
 
-/* Menu */
-.menu-container {
-  height: var(--space-4);
-}
-
-.menu {
-  display: none;
-}
-
-.menu-is-visible {
-  display: block;
-  margin-bottom: var(--space-2);
-}
-
-@media (--breakpoint-md) {
-  .menu {
-    display: block;
-  }
-}
-
 /* Notifications */
 .notification-tag-select.semantic-ui.ui.dropdown .menu > .item:not(.selected, :hover):nth-of-type(even) {
   background-color: var(--gray-lighten-6);
@@ -455,6 +435,12 @@
 .notification-disruption {
   border-left-width: 5px;
   border-left-color: var(--red);
+}
+
+@media (--breakpoint-sm) {
+  .notifications-menu {
+    height: var(--space-4);
+  }
 }
 
 /* Timeline */

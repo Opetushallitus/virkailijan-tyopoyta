@@ -1295,5 +1295,70 @@
     "locale": "fi",
     "key": "hairiotiedote",
     "value": "Häiriötiedote"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisunhakuepaonnistui",
+    "value": "Julkaisun haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "suljejaavaaeditori",
+    "value": "Sulje ja avaa editori uudestaan hakeaksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisuonnistui",
+    "value": "Julkaisu onnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kategorioidenhakuepaonnistui",
+    "value": "Kategorioiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tiedotteidenhakuepaonnistui",
+    "value": "Tiedotteiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kategorioidentallennusepaonnistui",
+    "value": "Kategorioiden tallennus käyttäjätietoihin epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "valitsekategoriauudestaan",
+    "value": "Valitse kategoria uudestaan yrittääksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "avainsanojenhakuepaonnistui",
+    "value": "Avainsanojen haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tapahtumienhakuepaonnistui",
+    "value": "Tapahtumien haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisemattomienhakuepaonnistui",
+    "value": "Julkaisemattomien tiedotteiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "suljejaavaadialogi",
+    "value": "Sulje ja avaa dialogi uudestaan hakeaksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "kayttajatietojenhakuepaonnistui",
+    "value": "Käyttäjätietojen haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kayttajaryhmienhakuepaonnistui",
+    "value": "Käyttäjäryhmien haku epäonnistui"
   }
 ]

@@ -57,8 +57,8 @@ function onReceived (state, response) {
 function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Käyttäjätietojen haku epäonnistui',
-    text: 'Päivitä sivu hakeaksesi uudelleen'
+    titleKey: 'kayttajatietojenhakuepaonnistui',
+    textKey: 'paivitasivu'
   })
 
   view.alertsBus.push(alert)
@@ -66,7 +66,14 @@ function onFetchFailed (state) {
   return R.assocPath(['user', 'hasLoginFailed'], true, state)
 }
 
+const initialState = {
+  lang: 'fi',
+  isAdmin: false,
+  profile: {}
+}
+
 const user = {
+  initialState,
   fetchBus,
   fetchFailedBus,
   fetch,

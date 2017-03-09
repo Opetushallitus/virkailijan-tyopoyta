@@ -15,7 +15,7 @@ import getItemsForIDs from '../utils/getItemsForIDs'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   notifications: PropTypes.object.isRequired,
   tags: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired
@@ -25,12 +25,13 @@ class Notifications extends React.Component {
   constructor (props) {
     super(props)
 
+    this.filterTagGroupsByCategories = this.filterTagGroupsByCategories.bind(this)
     this.getNextPage = this.getNextPage.bind(this)
     this.isLastPageLoaded = this.isLastPageLoaded.bind(this)
   }
 
   componentDidMount () {
-    // Get next page when scrolling to placeholder notification
+    // Get next page when scrolling to placeholder notification in bottom of the list
     Bacon
       .fromEvent(window, 'scroll')
       .debounce(100)
@@ -64,6 +65,16 @@ class Notifications extends React.Component {
     this.props.controller.getPage(nextPage)
   }
 
+  // Return tag groups linked to selected categories or all tag groups if no categories are selected
+  filterTagGroupsByCategories () {
+    const tags = this.props.tags.items
+    const selectedCategories = this.props.notifications.categories
+
+    return selectedCategories.length === 0
+      ? tags
+      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tags)
+  }
+
   isLastPageLoaded () {
     const {
       items,
@@ -76,7 +87,7 @@ class Notifications extends React.Component {
   render () {
     const {
       controller,
-      locale,
+      user,
       notifications,
       tags,
       categories
@@ -99,10 +110,10 @@ class Notifications extends React.Component {
         <h2 className="hide">{translate('tiedotteet')}</h2>
 
         {/*Filter notifications by tags*/}
-        <div className="mb2">
+        <div className="mb1">
           <NotificationTagSelect
-            options={tags.items}
-            selectedOptions={notifications.tags}
+            tags={this.filterTagGroupsByCategories()}
+            selectedTags={notifications.tags}
             controller={controller}
             isInitialLoad={isInitialLoad}
             isLoading={tags.isLoading}
@@ -130,6 +141,7 @@ class Notifications extends React.Component {
             : null
         }
 
+        {/*Notifications list*/}
         <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>
           {
             !isInitialLoad && !isLoading && items.length === 0
@@ -141,7 +153,7 @@ class Notifications extends React.Component {
             <Notification
               key={`notification${notification.id}`}
               controller={controller}
-              locale={locale}
+              user={user}
               notification={notification}
               categories={getItemsForIDs(notification.categories.sort(), categories.items)}
               tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tags.items)))}
@@ -162,7 +174,7 @@ class Notifications extends React.Component {
           this.isLastPageLoaded()
             ? null
             : <div className="center py3">
-              {/*Visually hidden button for accessibility*/}
+              {/*Visually hidden 'Get next page' button for accessibility*/}
               <button
                 className="hide"
                 type="button"

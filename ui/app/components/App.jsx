@@ -7,7 +7,7 @@ import translation from '../data/translation.json'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 // Components
-import Menu from './menu/Menu'
+import NotificationsMenu from './notifications/NotificationsMenu'
 import Notifications from './notifications/Notifications'
 import UnpublishedNotifications from './unpublishedNotifications/UnpublishedNotifications'
 import Timeline from './timeline/Timeline'
@@ -16,6 +16,7 @@ import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
 import Modal from './common/Modal'
+import Conditional from './common/Conditional'
 import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
@@ -114,8 +115,8 @@ class App extends React.Component {
               key={alert.id}
               id={alert.id}
               type={alert.type}
-              title={alert.title}
-              text={alert.text}
+              titleKey={alert.titleKey}
+              textKey={alert.textKey}
               onCloseButtonClick={controller.view.removeAlert}
             />
           )}
@@ -134,7 +135,7 @@ class App extends React.Component {
             >
               <Editor
                 controller={controller.editor}
-                locale={state.locale}
+                locale={state.user.lang}
                 dateFormat={state.dateFormat}
                 editor={state.editor}
                 userGroups={state.userGroups}
@@ -155,7 +156,7 @@ class App extends React.Component {
             >
               <UnpublishedNotifications
                 controller={controller.unpublishedNotifications}
-                locale={state.locale}
+                locale={state.user.lang}
                 notifications={state.unpublishedNotifications}
               />
             </Modal>
@@ -164,16 +165,9 @@ class App extends React.Component {
 
         {/*Content*/}
         <div className="container mx-auto">
-          {/*Menu*/}
-          <Menu
-            controller={controller}
-            notificationsLoaded={state.notifications.isInitialLoad}
-            isMobileMenuVisible={state.view.isMobileMenuVisible}
-          />
-
-          <div className={`flex flex-wrap col-12 mt3`}>
+          <div className={`flex flex-wrap col-12`}>
             {/*Notification/timeline view selection for small screens*/}
-            <Tabs className="md-hide lg-hide">
+            <Tabs className="mt3 md-hide lg-hide">
               <TabItem
                 className="sm-col-6"
                 name="notifications"
@@ -195,22 +189,32 @@ class App extends React.Component {
 
             {/*Notifications*/}
             <section
-              className={`col-12 md-col-7 pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
+              className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
-              <Notifications
-                controller={controller.notifications}
-                locale={state.locale}
-                notifications={state.notifications}
-                categories={state.categories}
-                tags={state.tags}
-              />
+              {/*Menu*/}
+              <Conditional isRendered={state.user.isAdmin}>
+                <NotificationsMenu
+                  controller={controller}
+                  notificationsLoaded={state.notifications.isInitialLoad}
+                />
+              </Conditional>
+
+              <div className="mt3">
+                <Notifications
+                  controller={controller.notifications}
+                  user={state.user}
+                  notifications={state.notifications}
+                  categories={state.categories}
+                  tags={state.tags}
+                />
+              </div>
             </section>
 
             {/*Timeline*/}
-            <section className={`col-12 md-col-5 relative ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
+            <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
               <Timeline
                 controller={controller.timeline}
-                locale={state.locale}
+                user={state.user}
                 dateFormat={state.dateFormat}
                 timeline={state.timeline}
               />

@@ -2,9 +2,12 @@
 
 ##Endpoint
 
-`GET /virkailijan-tyopoyta/api/usergroups`
+`GET /virkailijan-tyopoyta/api/usergroups?locale={locale}`
 
-##Ei parametrejä
+##Parametrit
+
+Locale: *Valinnainen.* Määrittää, millä kielellä käyttäjäryhmien nimet palautetaan.
+Puuttuvalla arvolla palautetaan suomenkieliset.
 
 ##Vastauksen muoto
 
@@ -16,6 +19,8 @@ Yksittäisen käyttäjän *name*-ominaisuuden arvo on lokalisoitu käyttäjän k
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki
+
+`GET /virkailijan-tyopoyta/api/usergroups?locale=fi`
 
 ```
 [
