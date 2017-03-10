@@ -9,7 +9,7 @@ const propTypes = {
   notificationsLoaded: PropTypes.bool.isRequired
 }
 
-function Menu (props) {
+function NotificationsMenu (props) {
   const {
     controller,
     notificationsLoaded
@@ -70,6 +70,6 @@ function Menu (props) {
   )
 }
 
-Menu.propTypes = propTypes
+NotificationsMenu.propTypes = propTypes
 
-export default Menu
+export default NotificationsMenu

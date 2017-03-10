@@ -174,7 +174,6 @@ function toggleHasSaveFailed (state, hasSaveFailed) {
 function emptyRelease () {
   return {
     id: -1,
-    sendEmail: false,
     notification: editNotification.emptyNotification(),
     timeline: [editTimeline.newItem(-1, [])],
     categories: [],

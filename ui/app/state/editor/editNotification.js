@@ -18,6 +18,7 @@ function emptyNotification () {
     releaseId: -1,
     startDate: null,
     endDate: null,
+    sendEmail: false,
     content: {
       fi: emptyContent(-1, 'fi'),
       sv: emptyContent(-1, 'sv')
@@ -41,11 +42,15 @@ function update (state, { prop, value }) {
     rules(state.editor.editedRelease)['notification']
   )
 
-  // Remove all tags except those in state.tags.specialTags if notification is emptied
+  /*
+    Remove all tags except those in state.tags.specialTags
+    and set sendEmail as false if notification is emptied
+  */
   const specialTagIds = R.pluck('id', state.tags.specialTags)
 
   if (validatedNotification.validationState === 'empty') {
     validatedNotification.tags = R.filter(tag => R.contains(tag, specialTagIds), validatedNotification.tags)
+    validatedNotification.sendEmail = false
   }
 
   const newState = R.assocPath(path, validatedNotification, state)

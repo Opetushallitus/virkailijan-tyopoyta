@@ -124,7 +124,7 @@ function PreviewRelease (props) {
 
             {/*Tags*/}
             {
-              release.notification.tags.length > 0
+              notification.tags.length > 0
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
                     title="julkaisunavainsanat"
@@ -138,7 +138,8 @@ function PreviewRelease (props) {
 
         {/*Send email to selected user groups?*/}
         {
-          release.sendEmail
+          notification.sendEmail &&
+          (notification.validationState === 'incomplete' || notification.validationState === 'complete')
             ? <div className="bold center col-12 mt3">{translate('lahetetaansahkoposti')}</div>
             : null
         }

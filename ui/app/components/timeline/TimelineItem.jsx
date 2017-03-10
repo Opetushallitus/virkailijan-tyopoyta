@@ -8,8 +8,9 @@ import animate from '../utils/animate'
 
 const propTypes = {
   index: PropTypes.number.isRequired,
-  user: PropTypes.string.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   item: PropTypes.object.isRequired,
   onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
   onEditButtonClick: PropTypes.func.isRequired
@@ -18,8 +19,9 @@ const propTypes = {
 function TimelineItem (props) {
   const {
     index,
-    user,
+    defaultLocale,
     dateFormat,
+    user,
     item,
     onDisplayRelatedNotificationLinkClick,
     onEditButtonClick
@@ -29,9 +31,17 @@ function TimelineItem (props) {
     id,
     releaseId,
     notificationId,
-    date,
-    content
+    date
   } = item
+
+  const momentDate = moment(date, dateFormat)
+  const dayOfMonth = momentDate.format('D')
+  const dayOfWeek = momentDate.format('dddd')
+  const month = momentDate.format('MMMM')
+  const year = momentDate.format('YYYY')
+
+  // Use finnish content if other languages are missing
+  const content = item.content[user.lang] || item.content[defaultLocale]
 
   const handleDisplayNotificationLinkClick = event => {
     event.preventDefault()
@@ -63,12 +73,6 @@ function TimelineItem (props) {
     onEditButtonClick(releaseId)
   }
 
-  const momentDate = moment(date, dateFormat)
-  const dayOfMonth = momentDate.format('D')
-  const dayOfWeek = momentDate.format('dddd')
-  const month = momentDate.format('MMMM')
-  const year = momentDate.format('YYYY')
-
   return (
     <div
       className={`timeline-item break-word left-align p2
@@ -89,7 +93,7 @@ function TimelineItem (props) {
       }
 
       {/*Text*/}
-      <div className="h5 bold">{renderHTML(content[user.lang].text)}</div>
+      <div className="h5 bold">{renderHTML(content.text)}</div>
 
       {/*Display related notification*/}
       {

@@ -27,9 +27,11 @@ function ValidationMessages (props) {
           ? <div className="bold red mb1">
             &middot;&nbsp;
             {translate('kohdennuspuuttuu')}
-            {/*Check if at least one tag is selected if notification is incomplete*/}
+            {/*Check if at least one tag is selected if notification is incomplete or complete*/}
             {
-              notification.validationState === 'incomplete' && notification.tags.length === 0
+              (notification.validationState === 'incomplete' ||
+              notification.validationState === 'complete') &&
+              notification.tags.length === 0
                 ? ` ${translate('avainsanapuuttuu')}`
                 : null
             }
@@ -39,7 +41,7 @@ function ValidationMessages (props) {
 
       {/*Notification is empty and all timeline items are empty*/}
       {
-        (release.notification.validationState === 'empty' && emptyTimelineItems.length === timeline.length)
+        release.notification.validationState === 'empty' && emptyTimelineItems.length === timeline.length
           ? <div className="muted mb1">&middot; {translate('taytatiedotetaiaikajana')}</div>
           : null
       }

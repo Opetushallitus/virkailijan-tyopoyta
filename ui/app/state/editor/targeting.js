@@ -92,7 +92,7 @@ function toggleTag (state, id) {
 function toggleSendEmail (state, value) {
   console.log('Toggled sendEmail', value)
 
-  return R.assocPath(['editor', 'editedRelease', 'sendEmail'], value, state)
+  return R.assocPath(['editor', 'editedRelease', 'notification', 'sendEmail'], value, state)
 }
 
 // Events for appState

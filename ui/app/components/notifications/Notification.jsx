@@ -12,6 +12,7 @@ import { translate } from '../common/Translations'
 import animate from '../utils/animate'
 
 const propTypes = {
+  defaultLocale: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
@@ -53,6 +54,7 @@ class Notification extends React.Component {
 
   render () {
     const {
+      defaultLocale,
       user,
       notification,
       categories,
@@ -62,7 +64,8 @@ class Notification extends React.Component {
     const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
     const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
 
-    const content = notification.content[user.lang]
+    // Use finnish content if other languages are missing
+    const content = notification.content[user.lang] || notification.content[defaultLocale]
 
     // Strip HTML tags from text
     // TODO: do not use regex
@@ -158,7 +161,7 @@ class Notification extends React.Component {
           {/*Create date and creator's initials*/}
           <span className={`h5 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
             <time className="mr1">{notification.createdAt}</time>
-            {notification.createdBy}
+            {user.isAdmin ? notification.createdBy : null}
           </span>
 
           {/*Categories & tags*/}

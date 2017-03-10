@@ -15,6 +15,7 @@ import getItemsForIDs from '../utils/getItemsForIDs'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notifications: PropTypes.object.isRequired,
   tags: PropTypes.object.isRequired,
@@ -87,6 +88,7 @@ class Notifications extends React.Component {
   render () {
     const {
       controller,
+      defaultLocale,
       user,
       notifications,
       tags,
@@ -151,6 +153,7 @@ class Notifications extends React.Component {
 
           {items.map(notification =>
             <Notification
+              defaultLocale={defaultLocale}
               key={`notification${notification.id}`}
               controller={controller}
               user={user}

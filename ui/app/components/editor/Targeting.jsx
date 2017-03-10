@@ -44,7 +44,7 @@ function Targeting (props) {
   const handleSendEmailCheckboxChange = () => {
     console.log(release.sendEmail)
 
-    controller.toggleSendEmail(!release.sendEmail)
+    controller.toggleSendEmail(!release.notification.sendEmail)
   }
 
   const itemHasCategory = (item, selectedCategories) => {
@@ -203,7 +203,7 @@ function Targeting (props) {
             : <div className="flex justify-center col-12 mt2">
               <Checkbox
                 label={translate('lahetasahkoposti')}
-                checked={release.sendEmail}
+                checked={notification.sendEmail}
                 onChange={handleSendEmailCheckboxChange}
                 value="sendEmail"
               />

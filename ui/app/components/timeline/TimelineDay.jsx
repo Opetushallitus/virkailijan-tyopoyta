@@ -3,8 +3,9 @@ import React, { PropTypes } from 'react'
 import TimelineItem from './TimelineItem'
 
 const propTypes = {
-  user: PropTypes.object.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   items: PropTypes.array.isRequired,
   onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
   onEditButtonClick: PropTypes.func.isRequired
@@ -12,8 +13,9 @@ const propTypes = {
 
 function TimelineDay (props) {
   const {
-    user,
+    defaultLocale,
     dateFormat,
+    user,
     items,
     onDisplayRelatedNotificationLinkClick,
     onEditButtonClick
@@ -25,8 +27,9 @@ function TimelineDay (props) {
         <TimelineItem
           key={`timelineItem${item.id}Release${item.releaseId}`}
           index={index}
-          user={user}
+          defaultLocale={defaultLocale}
           dateFormat={dateFormat}
+          user={user}
           item={item}
           onDisplayRelatedNotificationLinkClick={onDisplayRelatedNotificationLinkClick}
           onEditButtonClick={onEditButtonClick}

@@ -11,6 +11,7 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   dateFormat: PropTypes.string.isRequired,
   timeline: PropTypes.object.isRequired
@@ -80,8 +81,8 @@ class Timeline extends React.Component {
       this.timeline.scrollTop = this.months.offsetTop
     }
 
-    // Autoload next months until timeline has more than 10 items
-    if (timeline.count < 10) {
+    // Automatically load next months until items fill the whole timeline viewport
+    if (this.months.clientHeight < this.timeline.clientHeight) {
       this.props.controller.getNextMonth()
     }
   }
@@ -122,6 +123,7 @@ class Timeline extends React.Component {
   render () {
     const {
       controller,
+      defaultLocale,
       user,
       dateFormat,
       timeline
@@ -184,6 +186,7 @@ class Timeline extends React.Component {
                     {Object.keys(month.days || {}).map(key =>
                       <TimelineDay
                         key={`timelineDay${key}.${month.month}.${month.year}`}
+                        defaultLocale={defaultLocale}
                         user={user}
                         dateFormat={dateFormat}
                         items={month.days[key]}

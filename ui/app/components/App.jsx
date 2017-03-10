@@ -203,6 +203,7 @@ class App extends React.Component {
               <div className="mt3">
                 <Notifications
                   controller={controller.notifications}
+                  defaultLocale={state.defaultLocale}
                   user={state.user}
                   notifications={state.notifications}
                   categories={state.categories}
@@ -215,6 +216,7 @@ class App extends React.Component {
             <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
               <Timeline
                 controller={controller.timeline}
+                defaultLocale={state.defaultLocale}
                 user={state.user}
                 dateFormat={state.dateFormat}
                 timeline={state.timeline}

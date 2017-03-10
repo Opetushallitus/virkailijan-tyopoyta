@@ -49,6 +49,8 @@ function onReceived (state, response) {
     year
   })
 
+  response.lang = 'sv'
+
   return R.compose(
     R.assocPath(['notifications', 'categories'], response.profile.categories),
     R.assoc('user', response)
