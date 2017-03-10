@@ -29,6 +29,14 @@ function PreviewRelease (props) {
   const timeline = release.timeline
   const previewedTimelineItems = getTimelineItems(['incomplete', 'complete'], timeline)
 
+  // Prepend 'Target all user groups' item to user groups
+  const allUserGroupsItem = {
+    id: -1,
+    name: translate('kohdennakaikilleryhmille')
+  }
+
+  const userGroupsWithAllItem = R.prepend(allUserGroupsItem, userGroups)
+
   return (
     <div>
       <h2 className="h3 center mb3">
@@ -94,9 +102,7 @@ function PreviewRelease (props) {
         </div>
 
         {/*Targeting*/}
-        <div
-          className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5"
-        >
+        <div className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
           <h3 className="h4 center">{translate('kohdennus')}</h3>
 
           <div className="flex flex-wrap">
@@ -112,7 +118,7 @@ function PreviewRelease (props) {
             <div className="col-12 md-col-4 md-mb3 md-pr2">
               <PreviewTargetingList
                 title="julkaisunkayttooikeusryhmat"
-                items={getItemsForIDs(release.userGroups, userGroups)}
+                items={getItemsForIDs(release.userGroups, userGroupsWithAllItem)}
               />
             </div>
 
@@ -129,6 +135,13 @@ function PreviewRelease (props) {
             }
           </div>
         </div>
+
+        {/*Send email to selected user groups?*/}
+        {
+          release.sendEmail
+            ? <div className="bold center col-12 mt3">{translate('lahetetaansahkoposti')}</div>
+            : null
+        }
       </div>
     </div>
   )

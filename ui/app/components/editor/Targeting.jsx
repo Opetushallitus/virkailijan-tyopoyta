@@ -28,6 +28,8 @@ function Targeting (props) {
     release
   } = props
 
+  const notification = release.notification
+
   const handleCategoryChange = event => {
     // Change checkbox value to int for consistency
     const value = parseInt(event.target.value, 10)
@@ -35,8 +37,18 @@ function Targeting (props) {
     controller.toggleCategory(value)
   }
 
+  const handleUserGroupsChange = (event, { value }) => {
+    controller.toggleUserGroup(value)
+  }
+
+  const handleSendEmailCheckboxChange = () => {
+    console.log(release.sendEmail)
+
+    controller.toggleSendEmail(!release.sendEmail)
+  }
+
   const itemHasCategory = (item, selectedCategories) => {
-    // "All user groups" selection has id -1, display it always
+    // "Target all user groups" item has id -1, display it always
     return item.id === -1
       ? true
       : R.length(R.intersection(item.categories, selectedCategories))
@@ -53,9 +65,13 @@ function Targeting (props) {
       : 'kaikkikayttooikeusryhmat'
   }
 
-  const handleUserGroupsChange = (event, { value }) => {
-    controller.toggleUserGroup(value)
+  // Prepend 'Target all user groups' item to user groups
+  const allUserGroupsItem = {
+    id: -1,
+    name: translate('kohdennakaikilleryhmille')
   }
+
+  const userGroupsWithAllItem = R.prepend(allUserGroupsItem, userGroups)
 
   // Returns all user groups or those linked to selected categories
   const getFilteredUserGroups = (userGroups, selectedCategories) => {
@@ -67,7 +83,7 @@ function Targeting (props) {
   const unselectedUserGroups = release.userGroups
     ? R.reject(
       userGroup => R.contains(userGroup.id, release.userGroups),
-      getFilteredUserGroups(userGroups, release.categories)
+      getFilteredUserGroups(userGroupsWithAllItem, release.categories)
     )
     : []
 
@@ -134,7 +150,7 @@ function Targeting (props) {
                 <UserGroupButton
                   key={`userGroup${group}`}
                   id={group}
-                  text={getUserGroupName(group, userGroups)}
+                  text={getUserGroupName(group, userGroupsWithAllItem)}
                   onClick={controller.toggleUserGroup}
                 />
               )
@@ -144,7 +160,7 @@ function Targeting (props) {
       </div>
 
       {
-        release.notification.validationState === 'empty'
+        notification.validationState === 'empty'
           ? null
           : <div className="p3 border-top border-gray-lighten-3">
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
@@ -155,7 +171,7 @@ function Targeting (props) {
                   groupId={tags.id}
                   htmlId="notification-tags"
                   options={tags.items}
-                  selectedOptions={release.notification.tags}
+                  selectedOptions={notification.tags}
                   disabled={areTagsDisabled(tags, release.categories)}
                   onChange={controller.toggleTag}
                 />
@@ -164,20 +180,35 @@ function Targeting (props) {
           </div>
       }
 
-      {/*Targeting selection name*/}
-      <div className="center pt3 px3 border-top border-gray-lighten-3">
-        <label
-          className="block md-inline-block mb1 md-mb0 mr2"
-          htmlFor="targeting-name"
-        >
-          {translate('kohderyhmavalinnannimi')}
-        </label>
+      <div className="pt3 px3 border-top border-gray-lighten-3">
+        <div className="flex items-center justify-center col-12">
+          {/*Targeting selection name*/}
+          <label
+            className="block md-inline-block mb1 md-mb0 mr2"
+            htmlFor="targeting-name"
+          >
+            {translate('kohderyhmavalinnannimi')}
+          </label>
 
-        <input
-          className="input md-col-6 lg-col-3"
-          type="text"
-          name="targeting-name"
-        />
+          <input
+            className="input md-col-6 lg-col-3"
+            type="text"
+            name="targeting-name"
+          />
+        </div>
+
+        {
+          notification.validationState === 'empty'
+            ? null
+            : <div className="flex justify-center col-12 mt2">
+              <Checkbox
+                label={translate('lahetasahkoposti')}
+                checked={release.sendEmail}
+                onChange={handleSendEmailCheckboxChange}
+                value="sendEmail"
+              />
+            </div>
+        }
       </div>
     </div>
   )

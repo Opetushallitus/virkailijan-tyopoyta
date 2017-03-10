@@ -23,6 +23,7 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 {
     "id": 1,
     "categories": [1, 2],
+    "userGroups": [1, 2],
     "tags": [1],
     "sendEmail": true,
     "notification": {

@@ -38,6 +38,7 @@ function onReceived (state, response) {
   categories.fetch()
   userGroups.fetch()
   tags.fetch()
+
   notifications.fetch({
     page: 1,
     categories: response.profile.categories
@@ -67,9 +68,8 @@ function onFetchFailed (state) {
 }
 
 const initialState = {
-  lang: 'fi',
-  isAdmin: false,
-  profile: {}
+  isAdmin: 'false',
+  lang: 'fi,'
 }
 
 const user = {

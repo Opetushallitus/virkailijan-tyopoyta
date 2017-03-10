@@ -3,7 +3,6 @@ import moment from 'moment'
 import renderHTML from 'react-render-html'
 
 import EditButton from '../common/buttons/EditButton'
-import Conditional from '../common/Conditional'
 import { translate } from '../common/Translations'
 import animate from '../utils/animate'
 
@@ -52,7 +51,7 @@ function TimelineItem (props) {
       animate({
         node: relatedNotification,
         animation: 'pulse',
-        duration: 1000
+        duration: 750
       })
     } else {
       // Else get related notification
@@ -76,41 +75,45 @@ function TimelineItem (props) {
       relative rounded white bg-blue ${index > 0 ? 'mt1' : ''}`}
     >
       {/*Date*/}
-      { index === 0
-        ? <time className="mb1 block" dateTime={date}>
-          <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
+      {
+        index === 0
+          ? <time className="mb1 block" dateTime={date}>
+            <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
 
-          <div className="align-top inline-block">
-            <div className="h5 lowercase bold">{translate(dayOfWeek)}</div>
-            <div className="h6 caps">{translate(month)} {year}</div>
-          </div>
-        </time>
-        : null
+            <div className="align-top inline-block">
+              <div className="h5 lowercase bold">{translate(dayOfWeek)}</div>
+              <div className="h6 caps">{translate(month)} {year}</div>
+            </div>
+          </time>
+          : null
       }
 
       {/*Text*/}
       <div className="h5 bold">{renderHTML(content[user.lang].text)}</div>
 
       {/*Display related notification*/}
-      { notificationId
-        ? <a
-          className="h5 bold"
-          href="#"
-          onClick={handleDisplayNotificationLinkClick}
-        >
-          {translate('naytatapahtumantiedote')}
-        </a>
-        : null
+      {
+        notificationId
+          ? <a
+            className="h5 bold"
+            href="#"
+            onClick={handleDisplayNotificationLinkClick}
+          >
+            {translate('naytatapahtumantiedote')}
+          </a>
+          : null
       }
 
       {/*Edit button*/}
-      <Conditional isRendered={user.isAdmin}>
-        <EditButton
-          id={`edit-timeline-release${releaseId}-item${id}`}
-          className="absolute top-0 right-0 white"
-          onClick={handleEditButtonClick}
-        />
-      </Conditional>
+      {
+        user.isAdmin
+          ? <EditButton
+            id={`edit-timeline-release${releaseId}-item${id}`}
+            className="absolute top-0 right-0 white"
+            onClick={handleEditButtonClick}
+          />
+          : null
+      }
     </div>
   )
 }

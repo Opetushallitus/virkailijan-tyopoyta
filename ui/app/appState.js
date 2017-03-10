@@ -69,7 +69,6 @@ export function initAppState () {
     [view.alertsBus], view.onAlertsReceived,
     [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
-    [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,
 
     // Unpublished notifications
     [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
@@ -86,7 +85,6 @@ export function initAppState () {
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.toggleCategory)], notifications.toggleCategory,
-    [dispatcher.stream(events.notifications.setSelectedCategories)], notifications.setSelectedCategories,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
 
@@ -126,6 +124,7 @@ export function initAppState () {
     [dispatcher.stream(events.editor.targeting.update)], editor.targeting.update,
     [dispatcher.stream(events.editor.targeting.toggleCategory)], editor.targeting.toggleCategory,
     [dispatcher.stream(events.editor.targeting.toggleUserGroup)], editor.targeting.toggleUserGroup,
-    [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag
+    [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag,
+    [dispatcher.stream(events.editor.targeting.toggleSendEmail)], editor.targeting.toggleSendEmail,
   )
 }

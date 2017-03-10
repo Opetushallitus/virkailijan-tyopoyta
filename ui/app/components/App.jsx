@@ -16,7 +16,6 @@ import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
 import Modal from './common/Modal'
-import Conditional from './common/Conditional'
 import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
@@ -192,12 +191,14 @@ class App extends React.Component {
               className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
               {/*Menu*/}
-              <Conditional isRendered={state.user.isAdmin}>
-                <NotificationsMenu
-                  controller={controller}
-                  notificationsLoaded={state.notifications.isInitialLoad}
-                />
-              </Conditional>
+              {
+                state.user.isAdmin
+                  ? <NotificationsMenu
+                    controller={controller}
+                    notificationsLoaded={state.notifications.isInitialLoad}
+                  />
+                  : null
+              }
 
               <div className="mt3">
                 <Notifications

@@ -260,7 +260,7 @@ function Editor (props) {
       {/*Preview*/}
       {
         isPreviewed
-          ? <section className="pt3 px3 border-top border-gray-lighten-3">
+          ? <section className="py3 px3 border-top border-bottom border-gray-lighten-3">
             <PreviewRelease
               locale={locale}
               categories={categories.items}

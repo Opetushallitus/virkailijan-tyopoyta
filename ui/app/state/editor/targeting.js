@@ -56,8 +56,6 @@ function removeSelectedTags (state, categoryId) {
     R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tags.items)
   ))).concat(R.pluck('id', state.tags.specialTags))
 
-  console.log(allowedTags)
-
   const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
   const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
 
@@ -91,12 +89,19 @@ function toggleTag (state, id) {
   )
 }
 
+function toggleSendEmail (state, value) {
+  console.log('Toggled sendEmail', value)
+
+  return R.assocPath(['editor', 'editedRelease', 'sendEmail'], value, state)
+}
+
 // Events for appState
 const events = {
   update,
   toggleCategory,
   toggleUserGroup,
-  toggleTag
+  toggleTag,
+  toggleSendEmail
 }
 
 const editRelease = {
@@ -104,7 +109,8 @@ const editRelease = {
   update,
   toggleCategory,
   toggleUserGroup,
-  toggleTag
+  toggleTag,
+  toggleSendEmail
 }
 
 export default editRelease

@@ -1,14 +1,16 @@
-import R from 'ramda'
-
 /*
-  Returns an matching items for IDs in selectedItems
+  Returns an array of items matching IDs in selectedItems. If matching item isn't found, filter it out.
 
   Used to get objects for categories, user groups and tags.
 */
 export default function getItemsForIDs (selectedItems, items) {
-  return R.map(selectedItem => {
-    const matchingItem = R.find(item => item.id === selectedItem)(items)
-
-    return matchingItem || null
-  }, selectedItems)
+  return selectedItems
+    .map(selectedItem => {
+      return items.find(item => item.id === selectedItem)
+    })
+    .filter(item => {
+      if (item) {
+        return item
+      }
+    })
 }

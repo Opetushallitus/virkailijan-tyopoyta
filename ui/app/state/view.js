@@ -19,10 +19,6 @@ function toggleTab (state, selectedTab) {
   return update(state, { prop: 'selectedTab', value: selectedTab })
 }
 
-function toggleMenu (state) {
-  return update(state, { prop: 'isMobileMenuVisible', value: !state.view.isMobileMenuVisible })
-}
-
 function removeAlert (state, id) {
   console.log('Removing alert with id', id)
 
@@ -34,15 +30,13 @@ function removeAlert (state, id) {
 function emptyView () {
   return {
     selectedTab: 'notifications',
-    alerts: [],
-    isMobileMenuVisible: false
+    alerts: []
   }
 }
 
 // Events for appState
 const events = {
   toggleTab,
-  toggleMenu,
   removeAlert
 }
 
@@ -54,7 +48,6 @@ const view = {
   initialState,
   onAlertsReceived,
   toggleTab,
-  toggleMenu,
   removeAlert,
   emptyView
 }

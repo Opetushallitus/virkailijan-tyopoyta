@@ -2,8 +2,6 @@ export function initController (dispatcher, events) {
   const view = {
     toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
 
-    toggleMenu: () => dispatcher.push(events.view.toggleMenu),
-
     removeAlert: id => dispatcher.push(events.view.removeAlert, id)
   }
 
@@ -66,7 +64,9 @@ export function initController (dispatcher, events) {
 
       toggleUserGroup: id => dispatcher.push(events.editor.targeting.toggleUserGroup, id),
 
-      toggleTag: id => dispatcher.push(events.editor.targeting.toggleTag, id)
+      toggleTag: id => dispatcher.push(events.editor.targeting.toggleTag, id),
+
+      toggleSendEmail: value => dispatcher.push(events.editor.targeting.toggleSendEmail, value)
     },
 
     editTimeline: {
@@ -94,8 +94,7 @@ export function initController (dispatcher, events) {
     // View
     view: {
       toggleTab: view.toggleTab,
-      removeAlert: view.removeAlert,
-      toggleMenu: view.toggleMenu
+      removeAlert: view.removeAlert
     },
 
     unpublishedNotifications: {
@@ -134,7 +133,8 @@ export function initController (dispatcher, events) {
         update: editor.targeting.update,
         toggleCategory: editor.targeting.toggleCategory,
         toggleUserGroup: editor.targeting.toggleUserGroup,
-        toggleTag: editor.targeting.toggleTag
+        toggleTag: editor.targeting.toggleTag,
+        toggleSendEmail: editor.targeting.toggleSendEmail
       },
       editTimeline: {
         update: editor.editTimeline.update,

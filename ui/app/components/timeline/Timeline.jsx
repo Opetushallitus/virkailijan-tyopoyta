@@ -112,10 +112,10 @@ class Timeline extends React.Component {
 
     if (window.pageYOffset > virkailijaRaamitHeight) {
       this.timeline.style.top = `${window.pageYOffset - virkailijaRaamitHeight}px`
-      this.timeline.style.height = '95vh'
+      // this.timeline.style.height = '95vh'
     } else {
       this.timeline.style.top = 0
-      this.timeline.style.height = '80vh'
+      // this.timeline.style.height = '80vh'
     }
   }
 

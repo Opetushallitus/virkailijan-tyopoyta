@@ -31,10 +31,8 @@ function fetch (locale) {
 function onReceived (state, userGroups) {
   console.log('Received user groups')
 
-  const newUserGroups = R.prepend(allUserGroupsItem(), userGroups)
-
   return R.compose(
-    R.assocPath(['userGroups', 'items'], newUserGroups),
+    R.assocPath(['userGroups', 'items'], userGroups),
     R.assocPath(['userGroups', 'isLoading'], false)
   )(state)
 }
@@ -49,13 +47,6 @@ function onFailed (state) {
   editor.alertsBus.push(alert)
 
   return R.assocPath(['userGroups', 'isLoading'], false, state)
-}
-
-function allUserGroupsItem () {
-  return {
-    id: -1,
-    name: 'Kohdenna kaikille käyttöoikeusryhmille'
-  }
 }
 
 function emptyUserGroups () {

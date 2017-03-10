@@ -17,27 +17,23 @@ function ValidationMessages (props) {
     incompleteTimelineItems
   } = props
 
+  const notification = release.notification
+
   return (
     <div>
-      {/*Release isn't targeted, notification is empty or incomplete and tags are selected*/}
+      {/*Release isn't targeted*/}
       {
-        (release.validationState === 'empty' ||
-        release.validationState === 'incomplete') &&
-        release.notification.validationState === 'empty' ||
-        (release.notification.validationState === 'incomplete' &&
-        release.notification.tags.length > 0)
-          ? <div className="bold red mb1">&middot; {translate('kohdennuspuuttuu')}</div>
-          : null
-      }
-
-      {/*Release isn't targeted, notification isn't empty and no tags are selected*/}
-      {
-        (release.validationState === 'empty' ||
-        release.validationState === 'incomplete') &&
-        (release.notification.validationState === 'incomplete' ||
-        release.notification.validationState === 'complete') &&
-        release.notification.tags.length === 0
-          ? <div className="bold red mb1">&middot; {translate('kohdennusjaavainsanapuuttuu')}</div>
+        release.validationState === 'empty' || release.validationState === 'incomplete'
+          ? <div className="bold red mb1">
+            &middot;&nbsp;
+            {translate('kohdennuspuuttuu')}
+            {/*Check if at least one tag is selected if notification is incomplete*/}
+            {
+              notification.validationState === 'incomplete' && notification.tags.length === 0
+                ? ` ${translate('avainsanapuuttuu')}`
+                : null
+            }
+          </div>
           : null
       }
 

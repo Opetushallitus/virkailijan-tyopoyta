@@ -501,7 +501,7 @@
     "force": false,
     "locale": "fi",
     "key": "lahetasahkoposti",
-    "value": "Lähetä sähköposti valituille käyttäjäryhmille välittömästi"
+    "value": "Lähetä sähköpostia valituille käyttöoikeusryhmille välittömästi julkaisun yhteydessä"
   },
   {
     "accesscount": 0,
@@ -1198,8 +1198,8 @@
   },
   {
     "locale": "fi",
-    "key": "kohdennusjaavainsanapuuttuu",
-    "value": "Julkaisua ei ole kohdennettu - kohdenna vähintään yhdelle käyttöoikeusryhmälle sekä valitse ainakin yksi avainsana"
+    "key": "avainsanapuuttuu",
+    "value": "sekä valitse ainakin yksi avainsana"
   },
   {
     "locale": "fi",
@@ -1360,5 +1360,15 @@
     "locale": "fi",
     "key": "kayttajaryhmienhakuepaonnistui",
     "value": "Käyttäjäryhmien haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennakaikilleryhmille",
+    "value": "Kohdenna kaikille kayttöoikeusryhmille"
+  },
+  {
+    "locale": "fi",
+    "key": "lahetetaansahkoposti",
+    "value": "Tiedote lähetetään valituille käyttöoikeusryhmille sähköpostitse välittömästi."
   }
 ]

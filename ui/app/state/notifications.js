@@ -104,7 +104,7 @@ function onSaveCategoriesFailed (state) {
   const alert = createAlert({
     type: 'error',
     titleKey: 'kategorioidentallennusepaonnistui',
-    textKey: 'valitsekategoriauudelleen'
+    textKey: 'valitsekategoriauudestaan'
   })
 
   view.alertsBus.push(alert)
