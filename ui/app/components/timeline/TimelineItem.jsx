@@ -40,7 +40,7 @@ function TimelineItem (props) {
   const month = momentDate.format('MMMM')
   const year = momentDate.format('YYYY')
 
-  // Use finnish content if other languages are missing
+  // Use default locale's content if the version for user's language is missing
   const content = item.content[user.lang] || item.content[defaultLocale]
 
   const handleDisplayNotificationLinkClick = event => {

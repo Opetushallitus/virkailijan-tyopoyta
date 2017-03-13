@@ -4,6 +4,7 @@ import Bacon from 'baconjs'
 // TODO: Remove test data
 
 import view from './view'
+import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 import * as testData from '../resources/test/testData.json'
@@ -42,19 +43,25 @@ function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
     titleKey: 'avainsanojenhakuepaonnistui',
-    text: 'paivitasivu'
+    textKey: 'paivitasivu'
   })
 
   view.alertsBus.push(alert)
+  editor.alertsBus.push(alert)
 
-  return R.assocPath(['tags', 'isLoading'], false, state)
+  return R.compose(
+    R.assocPath(['editor', 'hasLoadingDependenciesFailed'], true),
+    R.assocPath(['tags', 'hasLoadingFailed'], true),
+    R.assocPath(['tags', 'isLoading'], false)
+  )(state)
 }
 
 function emptyTags () {
   return {
     items: [],
     specialTags: [],
-    isLoading: true
+    isLoading: true,
+    hasLoadingFailed: false
   }
 }
 

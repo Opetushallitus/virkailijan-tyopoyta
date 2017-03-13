@@ -10,12 +10,13 @@ const propTypes = {
   type: PropTypes.oneOf(types),
   titleKey: PropTypes.string.isRequired,
   textKey: PropTypes.string,
-  onCloseButtonClick: PropTypes.func.isRequired
+  onCloseButtonClick: PropTypes.func
 }
 
 const defaultProps = {
   type: 'info',
-  textKey: null
+  textKey: null,
+  onCloseButtonClick: null
 }
 
 function Alert (props) {
@@ -32,7 +33,11 @@ function Alert (props) {
   return (
     <div className={`alert alert-${type}`}>
       <div className="alert-container">
-        <CloseButton onClick={handleCloseButtonClick} />
+        {
+          onCloseButtonClick
+            ? <CloseButton onClick={handleCloseButtonClick} />
+            : null
+        }
 
         <div className="alert-title">{translate(titleKey)}</div>
 

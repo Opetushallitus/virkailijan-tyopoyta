@@ -49,15 +49,16 @@ function onReceived (state, response) {
     year
   })
 
-  response.lang = 'sv'
-
   return R.compose(
     R.assocPath(['notifications', 'categories'], response.profile.categories),
+    R.assocPath(['user', 'isLoading'], false),
     R.assoc('user', response)
   )(state)
 }
 
 function onFetchFailed (state) {
+  consol
+
   const alert = createAlert({
     type: 'error',
     titleKey: 'kayttajatietojenhakuepaonnistui',
@@ -66,12 +67,11 @@ function onFetchFailed (state) {
 
   view.alertsBus.push(alert)
 
-  return R.assocPath(['user', 'hasLoginFailed'], true, state)
+  return R.assocPath(['user', 'isLoading'], false, state)
 }
 
 const initialState = {
-  isAdmin: 'false',
-  lang: 'fi,'
+  isLoading: true
 }
 
 const user = {

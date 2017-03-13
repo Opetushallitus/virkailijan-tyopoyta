@@ -11,10 +11,7 @@ const appState = initAppState()
 
 appState.onValue(state => {
   render(
-    <App
-      state={state}
-      controller={controller}
-    />,
+    <App state={state} controller={controller} />,
     document.getElementById('app')
   )
 })

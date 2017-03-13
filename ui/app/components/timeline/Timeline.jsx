@@ -30,7 +30,7 @@ class Timeline extends React.Component {
 
     // Load next or previous month when scrolling the timeline
     Bacon
-      .fromEvent(this.timeline, 'scroll')
+      .fromEvent(this.timelineViewport, 'scroll')
       .debounce(100)
       .onValue(event => this.loadTimeline(event))
 
@@ -42,7 +42,7 @@ class Timeline extends React.Component {
 
     //  If page has a scrollbar, hide/display it when mousing over the timeline
     Bacon
-      .fromEvent(this.timeline, 'mouseenter')
+      .fromEvent(this.timelineViewport, 'mouseenter')
       .onValue(() => {
         const scrollBarWidth = window.innerWidth - document.body.clientWidth
 
@@ -53,7 +53,7 @@ class Timeline extends React.Component {
       })
 
     Bacon
-      .fromEvent(this.timeline, 'mouseleave')
+      .fromEvent(this.timelineViewport, 'mouseleave')
       .onValue(() => {
         body.classList.remove('overflow-hidden')
         body.style.marginRight = 0
@@ -78,7 +78,7 @@ class Timeline extends React.Component {
 
     // Scroll to first month on initial load and after user fetches the previous month
     if (timeline.items.length === 1 || timeline.direction === 'up') {
-      this.timeline.scrollTop = this.months.offsetTop
+      this.timelineViewport.scrollTop = this.months.offsetTop
     }
 
     // Automatically load next months until items fill the whole timeline viewport
@@ -112,11 +112,11 @@ class Timeline extends React.Component {
     const virkailijaRaamitHeight = virkailijaRaamit ? virkailijaRaamit.clientHeight : 0
 
     if (window.pageYOffset > virkailijaRaamitHeight) {
-      this.timeline.style.top = `${window.pageYOffset - virkailijaRaamitHeight}px`
-      // this.timeline.style.height = '95vh'
+      this.timelineViewport.style.top = `${window.pageYOffset - virkailijaRaamitHeight}px`
+      this.timelineViewport.style.height = '95vh'
     } else {
-      this.timeline.style.top = 0
-      // this.timeline.style.height = '80vh'
+      this.timelineViewport.style.top = 0
+      this.timelineViewport.style.height = '85vh'
     }
   }
 
@@ -147,7 +147,7 @@ class Timeline extends React.Component {
         }
 
         <div
-          ref={timeline => (this.timeline = timeline)}
+          ref={timelineViewport => (this.timelineViewport = timelineViewport)}
           className={`timeline-viewport timeline-line
           ${isInitialLoad ? 'display-none' : ''}`}
         >
@@ -163,6 +163,7 @@ class Timeline extends React.Component {
           </button>
 
           <div
+            ref={timeline => (this.timeline = timeline)}
             className={`timeline timeline-line relative ${isInitialLoad ? 'display-none' : ''}`}
           >
             <div className="my3">

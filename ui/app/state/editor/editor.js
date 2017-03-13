@@ -16,16 +16,17 @@ const url = '/virkailijan-tyopoyta/api/release'
 
 const saveBus = new Bacon.Bus()
 const saveFailedBus = new Bacon.Bus()
-const fetchBus = new Bacon.Bus()
-const fetchFailedBus = new Bacon.Bus()
+const fetchReleaseBus = new Bacon.Bus()
+const fetchReleaseFailedBus = new Bacon.Bus()
+const alertsBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
     url: url,
     method: 'GET',
     searchParams: { id },
-    onSuccess: release => { fetchBus.push(release) },
-    onError: error => { fetchFailedBus.push(error) }
+    onSuccess: release => { fetchReleaseBus.push(release) },
+    onError: error => { fetchReleaseFailedBus.push(error) }
   })
 }
 
@@ -41,7 +42,7 @@ function onReleaseReceived (state, response) {
   )(state)
 }
 
-function onFetchFailed (state, response) {
+function onFetchReleaseFailed (state, response) {
   console.log('Fetching release failed')
 
   const alert = createAlert({
@@ -50,13 +51,18 @@ function onFetchFailed (state, response) {
     textKey: 'suljejaavaaeditori'
   })
 
-  const newAlerts = R.append(alert, state.editor.alerts)
+  onAlertsReceived(state, alert)
 
   return R.compose(
     R.assocPath(['editor', 'isLoading'], false),
-    R.assocPath(['editor', 'alerts'], newAlerts),
     R.assocPath(['editor', 'editedRelease'], emptyRelease())
   )(state)
+}
+
+function onAlertsReceived (state, alert) {
+  const newViewAlerts = R.append(alert, state.editor.alerts)
+
+  return R.assocPath(['editor', 'alerts'], newViewAlerts, state)
 }
 
 function toggleValue (value, values) {
@@ -282,14 +288,16 @@ const initialState = emptyEditor()
 const editor = {
   saveBus,
   saveFailedBus,
-  fetchBus,
-  fetchFailedBus,
+  fetchReleaseBus,
+  fetchReleaseFailedBus,
+  alertsBus,
   events,
   initialState,
   onSaveComplete,
   onSaveFailed,
   onReleaseReceived,
-  onFetchFailed,
+  onFetchReleaseFailed,
+  onAlertsReceived,
   open,
   close,
   toggleTab,

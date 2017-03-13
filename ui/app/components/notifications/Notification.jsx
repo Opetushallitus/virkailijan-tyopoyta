@@ -64,7 +64,7 @@ class Notification extends React.Component {
     const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
     const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
 
-    // Use finnish content if other languages are missing
+    // Use default locale's content if the version for user's language is missing
     const content = notification.content[user.lang] || notification.content[defaultLocale]
 
     // Strip HTML tags from text

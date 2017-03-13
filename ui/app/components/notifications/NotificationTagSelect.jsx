@@ -6,10 +6,9 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired,
+  tags: PropTypes.object.isRequired,
   selectedTags: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  isInitialLoad: PropTypes.bool.isRequired
+  selectedCategories: PropTypes.array.isRequired
 }
 
 class NotificationTagSelect extends React.Component {
@@ -19,6 +18,8 @@ class NotificationTagSelect extends React.Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleLabelClick = this.handleLabelClick.bind(this)
     this.mapDropdownOptions = this.mapDropdownOptions.bind(this)
+    this.filterTagGroupsByCategories = this.filterTagGroupsByCategories.bind(this)
+    this.getPlaceholderKey = this.getPlaceholderKey.bind(this)
   }
 
   // Filter selected tags if available tags are changed (i.e. when user selects categories)
@@ -35,6 +36,21 @@ class NotificationTagSelect extends React.Component {
     }
   }
 
+  getPlaceholderKey () {
+    const {
+      isLoading,
+      hasLoadingFailed
+    } = this.props.tags
+
+    if (isLoading) {
+      return 'haetaanavainsanoja'
+    } else if (hasLoadingFailed) {
+      return 'avainsanojenhakuepaonnistui'
+    } else {
+      return 'hakusana'
+    }
+  }
+
   handleChange (event, { value }) {
     this.props.controller.setSelectedTags(value)
   }
@@ -44,20 +60,20 @@ class NotificationTagSelect extends React.Component {
   }
 
   /*
-    Dropdown component takes tags as an array of objects:
-    [
-      {
-        value: [option's value],
-        text: [displayed text],
-        description: [displayed description]
-      },
-      ...
-    ]
+   Dropdown component takes tags as an array of objects:
+   [
+   {
+   value: [option's value],
+   text: [displayed text],
+   description: [displayed description]
+   },
+   ...
+   ]
 
-    Returns tags sorted by text
-  */
+   Returns tags sorted by text
+   */
   mapDropdownOptions () {
-    const options = this.props.tags.map(option =>
+    const options = this.props.tags.items.map(option =>
       option.items.map(item => {
         return {
           value: item.id,
@@ -70,11 +86,20 @@ class NotificationTagSelect extends React.Component {
     return R.sortBy(R.prop('text'))(R.flatten(options))
   }
 
+  // Return tag groups linked to selected categories or all tag groups if no categories are selected
+  filterTagGroupsByCategories () {
+    const tags = this.props.tags.items
+    const selectedCategories = this.props.selectedCategories
+
+    return selectedCategories.length === 0
+      ? tags
+      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tags)
+  }
+
   render () {
     const {
-      selectedTags,
-      isLoading,
-      isInitialLoad
+      tags,
+      selectedTags
     } = this.props
 
     return (
@@ -89,8 +114,8 @@ class NotificationTagSelect extends React.Component {
           noResultsMessage={translate('eitunnisteita')}
           onChange={this.handleChange}
           onLabelClick={this.handleLabelClick}
-          options={isInitialLoad ? [] : this.mapDropdownOptions()}
-          placeholder={isLoading || isInitialLoad ? translate('haetaantunnisteita') : translate('hakusana')}
+          options={tags.isLoading ? [] : this.mapDropdownOptions()}
+          placeholder={translate(this.getPlaceholderKey())}
           search
           selection
           scrolling

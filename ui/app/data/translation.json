@@ -151,7 +151,7 @@
     "force": false,
     "locale": "fi",
     "key": "eitunnisteita",
-    "value": "Ei tunnisteita"
+    "value": "Ei avainsanoja"
   },
   {
     "accesscount": 0,
@@ -248,8 +248,8 @@
     "modifiedBy": "1.2.246.562.24.72453542949",
     "force": false,
     "locale": "fi",
-    "key": "muokkaatiedotteita",
-    "value": "Muokkaa tiedotetta"
+    "key": "muokkaasisaltoa",
+    "value": "Muokkaa sisältöä"
   },
   {
     "accesscount": 0,

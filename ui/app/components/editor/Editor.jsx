@@ -72,10 +72,11 @@ function Editor (props) {
   const {
     alerts,
     selectedTab,
-    isPreviewed,
-    hasSaveFailed,
     editedRelease,
-    isLoading
+    isPreviewed,
+    isLoading,
+    hasSaveFailed,
+    hasLoadingDependenciesFailed
   } = editor
 
   const notification = editedRelease.notification
@@ -110,19 +111,13 @@ function Editor (props) {
   return (
     <form noValidate onSubmit={handleSubmit}>
       {/*Heading for screen readers*/}
-      <h2 className="hide">
-        {
-          notificationPublicationStateString === 'luonnos'
-            ? translate('lisaauusi')
-            : translate('muokkaatiedotteita')
-        }
-      </h2>
+      <h2 className="hide">{translate('muokkaasisaltoa')}</h2>
 
       {/*Alerts*/}
       <div className={`my3 ${alerts.length > 0 ? '' : 'display-none'}`}>
         {alerts.map(alert =>
           <Alert
-            key={alert.id}
+            key={`editorAlert${alert.id}`}
             id={alert.id}
             type={alert.type}
             titleKey={alert.titleKey}
@@ -202,60 +197,64 @@ function Editor (props) {
       </div>
 
       {/*Edit and target content*/}
-      <div className="tab-content">
-        {/*Notification*/}
-        <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
-          {
-            isLoading
-              ? <Delay time={1000}>
-                <Spinner isVisible />
-              </Delay>
-              : <EditNotification
-                locale={locale}
-                dateFormat={dateFormat}
-                controller={controller.editNotification}
-                notification={editedRelease.notification}
-                disruptionNotificationTag={disruptionNotificationTag}
-                saveDraft={controller.saveDraft}
-              />
-          }
-        </section>
+      {
+        hasLoadingDependenciesFailed
+          ? <div className="py3" />
+          : <div className="tab-content">
+            {/*Notification*/}
+            <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
+              {
+                isLoading
+                  ? <Delay time={1000}>
+                    <Spinner isVisible />
+                  </Delay>
+                  : <EditNotification
+                    locale={locale}
+                    dateFormat={dateFormat}
+                    controller={controller.editNotification}
+                    notification={editedRelease.notification}
+                    disruptionNotificationTag={disruptionNotificationTag}
+                    saveDraft={controller.saveDraft}
+                  />
+              }
+            </section>
 
-        {/*Timeline*/}
-        <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
-          {
-            isLoading
-              ? <Delay time={1000}>
-                <Spinner isVisible />
-              </Delay>
-              : <EditTimeline
-                locale={locale}
-                dateFormat={dateFormat}
-                controller={controller.editTimeline}
-                releaseId={editedRelease.id}
-                timeline={editedRelease.timeline}
-              />
-          }
-        </section>
+            {/*Timeline*/}
+            <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
+              {
+                isLoading
+                  ? <Delay time={1000}>
+                    <Spinner isVisible />
+                  </Delay>
+                  : <EditTimeline
+                    locale={locale}
+                    dateFormat={dateFormat}
+                    controller={controller.editTimeline}
+                    releaseId={editedRelease.id}
+                    timeline={editedRelease.timeline}
+                  />
+              }
+            </section>
 
-        {/*Categories and user groups*/}
-        <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
-          {
-            isLoading
-              ? <Delay time={1000}>
-                <Spinner isVisible />
-              </Delay>
-              : <Targeting
-                locale={locale}
-                controller={controller.targeting}
-                userGroups={userGroups.items}
-                categories={categories.items}
-                tags={tags.items}
-                release={editedRelease}
-              />
-          }
-        </section>
-      </div>
+            {/*Categories and user groups*/}
+            <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
+              {
+                isLoading
+                  ? <Delay time={1000}>
+                    <Spinner isVisible />
+                  </Delay>
+                  : <Targeting
+                    locale={locale}
+                    controller={controller.targeting}
+                    userGroups={userGroups.items}
+                    categories={categories.items}
+                    tags={tags.items}
+                    release={editedRelease}
+                  />
+              }
+            </section>
+          </div>
+      }
 
       {/*Preview*/}
       {
@@ -276,7 +275,7 @@ function Editor (props) {
       <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
         {/*Validation messages*/}
         {
-          isLoading
+          isLoading || hasLoadingDependenciesFailed
             ? null
             : <ValidationMessages
               release={editedRelease}

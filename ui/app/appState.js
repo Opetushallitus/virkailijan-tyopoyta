@@ -44,9 +44,7 @@ export function getController () {
   return controller
 }
 
-export function initAppState () {
-  user.fetch()
-
+export function setInitialState () {
   return Bacon.update(
     initialState,
 
@@ -64,9 +62,9 @@ export function initAppState () {
 
     // Tags
     [tags.fetchBus], tags.onReceived,
-    [tags.fetchFailedBus], tags.onFailed,
+    [tags.fetchFailedBus], tags.onFetchFailed,
 
-     // View
+    // View
     [view.alertsBus], view.onAlertsReceived,
     [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
@@ -101,8 +99,9 @@ export function initAppState () {
     // Editor
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
-    [editor.fetchBus], editor.onReleaseReceived,
-    [editor.fetchFailedBus], editor.onFetchFailed,
+    [editor.fetchReleaseBus], editor.onReleaseReceived,
+    [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
+    [editor.alertsBus], editor.onAlertsReceived,
     [dispatcher.stream(events.editor.open)], editor.open,
     [dispatcher.stream(events.editor.close)], editor.close,
     [dispatcher.stream(events.editor.toggleTab)], editor.toggleTab,
@@ -128,4 +127,10 @@ export function initAppState () {
     [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag,
     [dispatcher.stream(events.editor.targeting.toggleSendEmail)], editor.targeting.toggleSendEmail,
   )
+}
+
+export function initAppState () {
+  user.fetch()
+
+  return setInitialState()
 }

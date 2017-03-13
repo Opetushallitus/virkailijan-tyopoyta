@@ -5,14 +5,12 @@ import Button from '../common/buttons/Button'
 import { translate } from '../common/Translations'
 
 const propTypes = {
-  controller: PropTypes.object.isRequired,
-  notificationsLoaded: PropTypes.bool.isRequired
+  controller: PropTypes.object.isRequired
 }
 
 function NotificationsMenu (props) {
   const {
-    controller,
-    notificationsLoaded
+    controller
   } = props
 
   const handleOpenEditorButtonClick = event => {
@@ -31,15 +29,7 @@ function NotificationsMenu (props) {
 
   return (
     <div className="notifications-menu flex items-stretch">
-      {/*Placeholder to display on initial load*/}
-      <div
-        className={`col-12 border-bottom border-gray-lighten-2 ${notificationsLoaded ? '' : 'display-none'}`}
-      />
-
-      <section
-        className={`flex col-12 border-bottom border-gray-lighten-2
-        ${notificationsLoaded ? 'display-none' : ''}`}
-      >
+      <section className="flex col-12 border-bottom border-gray-lighten-2">
         {/*Actions*/}
         <div className="flex items-center col-12">
           <div className="center md-flex flex-auto items-center justify-end">

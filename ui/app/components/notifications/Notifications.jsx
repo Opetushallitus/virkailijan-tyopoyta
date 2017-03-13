@@ -6,7 +6,6 @@ import R from 'ramda'
 import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
 import NotificationCategoryCheckboxes from './NotificationCategoryCheckboxes'
-import NotificationsPlaceholder from './NotificationsPlaceholder'
 import Collapse from '../common/Collapse'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
@@ -26,10 +25,11 @@ class Notifications extends React.Component {
   constructor (props) {
     super(props)
 
-    this.filterTagGroupsByCategories = this.filterTagGroupsByCategories.bind(this)
     this.getNextPage = this.getNextPage.bind(this)
     this.isLastPageLoaded = this.isLastPageLoaded.bind(this)
   }
+
+  // TODO: Only update when new notifications are loaded
 
   componentDidMount () {
     // Get next page when scrolling to placeholder notification in bottom of the list
@@ -56,7 +56,7 @@ class Notifications extends React.Component {
       isLoading
     } = this.props.notifications
 
-    // Check if new page is already being fetched
+    // Check if a new page is already being loaded
     if (isLoading) {
       return
     }
@@ -64,16 +64,6 @@ class Notifications extends React.Component {
     const nextPage = currentPage + 1
 
     this.props.controller.getPage(nextPage)
-  }
-
-  // Return tag groups linked to selected categories or all tag groups if no categories are selected
-  filterTagGroupsByCategories () {
-    const tags = this.props.tags.items
-    const selectedCategories = this.props.notifications.categories
-
-    return selectedCategories.length === 0
-      ? tags
-      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tags)
   }
 
   isLastPageLoaded () {
@@ -114,11 +104,10 @@ class Notifications extends React.Component {
         {/*Filter notifications by tags*/}
         <div className="mb1">
           <NotificationTagSelect
-            tags={this.filterTagGroupsByCategories()}
+            tags={tags}
             selectedTags={notifications.tags}
+            selectedCategories={notifications.categories}
             controller={controller}
-            isInitialLoad={isInitialLoad}
-            isLoading={tags.isLoading}
           />
         </div>
 
@@ -130,18 +119,10 @@ class Notifications extends React.Component {
         >
           <NotificationCategoryCheckboxes
             controller={controller}
-            categories={categories.items}
+            categories={categories}
             selectedCategories={notifications.categories}
-            isInitialLoad={categories.isInitialLoad}
           />
         </Collapse>
-
-        {/*Placeholder to display on initial load*/}
-        {
-          isInitialLoad
-            ? <NotificationsPlaceholder />
-            : null
-        }
 
         {/*Notifications list*/}
         <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>

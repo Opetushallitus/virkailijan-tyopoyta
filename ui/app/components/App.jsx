@@ -16,6 +16,8 @@ import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
 import Modal from './common/Modal'
+import Delay from './common/Delay'
+import Spinner from './common/Spinner'
 import { translate, setTranslations } from './common/Translations'
 
 const propTypes = {
@@ -62,9 +64,9 @@ class App extends React.Component {
   }
 
   getTranslate () {
-    var lang = 'fi'
+    let lang = 'fi'
 
-    for (var i = 0; i < this.state.roles.length; i++) {
+    for (let i = 0; i < this.state.roles.length; i++) {
       if (this.state.roles[i].indexOf('LANG_') === 0) {
         lang = this.state.roles[i].substring(5)
       }
@@ -111,7 +113,7 @@ class App extends React.Component {
         <div className="fixed bottom-0 right-0 mb2 mr2 z2">
           {state.view.alerts.map(alert =>
             <Alert
-              key={alert.id}
+              key={`viewAlert${alert.id}`}
               id={alert.id}
               type={alert.type}
               titleKey={alert.titleKey}
@@ -164,65 +166,70 @@ class App extends React.Component {
 
         {/*Content*/}
         <div className="container mx-auto">
-          <div className={`flex flex-wrap col-12`}>
-            {/*Notification/timeline view selection for small screens*/}
-            <Tabs className="mt3 md-hide lg-hide">
-              <TabItem
-                className="sm-col-6"
-                name="notifications"
-                selectedTab={selectedTab}
-                onClick={controller.view.toggleTab}
-              >
-                {translate('tiedotteet')}
-              </TabItem>
-
-              <TabItem
-                className="sm-col-6"
-                name="timeline"
-                selectedTab={selectedTab}
-                onClick={controller.view.toggleTab}
-              >
-                {translate('aikajana')}
-              </TabItem>
-            </Tabs>
-
-            {/*Notifications*/}
-            <section
-              className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
-            >
-              {/*Menu*/}
-              {
-                state.user.isAdmin
-                  ? <NotificationsMenu
-                    controller={controller}
-                    notificationsLoaded={state.notifications.isInitialLoad}
-                  />
-                  : null
-              }
-
-              <div className="mt3">
-                <Notifications
-                  controller={controller.notifications}
-                  defaultLocale={state.defaultLocale}
-                  user={state.user}
-                  notifications={state.notifications}
-                  categories={state.categories}
-                  tags={state.tags}
-                />
+          {
+            state.user.isLoading
+              ? <div className="py3">
+                <Delay time={1000}>
+                  <Spinner isVisible />
+                </Delay>
               </div>
-            </section>
+              : <div className={`flex flex-wrap col-12`}>
+                {/*Notification/timeline view selection for small screens*/}
+                <Tabs className="mt3 md-hide lg-hide">
+                  <TabItem
+                    className="sm-col-6"
+                    name="notifications"
+                    selectedTab={selectedTab}
+                    onClick={controller.view.toggleTab}
+                  >
+                    {translate('tiedotteet')}
+                  </TabItem>
 
-            {/*Timeline*/}
-            <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
-              <Timeline
-                controller={controller.timeline}
-                defaultLocale={state.defaultLocale}
-                user={state.user}
-                dateFormat={state.dateFormat}
-                timeline={state.timeline}
-              />
-            </section>
-          </div>
+                  <TabItem
+                    className="sm-col-6"
+                    name="timeline"
+                    selectedTab={selectedTab}
+                    onClick={controller.view.toggleTab}
+                  >
+                    {translate('aikajana')}
+                  </TabItem>
+                </Tabs>
+
+                {/*Notifications*/}
+                <section
+                  className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
+                >
+                  {/*Menu*/}
+                  {
+                    state.user.isAdmin
+                      ? <NotificationsMenu controller={controller} />
+                      : null
+                  }
+
+                  <div className="mt3">
+                    <Notifications
+                      controller={controller.notifications}
+                      defaultLocale={state.defaultLocale}
+                      user={state.user}
+                      notifications={state.notifications}
+                      categories={state.categories}
+                      tags={state.tags}
+                    />
+                  </div>
+                </section>
+
+                {/*Timeline*/}
+                <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
+                  <Timeline
+                    controller={controller.timeline}
+                    defaultLocale={state.defaultLocale}
+                    user={state.user}
+                    dateFormat={state.dateFormat}
+                    timeline={state.timeline}
+                  />
+                </section>
+              </div>
+          }
         </div>
       </div>
     )

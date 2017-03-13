@@ -4,21 +4,26 @@ import R from 'ramda'
 import Checkbox from '../common/form/Checkbox'
 import Delay from '../common/Delay'
 import Spinner from '../common/Spinner'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  categories: PropTypes.array.isRequired,
-  selectedCategories: PropTypes.array.isRequired,
-  isInitialLoad: PropTypes.bool.isRequired
+  categories: PropTypes.object.isRequired,
+  selectedCategories: PropTypes.array.isRequired
 }
 
 function NotificationCategoryCheckboxes (props) {
   const {
     controller,
     categories,
-    selectedCategories,
-    isInitialLoad
+    selectedCategories
   } = props
+
+  const {
+    items,
+    isLoading,
+    hasLoadingFailed
+  } = categories
 
   const handleCategoryChange = event => {
     const value = parseInt(event.target.value, 10)
@@ -33,11 +38,17 @@ function NotificationCategoryCheckboxes (props) {
   return (
     <div className="flex flex-wrap">
       {
-        isInitialLoad
+        isLoading
           ? <Delay time={1000}>
             <Spinner isVisible />
           </Delay>
-          : categories.map(category =>
+          : null
+      }
+
+      {
+        hasLoadingFailed
+          ? <div className="center col-12">{translate('kategorioidenhakuepaonnistui')}</div>
+          : items.map(category =>
             <div key={`notificationCategory${category.id}`} className="col-12 sm-col-6 lg-col-4 mb2 md-mb1 sm-pr1">
               <Checkbox
                 label={category.name}

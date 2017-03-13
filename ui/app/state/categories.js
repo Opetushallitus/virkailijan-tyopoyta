@@ -2,6 +2,7 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import view from './view'
+import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 
@@ -25,8 +26,7 @@ function onReceived (state, categories) {
 
   return R.compose(
     R.assocPath(['categories', 'items'], categories),
-    R.assocPath(['categories', 'isLoading'], false),
-    R.assocPath(['categories', 'isInitialLoad'], false)
+    R.assocPath(['categories', 'isLoading'], false)
   )(state)
 }
 
@@ -38,10 +38,12 @@ function onFetchFailed (state) {
   })
 
   view.alertsBus.push(alert)
+  editor.alertsBus.push(alert)
 
   return R.compose(
+    R.assocPath(['editor', 'hasLoadingDependenciesFailed'], true),
     R.assocPath(['categories', 'isLoading'], false),
-    R.assocPath(['categories', 'isInitialLoad'], false)
+    R.assocPath(['categories', 'hasLoadingFailed'], true)
   )(state)
 }
 
@@ -49,7 +51,7 @@ function emptyCategories () {
   return {
     items: [],
     isLoading: true,
-    isInitialLoad: true
+    hasLoadingFailed: false
   }
 }
 
