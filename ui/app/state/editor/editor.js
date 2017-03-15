@@ -12,7 +12,7 @@ import timeline from '../timeline'
 import getData from '../../utils/getData'
 import createAlert from '../../utils/createAlert'
 
-const url = '/virkailijan-tyopoyta/api/release'
+import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 const saveBus = new Bacon.Bus()
 const saveFailedBus = new Bacon.Bus()
@@ -22,7 +22,7 @@ const alertsBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
-    url: url,
+    url: urls.release,
     method: 'GET',
     searchParams: { id },
     onSuccess: release => { fetchReleaseBus.push(release) },
@@ -210,7 +210,7 @@ function save (state, id) {
   //   : 'PUT'
 
   getData({
-    url: url,
+    url: urls.release,
     requestOptions: {
       method: 'POST',
       dataType: 'json',

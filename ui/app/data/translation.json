@@ -1143,8 +1143,13 @@
   },
   {
     "locale": "fi",
-    "key": "haeedellisiatapahtumia",
-    "value": "Hae edellisiä tapahtumia"
+    "key": "naytaedellinenkuukausi",
+    "value": "Näytä edellinen kuukausi"
+  },
+  {
+    "locale": "fi",
+    "key": "naytaseuraavakuukausi",
+    "value": "Näytä seuraava kuukausi"
   },
   {
     "locale": "fi",
@@ -1154,7 +1159,7 @@
   {
     "locale": "fi",
     "key": "tiedotteidenhakuepaonnistui",
-    "value": "Tiedotteiden haku"
+    "value": "Tiedotteiden haku epäonnistui"
   },
   {
     "locale": "fi",

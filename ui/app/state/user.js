@@ -5,22 +5,20 @@ import moment from 'moment'
 import view from './view'
 import categories from './categories'
 import userGroups from './userGroups'
-import tags from './tags'
+import tags from './tag-groups'
 import notifications from './notifications'
 import timeline from './timeline'
 
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-// import urls from './data/virkailijan-tyopoyta-urls.json'
-
-const authUrl = '/virkailijan-tyopoyta/login'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
   getData({
-    url: authUrl,
+    url: urls.login,
     requestOptions: {
       mode: 'no-cors'
     },
@@ -57,8 +55,6 @@ function onReceived (state, response) {
 }
 
 function onFetchFailed (state) {
-  consol
-
   const alert = createAlert({
     type: 'error',
     titleKey: 'kayttajatietojenhakuepaonnistui',
@@ -67,11 +63,15 @@ function onFetchFailed (state) {
 
   view.alertsBus.push(alert)
 
-  return R.assocPath(['user', 'isLoading'], false, state)
+  return R.compose(
+    R.assocPath(['user', 'isLoading'], false),
+    R.assocPath(['user', 'hasLoadingFailed'], true)
+  )(state)
 }
 
 const initialState = {
-  isLoading: true
+  isLoading: true,
+  hasLoadingFailed: false
 }
 
 const user = {

@@ -5,8 +5,7 @@ import view from './view'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-
-const url = '/virkailijan-tyopoyta/api/categories'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -15,7 +14,7 @@ function fetch () {
   console.log('Fetching categories')
 
   getData({
-    url: url,
+    url: urls.categories,
     onSuccess: categories => fetchBus.push(categories),
     onError: error => fetchFailedBus.push(error)
   })

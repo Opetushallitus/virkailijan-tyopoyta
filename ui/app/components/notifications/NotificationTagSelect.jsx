@@ -6,7 +6,7 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  tags: PropTypes.object.isRequired,
+  tagGroups: PropTypes.object.isRequired,
   selectedTags: PropTypes.array.isRequired,
   selectedCategories: PropTypes.array.isRequired
 }
@@ -24,11 +24,11 @@ class NotificationTagSelect extends React.Component {
 
   // Filter selected tags if available tags are changed (i.e. when user selects categories)
   componentWillUpdate (nextProps) {
-    if (this.props.tags.length !== nextProps.tags.length &&
+    if (this.props.tagGroups.length !== nextProps.tagGroups.length &&
       this.props.selectedTags.length > 0) {
       const selectedTags = this.props.selectedTags
       const allowedtags = R.pluck('id',
-        R.flatten(R.pluck('items', nextProps.tags)))
+        R.flatten(R.pluck('items', nextProps.tagGroups)))
 
       const filteredSelectedTags = R.filter(tag => R.contains(tag, allowedtags), selectedTags)
 
@@ -40,7 +40,7 @@ class NotificationTagSelect extends React.Component {
     const {
       isLoading,
       hasLoadingFailed
-    } = this.props.tags
+    } = this.props.tagGroups
 
     if (isLoading) {
       return 'haetaanavainsanoja'
@@ -60,20 +60,20 @@ class NotificationTagSelect extends React.Component {
   }
 
   /*
-   Dropdown component takes tags as an array of objects:
-   [
-   {
-   value: [option's value],
-   text: [displayed text],
-   description: [displayed description]
-   },
-   ...
-   ]
+    Dropdown component takes options as an array of objects:
+    [
+      {
+        value: [option's value],
+        text: [displayed text],
+        description: [displayed description]
+      },
+      ...
+    ]
 
-   Returns tags sorted by text
-   */
+    Returns tags sorted by text
+  */
   mapDropdownOptions () {
-    const options = this.props.tags.items.map(option =>
+    const options = this.props.tagGroups.items.map(option =>
       option.items.map(item => {
         return {
           value: item.id,
@@ -88,17 +88,17 @@ class NotificationTagSelect extends React.Component {
 
   // Return tag groups linked to selected categories or all tag groups if no categories are selected
   filterTagGroupsByCategories () {
-    const tags = this.props.tags.items
+    const tagGroups = this.props.tagGroups.items
     const selectedCategories = this.props.selectedCategories
 
     return selectedCategories.length === 0
-      ? tags
+      ? tagGroups
       : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tags)
   }
 
   render () {
     const {
-      tags,
+      tagGroups,
       selectedTags
     } = this.props
 
@@ -114,7 +114,7 @@ class NotificationTagSelect extends React.Component {
           noResultsMessage={translate('eitunnisteita')}
           onChange={this.handleChange}
           onLabelClick={this.handleLabelClick}
-          options={tags.isLoading ? [] : this.mapDropdownOptions()}
+          options={tagGroups.isLoading ? [] : this.mapDropdownOptions()}
           placeholder={translate(this.getPlaceholderKey())}
           search
           selection

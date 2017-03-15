@@ -8,34 +8,35 @@ import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 import * as testData from '../resources/test/testData.json'
-
-const url = '/virkailijan-tyopoyta/api/tags'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
-  console.log('Fetching tags')
+  console.log('Fetching tag groups')
 
   // getData({
-  //   url: url,
-  //   onSuccess: tags => fetchBus.push(tags),
+  //   url: urls['tag.groups'],
+  //   onSuccess: tagGroups => fetchBus.push(tagGroups),
   //   onError: error => fetchFailedBus.push(error)
   // })
 
-  fetchBus.push(testData.tags)
+  // setTimeout(() => fetchBus.push(testData.tagGroups), 5000)
+
+  fetchBus.push(testData.tagGroups)
 }
 
-function onReceived (state, tags) {
-  console.log('Received tags')
+function onReceived (state, tagGroups) {
+  console.log('Received tag groups')
 
-  const regularTags = R.reject(tags => tags.name === 'SPECIAL')(tags)
-  const specialTags = R.prop('items', R.find(R.propEq('name', 'SPECIAL'))(tags))
+  const regularTags = R.reject(tagGroup => tagGroup.name === 'SPECIAL')(tagGroups)
+  const specialTags = R.prop('items', R.find(R.propEq('name', 'SPECIAL'))(tagGroups))
 
   return R.compose(
-    R.assocPath(['tags', 'items'], regularTags),
-    R.assocPath(['tags', 'specialTags'], specialTags),
-    R.assocPath(['tags', 'isLoading'], false)
+    R.assocPath(['tagGroups', 'items'], regularTags),
+    R.assocPath(['tagGroups', 'specialTags'], specialTags),
+    R.assocPath(['tagGroups', 'isLoading'], false)
   )(state)
 }
 
@@ -51,12 +52,12 @@ function onFetchFailed (state) {
 
   return R.compose(
     R.assocPath(['editor', 'hasLoadingDependenciesFailed'], true),
-    R.assocPath(['tags', 'hasLoadingFailed'], true),
-    R.assocPath(['tags', 'isLoading'], false)
+    R.assocPath(['tagGroups', 'hasLoadingFailed'], true),
+    R.assocPath(['tagGroups', 'isLoading'], false)
   )(state)
 }
 
-function emptyTags () {
+function emptyTagGroups () {
   return {
     items: [],
     specialTags: [],
@@ -65,9 +66,9 @@ function emptyTags () {
   }
 }
 
-const initialState = emptyTags()
+const initialState = emptyTagGroups()
 
-const tags = {
+const tagGroups = {
   fetchBus,
   fetchFailedBus,
   initialState,
@@ -76,4 +77,4 @@ const tags = {
   onFetchFailed
 }
 
-export default tags
+export default tagGroups

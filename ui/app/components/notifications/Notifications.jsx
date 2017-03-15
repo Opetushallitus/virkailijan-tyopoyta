@@ -7,6 +7,7 @@ import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
 import NotificationCategoryCheckboxes from './NotificationCategoryCheckboxes'
 import Collapse from '../common/Collapse'
+import Delay from '../common/Delay'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
@@ -27,27 +28,17 @@ class Notifications extends React.Component {
 
     this.getNextPage = this.getNextPage.bind(this)
     this.isLastPageLoaded = this.isLastPageLoaded.bind(this)
+    this.autoLoadNotifications = this.autoLoadNotifications.bind(this)
   }
 
-  // TODO: Only update when new notifications are loaded
+  // TODO: Only update when new notifications or tags/categories are loaded
 
   componentDidMount () {
     // Get next page when scrolling to placeholder notification in bottom of the list
     Bacon
       .fromEvent(window, 'scroll')
       .debounce(100)
-      .onValue(() => {
-        if (this.isLastPageLoaded()) {
-          return
-        }
-
-        const isPlaceholderVisible = window.scrollY >=
-          document.body.scrollHeight - window.innerHeight - this.placeholderNotification.clientHeight
-
-        if (isPlaceholderVisible) {
-          this.getNextPage()
-        }
-      })
+      .onValue(() => this.autoLoadNotifications())
   }
 
   getNextPage () {
@@ -64,6 +55,19 @@ class Notifications extends React.Component {
     const nextPage = currentPage + 1
 
     this.props.controller.getPage(nextPage)
+  }
+
+  autoLoadNotifications () {
+    if (this.isLastPageLoaded()) {
+      return
+    }
+
+    const isPlaceholderVisible = window.scrollY >=
+      document.body.scrollHeight - window.innerHeight - this.placeholderNotification.clientHeight
+
+    if (isPlaceholderVisible) {
+      this.getNextPage()
+    }
   }
 
   isLastPageLoaded () {
@@ -87,8 +91,9 @@ class Notifications extends React.Component {
 
     const {
       items,
+      count,
       isLoading,
-      isInitialLoad
+      hasLoadingFailed
     } = notifications
 
     const getNotificationSelectedCategoriesString = (categoriesAmount) => {
@@ -125,50 +130,66 @@ class Notifications extends React.Component {
         </Collapse>
 
         {/*Notifications list*/}
-        <div className={`notifications ${isInitialLoad ? 'display-none' : ''}`}>
-          {
-            !isInitialLoad && !isLoading && items.length === 0
-              ? <div className="h3 center muted">{translate('eitiedotteita')}</div>
-              : null
-          }
-
-          {items.map(notification =>
-            <Notification
-              defaultLocale={defaultLocale}
-              key={`notification${notification.id}`}
-              controller={controller}
-              user={user}
-              notification={notification}
-              categories={getItemsForIDs(notification.categories.sort(), categories.items)}
-              tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tags.items)))}
-            />
-          )}
-
-          {
-            this.isLastPageLoaded()
-              ? null
-              : <div
-                ref={placeholderNotification => (this.placeholderNotification = placeholderNotification)}
-                className="mb3 p3 rounded bg-white box-shadow"
-              />
-          }
-        </div>
+        {
+          hasLoadingFailed
+            ? <div className="h3 center muted mb2">{translate('tiedotteidenhakuepaonnistui')}</div>
+            : null
+        }
 
         {
-          this.isLastPageLoaded()
-            ? null
-            : <div className="center py3">
-              {/*Visually hidden 'Get next page' button for accessibility*/}
-              <button
-                className="hide"
-                type="button"
-                onClick={this.getNextPage}
-              >
-                {translate('naytalisaatiedotteita')}
-              </button>
-
+          isLoading && count === 0
+            ? <Delay time={1000}>
               <Spinner isVisible />
+            </Delay>
+            : null
+        }
+
+        {
+          !hasLoadingFailed && !isLoading && count === 0
+            ? <div className="h3 center muted">{translate('eitiedotteita')}</div>
+            : null
+        }
+
+        {
+          count > 0
+            ? <div>
+              {items.map(notification =>
+                <Notification
+                  defaultLocale={defaultLocale}
+                  key={`notification${notification.id}`}
+                  controller={controller}
+                  user={user}
+                  notification={notification}
+                  categories={getItemsForIDs(notification.categories.sort(), categories.items)}
+                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tags.items)))}
+                />
+              )}
+
+              {
+                this.isLastPageLoaded()
+                  ? null
+                  : <div>
+                    <div
+                      ref={placeholderNotification => (this.placeholderNotification = placeholderNotification)}
+                      className="mb3 p3 rounded bg-white box-shadow"
+                    />
+
+                    <div className="center py3">
+                      {/*Visually hidden 'Get next page' button for accessibility*/}
+                      <button
+                        className="hide"
+                        type="button"
+                        onClick={this.getNextPage}
+                      >
+                        {translate('naytalisaatiedotteita')}
+                      </button>
+
+                      <Spinner isVisible />
+                    </div>
+                  </div>
+              }
             </div>
+            : null
         }
       </div>
     )

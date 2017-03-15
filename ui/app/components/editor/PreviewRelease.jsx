@@ -12,7 +12,7 @@ const propTypes = {
   locale: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
   userGroups: PropTypes.array.isRequired,
-  tags: PropTypes.array.isRequired,
+  tagGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
@@ -21,7 +21,7 @@ function PreviewRelease (props) {
     locale,
     categories,
     userGroups,
-    tags,
+    tagGroups,
     release
   } = props
 
@@ -128,7 +128,7 @@ function PreviewRelease (props) {
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
                     title="julkaisunavainsanat"
-                    items={getItemsForIDs(notification.tags, R.flatten(R.pluck('items', tags)))}
+                    items={getItemsForIDs(notification.tags, R.flatten(R.pluck('items', tagGroups)))}
                   />
                 </div>
                 : null

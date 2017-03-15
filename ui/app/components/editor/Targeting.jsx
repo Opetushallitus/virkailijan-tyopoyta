@@ -15,7 +15,7 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   userGroups: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
-  tags: PropTypes.array.isRequired,
+  tagGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
@@ -24,7 +24,7 @@ function Targeting (props) {
     controller,
     userGroups,
     categories,
-    tags,
+    tagGroups,
     release
   } = props
 
@@ -91,9 +91,9 @@ function Targeting (props) {
     return R.find(R.propEq('id', id))(groups).name
   }
 
-  const areTagsDisabled = (tags, selectedCategories) => {
+  const isTagGroupDisabled = (tagGroup, selectedCategories) => {
     return selectedCategories.length
-      ? !itemHasCategory(tags, release.categories)
+      ? !itemHasCategory(tagGroup, release.categories)
       : false
   }
 
@@ -165,14 +165,14 @@ function Targeting (props) {
           : <div className="p3 border-top border-gray-lighten-3">
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
-            {tags.map(tags =>
-              <Fieldset key={`notificationTagGroup${tags.id}`} legend={tags.name}>
+            {tagGroups.map(tagGroup =>
+              <Fieldset key={`notificationTagGroup${tagGroup.id}`} legend={tagGroup.name}>
                 <CheckboxButtonGroup
-                  groupId={tags.id}
+                  groupId={tagGroup.id}
                   htmlId="notification-tags"
-                  options={tags.items}
+                  options={tagGroup.items}
                   selectedOptions={notification.tags}
-                  disabled={areTagsDisabled(tags, release.categories)}
+                  disabled={isTagGroupDisabled(tagGroup, release.categories)}
                   onChange={controller.toggleTag}
                 />
               </Fieldset>

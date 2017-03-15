@@ -29,12 +29,11 @@ function CloseButton (props) {
     <Button
       className={`oph-button oph-button-close ${className}`}
       title={translate(title)}
+      aria-title={translate(title)}
       disabled={disabled}
       onClick={onClick}
     >
-      &times;
-
-      <span className="hide">{translate(title)}</span>
+      <span aria-hidden>&times;</span>
     </Button>
   )
 }

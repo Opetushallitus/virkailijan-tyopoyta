@@ -4,8 +4,7 @@ import Bacon from 'baconjs'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-
-const url = '/virkailijan-tyopoyta/api/notifications/unpublished'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -14,7 +13,7 @@ function fetch () {
   console.log('Fetching unpublished notifications')
 
   getData({
-    url: url,
+    url: urls['unpublished.notifications'],
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
   })
@@ -35,7 +34,7 @@ function onReceived (state, response) {
   )(state)
 }
 
-function onFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
     titleKey: 'julkaisemattomienhakuepaonnistui',
@@ -123,7 +122,7 @@ const notifications = {
   fetch,
   reset,
   onReceived,
-  onFailed,
+  onFetchFailed,
   open,
   close,
   edit,

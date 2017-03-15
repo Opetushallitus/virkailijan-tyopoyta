@@ -81,7 +81,7 @@ class Timeline extends React.Component {
       this.timelineViewport.scrollTop = this.months.offsetTop
     }
 
-    // Automatically load next months until items fill the whole timeline viewport
+    // Automatically load next months until items fill the whole timeline node
     if (this.months.clientHeight < this.timeline.clientHeight) {
       this.props.controller.getNextMonth()
     }
@@ -153,19 +153,16 @@ class Timeline extends React.Component {
         >
           <h2 className="hide">{translate('tapahtumatalkaen')} {currentDate}</h2>
 
-          {/*Focusable button for searching previous events*/}
+          {/*Visually hidden button for loading the previous month*/}
           <button
             className="hide"
             type="button"
-            onClick={() => {}}
+            onClick={controller.getPreviousMonth}
           >
-            {translate('haeedellisiatapahtumia')}
+            {translate('naytaedellinenkuukausi')}
           </button>
 
-          <div
-            ref={timeline => (this.timeline = timeline)}
-            className={`timeline timeline-line relative ${isInitialLoad ? 'display-none' : ''}`}
-          >
+          <div ref={timeline => (this.timeline = timeline)} className="timeline timeline-line relative">
             <div className="my3">
               <Spinner isVisible={!hasLoadingFailed} />
             </div>
@@ -198,6 +195,15 @@ class Timeline extends React.Component {
                   </div>
                 </div>
               )}
+
+              {/*Visually hidden button for loading the next month*/}
+              <button
+                className="hide"
+                type="button"
+                onClick={controller.getNextMonth}
+              >
+                {translate('naytaseuraavakuukausi')}
+              </button>
 
               <div
                 className="py3"

@@ -75,15 +75,18 @@ class Modal extends React.Component {
       <div
         ref={overlay => (this.overlay = overlay)}
         className="oph-overlay oph-overlay-is-visible"
-        role="dialog"
-        aria-labelledby={`modal-${title}`}
         onClick={this.handleOverlayClick}
       >
-        <div className={`oph-modal ${variant === '' ? '' : `oph-modal-${variant}`}`} role="document">
+        <div
+          ref={modal => (this.modal = modal)}
+          className={`oph-modal ${variant === '' ? '' : `oph-modal-${variant}`}`}
+          role="dialog"
+          tabIndex="-1"
+          aria-labelledby={`#modal-${title}`}
+        >
           <div
-            ref={modal => (this.modal = modal)}
-            className="oph-modal-dialog animated"
-            tabIndex="-1"
+            className="oph-modal-dialog"
+            role="document"
           >
             <h2 id={`#modal-${title}`} className="hide">{title}</h2>
 

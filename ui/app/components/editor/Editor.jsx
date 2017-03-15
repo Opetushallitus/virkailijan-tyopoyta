@@ -25,7 +25,7 @@ const propTypes = {
   editor: PropTypes.object.isRequired,
   userGroups: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
-  tags: PropTypes.object.isRequired
+  tagGroups: PropTypes.object.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -66,7 +66,7 @@ function Editor (props) {
     editor,
     userGroups,
     categories,
-    tags
+    tagGroups
   } = props
 
   const {
@@ -96,7 +96,7 @@ function Editor (props) {
 
   const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
 
-  const disruptionNotificationTag = R.find(R.propEq('type', 'DISRUPTION'))(tags.specialTags)
+  const disruptionNotificationTag = R.find(R.propEq('type', 'DISRUPTION'))(tagGroups.specialTags)
 
   const handleSubmit = event => {
     event.preventDefault()
@@ -248,7 +248,7 @@ function Editor (props) {
                     controller={controller.targeting}
                     userGroups={userGroups.items}
                     categories={categories.items}
-                    tags={tags.items}
+                    tagGroups={tagGroups.items}
                     release={editedRelease}
                   />
               }
@@ -264,7 +264,7 @@ function Editor (props) {
               locale={locale}
               categories={categories.items}
               userGroups={userGroups.items}
-              tags={tags.items}
+              tagGroups={tagGroups.items}
               release={editedRelease}
             />
           </section>

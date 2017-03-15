@@ -33,17 +33,17 @@ function Alert (props) {
   return (
     <div className={`alert alert-${type}`}>
       <div className="alert-container">
-        {
-          onCloseButtonClick
-            ? <CloseButton onClick={handleCloseButtonClick} />
-            : null
-        }
-
         <div className="alert-title">{translate(titleKey)}</div>
 
         {
           textKey
             ? <div className="alert-text">{translate(textKey)}</div>
+            : null
+        }
+
+        {
+          onCloseButtonClick
+            ? <CloseButton onClick={handleCloseButtonClick} />
             : null
         }
       </div>

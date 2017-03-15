@@ -141,7 +141,7 @@ class App extends React.Component {
                 editor={state.editor}
                 userGroups={state.userGroups}
                 categories={state.categories}
-                tags={state.tags}
+                tagGroups={state.tagGroups}
               />
             </Modal>
             : null
@@ -165,7 +165,7 @@ class App extends React.Component {
         }
 
         {/*Content*/}
-        <div className="container mx-auto">
+        <div className={`container mx-auto ${state.user.hasLoadingFailed ? 'display-none' : ''}`}>
           {
             state.user.isLoading
               ? <div className="py3">
@@ -173,63 +173,64 @@ class App extends React.Component {
                   <Spinner isVisible />
                 </Delay>
               </div>
-              : <div className={`flex flex-wrap col-12`}>
-                {/*Notification/timeline view selection for small screens*/}
-                <Tabs className="mt3 md-hide lg-hide">
-                  <TabItem
-                    className="sm-col-6"
-                    name="notifications"
-                    selectedTab={selectedTab}
-                    onClick={controller.view.toggleTab}
-                  >
-                    {translate('tiedotteet')}
-                  </TabItem>
-
-                  <TabItem
-                    className="sm-col-6"
-                    name="timeline"
-                    selectedTab={selectedTab}
-                    onClick={controller.view.toggleTab}
-                  >
-                    {translate('aikajana')}
-                  </TabItem>
-                </Tabs>
-
-                {/*Notifications*/}
-                <section
-                  className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
-                >
-                  {/*Menu*/}
-                  {
-                    state.user.isAdmin
-                      ? <NotificationsMenu controller={controller} />
-                      : null
-                  }
-
-                  <div className="mt3">
-                    <Notifications
-                      controller={controller.notifications}
-                      defaultLocale={state.defaultLocale}
-                      user={state.user}
-                      notifications={state.notifications}
-                      categories={state.categories}
-                      tags={state.tags}
-                    />
-                  </div>
-                </section>
-
-                {/*Timeline*/}
-                <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
-                  <Timeline
-                    controller={controller.timeline}
-                    defaultLocale={state.defaultLocale}
-                    user={state.user}
-                    dateFormat={state.dateFormat}
-                    timeline={state.timeline}
-                  />
-                </section>
-              </div>
+              : null
           }
+          <div className={`flex flex-wrap col-12 ${state.user.isLoading ? 'display-none' : ''}`}>
+            {/*Notification/timeline view selection for small screens*/}
+            <Tabs className="mt3 md-hide lg-hide">
+              <TabItem
+                className="sm-col-6"
+                name="notifications"
+                selectedTab={selectedTab}
+                onClick={controller.view.toggleTab}
+              >
+                {translate('tiedotteet')}
+              </TabItem>
+
+              <TabItem
+                className="sm-col-6"
+                name="timeline"
+                selectedTab={selectedTab}
+                onClick={controller.view.toggleTab}
+              >
+                {translate('aikajana')}
+              </TabItem>
+            </Tabs>
+
+            {/*Notifications*/}
+            <section
+              className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
+            >
+              {/*Menu*/}
+              {
+                state.user.isAdmin
+                  ? <NotificationsMenu controller={controller} />
+                  : null
+              }
+
+              <div className="mt3">
+                <Notifications
+                  controller={controller.notifications}
+                  defaultLocale={state.defaultLocale}
+                  user={state.user}
+                  notifications={state.notifications}
+                  categories={state.categories}
+                  tagGroups={state.tagGroups}
+                />
+              </div>
+            </section>
+
+            {/*Timeline*/}
+            <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
+              <Timeline
+                controller={controller.timeline}
+                defaultLocale={state.defaultLocale}
+                user={state.user}
+                dateFormat={state.dateFormat}
+                timeline={state.timeline}
+              />
+            </section>
+          </div>
         </div>
       </div>
     )

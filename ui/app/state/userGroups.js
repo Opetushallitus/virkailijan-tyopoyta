@@ -7,8 +7,7 @@ import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 import * as testData from '../resources/test/testData.json'
-
-const url = '/virkailijan-tyopoyta/api/usergroups'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -17,7 +16,7 @@ function fetch (locale) {
   console.log('Fetching user groups')
 
   // getData({
-  //   url: url,
+  //   url: urls.usergroups,
   //   searchParams: {
   //     locale
   //   },
@@ -37,7 +36,7 @@ function onReceived (state, userGroups) {
   )(state)
 }
 
-function onFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
     titleKey: 'kayttajaryhmienhakuepaonnistui',
@@ -64,7 +63,7 @@ const tags = {
   initialState,
   fetch,
   onReceived,
-  onFailed
+  onFetchFailed
 }
 
 export default tags

@@ -43,10 +43,10 @@ function update (state, { prop, value }) {
   )
 
   /*
-    Remove all tags except those in state.tags.specialTags
+    Remove all tags except those in state.tagGroups.specialTags
     and set sendEmail as false if notification is emptied
   */
-  const specialTagIds = R.pluck('id', state.tags.specialTags)
+  const specialTagIds = R.pluck('id', state.tagGroups.specialTags)
 
   if (validatedNotification.validationState === 'empty') {
     validatedNotification.tags = R.filter(tag => R.contains(tag, specialTagIds), validatedNotification.tags)

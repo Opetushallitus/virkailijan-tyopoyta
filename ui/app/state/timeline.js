@@ -7,8 +7,7 @@ import notifications from './notifications'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-
-const url = '/virkailijan-tyopoyta/api/timeline'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -22,7 +21,7 @@ function fetch (options) {
   } = options
 
   getData({
-    url: url,
+    url: urls.timeline,
     searchParams: {
       month,
       year
@@ -32,26 +31,54 @@ function fetch (options) {
   })
 }
 
+function onReceived (state, response) {
+  console.log('Received timeline')
+
+  const timeline = state.timeline
+  const dateFormat = timeline.dateFormat
+
+  const newState = R.compose(
+    R.assocPath(['timeline', 'hasLoadingFailed'], false),
+    R.assocPath(['timeline', 'isInitialLoad'], false),
+  )(state)
+
+  if (timeline.isInitialLoad) {
+    return onCurrentMonthReceived(newState, response)
+  } else {
+    return onNewMonthReceived(newState, {
+      response,
+      dateFormat,
+      timeline
+    })
+  }
+}
+
 function onCurrentMonthReceived (state, response) {
   const currentDate = new Date()
   const currentDay = currentDate.getUTCDate()
   const isCurrentDayOrAfter = (value, key) => key >= currentDay
 
   // Get month's current day and the days after it
-  const visibleDays = R.pickBy(isCurrentDayOrAfter, response.days)
-  const visibleMonth = R.assoc('days', visibleDays, response)
-  const count = Object.keys(visibleDays).length
+  const currentAndComingDays = R.pickBy(isCurrentDayOrAfter, response.days)
+
+  // Display only current and coming days for the current month
+  const currentMonthsVisibleDays = R.assoc('days', currentAndComingDays, response)
 
   // Get month's past days
-  const pastDays = R.omit(Object.keys(visibleDays), response.days)
-  const partOfMonth = R.assoc('part', 2, response)
-  const pastMonth = R.assoc('days', pastDays, partOfMonth)
+  const currentMonthsPastDays = R.assoc(
+    'days',
+    // Past days
+    R.omit(R.keys(currentAndComingDays), response.days),
+    // Is part 2 of current month
+    R.assoc('part', 2, response)
+  )
 
-  const newState = R.assocPath(['timeline', 'preloadedItems'], [pastMonth], state)
-  const stateWithCount = R.assocPath(['timeline', 'count'], count, newState)
-  const stateWithoutLoading = R.assocPath(['timeline', 'isLoadingNext'], false, stateWithCount)
-
-  return R.assocPath(['timeline', 'items'], [visibleMonth], stateWithoutLoading)
+  return R.compose(
+    R.assocPath(['timeline', 'items'], [currentMonthsVisibleDays]),
+    R.assocPath(['timeline', 'preloadedItems'], [currentMonthsPastDays]),
+    R.assocPath(['timeline', 'count'], R.length(R.keys(currentAndComingDays))),
+    R.assocPath(['timeline', 'isLoadingNext'], false)
+  )(state)
 }
 
 function onNewMonthReceived (state, options) {
@@ -67,73 +94,50 @@ function onNewMonthReceived (state, options) {
   const firstMonthMoment = moment(`${firstMonth.month}.${firstMonth.year}`, dateFormat)
 
   const newCount = () => {
-    const count = Object.keys(response.days).length || 1
+    const count = R.length(R.keys(response.days)) || 1
     return timeline.count + count
   }
 
-  const stateWithCount = R.assocPath(['timeline', 'count'], newCount(), state)
+  const newState = R.assocPath(['timeline', 'count'], newCount(), state)
 
-  // Returned date is before first month and year
+  // Returned date is before first month and year - prepend new items to timeline.items
   if (requestedDateMoment.isBefore(firstMonthMoment)) {
-    const newState = R.assocPath(['timeline', 'direction'], 'up', stateWithCount)
-    const stateWithoutLoading = R.assocPath(['timeline', 'isLoadingPrevious'], false, newState)
-
-    const newItems = R.prepend(response, timeline.items)
-
-    return R.assocPath(['timeline', 'items'], newItems, stateWithoutLoading)
+    return R.compose(
+      R.assocPath(['timeline', 'items'], R.prepend(response, timeline.items)),
+      R.assocPath(['timeline', 'direction'], 'up'),
+      R.assocPath(['timeline', 'isLoadingPrevious'], false)
+    )(newState)
   } else {
-    // Returned date is after last month and year
-
-    const newState = R.assocPath(['timeline', 'direction'], 'down', stateWithCount)
-    const stateWithoutLoading = R.assocPath(['timeline', 'isLoadingNext'], false, newState)
-
-    const newItems = R.append(response, timeline.items)
-
-    return R.assocPath(['timeline', 'items'], newItems, stateWithoutLoading)
+    // Returned date is after last month and year - append new items to timeline.items
+    return R.compose(
+      R.assocPath(['timeline', 'items'], R.append(response, timeline.items)),
+      R.assocPath(['timeline', 'direction'], 'down'),
+      R.assocPath(['timeline', 'isLoadingNext'], false)
+    )(newState)
   }
 }
 
-function onReceived (state, response) {
-  console.log('Received timeline')
-
-  const timeline = state.timeline
-  const dateFormat = timeline.dateFormat
-
-  const newState = R.assocPath(['timeline', 'hasLoadingFailed'], false, state)
-  const stateWithoutLoading = R.assocPath(['timeline', 'isInitialLoad'], false, newState)
-
-  if (timeline.isInitialLoad) {
-    return onCurrentMonthReceived(stateWithoutLoading, response)
-  } else {
-    return onNewMonthReceived(stateWithoutLoading, {
-      response,
-      dateFormat,
-      timeline
-    })
-  }
-}
-
-function onFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
     titleKey: 'tapahtumienhakuepaonnistui',
     textKey: 'paivitasivu'
   })
 
-  const newState = R.assocPath(['timeline', 'isLoadingNext'], false, state)
-  const stateWithoutLoadingPrevious = R.assocPath(['timeline', 'isLoadingPrevious'], false, newState)
-  const stateWithFailedTimeline = R.assocPath(['timeline', 'hasLoadingFailed'], true, stateWithoutLoadingPrevious)
-  const stateIsReady = R.assocPath(['timeline', 'isInitialLoad'], false, stateWithFailedTimeline)
-
   view.alertsBus.push(alert)
 
-  return stateIsReady
+  return R.compose(
+    R.assocPath(['timeline', 'isLoadingNext'], false),
+    R.assocPath(['timeline', 'isLoadingPrevious'], false),
+    R.assocPath(['timeline', 'hasLoadingFailed'], true),
+    R.assocPath(['timeline', 'isInitialLoad'], false)
+  )(state)
 }
 
 /*
- Returns an object with manipulated month and year
- Manipulation is done with Moment.js: http://momentjs.com/docs/#/manipulating/
- */
+  Returns an object with manipulated month and year
+  Manipulation is done with Moment.js: http://momentjs.com/docs/#/manipulating/
+*/
 function getManipulatedMonthAndYear (options) {
   const {
     month,
@@ -143,7 +147,7 @@ function getManipulatedMonthAndYear (options) {
   } = options
 
   /*
-   Example, subtract 1 month from January 2017 = December 2016
+   Example: subtract 1 month from January 2017 = December 2016
    moment('1.2017', 'M.YYYY')['subtract'](1, 'months')
    */
   const newDate = moment(`${month}.${year}`, 'M.YYYY')[action](amount, 'months')
@@ -159,10 +163,13 @@ function getPreloadedMonth (state) {
 
   const timeline = state.timeline
   const newItems = R.concat(timeline.preloadedItems, timeline.items)
-  const newState = R.assocPath(['timeline', 'direction'], 'up', state)
-  const stateWithoutPreloadedItems = R.assocPath(['timeline', 'preloadedItems'], [], newState)
 
-  return R.assocPath(['timeline', 'items'], newItems, stateWithoutPreloadedItems)
+  return R.compose(
+    R.assocPath(['timeline', 'direction'], 'up'),
+    R.assocPath(['timeline', 'preloadedItems'], []),
+    R.assocPath(['timeline', 'items'], newItems)
+  )(state)
+
 }
 
 function getCurrentMonth (state) {
@@ -268,7 +275,7 @@ const timeline = {
   events,
   initialState,
   onReceived,
-  onFailed,
+  onFetchFailed,
   fetch,
   getCurrentMonth,
   getPreloadedMonth,

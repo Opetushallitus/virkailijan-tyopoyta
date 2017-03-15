@@ -49,12 +49,12 @@ function removeSelectedTags (state, categoryId) {
   }
 
   /*
-    Get all tag IDs from groups which are linked to selected categories
-    Always allow tags in state.tags.specialTags
+    Get all tag IDs from tag groups which are linked to selected categories
+    Always allow tags in state.tagGroups.specialTags
   */
   const allowedTags = R.pluck('id', R.flatten(R.pluck('items',
-    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tags.items)
-  ))).concat(R.pluck('id', state.tags.specialTags))
+    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tagGroups.items)
+  ))).concat(R.pluck('id', state.tagGroups.specialTags))
 
   const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
   const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)

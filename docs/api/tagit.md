@@ -1,4 +1,4 @@
-#Tagit
+#Tagiryhmät
 
 ##Endpoint
 
@@ -18,8 +18,6 @@ Tagiryhmän sekä yksittäisen tagin *name*-ominaisuuden arvo on lokalisoitu kä
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki
-
-`/virkailijan-tyopoyta/api/tags?categories=1,4`
 
 ```
 [

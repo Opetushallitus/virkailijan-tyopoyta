@@ -3,7 +3,7 @@ import Bacon from 'baconjs'
 import user from './state/user'
 import categories from './state/categories'
 import userGroups from './state/userGroups'
-import tags from './state/tags'
+import tagGroups from './state/tag-groups'
 import view from './state/view'
 import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
@@ -12,7 +12,6 @@ import editor from './state/editor/editor'
 
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
-// import urls from './data/virkailijan-tyopoyta-urls.json'
 
 const dispatcher = new Dispatcher()
 
@@ -30,7 +29,7 @@ const initialState = {
   user: user.initialState,
   userGroups: userGroups.initialState,
   categories: categories.initialState,
-  tags: tags.initialState,
+  tagGroups: tagGroups.initialState,
   view: view.initialState,
   unpublishedNotifications: unpublishedNotifications.initialState,
   notifications: notifications.initialState,
@@ -58,11 +57,11 @@ export function setInitialState () {
 
     // User groups
     [userGroups.fetchBus], userGroups.onReceived,
-    [userGroups.fetchFailedBus], userGroups.onFailed,
+    [userGroups.fetchFailedBus], userGroups.onFetchFailed,
 
     // Tags
-    [tags.fetchBus], tags.onReceived,
-    [tags.fetchFailedBus], tags.onFetchFailed,
+    [tagGroups.fetchBus], tagGroups.onReceived,
+    [tagGroups.fetchFailedBus], tagGroups.onFetchFailed,
 
     // View
     [view.alertsBus], view.onAlertsReceived,
@@ -71,7 +70,7 @@ export function setInitialState () {
 
     // Unpublished notifications
     [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
-    [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFailed,
+    [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFetchFailed,
     [dispatcher.stream(events.unpublishedNotifications.open)], unpublishedNotifications.open,
     [dispatcher.stream(events.unpublishedNotifications.close)], unpublishedNotifications.close,
     [dispatcher.stream(events.unpublishedNotifications.edit)], unpublishedNotifications.edit,
@@ -89,7 +88,7 @@ export function setInitialState () {
 
     // Timeline
     [timeline.fetchBus], timeline.onReceived,
-    [timeline.fetchFailedBus], timeline.onFailed,
+    [timeline.fetchFailedBus], timeline.onFetchFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,

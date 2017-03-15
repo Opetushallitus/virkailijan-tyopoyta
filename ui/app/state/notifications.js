@@ -5,9 +5,7 @@ import view from './view'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-
-const url = '/virkailijan-tyopoyta/api/notifications'
-const saveCategoriesUrl = '/virkailijan-tyopoyta/api/user'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -30,7 +28,7 @@ function fetch (options) {
 
   // TODO: Using /api/release to get a notification by id for now, remove when /api/notifications takes an id as parameter
   getData({
-    url: id ? '/virkailijan-tyopoyta/api/release' : url,
+    url: id ? urls.release : urls.notifications,
     searchParams: {
       page,
       id,
@@ -46,7 +44,7 @@ function saveCategories (options) {
   console.log('Saving selected categories', options)
 
   getData({
-    url: saveCategoriesUrl,
+    url: urls.user,
     requestOptions: {
       method: 'POST',
       dataType: 'json',
@@ -80,8 +78,7 @@ function onNotificationsReceived (state, response) {
   return R.compose(
     R.assocPath(['notifications', 'items'], newItems),
     R.assocPath(['notifications', 'count'], response.count),
-    R.assocPath(['notifications', 'isLoading'], false),
-    R.assocPath(['notifications', 'isInitialLoad'], false)
+    R.assocPath(['notifications', 'isLoading'], false)
   )(state)
 }
 
@@ -95,8 +92,8 @@ function onFetchNotificationsFailed (state) {
   view.alertsBus.push(alert)
 
   return R.compose(
-    R.assocPath(['notifications', 'isInitialLoad'], false),
-    R.assocPath(['notifications', 'isLoading'], false)
+    R.assocPath(['notifications', 'isLoading'], false),
+    R.assocPath(['notifications', 'hasLoadingFailed'], true)
   )(state)
 }
 
@@ -109,10 +106,7 @@ function onSaveCategoriesFailed (state) {
 
   view.alertsBus.push(alert)
 
-  return R.compose(
-    R.assocPath(['notifications', 'isInitialLoad'], false),
-    R.assocPath(['notifications', 'isLoading'], false)
-  )(state)
+  return state
 }
 
 function reset (page) {
@@ -131,6 +125,7 @@ function getPage (state, page) {
 
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'hasLoadingFailed'], false),
     R.assocPath(['notifications', 'items'], newItems),
     R.assocPath(['notifications', 'currentPage'], newPage)
   )(state)
@@ -143,6 +138,7 @@ function getNotificationById (state, id) {
 
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'hasLoadingFailed'], false),
     R.assocPath(['notifications', 'currentPage'], 1),
     R.assocPath(['notifications', 'items'], []),
     R.assocPath(['notifications', 'tags'], []),
@@ -168,6 +164,7 @@ function setSelectedTags (state, selected) {
 
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'hasLoadingFailed'], false),
     R.assocPath(['notifications', 'currentPage'], 1),
     R.assocPath(['notifications', 'tags'], selected),
     R.assocPath(['notifications', 'items'], [])
@@ -196,6 +193,7 @@ function toggleCategory (state, id) {
 
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),
+    R.assocPath(['notifications', 'hasLoadingFailed'], false),
     R.assocPath(['notifications', 'currentPage'], 1),
     R.assocPath(['notifications', 'items'], []),
     R.assocPath(['notifications', 'categories'], newCategories)
@@ -214,8 +212,8 @@ function emptyNotifications () {
     currentPage: 1,
     tags: [],
     categories: [],
-    isLoading: false,
-    isInitialLoad: true
+    isLoading: true,
+    hasLoadingFailed: false
   }
 }
 
