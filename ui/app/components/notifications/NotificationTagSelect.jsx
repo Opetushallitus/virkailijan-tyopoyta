@@ -93,7 +93,7 @@ class NotificationTagSelect extends React.Component {
 
     return selectedCategories.length === 0
       ? tagGroups
-      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tags)
+      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tagGroups)
   }
 
   render () {

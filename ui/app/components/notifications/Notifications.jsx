@@ -18,7 +18,7 @@ const propTypes = {
   defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notifications: PropTypes.object.isRequired,
-  tags: PropTypes.object.isRequired,
+  tagGroups: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired
 }
 
@@ -85,7 +85,7 @@ class Notifications extends React.Component {
       defaultLocale,
       user,
       notifications,
-      tags,
+      tagGroups,
       categories
     } = this.props
 
@@ -109,7 +109,7 @@ class Notifications extends React.Component {
         {/*Filter notifications by tags*/}
         <div className="mb1">
           <NotificationTagSelect
-            tags={tags}
+            tagGroups={tagGroups}
             selectedTags={notifications.tags}
             selectedCategories={notifications.categories}
             controller={controller}
@@ -161,7 +161,7 @@ class Notifications extends React.Component {
                   user={user}
                   notification={notification}
                   categories={getItemsForIDs(notification.categories.sort(), categories.items)}
-                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tags.items)))}
+                  tagGroups={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tagGroups.items)))}
                 />
               )}
 
