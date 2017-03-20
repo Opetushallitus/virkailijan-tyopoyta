@@ -14,11 +14,22 @@ trait JsonSupport {
   implicit val dateTimeReads: Reads[LocalDate] = Reads.localDateReads("d.M.yyyy HH:mm:ss")
 
 
-  implicit val tagWrites: Writes[Tag] = (
-    (JsPath \ "id").write[Long] and
-    (JsPath \ "name").write[String] and
-    (JsPath \ "type").write[Option[String]]
-    )(unlift(Tag.unapply))
+  implicit val tagWrites: Writes[Tag] = Writes { tag =>
+    Json.obj(
+      "id" -> tag.id,
+      "name" -> tag.name,
+      "type" -> tag.tagType
+    )
+  }
+
+  implicit val tagGroupWrites: Writes[TagGroup] = Writes {tagGroup =>
+    Json.obj(
+      "id" -> tagGroup.id,
+      "name" -> tagGroup.name,
+      "tags" -> tagGroup.tags,
+      "categories" -> tagGroup.categories
+    )
+  }
 
   implicit val timelineContentReads: Reads[TimelineContent] = (
     (JsPath \ "timelineId").read[Long] and
@@ -78,12 +89,6 @@ trait JsonSupport {
       (JsPath \ "text").write[String]
     )(unlift(NotificationContent.unapply))
 
-  implicit val tagReads: Reads[Tag] = (
-    (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String] and
-    (JsPath \ "type").readNullable[String]
-    )(Tag.apply _)
-
   implicit val notificationReads: Reads[NotificationUpdate] = (
       (JsPath \ "id").read[Long] and
       (JsPath \ "releaseId").read[Long] and
@@ -122,15 +127,12 @@ trait JsonSupport {
     (JsPath \ "categories").read[List[Long]]
   )(ReleaseUpdate.apply _)
 
-  implicit val categoryWrites: Writes[Category] = (
-    (JsPath \ "id").write[Long] and
-    (JsPath \ "name").write[String]
-    )(unlift(Category.unapply))
-
-  implicit val categoryReads: Reads[Category] = (
-    (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String]
-  )(Category.apply _)
+  implicit val categoryWrites: Writes[Category] = Writes { category =>
+    Json.obj(
+      "id" -> category.id,
+      "name" -> category.name
+    )
+  }
 
   implicit val kayttoikeusDescriptionReads: Reads[KayttoikeusDescription] = (
     (JsPath \ "text").readNullable[String] and
@@ -139,18 +141,21 @@ trait JsonSupport {
 
    val kayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
     (JsPath \ "id").read[Long] and
-    (JsPath \ "description" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text))
+    (JsPath \ "description" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    Reads.pure(Seq.empty)
   )(Kayttooikeusryhma.apply _)
 
    val userKayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
     (JsPath \ "ryhmaId").read[Long] and
-    (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text))
+    (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    Reads.pure(Seq.empty)
     )(Kayttooikeusryhma.apply _)
 
   implicit val kayttooikeusryhmaWrites: Writes[Kayttooikeusryhma] = Writes { group =>
     Json.obj(
       "id" -> group.id,
-      "description" -> group.description
+      "description" -> group.description,
+      "roles" -> group.roles
     )
   }
 
@@ -176,11 +181,12 @@ trait JsonSupport {
 
   def readKayttooikeudet: Reads[List[Kayttooikeus]] = JsPath.read[List[Kayttooikeus]]
 
-  implicit val userProfileWrites: Writes[UserProfile] = (
-    (JsPath \ "uid").write[String] and
-    (JsPath \ "categories").write[Seq[Long]] and
-    (JsPath \ "sendEmail").write[Boolean]
-    )(unlift(UserProfile.unapply))
+  implicit val userProfileWrites: Writes[UserProfile] = Writes { profile =>
+    Json.obj(
+      "categories" -> profile.categories,
+      "sendEmail" -> profile.sendEmail
+    )
+  }
 
   implicit val userProfileReads: Reads[UserProfileUpdate] = (
       (JsPath \ "categories").read[Seq[Long]] and
@@ -198,16 +204,6 @@ trait JsonSupport {
     val result = Json.fromJson(jsonVal)(userProfileReads)
     result.asOpt
   }
-//  def parseReleases(jsString: String): Option[List[Release]] ={
-//    val jsonVal = Json.parse(jsString)
-//    val result = Json.fromJson(jsonVal)(releasesReads)
-//    result.asOpt
-//  }
-//  def parseTags(jsString: String): Option[List[Tag]] ={
-//    val jsonVal = Json.parse(jsString)
-//    val result = Json.fromJson(jsonVal)(tagsReads)
-//    result.asOpt
-//  }
 
   def parseKayttooikeusryhmat(jsString: String, forUser: Boolean): Option[List[Kayttooikeusryhma]] = {
     val jsonVal = Json.parse(jsString)

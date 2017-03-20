@@ -38,20 +38,32 @@ CREATE TABLE timeline_content(
   PRIMARY KEY (timeline_id, language)
 );
 
+CREATE TABLE category(
+  id SERIAL NOT NULL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  role VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tag_group(
+  id SERIAL PRIMARY KEY NOT NULL,
+  name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tag_group_category(
+  group_id INTEGER REFERENCES tag_group(id),
+  category_id INTEGER REFERENCES category(id)
+);
+
 CREATE TABLE tag(
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(50) NOT NULL,
-  tag_type VARCHAR(50)
+  tag_type VARCHAR(50),
+  group_id INTEGER REFERENCES tag_group(id)
 );
 
 CREATE TABLE notification_tag(
   notification_id INTEGER NOT NULL REFERENCES notification(id),
   tag_id INTEGER NOT NULL REFERENCES tag(id)
-);
-
-CREATE TABLE category(
-  id SERIAL NOT NULL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE release_category(
@@ -65,12 +77,12 @@ CREATE TABLE release_rights(
 );
 
 CREATE TABLE user_profile(
-  uid VARCHAR(200) PRIMARY KEY NOT NULL,
+  user_id VARCHAR(100) PRIMARY KEY NOT NULL,
   send_email BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE user_category(
-  user_id VARCHAR(200) NOT NULL REFERENCES user_profile(uid),
+  user_id VARCHAR(20) NOT NULL REFERENCES user_profile(user_id),
   category_id INTEGER NOT NULL REFERENCES category(id)
 );
 

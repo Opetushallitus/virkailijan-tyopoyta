@@ -18,25 +18,23 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) exte
     }
   }
 
-  private def rightsForGroup(group: Kayttooikeusryhma): Seq[Kayttooikeus] = {
+  private def rightsForGroup(group: Kayttooikeusryhma): Seq[String] = {
     val rightsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/${group.id}/kayttooikeus", RequestMethod.GET)
 
-    rightsResponse match {
+    val rights = rightsResponse match {
       case Success(s) => parseKayttooikedet(s).getOrElse(List.empty)
       case Failure(e) => List.empty
     }
+
+    rights.filter(r => r.palveluName == "VIRKAILIJANTYOPOYTA").map(r => s"APP_${r.palveluName}_${r.role}")
   }
 
   private def filterUserGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] =
-    groups.filter(g => rightsForGroup(g).exists(r => r.palveluName == "VIRKAILIJANTYOPOYTA"))
+    groups.map(g => g.copy(roles = rightsForGroup(g))).filter(_.roles.nonEmpty)
 
 
-  def fetchRightsForUser(oid: String): Seq[Kayttooikeusryhma] = {
-    val groupsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/henkilo/$oid", RequestMethod.GET)
-
-    val userRights = parseResponse(groupsResponse, forUser = true)
-
-    appGroups.toSet.intersect(userRights.toSet).toList
+  def userGroupsForUser(roles: Seq[String]): Seq[Kayttooikeusryhma] = {
+    appGroups.filter(_.roles.intersect(roles).nonEmpty)
   }
 
   def fetchServiceUsergroups(): Seq[Kayttooikeusryhma] = {

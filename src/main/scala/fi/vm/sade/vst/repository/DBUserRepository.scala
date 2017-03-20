@@ -9,49 +9,51 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   val (u, uc) = (UserProfileTable.syntax, UserCategoryTable.syntax)
 
-  private def fetchUserProfile(uid: String) = withSQL[UserProfile] {
+  private def fetchUserProfile(userId: String) = withSQL[UserProfile] {
     select
       .from(UserProfileTable as u)
-      .leftJoin(UserCategoryTable as uc).on(u.uid, uc.userId)
-      .where.eq(u.uid, uid)
+      .leftJoin(UserCategoryTable as uc).on(u.userId, uc.userId)
+      .where.eq(u.userId, userId)
   }.one(UserProfileTable(u))
     .toMany(
       us => UserCategoryTable.opt(uc)(us)
     ).map((userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
     .single.apply()
 
-  private def insertUserProfile(uid: String, userProfileUpdate: UserProfileUpdate) = {
+  private def insertUserProfile(userId: String, userProfileUpdate: UserProfileUpdate) = {
     val uc = UserProfileTable.column
     DB localTx { implicit session =>
       withSQL {
         insert.into(UserProfileTable).namedValues(
-          uc.uid -> uid,
+          uc.userId -> userId,
           uc.sendEmail -> userProfileUpdate.sendEmail)
       }.update().apply()
     }
-    UserProfile(uid, userProfileUpdate.categories, userProfileUpdate.sendEmail)
+    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
-  private def updateUserProfile(uid: String, userProfileUpdate: UserProfileUpdate) = {
+  private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate) = {
     DB localTx { implicit session =>
       withSQL {
         update(UserProfileTable).set(u.sendEmail -> userProfileUpdate.sendEmail)
       }.update().apply()
     }
-    UserProfile(uid, userProfileUpdate.categories, userProfileUpdate.sendEmail)
+    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
-  override def setUserProfile(uid: String, userProfileData: UserProfileUpdate): UserProfile ={
-    fetchUserProfile(uid) match {
-      case Some(userProfile) => updateUserProfile(uid, userProfileData)
-      case None => insertUserProfile(uid, userProfileData)
+  override def setUserProfile(userId: String, userProfileData: UserProfileUpdate): UserProfile ={
+    fetchUserProfile(userId) match {
+      case Some(userProfile) => updateUserProfile(userId, userProfileData)
+      case None => insertUserProfile(userId, userProfileData)
     }
   }
 
-  override def userProfile(uid: String): UserProfile = {
-    fetchUserProfile(uid) match {
+  override def userProfile(userId: String): UserProfile = {
+    fetchUserProfile(userId) match {
       case Some(userProfile) => userProfile
-      case None => insertUserProfile(uid, UserProfileUpdate())
+      case None => insertUserProfile(userId, UserProfileUpdate())
     }
   }
+
+  override def categoriesForUser(oid: String): Seq[Long] = ???
 }

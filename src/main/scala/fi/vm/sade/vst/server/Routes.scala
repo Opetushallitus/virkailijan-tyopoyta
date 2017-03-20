@@ -104,7 +104,12 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
         path("unpublished"){
           sendResponse(Future(releaseRepository.unpublished))
         } ~
-        path("categories"){sendResponse(Future(releaseRepository.categories))} ~
+        path("categories"){
+          userService.findUser(uid) match {
+            case Success(u) => sendResponse(Future(releaseRepository.categories(u)))
+            case Failure(e) => complete(StatusCodes.InternalServerError)
+          }
+        } ~
         path("timeline"){
           parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
             (categories, year, month) => sendResponse(Future(releaseRepository.timeline(categories, parseMonth(year, month))))
