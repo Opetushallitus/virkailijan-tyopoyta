@@ -136,8 +136,8 @@
     "modifiedBy": "1.2.246.562.24.72453542949",
     "force": false,
     "locale": "fi",
-    "key": "hakusana",
-    "value": "Hakusana"
+    "key": "lisaahakusana",
+    "value": "Lisää hakusana"
   },
   {
     "accesscount": 0,
@@ -1375,5 +1375,35 @@
     "locale": "fi",
     "key": "lahetetaansahkoposti",
     "value": "Tiedote lähetetään valituille käyttöoikeusryhmille sähköpostitse välittömästi."
+  },
+  {
+    "locale": "fi",
+    "key": "tallennettukohdennus",
+    "value": "Valitse tallennettu kohdennus"
+  },
+  {
+    "locale": "fi",
+    "key": "eikohdennuksia",
+    "value": "Ei kohdennuksia"
+  },
+  {
+    "locale": "fi",
+    "key": "poista",
+    "value": "Poista"
+  },
+  {
+    "locale": "fi",
+    "key": "valittu",
+    "value": "Valittu"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennusonjoolemassa",
+    "value": "Olet jo tallentanut kohdennuksen nimeltä "
+  },
+  {
+    "locale": "fi",
+    "key": "poistaminenepaonnistui",
+    "value": "Poistaminen epäonnistui"
   }
 ]

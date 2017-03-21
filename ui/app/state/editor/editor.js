@@ -94,8 +94,8 @@ function cleanUpRelease (release) {
 }
 
 function editReleaseProperties (key, value) {
-  // Remove validationState
-  if (key === 'validationState') {
+  // Remove validationState and selectedTargetingGroup
+  if (key === 'validationState' || key === 'selectedTargetingGroup') {
     return undefined
   }
 
@@ -184,6 +184,8 @@ function emptyRelease () {
     timeline: [editTimeline.newItem(-1, [])],
     categories: [],
     userGroups: [],
+    targetingGroup: null,
+    selectedTargetingGroup: null,
     validationState: 'empty'
   }
 }
@@ -209,6 +211,14 @@ function save (state, id) {
   //   ? 'POST'
   //   : 'PUT'
 
+  // Remove all tags and set sendEmail as false if notification is empty
+  const savedRelease = state.editor.editedRelease.notification.validationState === 'empty'
+    ? R.compose(
+      R.assocPath(['notification', 'tags'], []),
+      R.assoc('sendEmail', false)
+    )(state.editor.editedRelease)
+    : state.editor.editedRelease
+
   getData({
     url: urls.release,
     requestOptions: {
@@ -218,7 +228,7 @@ function save (state, id) {
         'Content-type': 'application/json'
       },
       body: JSON.stringify(
-        cleanUpRelease(state.editor.editedRelease),
+        cleanUpRelease(savedRelease),
         editReleaseProperties
       )
     },

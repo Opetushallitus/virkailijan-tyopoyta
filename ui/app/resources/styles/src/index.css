@@ -21,7 +21,7 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--gray-lighten-5);
+  background-color: var(--gray-lighten-4);
 }
 
 /* Typography */
@@ -54,6 +54,10 @@ a:focus {
 
 .bg-white {
   background-color: var(--white);
+}
+
+.bg-gray {
+  background-color: var(--gray);
 }
 
 .bg-gray-lighten-1 {
@@ -225,6 +229,18 @@ a:focus {
 .tab-pane-is-active {
   display: block;
   padding: var(--space-3) 0;
+}
+
+/* Buttons */
+
+.oph-button-cancel {
+  background-color: var(--gray);
+  color: var(--white);
+}
+
+.oph-button-cancel:hover,
+.oph-button-cancel:focus {
+  background-color: var(--gray-lighten-1);
 }
 
 /* Form */
@@ -400,6 +416,10 @@ fieldset {
 
 .blue-lighten-1 {
   color: var(--blue-lighten-1);
+}
+
+.blue-lighten-2 {
+  color: var(--blue-lighten-2);
 }
 
 .green {

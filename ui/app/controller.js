@@ -60,6 +60,10 @@ export function initController (dispatcher, events) {
     targeting: {
       update: (prop, value) => dispatcher.push(events.editor.targeting.update, { prop, value }),
 
+      removeTargetingGroup: id => dispatcher.push(events.editor.targeting.removeTargetingGroup, id),
+
+      toggleTargetingGroup: id => dispatcher.push(events.editor.targeting.toggleTargetingGroup, id),
+
       toggleCategory: id => dispatcher.push(events.editor.targeting.toggleCategory, id),
 
       toggleUserGroup: id => dispatcher.push(events.editor.targeting.toggleUserGroup, id),
@@ -131,6 +135,8 @@ export function initController (dispatcher, events) {
       saveDraft: editor.saveDraft,
       targeting: {
         update: editor.targeting.update,
+        toggleTargetingGroup: editor.targeting.toggleTargetingGroup,
+        removeTargetingGroup: editor.targeting.removeTargetingGroup,
         toggleCategory: editor.targeting.toggleCategory,
         toggleUserGroup: editor.targeting.toggleUserGroup,
         toggleTag: editor.targeting.toggleTag,

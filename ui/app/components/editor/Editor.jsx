@@ -4,9 +4,9 @@ import R from 'ramda'
 
 import EditNotification from './EditNotification'
 import EditTimeline from './EditTimeline'
-import Targeting from './Targeting'
-import PreviewRelease from './PreviewRelease'
-import ValidationMessages from './ValidationMessages'
+import Targeting from './targeting/Targeting'
+import PreviewRelease from './preview/PreviewRelease'
+import ValidationMessages from './preview/ValidationMessages'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
@@ -20,7 +20,7 @@ import getTimelineItems from './getTimelineItems'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   dateFormat: PropTypes.string.isRequired,
   editor: PropTypes.object.isRequired,
   userGroups: PropTypes.object.isRequired,
@@ -61,7 +61,7 @@ const releaseValidationStateKeys = {
 function Editor (props) {
   const {
     controller,
-    locale,
+    user,
     dateFormat,
     editor,
     userGroups,
@@ -209,7 +209,7 @@ function Editor (props) {
                     <Spinner isVisible />
                   </Delay>
                   : <EditNotification
-                    locale={locale}
+                    locale={user.lang}
                     dateFormat={dateFormat}
                     controller={controller.editNotification}
                     notification={editedRelease.notification}
@@ -227,7 +227,7 @@ function Editor (props) {
                     <Spinner isVisible />
                   </Delay>
                   : <EditTimeline
-                    locale={locale}
+                    locale={user.lang}
                     dateFormat={dateFormat}
                     controller={controller.editTimeline}
                     releaseId={editedRelease.id}
@@ -244,11 +244,12 @@ function Editor (props) {
                     <Spinner isVisible />
                   </Delay>
                   : <Targeting
-                    locale={locale}
+                    locale={user.lang}
                     controller={controller.targeting}
                     userGroups={userGroups.items}
                     categories={categories.items}
                     tagGroups={tagGroups.items}
+                    targetingGroups={user.targetingGroups}
                     release={editedRelease}
                   />
               }
@@ -261,7 +262,7 @@ function Editor (props) {
         isPreviewed
           ? <section className="py3 px3 border-top border-bottom border-gray-lighten-3">
             <PreviewRelease
-              locale={locale}
+              locale={user.lang}
               categories={categories.items}
               userGroups={userGroups.items}
               tagGroups={tagGroups.items}
@@ -282,6 +283,7 @@ function Editor (props) {
               timeline={timeline}
               emptyTimelineItems={emptyTimelineItems}
               incompleteTimelineItems={incompleteTimelineItems}
+              targetingGroups={R.pluck('name', user.targetingGroups)}
             />
         }
 

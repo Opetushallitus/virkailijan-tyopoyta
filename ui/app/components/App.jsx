@@ -136,7 +136,7 @@ class App extends React.Component {
             >
               <Editor
                 controller={controller.editor}
-                locale={state.user.lang}
+                user={state.user}
                 dateFormat={state.dateFormat}
                 editor={state.editor}
                 userGroups={state.userGroups}

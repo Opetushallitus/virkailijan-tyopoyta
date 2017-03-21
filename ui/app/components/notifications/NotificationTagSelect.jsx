@@ -47,7 +47,7 @@ class NotificationTagSelect extends React.Component {
     } else if (hasLoadingFailed) {
       return 'avainsanojenhakuepaonnistui'
     } else {
-      return 'hakusana'
+      return 'lisaahakusana'
     }
   }
 
@@ -102,6 +102,15 @@ class NotificationTagSelect extends React.Component {
       selectedTags
     } = this.props
 
+    const renderDropdownLabel = label => ({
+      // Text + description truncated to 30 characters
+      content: `${label.text} - ${label.description}`
+        .split('')
+        .slice(0, 30)
+        .join('')
+        .concat('...')
+    })
+
     return (
       <div>
         <label className="hide" htmlFor="notification-tag-select-search">{translate('suodatatiedotteita')}</label>
@@ -119,6 +128,7 @@ class NotificationTagSelect extends React.Component {
           search
           selection
           scrolling
+          renderLabel={renderDropdownLabel}
           value={selectedTags}
         />
       </div>

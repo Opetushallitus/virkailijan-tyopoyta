@@ -5,13 +5,16 @@ import moment from 'moment'
 import view from './view'
 import categories from './categories'
 import userGroups from './userGroups'
-import tags from './tag-groups'
+import tagGroups from './tagGroups'
 import notifications from './notifications'
 import timeline from './timeline'
+
+// TODO: Remove test data
 
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
+import * as testData from '../resources/test/testData.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -35,7 +38,7 @@ function onReceived (state, response) {
 
   categories.fetch()
   userGroups.fetch()
-  tags.fetch()
+  tagGroups.fetch()
 
   notifications.fetch({
     page: 1,
@@ -48,6 +51,7 @@ function onReceived (state, response) {
   })
 
   return R.compose(
+    R.assocPath(['user', 'targetingGroups'], testData.targetingGroups),
     R.assocPath(['notifications', 'categories'], response.profile.categories),
     R.assocPath(['user', 'isLoading'], false),
     R.assoc('user', response)
@@ -71,7 +75,8 @@ function onFetchFailed (state) {
 
 const initialState = {
   isLoading: true,
-  hasLoadingFailed: false
+  hasLoadingFailed: false,
+  targetingGroups: []
 }
 
 const user = {

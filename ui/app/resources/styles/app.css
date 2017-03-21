@@ -52,13 +52,12 @@
 
   --white:          #fdfdfd;
 
-  --gray:           #2b2b2b;
-  --gray-lighten-1: #666;
-  --gray-lighten-2: #9b9b9b;
-  --gray-lighten-3: #aeaeae;
-  --gray-lighten-4: #ccc;
-  --gray-lighten-5: #f6f4f0;
-  --gray-lighten-6: #f5f5f5;
+  --gray:             #666;
+  --gray-lighten-1:   #999;
+  --gray-lighten-2:   #aeaeae;
+  --gray-lighten-3:   #ccc;
+  --gray-lighten-4:   #f6f4f0;
+  --gray-lighten-5:   #f5f5f5;
 
   --red:            #e44e4e;
   --red-lighten-1:  #e09191;

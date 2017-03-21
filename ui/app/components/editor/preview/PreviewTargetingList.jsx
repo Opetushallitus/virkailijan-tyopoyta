@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react'
 
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 
 const propTypes = {
   title: PropTypes.string.isRequired,

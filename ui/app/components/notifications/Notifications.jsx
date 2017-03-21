@@ -161,7 +161,7 @@ class Notifications extends React.Component {
                   user={user}
                   notification={notification}
                   categories={getItemsForIDs(notification.categories.sort(), categories.items)}
-                  tagGroups={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tagGroups.items)))}
+                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tagGroups.items)))}
                 />
               )}
 

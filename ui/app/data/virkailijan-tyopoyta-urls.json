@@ -4,6 +4,7 @@
   "lokalisointi.localisation":"/lokalisointi/cxf/rest/v1/localisation?category=virkailijan-tyopoyta&locale=",
   "login": "/virkailijan-tyopoyta/login",
   "user": "/virkailijan-tyopoyta/api/user",
+  "targeting.groups": "/virkailijan-tyopoyta/api/user/targeting-groups",
   "release": "/virkailijan-tyopoyta/api/release",
   "notifications": "/virkailijan-tyopoyta/api/notifications",
   "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",

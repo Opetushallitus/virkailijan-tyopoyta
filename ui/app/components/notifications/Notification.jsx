@@ -17,7 +17,7 @@ const propTypes = {
   user: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
   categories: PropTypes.array.isRequired,
-  tagGroups: PropTypes.array.isRequired
+  tags: PropTypes.array.isRequired
 }
 
 class Notification extends React.Component {
@@ -58,11 +58,11 @@ class Notification extends React.Component {
       user,
       notification,
       categories,
-      tagGroups
+      tags
     } = this.props
 
     const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
-    const isDisruptionNotification = tagGroups.indexOf(translate('hairiotiedote')) > -1
+    const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
 
     // Use default locale's content if the version for user's language is missing
     const content = notification.content[user.lang] || notification.content[defaultLocale]
@@ -174,7 +174,7 @@ class Notification extends React.Component {
               />
             )}
 
-            {tagGroups.map(tag =>
+            {tags.map(tag =>
               <Tag
                 key={`notificationTag${tag.id}`}
                 text={tag.name}

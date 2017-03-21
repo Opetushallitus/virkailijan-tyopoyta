@@ -3,10 +3,10 @@ import renderHTML from 'react-render-html'
 import R from 'ramda'
 
 import PreviewTargetingList from './PreviewTargetingList'
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 
-import getTimelineItems from './getTimelineItems'
-import getItemsForIDs from '../utils/getItemsForIDs'
+import getTimelineItems from '../getTimelineItems'
+import getItemsForIDs from '../../utils/getItemsForIDs'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
@@ -124,7 +124,7 @@ function PreviewRelease (props) {
 
             {/*Tags*/}
             {
-              notification.tags.length > 0
+              notification.validationState === 'incomplete' || notification.validationState === 'complete'
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
                     title="julkaisunavainsanat"

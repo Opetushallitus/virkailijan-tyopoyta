@@ -2,20 +2,23 @@ import React, { PropTypes } from 'react'
 import R from 'ramda'
 import { Dropdown } from 'semantic-ui-react'
 
+import TargetingGroupButton from './TargetingGroupButton'
+import RemoveTargetingGroupButton from './RemoveTargetingGroupButton'
 import UserGroupButton from './UserGroupButton'
-import Field from '../common/form/Field'
-import Fieldset from '../common/form/Fieldset'
-import Checkbox from '../common/form/Checkbox'
-import CheckboxButtonGroup from '../common/form/CheckboxButtonGroup'
-import { translate } from '../common/Translations'
+import Field from '../../common/form/Field'
+import Fieldset from '../../common/form/Fieldset'
+import Checkbox from '../../common/form/Checkbox'
+import CheckboxButtonGroup from '../../common/form/CheckboxButtonGroup'
+import { translate } from '../../common/Translations'
 
-import mapDropdownOptions from '../utils/mapDropdownOptions'
+import mapDropdownOptions from '../../utils/mapDropdownOptions'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
   userGroups: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
   tagGroups: PropTypes.array.isRequired,
+  targetingGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
@@ -25,6 +28,7 @@ function Targeting (props) {
     userGroups,
     categories,
     tagGroups,
+    targetingGroups,
     release
   } = props
 
@@ -42,9 +46,11 @@ function Targeting (props) {
   }
 
   const handleSendEmailCheckboxChange = () => {
-    console.log(release.sendEmail)
-
     controller.toggleSendEmail(!release.notification.sendEmail)
+  }
+
+  const handleTargetingGroupNameChange = event => {
+    controller.update('targetingGroup', event.target.value)
   }
 
   const itemHasCategory = (item, selectedCategories) => {
@@ -59,7 +65,7 @@ function Targeting (props) {
   }
 
   // Returns a translation key representing if user has selected categories
-  const getUserGroupsString = hasSelectedCategories => {
+  const getUserGroupsKey = hasSelectedCategories => {
     return hasSelectedCategories
       ? 'valittujenkategorioidenryhmat'
       : 'kaikkikayttooikeusryhmat'
@@ -102,6 +108,53 @@ function Targeting (props) {
       <h2 className="hide">{translate('julkkategoriaryhma')}</h2>
 
       <div className="flex flex-wrap mb3 px3">
+        {/*Targeting groups*/}
+        {
+          targetingGroups.length > 0
+            ? <Field
+              className="flex flex-wrap col-12 mb3"
+              name="release-targeting-groups-search"
+              label={translate('tallennettukohdennus')}
+            >
+              <div
+                className="release-targetinggroup-select col-12 lg-col-5 lg-ml3 border rounded border-gray-lighten-3"
+              >
+                {targetingGroups.map(targetingGroup =>
+                  <div key={`releaseTargetingGroup${targetingGroup.id}`} className="flex flex-wrap">
+                    <div className="col-9 my1 sm-pr2">
+                      <TargetingGroupButton
+                        id={targetingGroup.id}
+                        text={targetingGroup.name}
+                        disabled={targetingGroup.isLoading}
+                        onClick={controller.toggleTargetingGroup}
+                        isActive={release.selectedTargetingGroup === targetingGroup.id}
+                      />
+
+                      {
+                        targetingGroup.hasLoadingFailed
+                          ? <div className="red px2">{translate('poistaminenepaonnistui')}</div>
+                          : null
+                      }
+                    </div>
+
+                    <div
+                      id={`targetingGroup${targetingGroup.id}`}
+                      className="flex flex-auto items-center justify-end my1 pr2"
+                    >
+                      <RemoveTargetingGroupButton
+                        id={targetingGroup.id}
+                        disabled={targetingGroup.isLoading}
+                        onClick={controller.removeTargetingGroup}
+                        isLoading={targetingGroup.isLoading}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Field>
+            : null
+        }
+
         {/*Categories*/}
         <div className="col-12 lg-col-3 sm-pr2">
           <Fieldset legend={translate('julkkategoria')}>
@@ -122,7 +175,7 @@ function Targeting (props) {
         <div className="col-12 lg-col-4 lg-px2">
           <Field
             name="release-usergroups-search"
-            label={translate(getUserGroupsString(release.categories.length))}
+            label={translate(getUserGroupsKey(release.categories.length))}
             isRequired
           >
             <Dropdown
@@ -182,7 +235,7 @@ function Targeting (props) {
 
       <div className="pt3 px3 border-top border-gray-lighten-3">
         <div className="flex items-center justify-center col-12">
-          {/*Targeting selection name*/}
+          {/*Targeting group name*/}
           <label
             className="block md-inline-block mb1 md-mb0 mr2"
             htmlFor="targeting-name"
@@ -194,6 +247,7 @@ function Targeting (props) {
             className="input md-col-6 lg-col-3"
             type="text"
             name="targeting-name"
+            onChange={handleTargetingGroupNameChange}
           />
         </div>
 
