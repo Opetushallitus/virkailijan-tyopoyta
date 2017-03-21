@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 
 import Button from '../common/buttons/Button'
-import Translation from '../common/Translations'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   url: PropTypes.string,
@@ -52,17 +52,13 @@ class EditLink extends React.Component {
     return (
       <div className="absolute top-0 right-0 bottom-0 left-0 z2 m2 bg-white">
         <div className="field">
-          <div className="mb1">
-            <Translation trans="linkkiteksti" />
-          </div>
+          <div className="mb1">{translate('linkkiteksti')}</div>
 
           <div className="muted">{selectedLinkText || selectedText}</div>
         </div>
 
         <div className="field">
-          <label className="block mb1" htmlFor="notification-url">
-            <Translation trans="linkkiosoite" />
-          </label>
+          <label className="block mb1" htmlFor="notification-url">{translate('linkkiosoite')}</label>
 
           <input
             className="input"
@@ -81,7 +77,7 @@ class EditLink extends React.Component {
           disabled={!this.state.url}
           onClick={this.handleOnClick}
         >
-          <Translation trans="tallenna" />
+          {translate('tallenna')}
         </Button>
       </div>
     )

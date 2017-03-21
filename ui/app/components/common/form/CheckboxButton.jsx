@@ -6,10 +6,7 @@ const propTypes = {
   id: PropTypes.number.isRequired,
   htmlId: PropTypes.string.isRequired,
   variant: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]).isRequired,
+  label: PropTypes.string.isRequired,
   checked: PropTypes.bool,
   disabled: PropTypes.bool,
   onChange: PropTypes.func.isRequired

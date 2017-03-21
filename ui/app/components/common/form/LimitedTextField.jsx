@@ -2,13 +2,10 @@ import React, { PropTypes } from 'react'
 
 // Components
 import Field from './Field'
-import Translation from '../Translations'
+import { translate } from '../Translations'
 
 const propTypes = {
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]).isRequired,
+  label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([
     PropTypes.string,
@@ -48,8 +45,7 @@ function LimitedTextField (props) {
       isRequired={isRequired}
     >
       <div className="muted md-right mb1 md-mb0">
-        {maxLength - value.length}&nbsp;
-        <Translation trans="merkkiajaljella" />
+        {maxLength - value.length}&nbsp;{translate('merkkiajaljella')}
       </div>
 
       <input
