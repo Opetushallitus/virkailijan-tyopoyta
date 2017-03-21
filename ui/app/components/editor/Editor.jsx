@@ -58,6 +58,8 @@ const releaseValidationStateKeys = {
   'complete': 'valmis'
 }
 
+// TODO: Throttle onChange updates
+
 function Editor (props) {
   const {
     controller,
@@ -85,15 +87,6 @@ function Editor (props) {
   const emptyTimelineItems = getTimelineItems(['empty'], timeline)
   const incompleteTimelineItems = getTimelineItems(['incomplete'], timeline)
   const completeTimelineItems = getTimelineItems(['complete'], timeline)
-
-  // Set default release and notification validation states for unpublishedReleases/published releases
-  editedRelease.validationState = editedRelease.id > 0
-    ? editedRelease.validationState || 'complete'
-    : editedRelease.validationState
-
-  notification.validationState = notification.id > 0
-    ? notification.validationState || 'complete'
-    : notification.validationState
 
   const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
 

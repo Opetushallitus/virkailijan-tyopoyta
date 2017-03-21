@@ -43,8 +43,6 @@ export function getController () {
   return controller
 }
 
-// TODO: Throttle onChange updates
-
 export function setInitialState () {
   return Bacon.update(
     initialState,

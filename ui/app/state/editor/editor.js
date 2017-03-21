@@ -36,6 +36,12 @@ function onReleaseReceived (state, response) {
   // TODO: Remove from production
   response.userGroups = response.userGroups || []
 
+  const release = R.compose(
+    R.assocPath(['notification', 'validationState'], response.notification ? 'complete' : 'empty'),
+    R.assoc('notification', response.notification || editNotification.emptyNotification()),
+    R.assoc('validationState', 'complete')
+  )(response)
+
   /*
     Check if the requested release is the same as received,
     as multiple requests for releases may be running at the same time
@@ -43,7 +49,7 @@ function onReleaseReceived (state, response) {
   if (response.id === state.editor.requestedReleaseId) {
     return R.compose(
       R.assocPath(['editor', 'isLoadingRelease'], false),
-      R.assocPath(['editor', 'editedRelease'], response)
+      R.assocPath(['editor', 'editedRelease'], release)
     )(state)
   } else {
     return state
