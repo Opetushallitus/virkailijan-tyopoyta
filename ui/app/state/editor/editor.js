@@ -5,7 +5,6 @@ import moment from 'moment'
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
 import targeting from './targeting'
-import userGroups from '../userGroups'
 import view from '../view'
 import unpublishedNotifications from '../unpublishedNotifications'
 import notifications from '../notifications'
@@ -26,8 +25,8 @@ function getRelease (id) {
     url: urls.release,
     method: 'GET',
     searchParams: { id },
-    onSuccess: release => { fetchReleaseBus.push(release) },
-    onError: error => { fetchReleaseFailedBus.push(error) }
+    onSuccess: release => fetchReleaseBus.push(release, id),
+    onError: error => fetchReleaseFailedBus.push(error)
   })
 }
 
@@ -37,10 +36,18 @@ function onReleaseReceived (state, response) {
   // TODO: Remove from production
   response.userGroups = response.userGroups || []
 
-  return R.compose(
-    R.assocPath(['editor', 'isLoading'], false),
-    R.assocPath(['editor', 'editedRelease'], response)
-  )(state)
+  /*
+    Check if the requested release is the same as received,
+    as multiple requests for releases may be running at the same time
+  */
+  if (response.id === state.editor.requestedReleaseId) {
+    return R.compose(
+      R.assocPath(['editor', 'isLoadingRelease'], false),
+      R.assocPath(['editor', 'editedRelease'], response)
+    )(state)
+  } else {
+    return state
+  }
 }
 
 function onFetchReleaseFailed (state, response) {
@@ -55,7 +62,7 @@ function onFetchReleaseFailed (state, response) {
   onAlertsReceived(state, alert)
 
   return R.compose(
-    R.assocPath(['editor', 'isLoading'], false),
+    R.assocPath(['editor', 'isLoadingRelease'], false),
     R.assocPath(['editor', 'editedRelease'], emptyRelease())
   )(state)
 }
@@ -99,7 +106,7 @@ function onSaveFailed (state) {
 
   return R.compose(
     R.assocPath(['editor', 'hasSaveFailed'], true),
-    R.assocPath(['editor', 'isLoading'], false)
+    R.assocPath(['editor', 'isSavingRelease'], false)
   )(state)
 }
 
@@ -149,8 +156,6 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
   // Hide page scrollbar
   document.body.classList.add('overflow-hidden')
 
-  userGroups.fetch(state.user.lang)
-
   // Display correct tab on opening
   const newState = toggleTab(state, selectedTab)
 
@@ -161,8 +166,9 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
 
     // Set eventTargetId to focus on the element which was clicked to open the editor on closing
     return R.compose(
+      R.assocPath(['editor', 'requestedReleaseId'], releaseId),
       R.assocPath(['editor', 'isVisible'], true),
-      R.assocPath(['editor', 'isLoading'], true),
+      R.assocPath(['editor', 'isLoadingRelease'], true),
       R.assocPath(['editor', 'eventTargetId'], eventTargetId)
     )(newState)
   } else {
@@ -230,9 +236,11 @@ function emptyRelease () {
 
 function emptyEditor () {
   return {
+    requestedReleaseId: null,
     isVisible: false,
     isPreviewed: false,
-    isLoading: false,
+    isLoadingRelease: false,
+    isSavingRelease: false,
     hasSaveFailed: false,
     alerts: [],
     editedRelease: emptyRelease(),
@@ -270,11 +278,11 @@ function save (state, id) {
         editReleaseProperties
       )
     },
-    onSuccess: json => saveBus.push(json),
+    onSuccess: response => saveBus.push(response),
     onError: error => saveFailedBus.push(error)
   })
 
-  return R.assocPath(['editor', 'isLoading'], true, state)
+  return R.assocPath(['editor', 'isSavingRelease'], true, state)
 }
 
 function saveDraft (state) {

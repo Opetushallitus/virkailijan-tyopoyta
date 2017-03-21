@@ -3,12 +3,18 @@ import React, { PropTypes } from 'react'
 import { translate } from '../../common/Translations'
 
 const propTypes = {
+  locale: PropTypes.string,
   title: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired
 }
 
+const defaultProps = {
+  locale: ''
+}
+
 function PreviewTargetingList (props) {
   const {
+    locale,
     title,
     items
   } = props
@@ -19,7 +25,7 @@ function PreviewTargetingList (props) {
 
       <ul className="list-reset">
         {items.map(item =>
-          <li key={`${title}${item.id}`} className="mb1">{item.name}</li>
+          <li key={`${title}${item.id}`} className="mb1">{item.name || item.description[locale]}</li>
         )}
       </ul>
     </div>
@@ -27,5 +33,6 @@ function PreviewTargetingList (props) {
 }
 
 PreviewTargetingList.propTypes = propTypes
+PreviewTargetingList.defaultProps = defaultProps
 
 export default PreviewTargetingList

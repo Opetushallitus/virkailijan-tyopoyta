@@ -9,7 +9,7 @@
   "notifications": "/virkailijan-tyopoyta/api/notifications",
   "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",
   "categories": "/virkailijan-tyopoyta/api/categories",
-  "tag.groups": "/virkailijan-tyopoyta/api/tag-groups",
+  "tags": "/virkailijan-tyopoyta/api/tags",
   "usergroups": "/virkailijan-tyopoyta/api/usergroups",
   "timeline": "/virkailijan-tyopoyta/api/timeline"
 }

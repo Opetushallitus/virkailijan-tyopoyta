@@ -24,7 +24,7 @@ function UserGroupButton (props) {
     <Button
       className="button-primary release-usergroup-button left-align
       flex items-center col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
-      title={translate('poistakohderyhma')}
+      title={translate('poistakayttooikeusryhma')}
       onClick={handleClick}
     >
       <span className="regular flex-auto pr1">{text}</span>

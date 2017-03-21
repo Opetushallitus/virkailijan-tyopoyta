@@ -131,7 +131,7 @@ class App extends React.Component {
             ? <Modal
               title={translate('julkaisueditori')}
               variant="big"
-              isCloseDisabled={state.editor.isLoading}
+              isCloseDisabled={state.editor.isSavingRelease}
               onCloseButtonClick={controller.editor.close}
             >
               <Editor

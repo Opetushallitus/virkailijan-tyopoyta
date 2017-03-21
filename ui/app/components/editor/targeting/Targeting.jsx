@@ -15,20 +15,20 @@ import mapDropdownOptions from '../../utils/mapDropdownOptions'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   userGroups: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
   tagGroups: PropTypes.array.isRequired,
-  targetingGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
 function Targeting (props) {
   const {
     controller,
+    user,
     userGroups,
     categories,
     tagGroups,
-    targetingGroups,
     release
   } = props
 
@@ -74,7 +74,11 @@ function Targeting (props) {
   // Prepend 'Target all user groups' item to user groups
   const allUserGroupsItem = {
     id: -1,
-    name: translate('kohdennakaikilleryhmille')
+    description: {
+      FI: translate('kohdennakaikilleryhmille'),
+      SV: translate('kohdennakaikilleryhmille'),
+      EN: translate('kohdennakaikilleryhmille')
+    }
   }
 
   const userGroupsWithAllItem = R.prepend(allUserGroupsItem, userGroups)
@@ -94,7 +98,7 @@ function Targeting (props) {
     : []
 
   const getUserGroupName = (id, groups) => {
-    return R.find(R.propEq('id', id))(groups).name
+    return R.find(R.propEq('id', id))(groups).description[user.lang.toUpperCase()]
   }
 
   const isTagGroupDisabled = (tagGroup, selectedCategories) => {
@@ -110,7 +114,7 @@ function Targeting (props) {
       <div className="flex flex-wrap mb3 px3">
         {/*Targeting groups*/}
         {
-          targetingGroups.length > 0
+          user.targetingGroups.length > 0
             ? <Field
               className="flex flex-wrap col-12 mb3"
               name="release-targeting-groups-search"
@@ -119,7 +123,7 @@ function Targeting (props) {
               <div
                 className="release-targetinggroup-select col-12 lg-col-5 lg-ml3 border rounded border-gray-lighten-3"
               >
-                {targetingGroups.map(targetingGroup =>
+                {user.targetingGroups.map(targetingGroup =>
                   <div key={`releaseTargetingGroup${targetingGroup.id}`} className="flex flex-wrap">
                     <div className="col-9 my1 sm-pr2">
                       <TargetingGroupButton
@@ -185,7 +189,7 @@ function Targeting (props) {
               name="release-usergroups"
               noResultsMessage={translate('eiryhma')}
               onChange={handleUserGroupsChange}
-              options={mapDropdownOptions(unselectedUserGroups)}
+              options={mapDropdownOptions(unselectedUserGroups, user.lang.toUpperCase())}
               placeholder={translate('lisaaryhma')}
               search
               selection
@@ -201,7 +205,7 @@ function Targeting (props) {
             release.userGroups
               ? release.userGroups.map(group =>
                 <UserGroupButton
-                  key={`userGroup${group}`}
+                  key={`releaseUserGroup${group}`}
                   id={group}
                   text={getUserGroupName(group, userGroupsWithAllItem)}
                   onClick={controller.toggleUserGroup}
@@ -223,7 +227,7 @@ function Targeting (props) {
                 <CheckboxButtonGroup
                   groupId={tagGroup.id}
                   htmlId="notification-tags"
-                  options={tagGroup.items}
+                  options={tagGroup.tags}
                   selectedOptions={notification.tags}
                   disabled={isTagGroupDisabled(tagGroup, release.categories)}
                   onChange={controller.toggleTag}

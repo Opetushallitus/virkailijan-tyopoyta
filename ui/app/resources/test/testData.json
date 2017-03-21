@@ -319,14 +319,14 @@
       "id": 1,
       "name": "Ammatillisen päivitetty aikataulu",
       "categories": [4],
-      "userGroups": [4],
+      "userGroups": [1216],
       "tags": [1, 2]
     },
     {
       "id": 2,
       "name": "Lukioiden päivitetty aikataulu",
       "categories": [2, 3],
-      "userGroups": [4],
+      "userGroups": [1221],
       "tags": [1]
     }
   ]

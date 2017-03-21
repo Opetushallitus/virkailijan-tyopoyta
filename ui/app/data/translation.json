@@ -948,8 +948,8 @@
   },
   {
     "locale": "fi",
-    "key": "poistakohderyhma",
-    "value": "Poista kohderyhmä"
+    "key": "poistakayttooikeusryhma",
+    "value": "Poista käyttöoikeusryhmä"
   },
   {
     "locale": "fi",
@@ -1133,8 +1133,8 @@
   },
   {
     "locale": "fi",
-    "key": "haetaantunnisteita",
-    "value": "Haetaan tunnisteita..."
+    "key": "haetaanavainsanoja",
+    "value": "Haetaan avainsanoja..."
   },
   {
     "locale": "fi",
@@ -1249,7 +1249,7 @@
   {
     "locale": "fi",
     "key": "haetaankategorioita",
-    "value": "Haetaan kategorioita"
+    "value": "Haetaan kategorioita..."
   },
   {
     "locale": "fi",

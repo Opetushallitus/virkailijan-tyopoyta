@@ -31,8 +31,6 @@ class Notifications extends React.Component {
     this.autoLoadNotifications = this.autoLoadNotifications.bind(this)
   }
 
-  // TODO: Only update when new notifications or tags/categories are loaded
-
   componentDidMount () {
     // Get next page when scrolling to placeholder notification in bottom of the list
     Bacon
@@ -96,7 +94,7 @@ class Notifications extends React.Component {
       hasLoadingFailed
     } = notifications
 
-    const getNotificationSelectedCategoriesString = (categoriesAmount) => {
+    const getNotificationSelectedCategoriesString = categoriesAmount => {
       return categoriesAmount === 0
         ? translate('eirajoituksia')
         : categoriesAmount
@@ -160,8 +158,8 @@ class Notifications extends React.Component {
                   controller={controller}
                   user={user}
                   notification={notification}
-                  categories={getItemsForIDs(notification.categories.sort(), categories.items)}
-                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tagGroups.items)))}
+                  categories={getItemsForIDs(notification.categories.sort(), categories)}
+                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('tags', tagGroups.items)))}
                 />
               )}
 

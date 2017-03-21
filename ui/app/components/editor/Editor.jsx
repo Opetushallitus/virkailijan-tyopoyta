@@ -74,7 +74,8 @@ function Editor (props) {
     selectedTab,
     editedRelease,
     isPreviewed,
-    isLoading,
+    isLoadingRelease,
+    isSavingRelease,
     hasSaveFailed,
     hasLoadingDependenciesFailed
   } = editor
@@ -138,7 +139,7 @@ function Editor (props) {
             {translate('tiedote')}
 
             {
-              isLoading
+              isLoadingRelease
                 ? null
                 : <span className="lowercase">
                   &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
@@ -154,7 +155,7 @@ function Editor (props) {
             {translate('aikajana')}
 
             {
-              isLoading
+              isLoadingRelease
                 ? null
                 : <span className="lowercase">
                   &nbsp;({
@@ -174,7 +175,7 @@ function Editor (props) {
             {translate('kohdennus')}
 
             {
-              isLoading
+              isLoadingRelease
                 ? null
                 : <span className="lowercase">
                   &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
@@ -189,7 +190,7 @@ function Editor (props) {
           mt2 md-mt0 md-border-bottom border-gray-lighten-2"
         >
           {
-            isLoading
+            isLoadingRelease
               ? null
               : <span>{translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}</span>
           }
@@ -204,7 +205,7 @@ function Editor (props) {
             {/*Notification*/}
             <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoading
+                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
@@ -222,7 +223,7 @@ function Editor (props) {
             {/*Timeline*/}
             <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoading
+                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
@@ -239,17 +240,16 @@ function Editor (props) {
             {/*Categories and user groups*/}
             <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoading
+                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
                   : <Targeting
-                    locale={user.lang}
                     controller={controller.targeting}
+                    user={user}
                     userGroups={userGroups.items}
                     categories={categories.items}
                     tagGroups={tagGroups.items}
-                    targetingGroups={user.targetingGroups}
                     release={editedRelease}
                   />
               }
@@ -276,7 +276,7 @@ function Editor (props) {
       <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
         {/*Validation messages*/}
         {
-          isLoading || hasLoadingDependenciesFailed
+          isLoadingRelease || hasLoadingDependenciesFailed
             ? null
             : <ValidationMessages
               release={editedRelease}
@@ -292,7 +292,7 @@ function Editor (props) {
           className="editor-button-save button button-primary button-lg"
           type="submit"
           disabled={
-            isLoading ||
+            isSavingRelease || isLoadingRelease ||
             // Release is empty
             editedRelease.validationState === 'empty' ||
             // Release is incomplete
@@ -304,7 +304,7 @@ function Editor (props) {
             // Incomplete timeline items exist
             incompleteTimelineItems.length
           }
-          isLoading={isLoading}
+          isLoading={isSavingRelease}
         >
           {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
         </Button>

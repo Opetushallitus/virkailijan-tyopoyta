@@ -28,7 +28,7 @@ class NotificationTagSelect extends React.Component {
       this.props.selectedTags.length > 0) {
       const selectedTags = this.props.selectedTags
       const allowedtags = R.pluck('id',
-        R.flatten(R.pluck('items', nextProps.tagGroups)))
+        R.flatten(R.pluck('tags', nextProps.tagGroups)))
 
       const filteredSelectedTags = R.filter(tag => R.contains(tag, allowedtags), selectedTags)
 
@@ -74,7 +74,7 @@ class NotificationTagSelect extends React.Component {
   */
   mapDropdownOptions () {
     const options = this.props.tagGroups.items.map(option =>
-      option.items.map(item => {
+      option.tags.map(item => {
         return {
           value: item.id,
           text: item.name,
