@@ -1,5 +1,6 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
+import moment from 'moment'
 
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
@@ -63,6 +64,43 @@ function onAlertsReceived (state, alert) {
   const newViewAlerts = R.append(alert, state.editor.alerts)
 
   return R.assocPath(['editor', 'alerts'], newViewAlerts, state)
+}
+
+function onSaveComplete (state) {
+  console.log('Release saved')
+
+  const alert = createAlert({
+    type: 'success',
+    titleKey: 'julkaisuonnistui'
+  })
+
+  const month = moment().format('M')
+  const year = moment().format('YYYY')
+
+  const newViewAlerts = R.append(alert, state.view.alerts)
+  const newState = R.compose(
+    R.assocPath(['view', 'alerts'], newViewAlerts),
+    R.assoc('view', view.emptyView()),
+    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
+    R.assoc('notifications', notifications.reset(1)),
+    R.assoc('timeline', timeline.emptyTimeline())
+  )(state)
+
+  timeline.fetch({
+    month,
+    year
+  })
+
+  return close(newState)
+}
+
+function onSaveFailed (state) {
+  console.log('Saving release failed')
+
+  return R.compose(
+    R.assocPath(['editor', 'hasSaveFailed'], true),
+    R.assocPath(['editor', 'isLoading'], false)
+  )(state)
 }
 
 function toggleValue (value, values) {
@@ -237,35 +275,6 @@ function save (state, id) {
   })
 
   return R.assocPath(['editor', 'isLoading'], true, state)
-}
-
-function onSaveComplete (state) {
-  console.log('Release saved')
-
-  const alert = createAlert({
-    type: 'success',
-    titleKey: 'julkaisuonnistui'
-  })
-
-  const newViewAlerts = R.append(alert, state.view.alerts)
-  const newState = R.compose(
-    R.assocPath(['view', 'alerts'], newViewAlerts),
-    R.assoc('view', view.emptyView()),
-    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
-    R.assoc('notifications', notifications.reset(1)),
-    R.assoc('timeline', timeline.emptyTimeline())
-  )(state)
-
-  return close(newState)
-}
-
-function onSaveFailed (state) {
-  console.log('Saving release failed')
-
-  return R.compose(
-    R.assocPath(['editor', 'hasSaveFailed'], true),
-    R.assocPath(['editor', 'isLoading'], false)
-  )(state)
 }
 
 function saveDraft (state) {
