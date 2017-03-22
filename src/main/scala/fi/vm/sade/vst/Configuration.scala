@@ -10,6 +10,8 @@ case class AuthenticationConfig(casUrl: String, serviceId: String, casUsername: 
 case class ServerConfig(port: Int)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
+case class CasConfig(casUrl: String, casUsername: String, casPassword: String)
+case class EmailConfig(serviceAddress: String, casConfig: CasConfig)
 
 trait Configuration {
 
@@ -30,13 +32,16 @@ trait Configuration {
     config.getString("kayttooikeus.url"),
     10)
 
+  lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("cas.username"), config.getString("cas.password"))
+  lazy val emailConfig = EmailConfig(config.getString("osoitepalvelu.service"), defaultCasConfig)
+
   lazy val serverConfig = ServerConfig(config.getInt("server.port"))
   lazy val loginPage = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl = config.getString("oph.logo.url")
 
   private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
 
-  private lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
+  lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
 
   lazy val dBConfig: DBConfig = DBConfig(
     config.getString(s"db.$dbType.uri"),

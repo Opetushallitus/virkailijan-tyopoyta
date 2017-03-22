@@ -13,7 +13,6 @@ trait JsonSupport {
 
   implicit val dateTimeReads: Reads[LocalDate] = Reads.localDateReads("d.M.yyyy HH:mm:ss")
 
-
   implicit val tagWrites: Writes[Tag] = (
     (JsPath \ "id").write[Long] and
     (JsPath \ "name_fi").write[String]
@@ -173,6 +172,15 @@ trait JsonSupport {
       "isAdmin" -> user.isAdmin,
       "groups" -> user.groups,
       "profile" -> user.profile
+    )
+  }
+
+  implicit val emailEventWrites: Writes[EmailEvent] = Writes { emailEvent =>
+    Json.obj(
+      "id" -> emailEvent.id,
+      "createdAt" -> emailEvent.createdAt,
+      "releaseId" -> emailEvent.releaseId,
+      "eventType" -> emailEvent.eventType
     )
   }
 

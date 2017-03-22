@@ -4,9 +4,8 @@ import fi.vm.sade.utils.cas.CasClient.{ServiceTicket, Username}
 import fi.vm.sade.utils.cas._
 import fi.vm.sade.vst.AuthenticationConfig
 import org.http4s._
-
-import scala.util.{Failure, Try}
 import scalaz.concurrent.Task
+import scala.util.{Failure, Success, Try}
 
 
 object RequestMethod extends Enumeration {
@@ -34,18 +33,39 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
       casParams, client.blaze.defaultClient, "virkailijan-tyopoyta")
 
-    def authenticatedRequest[A](uri: String, method: RequestMethod.Value): Try[String] = {
+    def authenticatedRequest[A](uri: String,
+                                method: RequestMethod.Value,
+                                headers: Headers = Headers.empty,
+                                mediaType: Option[MediaType] = None,
+                                body: Option[A] = None,
+                                encoder: EntityEncoder[A] = EntityEncoder.stringEncoder): Try[String] = {
 
       val http4sMethod = method match {
         case RequestMethod.GET => Method.GET
         case RequestMethod.POST => Method.POST
       }
 
-      val req = Request(method = http4sMethod, uri = Uri.fromString(uri).toOption.get)
+//      import scodec.bits.ByteVector
+//      import scalaz.stream.{Process => ScalazProcess}
+//      val requestBody = body.map(content => ScalazProcess.emit(content).map(s => ByteVector(s.getBytes))).getOrElse(EmptyBody)
+      val request = Request(method = http4sMethod, uri = Uri.fromString(uri).toOption.get, headers = headers) //, body = requestBody)
 
-      val send = authenticatingClient.httpClient.toHttpService.run(req)
+      val send = body.map({ body =>
+        val task = request.withBody(body)(encoder)
+        val taskWithMediaType = mediaType.map(mediaType => task.map(_.withType(mediaType))).getOrElse(task)
+        taskWithMediaType.flatMap(request => authenticatingClient.httpClient.toHttpService.run(request))
+      }).getOrElse {
+        val finalRequest = mediaType.map(request.withType).getOrElse(request)
+        authenticatingClient.httpClient.toHttpService.run(finalRequest)
+      }
 
-      Try(send.unsafePerformSync).map((r: Response) => EntityDecoder.decodeString(r).unsafePerformSync)
+      Try(send.unsafePerformSync).flatMap { response =>
+        lazy val result = EntityDecoder.decodeString(response).unsafePerformSync
+        response.status match {
+          case Status.Ok => Success(result)
+          case _ => Failure(new IllegalStateException(result))
+        }
+      }
     }
   }
 
