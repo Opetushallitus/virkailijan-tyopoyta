@@ -11,7 +11,7 @@ trait ReleaseRepository{
   def tags: Seq[TagGroup]
   def categories(user: User): Seq[Category]
   def release(id: Long): Option[Release]
-  def unpublished : Seq[Release] //??
+  def notification(id: Long) : Option[Notification]
   def unpublishedNotifications: Seq[Notification]
   def releases: Iterable[Release]
 

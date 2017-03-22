@@ -52,6 +52,7 @@ function onReceived (state, response) {
 
   return R.compose(
     R.assocPath(['user', 'targetingGroups'], testData.targetingGroups),
+    // R.assoc('draft', response.profile.draft),
     R.assocPath(['notifications', 'categories'], response.profile.categories),
     R.assocPath(['user', 'isLoading'], false),
     R.assoc('user', response)
@@ -74,9 +75,10 @@ function onFetchFailed (state) {
 }
 
 const initialState = {
+  targetingGroups: [],
+  draft: null,
   isLoading: true,
-  hasLoadingFailed: false,
-  targetingGroups: []
+  hasLoadingFailed: false
 }
 
 const user = {

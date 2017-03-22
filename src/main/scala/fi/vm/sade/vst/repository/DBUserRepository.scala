@@ -2,7 +2,7 @@ package fi.vm.sade.vst.repository
 
 import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model.{UserProfile, UserProfileUpdate}
-import fi.vm.sade.vst.repository.Tables.{NotificationContentTable, UserCategoryTable, UserProfileTable}
+import fi.vm.sade.vst.repository.Tables.{UserCategoryTable, UserProfileTable}
 import scalikejdbc._
 
 class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo {
@@ -29,7 +29,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
           uc.sendEmail -> userProfileUpdate.sendEmail)
       }.update().apply()
     }
-    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
+    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail, firstLogin = true)
   }
 
   private def insertUserCategory(userId: String, categoryId: Long) = {

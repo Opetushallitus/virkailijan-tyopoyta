@@ -2,14 +2,14 @@
 
 ##Endpoint
 
-`GET /virkailijan-tyopoyta/api/notifications?page={page}&id={id}&tags={tags}&categories={categories}`
+`GET /virkailijan-tyopoyta/api/notifications[/{id} tai ?page={page}&tags={tags}&categories={categories}]
 
 ##Parametrit
 
+id: *Valinnainen*. Tiedotteen tunniste. Määrittää, mikä yksittäinen tiedote haetaan.
+
 page: *Valinnainen*. Sivunumero. Määrittää, monesko sivu tiedotteita palautetaan.
 Sivun pituus on 20 tiedotetta. Oletusarvo on 1.
-
-id: *Valinnainen*. Tiedotteen tunniste. Määrittää, mikä yksittäinen tiedote haetaan.
 
 tags: *Valinnainen.* Pilkuilla erotettu lista tagien id:eistä. Määrittää,
 mitä tageja sisältävät tiedotteet palautetaan.
@@ -65,7 +65,7 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 }
 ```
 
-`/virkailijan-tyopoyta/api/notifications?id=1`
+`/virkailijan-tyopoyta/api/notifications/1`
 
 ```
 {

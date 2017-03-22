@@ -450,7 +450,7 @@
   border-left-color: var(--red);
 }
 
-@media (--breakpoint-sm) {
+@media (--breakpoint-lg) {
   .notifications-menu {
     height: var(--space-4);
   }
@@ -646,12 +646,20 @@
 
 /* Utils */
 
+.button-line-height {
+  line-height: var(--button-line-height);
+}
+
 .border-widen-1 {
   border-width: var(--border-widen-1) ;
 }
 
 .invisible {
   visibility: hidden;
+}
+
+.oph-modal:focus {
+  outline: none;
 }
 
 .oph-overlay {

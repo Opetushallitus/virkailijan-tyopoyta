@@ -45,6 +45,8 @@ export function initController (dispatcher, events) {
 
     close: (releaseId, selectedTab) => dispatcher.push(events.editor.close, releaseId, selectedTab),
 
+    editDraft: eventTargetId => dispatcher.push(events.editor.editDraft, eventTargetId),
+
     toggleTab: selectedTab => dispatcher.push(events.editor.toggleTab, selectedTab),
 
     togglePreview: isPreviewed => dispatcher.push(events.editor.togglePreview, isPreviewed),
@@ -74,7 +76,7 @@ export function initController (dispatcher, events) {
     },
 
     editTimeline: {
-      update: (id, prop, value) => dispatcher.push(events.editor.editTimeline.update, { id, prop, value }),
+      updateItem: (id, prop, value) => dispatcher.push(events.editor.editTimeline.updateItem, { id, prop, value }),
 
       updateContent: (id, language, prop) => value =>
         dispatcher.push(events.editor.editTimeline.updateContent, { id, language, prop, value }),
@@ -127,6 +129,7 @@ export function initController (dispatcher, events) {
     editor: {
       open: editor.open,
       close: editor.close,
+      editDraft: editor.editDraft,
       toggleTab: editor.toggleTab,
       togglePreview: editor.togglePreview,
       toggleHasSaveFailed: editor.toggleHasSaveFailed,
@@ -143,7 +146,7 @@ export function initController (dispatcher, events) {
         toggleSendEmail: editor.targeting.toggleSendEmail
       },
       editTimeline: {
-        update: editor.editTimeline.update,
+        updateItem: editor.editTimeline.updateItem,
         updateContent: editor.editTimeline.updateContent,
         add: editor.editTimeline.add,
         remove: editor.editTimeline.remove

@@ -180,7 +180,7 @@ function Editor (props) {
         {/*Publication state*/}
         <div
           className="h5 caps muted md-flex flex-auto items-center justify-end
-          mt2 md-mt0 md-border-bottom border-gray-lighten-2"
+          mt2 md-mt0 md-border-bottom border-gray-lighten-3"
         >
           {
             isLoadingRelease
@@ -198,7 +198,10 @@ function Editor (props) {
             {/*Notification*/}
             <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
+                isLoadingRelease ||
+                categories.isLoadingRelease ||
+                userGroups.isLoadingRelease ||
+                tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
@@ -208,7 +211,6 @@ function Editor (props) {
                     controller={controller.editNotification}
                     notification={editedRelease.notification}
                     disruptionNotificationTag={disruptionNotificationTag}
-                    saveDraft={controller.saveDraft}
                   />
               }
             </section>
@@ -216,7 +218,10 @@ function Editor (props) {
             {/*Timeline*/}
             <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
+                isLoadingRelease ||
+                categories.isLoadingRelease ||
+                userGroups.isLoadingRelease ||
+                tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
@@ -233,7 +238,10 @@ function Editor (props) {
             {/*Categories and user groups*/}
             <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
+                isLoadingRelease ||
+                categories.isLoadingRelease ||
+                userGroups.isLoadingRelease ||
+                tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>

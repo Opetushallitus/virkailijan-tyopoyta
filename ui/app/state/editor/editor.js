@@ -19,9 +19,11 @@ const saveFailedBus = new Bacon.Bus()
 const fetchReleaseBus = new Bacon.Bus()
 const fetchReleaseFailedBus = new Bacon.Bus()
 const alertsBus = new Bacon.Bus()
+const autoSaveBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
+    // url: `${urls.release}/${id}`,
     url: urls.release,
     method: 'GET',
     searchParams: { id },
@@ -96,7 +98,8 @@ function onSaveComplete (state) {
     R.assoc('view', view.emptyView()),
     R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
     R.assoc('notifications', notifications.reset(1)),
-    R.assoc('timeline', timeline.emptyTimeline())
+    R.assoc('timeline', timeline.emptyTimeline()),
+    R.assoc('draft', null)
   )(state)
 
   timeline.fetch({
@@ -114,6 +117,12 @@ function onSaveFailed (state) {
     R.assocPath(['editor', 'hasSaveFailed'], true),
     R.assocPath(['editor', 'isSavingRelease'], false)
   )(state)
+}
+
+function onAutoSave (state) {
+  saveDraft(state)
+
+  return state
 }
 
 function toggleValue (value, values) {
@@ -165,6 +174,8 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
   // Display correct tab on opening
   const newState = toggleTab(state, selectedTab)
 
+  clearInterval(state.editor.autoSave)
+
   if (releaseId > -1) {
     console.log('Opening editor with release id', releaseId)
 
@@ -178,9 +189,10 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
       R.assocPath(['editor', 'eventTargetId'], eventTargetId)
     )(newState)
   } else {
-    console.log('Opening editor')
+    console.log('Opening editor, start autosave')
 
     return R.compose(
+      R.assocPath(['editor', 'autoSave'], createAutosaveInterval()),
       R.assocPath(['editor', 'isVisible'], true),
       R.assocPath(['editor', 'eventTargetId'], eventTargetId)
     )(newState)
@@ -195,12 +207,37 @@ function close (state) {
   // Display page scrollbar
   document.body.classList.remove('overflow-hidden')
 
-  // Focus on element which was clicked to open the editor
+  // Focus on the element which was clicked to open the editor
   if (eventTargetId) {
     document.querySelector(state.editor.eventTargetId).focus()
   }
 
   return R.assoc('editor', emptyEditor(), state)
+}
+
+function editDraft (state, eventTargetId) {
+  console.log('Editing draft, start autosave')
+
+  // Hide page scrollbar
+  document.body.classList.add('overflow-hidden')
+
+  clearInterval(state.editor.autoSave)
+
+  return R.compose(
+    R.assocPath(['editor', 'autoSave'], createAutosaveInterval()),
+    R.assocPath(['editor', 'isVisible'], true),
+    R.assocPath(['editor', 'eventTargetId'], eventTargetId),
+    R.assocPath(['editor', 'editedRelease'], state.draft)
+  )(state)
+}
+
+function createAutosaveInterval () {
+  // 5 minutes
+  const interval = 60000 * 5
+
+  return setInterval(() => {
+    autoSaveBus.push('saved')
+  }, interval)
 }
 
 function removeAlert (state, id) {
@@ -243,15 +280,16 @@ function emptyRelease () {
 function emptyEditor () {
   return {
     requestedReleaseId: null,
+    alerts: [],
+    editedRelease: emptyRelease(),
+    selectedTab: 'edit-notification',
+    eventTargetId: '',
+    autoSave: null,
     isVisible: false,
     isPreviewed: false,
     isLoadingRelease: false,
     isSavingRelease: false,
-    hasSaveFailed: false,
-    alerts: [],
-    editedRelease: emptyRelease(),
-    selectedTab: 'edit-notification',
-    eventTargetId: ''
+    hasSaveFailed: false
   }
 }
 
@@ -292,19 +330,43 @@ function save (state, id) {
 }
 
 function saveDraft (state) {
-  console.log('Saving draft', state.editor.editedRelease)
+  const editedRelease = state.editor.editedRelease
+  const emptyTimelineItemsCount = R.length(R.filter(item => item.validationState === 'empty', editedRelease.timeline))
 
-  // Only save if publishing state === draft
+  // Only save if the edited release is new (has id of -1) and has content
+  if (editedRelease.id > -1 ||
+    (editedRelease.id === -1 &&
+    editedRelease.notification.validationState === 'empty' &&
+    editedRelease.validationState === 'empty' &&
+    emptyTimelineItemsCount === editedRelease.timeline.length)
+  ) {
+    return state
+  }
 
-  const draft = JSON.stringify(state.editor.editedRelease)
+  console.log('Saving draft', editedRelease)
 
-  return state
+  getData({
+    url: urls.draft,
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(editedRelease)
+    },
+    // onSuccess: () => {}
+    onError: () => {}
+  })
+
+  return R.assoc('draft', editedRelease, state)
 }
 
 // Events for appState
 const events = {
   open,
   close,
+  editDraft,
   toggleTab,
   togglePreview,
   toggleHasSaveFailed,
@@ -321,6 +383,7 @@ const initialState = emptyEditor()
 const editor = {
   saveBus,
   saveFailedBus,
+  autoSaveBus,
   fetchReleaseBus,
   fetchReleaseFailedBus,
   alertsBus,
@@ -328,11 +391,13 @@ const editor = {
   initialState,
   onSaveComplete,
   onSaveFailed,
+  onAutoSave,
   onReleaseReceived,
   onFetchReleaseFailed,
   onAlertsReceived,
   open,
   close,
+  editDraft,
   toggleTab,
   togglePreview,
   toggleHasSaveFailed,

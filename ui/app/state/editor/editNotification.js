@@ -1,7 +1,42 @@
 import R from 'ramda'
 
+import editor from './editor'
 import targeting from './targeting'
 import { validate, rules } from './validation'
+
+function update (state, { prop, value }) {
+  console.log('Updating notification', prop, value)
+
+  // Concatenate path and prop
+  const path = ['editor', 'editedRelease', 'notification']
+  const concatenatedPath = R.is(Array, prop)
+    ? path.concat(prop)
+    : R.append(prop, path)
+
+  const validatedNotification = validate(
+    R.path(path, R.assocPath(concatenatedPath, value, state)),
+    rules(state)['notification']
+  )
+
+  const newState = R.assocPath(path, validatedNotification, state)
+
+  return editor.saveDraft(R.assocPath(
+    ['editor', 'editedRelease'],
+    validate(
+      newState.editor.editedRelease,
+      rules(newState)['release']
+    ),
+    newState
+  ))
+}
+
+function updateContent (state, { prop, language, value }) {
+  return update(state, { prop: ['content', language, prop], value })
+}
+
+function setAsDisruptionNotification (state, id) {
+  return targeting.toggleTag(state, id)
+}
 
 function emptyContent (id, language) {
   return {
@@ -26,40 +61,6 @@ function emptyNotification () {
     tags: [],
     validationState: 'empty'
   }
-}
-
-function update (state, { prop, value }) {
-  console.log('Updating notification', prop, value)
-
-  // Concatenate path and prop
-  let path = ['editor', 'editedRelease', 'notification']
-  const concatenatedPath = R.is(Array, prop)
-    ? path.concat(prop)
-    : R.append(prop, path)
-
-  const validatedNotification = validate(
-    R.path(path, R.assocPath(concatenatedPath, value, state)),
-    rules(state)['notification']
-  )
-
-  const newState = R.assocPath(path, validatedNotification, state)
-
-  return R.assocPath(
-    ['editor', 'editedRelease'],
-    validate(
-      newState.editor.editedRelease,
-      rules(newState)['release']
-    ),
-    newState
-  )
-}
-
-function updateContent (state, { prop, language, value }) {
-  return update(state, { prop: ['content', language, prop], value })
-}
-
-function setAsDisruptionNotification (state, id) {
-  return targeting.toggleTag(state, id)
 }
 
 const events = {

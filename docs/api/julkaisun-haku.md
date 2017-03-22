@@ -2,11 +2,11 @@
 
 ##Endpoint
 
-`GET /virkailijan-tyopoyta/api/release?id={id}`
+`GET /virkailijan-tyopoyta/api/release/{id}`
 
 ##Parametrit
 
-id: *Pakollinen.*  Määrittää, mikä julkaisu palautetaan.
+id: *Pakollinen.* Julkaisun tunniste. Määrittää, mikä yksittäinen julkaisu haetaan.
 
 ##Vastauksen muoto
 
@@ -17,7 +17,7 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki
 
-`GET /virkailijan-tyopoyta/api/release?id=1`
+`GET /virkailijan-tyopoyta/api/release/1`
 
 ```
 {

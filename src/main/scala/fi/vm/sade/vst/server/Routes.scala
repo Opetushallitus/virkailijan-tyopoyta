@@ -103,12 +103,12 @@ class Routes(authenticationService: UserService,
               (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page)))
             }
           } ~
-            path("unpublished") {
-              sendResponse(Future(releaseRepository.unpublishedNotifications))
-            }
-        } ~
-        path("unpublished"){
-          sendResponse(Future(releaseRepository.unpublished))
+          path(IntNumber) { id =>
+            sendResponse(Future(releaseRepository.notification(id)))
+          } ~
+          path("unpublished") {
+            sendResponse(Future(releaseRepository.unpublishedNotifications))
+          }
         } ~
         path("categories"){
           userService.findUser(uid) match {

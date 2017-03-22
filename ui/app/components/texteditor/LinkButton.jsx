@@ -27,7 +27,7 @@ function LinkButton (props) {
 
   return (
     <Button
-      className={`button-link RichEditor-styleButton ${isActive ? 'button-link-is-active' : 'gray'}`}
+      className={`button-icon RichEditor-styleButton ${isActive ? 'button-link-is-active' : 'gray'}`}
       title={label}
       disabled={disabled}
       onClick={onClick}
