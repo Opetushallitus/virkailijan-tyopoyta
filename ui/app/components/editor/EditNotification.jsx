@@ -15,8 +15,7 @@ const propTypes = {
   dateFormat: PropTypes.string.isRequired,
   controller: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
-  disruptionNotificationTag: PropTypes.object.isRequired,
-  saveDraft: PropTypes.func.isRequired
+  disruptionNotificationTag: PropTypes.object.isRequired
 }
 
 function EditNotification (props) {
@@ -25,8 +24,7 @@ function EditNotification (props) {
     dateFormat,
     controller,
     notification,
-    disruptionNotificationTag,
-    saveDraft
+    disruptionNotificationTag
   } = props
 
   // Handle non-existing language properties in notification.content
@@ -91,7 +89,6 @@ function EditNotification (props) {
             maxLength={200}
             isRequired
             onChange={controller.updateContent('fi', 'title')}
-            onBlur={saveDraft}
           />
         </div>
 

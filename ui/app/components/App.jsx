@@ -204,7 +204,7 @@ class App extends React.Component {
               {/*Menu*/}
               {
                 state.user.isAdmin
-                  ? <NotificationsMenu controller={controller} />
+                  ? <NotificationsMenu controller={controller} draft={state.draft} />
                   : null
               }
 

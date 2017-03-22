@@ -1405,5 +1405,15 @@
     "locale": "fi",
     "key": "poistaminenepaonnistui",
     "value": "Poistaminen epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "jatkaluonnosta",
+    "value": "Jatka luonnosta"
+  },
+  {
+    "locale": "fi",
+    "key": "eiluonnosta",
+    "value": "Ei luonnosta"
   }
 ]

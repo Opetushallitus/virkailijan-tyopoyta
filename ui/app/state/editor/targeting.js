@@ -27,15 +27,21 @@ function onRemoveTargetingGroupFailed (state, id) {
 function update (state, { prop, value }) {
   console.log('Updating release', prop, value)
 
+  // Concatenate path and prop
   const path = ['editor', 'editedRelease']
-  const newState = R.assocPath(R.append(prop, path), value, state)
+  const concatenatedPath = R.is(Array, prop)
+    ? path.concat(prop)
+    : R.append(prop, path)
+
+  const newState = R.assocPath(concatenatedPath, value, state)
+
 
   const validatedRelease = validate(
     R.path(path, newState),
-    rules(state)['release']
+    rules(newState)['release']
   )
 
-  return R.assocPath(path, validatedRelease, state)
+  return editor.saveDraft(R.assocPath(path, validatedRelease, state))
 }
 
 function updateTargetingGroups (id, targetingGroups, options) {
@@ -139,14 +145,14 @@ function removeSelectedTags (state, categoryId) {
   const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
   const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
 
-  return R.assocPath(
+  return editor.saveDraft(R.assocPath(
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
       rules(newState)['release']
     ),
     newState
-  )
+  ))
 }
 
 function toggleTag (state, id) {
@@ -159,20 +165,20 @@ function toggleTag (state, id) {
 
   const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
 
-  return R.assocPath(
+  return editor.saveDraft(R.assocPath(
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
       rules(newState)['release']
     ),
     newState
-  )
+  ))
 }
 
 function toggleSendEmail (state, value) {
   console.log('Toggled sendEmail', value)
 
-  return R.assocPath(['editor', 'editedRelease', 'notification', 'sendEmail'], value, state)
+  return update(state, { prop: ['notification', 'sendEmail'], value })
 }
 
 // Events for appState

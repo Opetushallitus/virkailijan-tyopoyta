@@ -26,6 +26,7 @@ const events = {
 const initialState = {
   defaultLocale: 'fi',
   dateFormat: 'D.M.YYYY',
+  draft: null,
   user: user.initialState,
   userGroups: userGroups.initialState,
   categories: categories.initialState,
@@ -98,6 +99,7 @@ export function setInitialState () {
     // Editor
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
+    [editor.autoSaveBus], editor.onAutoSave,
     [editor.fetchReleaseBus], editor.onReleaseReceived,
     [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
     [editor.alertsBus], editor.onAlertsReceived,
@@ -115,7 +117,7 @@ export function setInitialState () {
     [dispatcher.stream(events.editor.editNotification.setAsDisruptionNotification)],
     editor.editNotification.setAsDisruptionNotification,
 
-    [dispatcher.stream(events.editor.editTimeline.update)], editor.editTimeline.update,
+    [dispatcher.stream(events.editor.editTimeline.updateItem)], editor.editTimeline.updateItem,
     [dispatcher.stream(events.editor.editTimeline.updateContent)], editor.editTimeline.updateContent,
     [dispatcher.stream(events.editor.editTimeline.add)], editor.editTimeline.add,
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,

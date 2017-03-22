@@ -27,7 +27,7 @@ function EditTimelineItem (props) {
   const handleDateChange = date => {
     const newDate = getFormattedDate({ date, dateFormat })
 
-    controller.update(item.id, 'date', newDate)
+    controller.updateItem(item.id, 'date', newDate)
   }
 
   const handleRemoveItemClick = () => {

@@ -5,6 +5,7 @@
   "login": "/virkailijan-tyopoyta/login",
   "user": "/virkailijan-tyopoyta/api/user",
   "targeting.groups": "/virkailijan-tyopoyta/api/user/targeting-groups",
+  "draft": "/virkailijan-tyopoyta/api/user/draft",
   "release": "/virkailijan-tyopoyta/api/release",
   "notifications": "/virkailijan-tyopoyta/api/notifications",
   "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",

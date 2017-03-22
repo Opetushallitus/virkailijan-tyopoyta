@@ -1,5 +1,6 @@
 import R from 'ramda'
 
+import editor from './editor'
 import { validate, rules } from './validation'
 
 // Returns last timeline item's ID + 1
@@ -25,7 +26,13 @@ function newItem (releaseId, timeline) {
   }
 }
 
-function update (state, { id, prop, value }) {
+function update (state, timeline) {
+  const newState = R.assocPath(['editor', 'editedRelease', 'timeline'], timeline, state)
+
+  return editor.saveDraft(newState)
+}
+
+function updateItem (state, { id, prop, value }) {
   console.log('Updating timeline item', id, prop, value);
 
   const timeline = state.editor.editedRelease.timeline
@@ -42,11 +49,11 @@ function update (state, { id, prop, value }) {
     ...timeline.slice(index + 1)
   ]
 
-  return R.assocPath(['editor', 'editedRelease', 'timeline'], newTimeline, state)
+  return update(state, newTimeline)
 }
 
 function updateContent (state, { id, language, prop, value }) {
-  return update(state, {id, prop: ['content', language, prop], value})
+  return updateItem(state, {id, prop: ['content', language, prop], value})
 }
 
 function add (state, { releaseId, timeline }) {
@@ -55,7 +62,7 @@ function add (state, { releaseId, timeline }) {
 
   console.log('Adding new timeline item with id', item.id)
 
-  return R.assocPath(['editor', 'editedRelease', 'timeline'], newTimeline, state)
+  return update(state, newTimeline)
 }
 
 function remove (state, id) {
@@ -69,11 +76,11 @@ function remove (state, id) {
     ...timeline.slice(index + 1)
   ]
 
-  return R.assocPath(['editor', 'editedRelease', 'timeline'], newTimeline, state)
+  return update(state, newTimeline)
 }
 
 const events = {
-  update,
+  updateItem,
   updateContent,
   add,
   remove
@@ -82,7 +89,7 @@ const events = {
 const editTimeline = {
   events,
   newItem,
-  update,
+  updateItem,
   updateContent,
   add,
   remove

@@ -450,7 +450,7 @@
   border-left-color: var(--red);
 }
 
-@media (--breakpoint-sm) {
+@media (--breakpoint-lg) {
   .notifications-menu {
     height: var(--space-4);
   }
@@ -654,6 +654,10 @@
   visibility: hidden;
 }
 
+.oph-overlay:focus {
+  outline: none;
+}
+
 .oph-overlay {
   display: none;
   position: relative;
@@ -674,6 +678,10 @@
   bottom: 0;
   left: 0;
   z-index: var(--z5);
+}
+
+.oph-button {
+  line-height: var(--base-line-height);
 }
 
 :root {
