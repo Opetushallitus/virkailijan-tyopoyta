@@ -88,7 +88,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .orderBy(n.publishDate).desc
     }
     notificationsFromRS(sql)
-
   }
 
   private def listNotifications(categories: RowIds, tags: RowIds, page: Int): NotificationList = {
@@ -105,6 +104,18 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
     val notifications = notificationsFromRS(sql)
     NotificationList(notifications.size, notifications.slice(offset(page), offset(page) + pageLength))
+  }
+
+  override def notification(id: Long): Option[Notification] = {
+    val sql: SQL[Release, NoExtractor] = withSQL[Release] {
+      notificationJoins
+        .where.not.gt(n.publishDate, LocalDate.now())
+        .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
+        .and.eq(r.deleted, false).and.eq(n.deleted, false)
+        .and.eq(n.id, id)
+        .orderBy(n.publishDate).desc
+    }
+    notificationsFromRS(sql).headOption
   }
 
   private def listTimeline(categories: RowIds, month: YearMonth): Seq[TimelineItem] = {
@@ -288,17 +299,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     DB localTx { implicit session =>
       withSQL{update(ReleaseTable).set(r.deleted -> true)}.update().apply()
     }
-  }
-
-  override def unpublished: Seq[Release] = {
-    val result = withSQL[Release] {
-      select.from(ReleaseTable as r)
-        .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
-        .where.gt(n.publishDate, LocalDate.now)
-    }
-    result.map(ReleaseTable(r))
-      .list.apply()
-      .flatMap(r => release(r.id))
   }
 
   override def generateReleases(amount: Int, month: YearMonth): Seq[Release] = {
