@@ -39,19 +39,8 @@ function update (state, { prop, value }) {
 
   const validatedNotification = validate(
     R.path(path, R.assocPath(concatenatedPath, value, state)),
-    rules(state.editor.editedRelease)['notification']
+    rules(state)['notification']
   )
-
-  /*
-    Remove all tags except those in state.tagGroups.specialTags
-    and set sendEmail as false if notification is emptied
-  */
-  const specialTagIds = R.pluck('id', state.tagGroups.specialTags)
-
-  if (validatedNotification.validationState === 'empty') {
-    validatedNotification.tags = R.filter(tag => R.contains(tag, specialTagIds), validatedNotification.tags)
-    validatedNotification.sendEmail = false
-  }
 
   const newState = R.assocPath(path, validatedNotification, state)
 
@@ -59,7 +48,7 @@ function update (state, { prop, value }) {
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
-      rules(newState.editor.editedRelease)['release']
+      rules(newState)['release']
     ),
     newState
   )

@@ -4,13 +4,13 @@ import { Editor, EditorState, RichUtils, CompositeDecorator, SelectionState, Ent
 import { convertToHTML, convertFromHTML } from 'draft-convert'
 
 // Components
-import CloseButton from '../common/buttons/CloseButton'
-import Translation, { translate } from '../common/Translations'
 import Link from './Link'
 import EditLink from './EditLink'
 import InlineStyleControls from './InlineStyleControls'
 import BlockStyleControls from './BlockStyleControls'
 import LinkButton from './LinkButton'
+import { translate } from '../common/Translations'
+import CloseButton from '../common/buttons/CloseButton'
 
 import { getEntityAtCursor } from './getEntityAtCursor'
 
@@ -290,13 +290,15 @@ class TextEditor extends React.Component {
             onClick={this.removeLink}
           />
 
-          <h3 className={this.state.showURLInput ? 'hide' : 'display-none'}><Translation trans="lisaalinkki" /></h3>
+          <h3 className={this.state.showURLInput ? 'hide' : 'display-none'}>
+            {translate('lisaalinkki')}
+          </h3>
 
           {/*Cancel link editing*/}
           <CloseButton
             className={`z3 ${this.state.showURLInput ? '' : 'display-none'}`}
             onClick={this.promptForLink}
-            title="peruuta"
+            title={translate('peruuta')}
           />
 
           {this.state.showURLInput

@@ -30,7 +30,7 @@ function StyleButton (props) {
 
   return (
     <Button
-      className={`button-link RichEditor-styleButton ${isActive ? 'button-link-is-active' : 'gray-lighten-1'}`}
+      className={`button-link RichEditor-styleButton ${isActive ? 'button-link-is-active' : 'gray'}`}
       title={label}
       onClick={handleOnClick}
     >

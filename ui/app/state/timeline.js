@@ -53,6 +53,23 @@ function onReceived (state, response) {
   }
 }
 
+function onFetchFailed (state) {
+  const alert = createAlert({
+    type: 'error',
+    titleKey: 'tapahtumienhakuepaonnistui',
+    textKey: 'paivitasivu'
+  })
+
+  view.alertsBus.push(alert)
+
+  return R.compose(
+    R.assocPath(['timeline', 'isLoadingNext'], false),
+    R.assocPath(['timeline', 'isLoadingPrevious'], false),
+    R.assocPath(['timeline', 'hasLoadingFailed'], true),
+    R.assocPath(['timeline', 'isInitialLoad'], false)
+  )(state)
+}
+
 function onCurrentMonthReceived (state, response) {
   const currentDate = new Date()
   const currentDay = currentDate.getUTCDate()
@@ -115,23 +132,6 @@ function onNewMonthReceived (state, options) {
       R.assocPath(['timeline', 'isLoadingNext'], false)
     )(newState)
   }
-}
-
-function onFetchFailed (state) {
-  const alert = createAlert({
-    type: 'error',
-    titleKey: 'tapahtumienhakuepaonnistui',
-    textKey: 'paivitasivu'
-  })
-
-  view.alertsBus.push(alert)
-
-  return R.compose(
-    R.assocPath(['timeline', 'isLoadingNext'], false),
-    R.assocPath(['timeline', 'isLoadingPrevious'], false),
-    R.assocPath(['timeline', 'hasLoadingFailed'], true),
-    R.assocPath(['timeline', 'isInitialLoad'], false)
-  )(state)
 }
 
 /*

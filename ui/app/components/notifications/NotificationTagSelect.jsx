@@ -28,7 +28,7 @@ class NotificationTagSelect extends React.Component {
       this.props.selectedTags.length > 0) {
       const selectedTags = this.props.selectedTags
       const allowedtags = R.pluck('id',
-        R.flatten(R.pluck('items', nextProps.tagGroups)))
+        R.flatten(R.pluck('tags', nextProps.tagGroups)))
 
       const filteredSelectedTags = R.filter(tag => R.contains(tag, allowedtags), selectedTags)
 
@@ -47,7 +47,7 @@ class NotificationTagSelect extends React.Component {
     } else if (hasLoadingFailed) {
       return 'avainsanojenhakuepaonnistui'
     } else {
-      return 'hakusana'
+      return 'lisaahakusana'
     }
   }
 
@@ -74,7 +74,7 @@ class NotificationTagSelect extends React.Component {
   */
   mapDropdownOptions () {
     const options = this.props.tagGroups.items.map(option =>
-      option.items.map(item => {
+      option.tags.map(item => {
         return {
           value: item.id,
           text: item.name,
@@ -93,7 +93,7 @@ class NotificationTagSelect extends React.Component {
 
     return selectedCategories.length === 0
       ? tagGroups
-      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tags)
+      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tagGroups)
   }
 
   render () {
@@ -101,6 +101,15 @@ class NotificationTagSelect extends React.Component {
       tagGroups,
       selectedTags
     } = this.props
+
+    const renderDropdownLabel = label => ({
+      // Text + description truncated to 30 characters
+      content: `${label.text} - ${label.description}`
+        .split('')
+        .slice(0, 30)
+        .join('')
+        .concat('...')
+    })
 
     return (
       <div>
@@ -119,6 +128,7 @@ class NotificationTagSelect extends React.Component {
           search
           selection
           scrolling
+          renderLabel={renderDropdownLabel}
           value={selectedTags}
         />
       </div>

@@ -8,9 +8,15 @@ const isNotNull = value => value !== null
 export function rules (state) {
   return {
     release: {
+      targetingGroup: value => {
+        // Check if user.targetingGroups contains the new targeting group's name, the name must be unique
+        return !R.contains(value, R.pluck('name', state.user.targetingGroups))
+      },
       userGroups: isNotEmpty,
       'notification.tags': value => {
-        return state.notification.validationState !== 'empty' ? isNotEmpty(value) : null
+        return state.editor.editedRelease.notification.validationState !== 'empty'
+          ? isNotEmpty(value)
+          : null
       }
     },
     notification: {

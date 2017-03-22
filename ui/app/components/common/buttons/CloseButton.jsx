@@ -29,7 +29,6 @@ function CloseButton (props) {
     <Button
       className={`oph-button oph-button-close ${className}`}
       title={translate(title)}
-      aria-title={translate(title)}
       disabled={disabled}
       onClick={onClick}
     >

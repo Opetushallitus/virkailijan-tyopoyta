@@ -1,12 +1,14 @@
 import React, { PropTypes } from 'react'
+import R from 'ramda'
 
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 
 const propTypes = {
   release: PropTypes.object.isRequired,
   timeline: PropTypes.array.isRequired,
   emptyTimelineItems: PropTypes.array.isRequired,
-  incompleteTimelineItems: PropTypes.array.isRequired
+  incompleteTimelineItems: PropTypes.array.isRequired,
+  targetingGroups: PropTypes.array.isRequired
 }
 
 function ValidationMessages (props) {
@@ -14,16 +16,17 @@ function ValidationMessages (props) {
     release,
     timeline,
     emptyTimelineItems,
-    incompleteTimelineItems
+    incompleteTimelineItems,
+    targetingGroups
   } = props
 
   const notification = release.notification
 
   return (
-    <div>
-      {/*Release isn't targeted*/}
+    <div className="break-word">
+      {/*Release isn't targeted to an user group*/}
       {
-        release.validationState === 'empty' || release.validationState === 'incomplete'
+        release.userGroups.length === 0
           ? <div className="bold red mb1">
             &middot;&nbsp;
             {translate('kohdennuspuuttuu')}
@@ -35,6 +38,15 @@ function ValidationMessages (props) {
                 ? ` ${translate('avainsanapuuttuu')}`
                 : null
             }
+          </div>
+          : null
+      }
+
+      {/*Saved targeting group's name isn't unique*/}
+      {
+        R.contains(release.targetingGroup, targetingGroups)
+          ? <div className="bold red mb1">
+            &middot; {translate('kohdennusonjoolemassa')} {`"${release.targetingGroup}"`}
           </div>
           : null
       }

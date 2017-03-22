@@ -3,7 +3,7 @@ import Bacon from 'baconjs'
 import user from './state/user'
 import categories from './state/categories'
 import userGroups from './state/userGroups'
-import tagGroups from './state/tag-groups'
+import tagGroups from './state/tagGroups'
 import view from './state/view'
 import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
@@ -120,7 +120,11 @@ export function setInitialState () {
     [dispatcher.stream(events.editor.editTimeline.add)], editor.editTimeline.add,
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
 
+    [editor.targeting.removeTargetingGroupBus], editor.targeting.onTargetingGroupRemoved,
+    [editor.targeting.removeTargetingGroupFailedBus], editor.targeting.onRemoveTargetingGroupFailed,
     [dispatcher.stream(events.editor.targeting.update)], editor.targeting.update,
+    [dispatcher.stream(events.editor.targeting.toggleTargetingGroup)], editor.targeting.toggleTargetingGroup,
+    [dispatcher.stream(events.editor.targeting.removeTargetingGroup)], editor.targeting.removeTargetingGroup,
     [dispatcher.stream(events.editor.targeting.toggleCategory)], editor.targeting.toggleCategory,
     [dispatcher.stream(events.editor.targeting.toggleUserGroup)], editor.targeting.toggleUserGroup,
     [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag,

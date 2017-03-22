@@ -1,30 +1,23 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-// TODO: Remove test data
-
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-import * as testData from '../resources/test/testData.json'
+
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
-function fetch (locale) {
+function fetch () {
   console.log('Fetching user groups')
 
-  // getData({
-  //   url: urls.usergroups,
-  //   searchParams: {
-  //     locale
-  //   },
-  //   onSuccess: userGroups => fetchBus.push(userGroups),
-  //   onError: error => fetchFailedBus.push(error)
-  // })
-
-  fetchBus.push(testData.userGroups)
+  getData({
+    url: urls.usergroups,
+    onSuccess: userGroups => fetchBus.push(userGroups),
+    onError: error => fetchFailedBus.push(error)
+  })
 }
 
 function onReceived (state, userGroups) {
@@ -40,12 +33,15 @@ function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
     titleKey: 'kayttajaryhmienhakuepaonnistui',
-    textKey: 'suljejaavaaeditori'
+    textKey: 'paivitasivu'
   })
 
   editor.alertsBus.push(alert)
 
-  return R.assocPath(['userGroups', 'isLoading'], false, state)
+  return R.compose(
+    R.assocPath(['editor', 'hasLoadingDependenciesFailed'], true),
+    R.assocPath(['userGroups', 'isLoading'], false)
+  )(state)
 }
 
 function emptyUserGroups () {

@@ -1,12 +1,12 @@
 import React, { PropTypes } from 'react'
 
 const debounce = require('lodash.debounce')
-const types = ['info', 'success', 'warning', 'error', 'help']
+const types = ['info', 'success', 'warning', 'error', 'default']
 const positions = ['top', 'right', 'bottom', 'left']
 
 const propTypes = {
-  target: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(types),
+  target: PropTypes.string,
+  type: PropTypes.oneOf(types).isRequired,
   position: PropTypes.oneOf(positions).isRequired,
   title: PropTypes.string.isRequired,
   text: PropTypes.string,
@@ -14,8 +14,7 @@ const propTypes = {
 }
 
 const defaultProps = {
-  parent: null,
-  type: null,
+  target: '',
   text: null,
   onOutsideClick: () => {}
 }
@@ -58,10 +57,10 @@ class Popup extends React.Component {
       text
     } = this.props
 
-    const node = document.querySelector(target)
-    const rectangle = node.getBoundingClientRect()
-    const top = `${node.offsetTop}px`
-    const left = `${node.offsetLeft + rectangle.width}px`
+    const node = target ? document.querySelector(target) : null
+    const rectangle = target ? node.getBoundingClientRect() : null
+    const top = target ? `${node.offsetTop}px` : 0
+    const left = target ? `${node.offsetLeft + rectangle.width}px` : 0
 
     return (
       <div

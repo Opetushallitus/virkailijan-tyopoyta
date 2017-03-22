@@ -19,7 +19,7 @@ function Tag (props) {
     'px1',
     'rounded',
     'white',
-    'bg-gray-lighten-1',
+    'bg-gray',
     props.className
   ]
 

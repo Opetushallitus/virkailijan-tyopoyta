@@ -8,9 +8,10 @@ import scalikejdbc._
 import Tables._
 
 class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
-  val (r, n, c, nt, t, tl, tc) =
-    (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax)
+  val (r, n, c, nt, tl, tc) =
+    (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax)
 
+  val (t, tg, tgc) = (TagTable.syntax, TagGroupTable.syntax, TagGroupCategoryTable.syntax)
   val (cat, rc) = (CategoryTable.syntax, ReleaseCategoryTable.syntax)
 
   private def findRelease(id: Long): Option[Release] =
@@ -116,7 +117,10 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .from(ReleaseTable as r)
         .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
         .join(TimelineTable as tl).on(r.id, tl.releaseId)
-        .leftJoin(NotificationTable as n).on(r.id, n.releaseId)
+        .leftJoin(NotificationTable as n)
+          .on(sqls.eq(r.id, n.releaseId)
+          .and(sqls.ge(n.publishDate, LocalDate.now()))
+          .and(sqls.lt(n.expiryDate, LocalDate.now())))
         .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
         .where.between(tl.date, startDate, endDate)
         .and(sqls.toAndConditionOpt(
@@ -137,9 +141,26 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
 
-  def tags: Seq[Tag] = withSQL{select.from(TagTable as t)}.map(TagTable(t)).list.apply
+  def tags: Seq[TagGroup] = {
+    val sql = withSQL[TagGroup]{
+      select
+        .from(TagGroupTable as tg)
+        .leftJoin(TagTable as t).on(tg.id, t.groupId)
+        .leftJoin(TagGroupCategoryTable as tgc).on(tg.id, tgc.groupId)
+    }
 
-  def categories: Seq[Category] = withSQL{select.from(CategoryTable as cat)}.map(CategoryTable(cat)).list.apply
+    sql.one(TagGroupTable(tg)).toManies(
+      rs => TagTable.opt(t)(rs),
+      rs => TagGroupCategoryTable.opt(tgc)(rs))
+      .map{
+        (tagGroup, tags, categories) => tagGroup.copy(tags = tags, categories = categories.map(_.categoryId))
+      }.list.apply()
+  }
+
+  def categories(user: User): Seq[Category] = withSQL {
+    select.from(CategoryTable as cat)
+      .where.in(cat.role, user.roles)
+  }.map(CategoryTable(cat)).list.apply
 
   override def notifications(categories: RowIds, tags: RowIds, page: Int): NotificationList = {
     listNotifications(categories, tags, page)
@@ -278,7 +299,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     result.map(ReleaseTable(r))
       .list.apply()
       .flatMap(r => release(r.id))
-      .toSeq
   }
 
   override def generateReleases(amount: Int, month: YearMonth): Seq[Release] = {

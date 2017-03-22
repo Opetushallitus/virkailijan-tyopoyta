@@ -18,7 +18,7 @@ const propTypes = {
   defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notifications: PropTypes.object.isRequired,
-  tags: PropTypes.object.isRequired,
+  tagGroups: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired
 }
 
@@ -30,8 +30,6 @@ class Notifications extends React.Component {
     this.isLastPageLoaded = this.isLastPageLoaded.bind(this)
     this.autoLoadNotifications = this.autoLoadNotifications.bind(this)
   }
-
-  // TODO: Only update when new notifications or tags/categories are loaded
 
   componentDidMount () {
     // Get next page when scrolling to placeholder notification in bottom of the list
@@ -85,7 +83,7 @@ class Notifications extends React.Component {
       defaultLocale,
       user,
       notifications,
-      tags,
+      tagGroups,
       categories
     } = this.props
 
@@ -96,7 +94,7 @@ class Notifications extends React.Component {
       hasLoadingFailed
     } = notifications
 
-    const getNotificationSelectedCategoriesString = (categoriesAmount) => {
+    const getNotificationSelectedCategoriesString = categoriesAmount => {
       return categoriesAmount === 0
         ? translate('eirajoituksia')
         : categoriesAmount
@@ -109,7 +107,7 @@ class Notifications extends React.Component {
         {/*Filter notifications by tags*/}
         <div className="mb1">
           <NotificationTagSelect
-            tags={tags}
+            tagGroups={tagGroups}
             selectedTags={notifications.tags}
             selectedCategories={notifications.categories}
             controller={controller}
@@ -160,8 +158,8 @@ class Notifications extends React.Component {
                   controller={controller}
                   user={user}
                   notification={notification}
-                  categories={getItemsForIDs(notification.categories.sort(), categories.items)}
-                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('items', tags.items)))}
+                  categories={getItemsForIDs(notification.categories.sort(), categories)}
+                  tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('tags', tagGroups.items)))}
                 />
               )}
 

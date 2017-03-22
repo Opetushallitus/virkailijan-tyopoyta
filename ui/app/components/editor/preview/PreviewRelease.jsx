@@ -3,10 +3,10 @@ import renderHTML from 'react-render-html'
 import R from 'ramda'
 
 import PreviewTargetingList from './PreviewTargetingList'
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 
-import getTimelineItems from './getTimelineItems'
-import getItemsForIDs from '../utils/getItemsForIDs'
+import getTimelineItems from '../getTimelineItems'
+import getItemsForIDs from '../../utils/getItemsForIDs'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
@@ -32,7 +32,11 @@ function PreviewRelease (props) {
   // Prepend 'Target all user groups' item to user groups
   const allUserGroupsItem = {
     id: -1,
-    name: translate('kohdennakaikilleryhmille')
+    description: {
+      FI: translate('kohdennakaikilleryhmille'),
+      SV: translate('kohdennakaikilleryhmille'),
+      EN: translate('kohdennakaikilleryhmille')
+    }
   }
 
   const userGroupsWithAllItem = R.prepend(allUserGroupsItem, userGroups)
@@ -117,6 +121,7 @@ function PreviewRelease (props) {
             {/*User groups*/}
             <div className="col-12 md-col-4 md-mb3 md-pr2">
               <PreviewTargetingList
+                locale={locale.toUpperCase()}
                 title="julkaisunkayttooikeusryhmat"
                 items={getItemsForIDs(release.userGroups, userGroupsWithAllItem)}
               />
@@ -124,11 +129,11 @@ function PreviewRelease (props) {
 
             {/*Tags*/}
             {
-              notification.tags.length > 0
+              notification.validationState === 'incomplete' || notification.validationState === 'complete'
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
                     title="julkaisunavainsanat"
-                    items={getItemsForIDs(notification.tags, R.flatten(R.pluck('items', tagGroups)))}
+                    items={getItemsForIDs(notification.tags, R.flatten(R.pluck('tags', tagGroups)))}
                   />
                 </div>
                 : null

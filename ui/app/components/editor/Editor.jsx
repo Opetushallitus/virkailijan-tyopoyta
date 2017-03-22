@@ -4,9 +4,9 @@ import R from 'ramda'
 
 import EditNotification from './EditNotification'
 import EditTimeline from './EditTimeline'
-import Targeting from './Targeting'
-import PreviewRelease from './PreviewRelease'
-import ValidationMessages from './ValidationMessages'
+import Targeting from './targeting/Targeting'
+import PreviewRelease from './preview/PreviewRelease'
+import ValidationMessages from './preview/ValidationMessages'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
@@ -20,7 +20,7 @@ import getTimelineItems from './getTimelineItems'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   dateFormat: PropTypes.string.isRequired,
   editor: PropTypes.object.isRequired,
   userGroups: PropTypes.object.isRequired,
@@ -58,10 +58,12 @@ const releaseValidationStateKeys = {
   'complete': 'valmis'
 }
 
+// TODO: Throttle onChange updates
+
 function Editor (props) {
   const {
     controller,
-    locale,
+    user,
     dateFormat,
     editor,
     userGroups,
@@ -74,7 +76,8 @@ function Editor (props) {
     selectedTab,
     editedRelease,
     isPreviewed,
-    isLoading,
+    isLoadingRelease,
+    isSavingRelease,
     hasSaveFailed,
     hasLoadingDependenciesFailed
   } = editor
@@ -84,15 +87,6 @@ function Editor (props) {
   const emptyTimelineItems = getTimelineItems(['empty'], timeline)
   const incompleteTimelineItems = getTimelineItems(['incomplete'], timeline)
   const completeTimelineItems = getTimelineItems(['complete'], timeline)
-
-  // Set default release and notification validation states for unpublishedReleases/published releases
-  editedRelease.validationState = editedRelease.id > 0
-    ? editedRelease.validationState || 'complete'
-    : editedRelease.validationState
-
-  notification.validationState = notification.id > 0
-    ? notification.validationState || 'complete'
-    : notification.validationState
 
   const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
 
@@ -138,7 +132,7 @@ function Editor (props) {
             {translate('tiedote')}
 
             {
-              isLoading
+              isLoadingRelease
                 ? null
                 : <span className="lowercase">
                   &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
@@ -154,7 +148,7 @@ function Editor (props) {
             {translate('aikajana')}
 
             {
-              isLoading
+              isLoadingRelease
                 ? null
                 : <span className="lowercase">
                   &nbsp;({
@@ -174,7 +168,7 @@ function Editor (props) {
             {translate('kohdennus')}
 
             {
-              isLoading
+              isLoadingRelease
                 ? null
                 : <span className="lowercase">
                   &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
@@ -189,7 +183,7 @@ function Editor (props) {
           mt2 md-mt0 md-border-bottom border-gray-lighten-2"
         >
           {
-            isLoading
+            isLoadingRelease
               ? null
               : <span>{translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}</span>
           }
@@ -204,12 +198,12 @@ function Editor (props) {
             {/*Notification*/}
             <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoading
+                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
                   : <EditNotification
-                    locale={locale}
+                    locale={user.lang}
                     dateFormat={dateFormat}
                     controller={controller.editNotification}
                     notification={editedRelease.notification}
@@ -222,12 +216,12 @@ function Editor (props) {
             {/*Timeline*/}
             <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoading
+                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
                   : <EditTimeline
-                    locale={locale}
+                    locale={user.lang}
                     dateFormat={dateFormat}
                     controller={controller.editTimeline}
                     releaseId={editedRelease.id}
@@ -239,13 +233,13 @@ function Editor (props) {
             {/*Categories and user groups*/}
             <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
               {
-                isLoading
+                isLoadingRelease || categories.isLoadingRelease || userGroups.isLoadingRelease || tagGroups.isLoadingRelease
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
                   : <Targeting
-                    locale={locale}
                     controller={controller.targeting}
+                    user={user}
                     userGroups={userGroups.items}
                     categories={categories.items}
                     tagGroups={tagGroups.items}
@@ -261,7 +255,7 @@ function Editor (props) {
         isPreviewed
           ? <section className="py3 px3 border-top border-bottom border-gray-lighten-3">
             <PreviewRelease
-              locale={locale}
+              locale={user.lang}
               categories={categories.items}
               userGroups={userGroups.items}
               tagGroups={tagGroups.items}
@@ -275,13 +269,14 @@ function Editor (props) {
       <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
         {/*Validation messages*/}
         {
-          isLoading || hasLoadingDependenciesFailed
+          isLoadingRelease || hasLoadingDependenciesFailed
             ? null
             : <ValidationMessages
               release={editedRelease}
               timeline={timeline}
               emptyTimelineItems={emptyTimelineItems}
               incompleteTimelineItems={incompleteTimelineItems}
+              targetingGroups={R.pluck('name', user.targetingGroups)}
             />
         }
 
@@ -290,7 +285,7 @@ function Editor (props) {
           className="editor-button-save button button-primary button-lg"
           type="submit"
           disabled={
-            isLoading ||
+            isSavingRelease || isLoadingRelease ||
             // Release is empty
             editedRelease.validationState === 'empty' ||
             // Release is incomplete
@@ -302,7 +297,7 @@ function Editor (props) {
             // Incomplete timeline items exist
             incompleteTimelineItems.length
           }
-          isLoading={isLoading}
+          isLoading={isSavingRelease}
         >
           {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
         </Button>

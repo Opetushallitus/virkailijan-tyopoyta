@@ -131,12 +131,12 @@ class App extends React.Component {
             ? <Modal
               title={translate('julkaisueditori')}
               variant="big"
-              isCloseDisabled={state.editor.isLoading}
+              isCloseDisabled={state.editor.isSavingRelease}
               onCloseButtonClick={controller.editor.close}
             >
               <Editor
                 controller={controller.editor}
-                locale={state.user.lang}
+                user={state.user}
                 dateFormat={state.dateFormat}
                 editor={state.editor}
                 userGroups={state.userGroups}

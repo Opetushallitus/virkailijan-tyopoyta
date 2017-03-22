@@ -37,10 +37,28 @@ object Tables {
   object TagTable extends SQLSyntaxSupport[Tag]{
     override val tableName = "tag"
     def apply(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Tag = apply(t.resultName)(rs)
-    def apply(t: ResultName[Tag])(rs: WrappedResultSet): Tag = Tag(rs.get(t.id), rs.get(t.name), rs.get(t.tagType))
+    def apply(t: ResultName[Tag])(rs: WrappedResultSet): Tag = Tag(rs.get(t.id), rs.get(t.name), rs.get(t.tagType), rs.get(t.groupId))
 
     def opt(t: SyntaxProvider[Tag])(rs: WrappedResultSet): Option[Tag] =
       rs.longOpt(t.resultName.id).map(_ => TagTable(t)(rs))
+  }
+
+  object TagGroupTable extends SQLSyntaxSupport[TagGroup]{
+    override val tableName = "tag_group"
+    def apply(tg: SyntaxProvider[TagGroup])(rs: WrappedResultSet): TagGroup = apply(tg.resultName)(rs)
+    def apply(tg: ResultName[TagGroup])(rs: WrappedResultSet): TagGroup= TagGroup(rs.get(tg.id), rs.get(tg.name))
+
+    def opt(tg: SyntaxProvider[TagGroup])(rs: WrappedResultSet): Option[TagGroup] =
+      rs.longOpt(tg.resultName.id).map(_ => TagGroupTable(tg)(rs))
+  }
+
+  object TagGroupCategoryTable extends SQLSyntaxSupport[TagGroupCategory]{
+    override val tableName = "tag_group_category"
+    def apply(tgc: SyntaxProvider[TagGroupCategory])(rs: WrappedResultSet): TagGroupCategory = apply(tgc.resultName)(rs)
+    def apply(tgc: ResultName[TagGroupCategory])(rs: WrappedResultSet): TagGroupCategory= TagGroupCategory(rs.get(tgc.groupId), rs.get(tgc.categoryId))
+
+    def opt(tgc: SyntaxProvider[TagGroupCategory])(rs: WrappedResultSet): Option[TagGroupCategory] =
+      rs.longOpt(tgc.resultName.groupId).map(_ => TagGroupCategoryTable(tgc)(rs))
   }
 
   object NotificationTagTable extends SQLSyntaxSupport[NotificationTags]{
@@ -82,7 +100,7 @@ object Tables {
     override val tableName = "category"
     def apply (cat: SyntaxProvider[Category])(rs: WrappedResultSet): Category = apply(cat.resultName)(rs)
     def apply (cat: ResultName[Category])(rs: WrappedResultSet): Category =
-      Category(rs.get(cat.id), rs.get(cat.name))
+      Category(rs.get(cat.id), rs.get(cat.name), rs.get(cat.role))
     def opt(cat: SyntaxProvider[Category])(rs: WrappedResultSet): Option[Category] =
       rs.longOpt(cat.resultName.id).map(_ => CategoryTable(cat)(rs))
   }
@@ -113,7 +131,7 @@ object Tables {
     override val tableName = "user_profile"
     def apply(n: SyntaxProvider[UserProfile])(rs: WrappedResultSet): UserProfile = apply(n.resultName)(rs)
     def apply(r: ResultName[UserProfile])(rs: WrappedResultSet): UserProfile = UserProfile(
-      uid = rs.get(r.uid),
+      userId = rs.get(r.userId),
       sendEmail = rs.get(r.sendEmail)
     )
   }

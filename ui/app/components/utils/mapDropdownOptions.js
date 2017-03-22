@@ -10,9 +10,9 @@
   ]
 */
 
-export default function mapDropdownOptions (options) {
+export default function mapDropdownOptions (options, locale) {
   return options.map(option => ({
     value: option.id,
-    text: option.name
+    text: option.name || option.description[locale]
   }))
 }

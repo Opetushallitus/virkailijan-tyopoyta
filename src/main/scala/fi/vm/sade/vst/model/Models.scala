@@ -3,15 +3,27 @@ package fi.vm.sade.vst.model
 import java.time.LocalDate
 
 
-case class Tag(id: Long, name: String, tagType: Option[String])
-case class Category(id: Long, name: String)
+case class Tag(id: Long, name: String, tagType: Option[String], groupId: Long)
+
+case class TagGroup(id: Long, name: String, tags: Seq[Tag] = Seq.empty, categories: Seq[Long] = Seq.empty)
+
+case class Category(id: Long, name: String, role: String)
+
+case class TagGroupCategory(groupId: Long, categoryId: Long)
 
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
 
 
-case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma], profile: UserProfile)
+case class User(userId: String,
+                lastName: String,
+                givenNames: String,
+                language: String,
+                isAdmin: Boolean,
+                groups: Seq[Kayttooikeusryhma],
+                roles: Seq[String],
+                profile: UserProfile)
 
-case class UserProfile(uid: String,
+case class UserProfile(userId: String,
                        categories: Seq[Long] = Seq.empty,
                        sendEmail: Boolean = false)
 
@@ -77,8 +89,7 @@ case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, conten
 
 case class EmailEvent(id: Long, createdAt: LocalDate, releaseId: Long, eventType: String)
 
-
-case class Kayttooikeusryhma(id: Long, description: Map[String, Option[String]])
+case class Kayttooikeusryhma(id: Long, description: Map[String, Option[String]], roles: Seq[String])
 
 case class Kayttooikeus(palveluName: String, role: String)
 
