@@ -32,11 +32,26 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     UserProfile(uid, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
+  private def insertUserCategory(uid: String, categoryId: Long) = {
+    val uc = UserCategoryTable.column
+    DB localTx { implicit session =>
+      withSQL {
+        insert.into(UserCategoryTable).namedValues(
+          uc.userId -> uid,
+          uc.categoryId -> categoryId)
+      }.update().apply()
+    }
+  }
+
   private def updateUserProfile(uid: String, userProfileUpdate: UserProfileUpdate) = {
     DB localTx { implicit session =>
       withSQL {
-        update(UserProfileTable).set(u.sendEmail -> userProfileUpdate.sendEmail)
+        update(UserProfileTable).set(u.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.uid,uid)
       }.update().apply()
+      withSQL {
+        delete.from(UserCategoryTable).where.eq(uc.userId,uid)
+      }.update().apply()
+      userProfileUpdate.categories.foreach(id => insertUserCategory(uid,id))
     }
     UserProfile(uid, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }

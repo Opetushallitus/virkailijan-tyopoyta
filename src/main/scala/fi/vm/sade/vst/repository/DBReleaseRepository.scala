@@ -240,6 +240,19 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       item.content.values.foreach(insertTimelineContent(itemId, _))
   }
 
+  override def updateRelease(uid: String, releaseUpdate: ReleaseUpdate): Option[Release] = {
+    val r = ReleaseTable.column
+    DB localTx { implicit session =>
+      withSQL{
+        delete.from(ReleaseTable).where.eq(r.id, releaseUpdate.id)
+      }.update().apply()
+      val releaseId = insertRelease(releaseUpdate)
+      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, uid, _))
+      releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
+      findRelease(releaseId)
+    }
+  }
+
   override def addRelease(uid: String, releaseUpdate: ReleaseUpdate): Option[Release] = {
     DB localTx { implicit session =>
       val releaseId = insertRelease(releaseUpdate)
