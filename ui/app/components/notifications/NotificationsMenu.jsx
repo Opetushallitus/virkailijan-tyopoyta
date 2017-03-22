@@ -35,7 +35,7 @@ function NotificationsMenu (props) {
   const handleEditDraftButtonClick = event => {
     const id = event.target.getAttribute('id')
 
-    controller.editor.openDraft(`#${id}`)
+    controller.editor.editDraft(`#${id}`)
   }
 
   return (

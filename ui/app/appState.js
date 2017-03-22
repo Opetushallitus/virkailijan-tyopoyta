@@ -105,6 +105,7 @@ export function setInitialState () {
     [editor.alertsBus], editor.onAlertsReceived,
     [dispatcher.stream(events.editor.open)], editor.open,
     [dispatcher.stream(events.editor.close)], editor.close,
+    [dispatcher.stream(events.editor.editDraft)], editor.editDraft,
     [dispatcher.stream(events.editor.toggleTab)], editor.toggleTab,
     [dispatcher.stream(events.editor.togglePreview)], editor.togglePreview,
     [dispatcher.stream(events.editor.toggleHasSaveFailed)], editor.toggleHasSaveFailed,

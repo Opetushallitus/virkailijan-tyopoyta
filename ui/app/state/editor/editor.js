@@ -198,6 +198,22 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
   }
 }
 
+function editDraft (state, eventTargetId) {
+  // Hide page scrollbar
+  document.body.classList.add('overflow-hidden')
+
+  clearInterval(state.editor.autoSave)
+
+  console.log('Editing draft')
+
+  return R.compose(
+    R.assocPath(['editor', 'autoSave'], createAutosaveInterval()),
+    R.assocPath(['editor', 'isVisible'], true),
+    R.assocPath(['editor', 'eventTargetId'], eventTargetId),
+    R.assocPath(['editor', 'editedRelease'], state.draft)
+  )(state)
+}
+
 function close (state) {
   console.log('Closing editor')
 
@@ -349,6 +365,7 @@ function saveDraft (state) {
 const events = {
   open,
   close,
+  editDraft,
   toggleTab,
   togglePreview,
   toggleHasSaveFailed,
@@ -379,6 +396,7 @@ const editor = {
   onAlertsReceived,
   open,
   close,
+  editDraft,
   toggleTab,
   togglePreview,
   toggleHasSaveFailed,

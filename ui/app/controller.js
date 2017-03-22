@@ -45,6 +45,8 @@ export function initController (dispatcher, events) {
 
     close: (releaseId, selectedTab) => dispatcher.push(events.editor.close, releaseId, selectedTab),
 
+    editDraft: () => dispatcher.push(events.editor.editDraft),
+
     toggleTab: selectedTab => dispatcher.push(events.editor.toggleTab, selectedTab),
 
     togglePreview: isPreviewed => dispatcher.push(events.editor.togglePreview, isPreviewed),
@@ -127,6 +129,7 @@ export function initController (dispatcher, events) {
     editor: {
       open: editor.open,
       close: editor.close,
+      editDraft: editor.editDraft,
       toggleTab: editor.toggleTab,
       togglePreview: editor.togglePreview,
       toggleHasSaveFailed: editor.toggleHasSaveFailed,
