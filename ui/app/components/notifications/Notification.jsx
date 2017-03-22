@@ -106,7 +106,7 @@ class Notification extends React.Component {
           isExpandable && !isRelatedToTimelineItem
             ? <div className="absolute top-0 right-0 z2">
               <Button
-                className="notification-expand-button button-link gray-lighten-1"
+                className="notification-expand-button button-icon gray-lighten-1"
                 title={translate('naytatiedote')}
                 onClick={this.handleNotificationClick}
               >
@@ -115,7 +115,7 @@ class Notification extends React.Component {
               </Button>
 
               <Button
-                className="notification-contract-button button-link gray-lighten-1"
+                className="notification-contract-button button-icon gray-lighten-1"
                 title={translate('naytakatkelma')}
                 onClick={this.handleNotificationClick}
               >

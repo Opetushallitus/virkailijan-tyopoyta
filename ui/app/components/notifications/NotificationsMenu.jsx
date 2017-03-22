@@ -68,17 +68,14 @@ function NotificationsMenu (props) {
             <br className="lg-hide" />
 
             {/*Edit draft*/}
-            {
-              draft
-                ? <Button
-                  id="button-edit-draft"
-                  className="button-link regular right-align px0 lg-ml3"
-                  onClick={handleEditDraftButtonClick}
-                >
-                  {translate('jatkaluonnosta')}
-                </Button>
-                : <div className="lg-ml3 py1 muted">{translate('eiluonnosta')}</div>
-            }
+            <Button
+              id="button-edit-draft"
+              className="button-link regular right-align px0 lg-ml3"
+              onClick={handleEditDraftButtonClick}
+              disabled={!draft}
+            >
+              {translate(draft ? 'jatkaluonnosta' : 'eiluonnosta')}
+            </Button>
           </div>
         </div>
       </section>

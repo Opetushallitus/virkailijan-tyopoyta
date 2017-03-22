@@ -26,7 +26,7 @@ function EditButton (props) {
   return (
     <Button
       id={id}
-      className={`button-link ${className}`}
+      className={`button-icon ${className}`}
       title={translate('muokkaa')}
       onClick={onClick}
     >

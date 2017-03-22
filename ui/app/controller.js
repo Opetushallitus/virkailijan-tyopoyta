@@ -45,7 +45,7 @@ export function initController (dispatcher, events) {
 
     close: (releaseId, selectedTab) => dispatcher.push(events.editor.close, releaseId, selectedTab),
 
-    editDraft: () => dispatcher.push(events.editor.editDraft),
+    editDraft: eventTargetId => dispatcher.push(events.editor.editDraft, eventTargetId),
 
     toggleTab: selectedTab => dispatcher.push(events.editor.toggleTab, selectedTab),
 

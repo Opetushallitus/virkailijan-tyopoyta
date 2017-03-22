@@ -243,6 +243,17 @@ a:focus {
   background-color: var(--gray-lighten-1);
 }
 
+.button-icon {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+.button-icon[disabled] {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--muted);
+}
+
 /* Form */
 
 ::placeholder {

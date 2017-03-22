@@ -180,7 +180,7 @@ function Editor (props) {
         {/*Publication state*/}
         <div
           className="h5 caps muted md-flex flex-auto items-center justify-end
-          mt2 md-mt0 md-border-bottom border-gray-lighten-2"
+          mt2 md-mt0 md-border-bottom border-gray-lighten-3"
         >
           {
             isLoadingRelease

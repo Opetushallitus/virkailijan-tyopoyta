@@ -646,6 +646,10 @@
 
 /* Utils */
 
+.button-line-height {
+  line-height: var(--button-line-height);
+}
+
 .border-widen-1 {
   border-width: var(--border-widen-1) ;
 }
@@ -654,7 +658,7 @@
   visibility: hidden;
 }
 
-.oph-overlay:focus {
+.oph-modal:focus {
   outline: none;
 }
 
@@ -678,10 +682,6 @@
   bottom: 0;
   left: 0;
   z-index: var(--z5);
-}
-
-.oph-button {
-  line-height: var(--base-line-height);
 }
 
 :root {

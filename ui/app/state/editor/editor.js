@@ -98,7 +98,8 @@ function onSaveComplete (state) {
     R.assoc('view', view.emptyView()),
     R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
     R.assoc('notifications', notifications.reset(1)),
-    R.assoc('timeline', timeline.emptyTimeline())
+    R.assoc('timeline', timeline.emptyTimeline()),
+    R.assoc('draft', null)
   )(state)
 
   timeline.fetch({
@@ -198,22 +199,6 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
   }
 }
 
-function editDraft (state, eventTargetId) {
-  // Hide page scrollbar
-  document.body.classList.add('overflow-hidden')
-
-  clearInterval(state.editor.autoSave)
-
-  console.log('Editing draft')
-
-  return R.compose(
-    R.assocPath(['editor', 'autoSave'], createAutosaveInterval()),
-    R.assocPath(['editor', 'isVisible'], true),
-    R.assocPath(['editor', 'eventTargetId'], eventTargetId),
-    R.assocPath(['editor', 'editedRelease'], state.draft)
-  )(state)
-}
-
 function close (state) {
   console.log('Closing editor')
 
@@ -228,6 +213,22 @@ function close (state) {
   }
 
   return R.assoc('editor', emptyEditor(), state)
+}
+
+function editDraft (state, eventTargetId) {
+  console.log('Editing draft, start autosave')
+
+  // Hide page scrollbar
+  document.body.classList.add('overflow-hidden')
+
+  clearInterval(state.editor.autoSave)
+
+  return R.compose(
+    R.assocPath(['editor', 'autoSave'], createAutosaveInterval()),
+    R.assocPath(['editor', 'isVisible'], true),
+    R.assocPath(['editor', 'eventTargetId'], eventTargetId),
+    R.assocPath(['editor', 'editedRelease'], state.draft)
+  )(state)
 }
 
 function createAutosaveInterval () {
