@@ -17,6 +17,7 @@ trait ReleaseRepository{
 
   def deleteRelease(id: Long): Int
   def addRelease(uid: String, release: ReleaseUpdate): Option[Release]
+  def updateRelease(uid: String, release: ReleaseUpdate): Option[Release]
   def generateReleases(amount: Int, month: YearMonth): Seq[Release]
 
 }

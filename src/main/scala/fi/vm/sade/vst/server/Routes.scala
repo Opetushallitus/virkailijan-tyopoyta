@@ -134,6 +134,17 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
           sendResponse(Future(userService.serviceUserGroups))
         }
       } ~
+      put {
+        path("release") {
+          entity(as[String]) { json =>
+            val release = parseReleaseUpdate(json)
+            release match {
+              case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
+              case None => complete(StatusCodes.BadRequest)
+            }
+          }
+        }
+      } ~
       post {
         path("release") {
           entity(as[String]) { json =>
