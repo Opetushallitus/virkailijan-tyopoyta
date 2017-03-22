@@ -1,24 +1,21 @@
 import React, { PropTypes } from 'react'
-import R from 'ramda'
 
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 
 const propTypes = {
-  locale: PropTypes.string.isRequired,
+  locale: PropTypes.string,
   title: PropTypes.string.isRequired,
-  selectedItems: PropTypes.array.isRequired,
   items: PropTypes.array.isRequired
 }
 
-const getSelectedTargetingName = (id, items, locale) => {
-  return R.find(R.propEq('id', id))(items)[`name_${locale}`]
+const defaultProps = {
+  locale: ''
 }
 
 function PreviewTargetingList (props) {
   const {
     locale,
     title,
-    selectedItems,
     items
   } = props
 
@@ -27,10 +24,8 @@ function PreviewTargetingList (props) {
       <p className="bold pr2">{translate(title)}</p>
 
       <ul className="list-reset">
-        {selectedItems.map(id =>
-          <li key={`${title}${id}`} className="mb1">
-            {getSelectedTargetingName(id, items, locale)}
-          </li>
+        {items.map(item =>
+          <li key={`${title}${item.id}`} className="mb1">{item.name || item.description[locale]}</li>
         )}
       </ul>
     </div>
@@ -38,5 +33,6 @@ function PreviewTargetingList (props) {
 }
 
 PreviewTargetingList.propTypes = propTypes
+PreviewTargetingList.defaultProps = defaultProps
 
 export default PreviewTargetingList

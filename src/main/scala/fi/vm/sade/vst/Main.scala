@@ -9,5 +9,7 @@ object Main extends App with ServerModule with Configuration {
   val server = wire[Server]
 
   migrations.run()
+  println("Fetching service user groups")
+  val groups = userService.serviceUserGroups
   server.start()
 }

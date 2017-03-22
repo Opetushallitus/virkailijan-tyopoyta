@@ -1,5 +1,15 @@
 {
   "cas.myroles": "https://itest-virkailija.oph.ware.fi/cas/myroles",
   "cas.login": "/cas/login?service=",
-  "lokalisointi.localisation":"/lokalisointi/cxf/rest/v1/localisation?category=virkailijan-tyopoyta&locale="
+  "lokalisointi.localisation":"/lokalisointi/cxf/rest/v1/localisation?category=virkailijan-tyopoyta&locale=",
+  "login": "/virkailijan-tyopoyta/login",
+  "user": "/virkailijan-tyopoyta/api/user",
+  "targeting.groups": "/virkailijan-tyopoyta/api/user/targeting-groups",
+  "release": "/virkailijan-tyopoyta/api/release",
+  "notifications": "/virkailijan-tyopoyta/api/notifications",
+  "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",
+  "categories": "/virkailijan-tyopoyta/api/categories",
+  "tags": "/virkailijan-tyopoyta/api/tags",
+  "usergroups": "/virkailijan-tyopoyta/api/usergroups",
+  "timeline": "/virkailijan-tyopoyta/api/timeline"
 }

@@ -2,8 +2,6 @@ export function initController (dispatcher, events) {
   const view = {
     toggleTab: selectedTab => dispatcher.push(events.view.toggleTab, selectedTab),
 
-    toggleMenu: () => dispatcher.push(events.view.toggleMenu),
-
     removeAlert: id => dispatcher.push(events.view.removeAlert, id)
   }
 
@@ -22,7 +20,7 @@ export function initController (dispatcher, events) {
 
     setSelectedTags: selected => dispatcher.push(events.notifications.setSelectedTags, selected),
 
-    toggleCategory: category => dispatcher.push(events.notifications.toggleCategory, category),
+    toggleCategory: id => dispatcher.push(events.notifications.toggleCategory, id),
 
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
@@ -62,11 +60,17 @@ export function initController (dispatcher, events) {
     targeting: {
       update: (prop, value) => dispatcher.push(events.editor.targeting.update, { prop, value }),
 
+      removeTargetingGroup: id => dispatcher.push(events.editor.targeting.removeTargetingGroup, id),
+
+      toggleTargetingGroup: id => dispatcher.push(events.editor.targeting.toggleTargetingGroup, id),
+
       toggleCategory: id => dispatcher.push(events.editor.targeting.toggleCategory, id),
 
       toggleUserGroup: id => dispatcher.push(events.editor.targeting.toggleUserGroup, id),
 
-      toggleTag: id => dispatcher.push(events.editor.targeting.toggleTag, id)
+      toggleTag: id => dispatcher.push(events.editor.targeting.toggleTag, id),
+
+      toggleSendEmail: value => dispatcher.push(events.editor.targeting.toggleSendEmail, value)
     },
 
     editTimeline: {
@@ -84,7 +88,9 @@ export function initController (dispatcher, events) {
       update: (prop, value) => dispatcher.push(events.editor.editNotification.update, { prop, value }),
 
       updateContent: (language, prop) => value =>
-        dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value })
+        dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value }),
+
+      setAsDisruptionNotification: id => dispatcher.push(events.editor.editNotification.setAsDisruptionNotification, id)
     }
   }
 
@@ -92,8 +98,7 @@ export function initController (dispatcher, events) {
     // View
     view: {
       toggleTab: view.toggleTab,
-      removeAlert: view.removeAlert,
-      toggleMenu: view.toggleMenu
+      removeAlert: view.removeAlert
     },
 
     unpublishedNotifications: {
@@ -130,9 +135,12 @@ export function initController (dispatcher, events) {
       saveDraft: editor.saveDraft,
       targeting: {
         update: editor.targeting.update,
+        toggleTargetingGroup: editor.targeting.toggleTargetingGroup,
+        removeTargetingGroup: editor.targeting.removeTargetingGroup,
         toggleCategory: editor.targeting.toggleCategory,
         toggleUserGroup: editor.targeting.toggleUserGroup,
-        toggleTag: editor.targeting.toggleTag
+        toggleTag: editor.targeting.toggleTag,
+        toggleSendEmail: editor.targeting.toggleSendEmail
       },
       editTimeline: {
         update: editor.editTimeline.update,
@@ -142,7 +150,8 @@ export function initController (dispatcher, events) {
       },
       editNotification: {
         update: editor.editNotification.update,
-        updateContent: editor.editNotification.updateContent
+        updateContent: editor.editNotification.updateContent,
+        setAsDisruptionNotification: editor.editNotification.setAsDisruptionNotification
       }
     }
   }

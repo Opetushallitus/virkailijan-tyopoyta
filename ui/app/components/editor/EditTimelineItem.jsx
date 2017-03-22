@@ -34,7 +34,7 @@ function EditTimelineItem (props) {
     controller.remove(item.id)
   }
 
-  // TODO: initialDate = createdAt
+  // TODO: createdAt is missing from saved timeline items
 
   return (
     <div key={item.id} className="timeline-item-form">

@@ -1,5 +1,6 @@
 import R from 'ramda'
 
+import targeting from './targeting'
 import { validate, rules } from './validation'
 
 function emptyContent (id, language) {
@@ -17,12 +18,12 @@ function emptyNotification () {
     releaseId: -1,
     startDate: null,
     endDate: null,
+    sendEmail: false,
     content: {
       fi: emptyContent(-1, 'fi'),
       sv: emptyContent(-1, 'sv')
     },
     tags: [],
-    flags: [],
     validationState: 'empty'
   }
 }
@@ -36,25 +37,18 @@ function update (state, { prop, value }) {
     ? path.concat(prop)
     : R.append(prop, path)
 
-  const newState = R.assocPath(
-    path,
-    validate(
-      R.path(path, R.assocPath(concatenatedPath, value, state)),
-      rules(state.editor.editedRelease)['notification']
-    ),
-    state
+  const validatedNotification = validate(
+    R.path(path, R.assocPath(concatenatedPath, value, state)),
+    rules(state)['notification']
   )
 
-  // Empty tags if validationState is empty
-  if (newState.validationState === 'empty') {
-    newState.tags = []
-  }
+  const newState = R.assocPath(path, validatedNotification, state)
 
   return R.assocPath(
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
-      rules(newState.editor.editedRelease)['release']
+      rules(newState)['release']
     ),
     newState
   )
@@ -64,16 +58,22 @@ function updateContent (state, { prop, language, value }) {
   return update(state, { prop: ['content', language, prop], value })
 }
 
+function setAsDisruptionNotification (state, id) {
+  return targeting.toggleTag(state, id)
+}
+
 const events = {
   update,
-  updateContent
+  updateContent,
+  setAsDisruptionNotification
 }
 
 const editNotification = {
   events,
   emptyNotification,
   update,
-  updateContent
+  updateContent,
+  setAsDisruptionNotification
 }
 
 export default editNotification

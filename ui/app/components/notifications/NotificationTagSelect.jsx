@@ -6,29 +6,57 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
-  locale: PropTypes.string.isRequired,
-  options: PropTypes.array.isRequired,
-  selectedOptions: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  isInitialLoad: PropTypes.bool.isRequired
+  tagGroups: PropTypes.object.isRequired,
+  selectedTags: PropTypes.array.isRequired,
+  selectedCategories: PropTypes.array.isRequired
 }
 
-function NotificationTagSelect (props) {
-  const {
-    controller,
-    locale,
-    options,
-    selectedOptions,
-    isLoading,
-    isInitialLoad
-  } = props
+class NotificationTagSelect extends React.Component {
+  constructor (props) {
+    super(props)
 
-  const handleChange = (event, { value }) => {
-    controller.setSelectedTags(value)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleLabelClick = this.handleLabelClick.bind(this)
+    this.mapDropdownOptions = this.mapDropdownOptions.bind(this)
+    this.filterTagGroupsByCategories = this.filterTagGroupsByCategories.bind(this)
+    this.getPlaceholderKey = this.getPlaceholderKey.bind(this)
   }
 
-  const handleLabelClick = (event, { value }) => {
-    controller.toggleTag(value)
+  // Filter selected tags if available tags are changed (i.e. when user selects categories)
+  componentWillUpdate (nextProps) {
+    if (this.props.tagGroups.length !== nextProps.tagGroups.length &&
+      this.props.selectedTags.length > 0) {
+      const selectedTags = this.props.selectedTags
+      const allowedtags = R.pluck('id',
+        R.flatten(R.pluck('tags', nextProps.tagGroups)))
+
+      const filteredSelectedTags = R.filter(tag => R.contains(tag, allowedtags), selectedTags)
+
+      this.props.controller.setSelectedTags(filteredSelectedTags)
+    }
+  }
+
+  getPlaceholderKey () {
+    const {
+      isLoading,
+      hasLoadingFailed
+    } = this.props.tagGroups
+
+    if (isLoading) {
+      return 'haetaanavainsanoja'
+    } else if (hasLoadingFailed) {
+      return 'avainsanojenhakuepaonnistui'
+    } else {
+      return 'lisaahakusana'
+    }
+  }
+
+  handleChange (event, { value }) {
+    this.props.controller.setSelectedTags(value)
+  }
+
+  handleLabelClick (event, { value }) {
+    this.props.controller.toggleTag(value)
   }
 
   /*
@@ -42,46 +70,70 @@ function NotificationTagSelect (props) {
       ...
     ]
 
-    Returns options sorted by text
+    Returns tags sorted by text
   */
-  const mappedOptions = (options, locale) => {
-    const name = `name_${locale}`
-
-    const mappedOptions = R.flatten(
-      R.map(option => R.map(item =>
-        R.compose(
-          R.omit(['id', name]),
-          R.assoc('value', item.id),
-          R.assoc('text', item[name]),
-          R.assoc('description', option[name])
-        )(item), option.items),
-      options)
+  mapDropdownOptions () {
+    const options = this.props.tagGroups.items.map(option =>
+      option.tags.map(item => {
+        return {
+          value: item.id,
+          text: item.name,
+          description: option.name
+        }
+      })
     )
 
-    return R.sortBy(R.prop('text'))(mappedOptions)
+    return R.sortBy(R.prop('text'))(R.flatten(options))
   }
 
-  return (
-    <div>
-      <label className="hide" htmlFor="notification-tag-select-search">{translate('suodatatiedotteita')}</label>
+  // Return tag groups linked to selected categories or all tag groups if no categories are selected
+  filterTagGroupsByCategories () {
+    const tagGroups = this.props.tagGroups.items
+    const selectedCategories = this.props.selectedCategories
 
-      <Dropdown
-        className="notification-tag-select semantic-ui"
-        name="notification-tag-select"
-        fluid
-        multiple
-        noResultsMessage={translate('eitunnisteita')}
-        onChange={handleChange}
-        onLabelClick={handleLabelClick}
-        options={isInitialLoad ? [] : mappedOptions(options, locale)}
-        placeholder={isLoading || isInitialLoad ? translate('haetaantunnisteita') : translate('hakusana')}
-        search
-        selection
-        scrolling
-        value={selectedOptions}
-      />
-    </div>
-  )
+    return selectedCategories.length === 0
+      ? tagGroups
+      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tagGroups)
+  }
+
+  render () {
+    const {
+      tagGroups,
+      selectedTags
+    } = this.props
+
+    const renderDropdownLabel = label => ({
+      // Text + description truncated to 30 characters
+      content: `${label.text} - ${label.description}`
+        .split('')
+        .slice(0, 30)
+        .join('')
+        .concat('...')
+    })
+
+    return (
+      <div>
+        <label className="hide" htmlFor="notification-tag-select-search">{translate('suodatatiedotteita')}</label>
+
+        <Dropdown
+          className="notification-tag-select semantic-ui"
+          name="notification-tag-select"
+          fluid
+          multiple
+          noResultsMessage={translate('eitunnisteita')}
+          onChange={this.handleChange}
+          onLabelClick={this.handleLabelClick}
+          options={tagGroups.isLoading ? [] : this.mapDropdownOptions()}
+          placeholder={translate(this.getPlaceholderKey())}
+          search
+          selection
+          scrolling
+          renderLabel={renderDropdownLabel}
+          value={selectedTags}
+        />
+      </div>
+    )
+  }
 }
 
 NotificationTagSelect.propTypes = propTypes

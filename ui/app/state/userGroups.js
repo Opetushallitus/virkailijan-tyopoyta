@@ -1,14 +1,11 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-// TODO: Remove test data
-
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
-import * as testData from '../resources/test/testData.json'
 
-const url = '/virkailijan-tyopoyta/api/usergroups'
+import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -16,44 +13,35 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching user groups')
 
-  // getData({
-  //   url: url,
-  //   onSuccess: tags => fetchBus.push(userGroups),
-  //   onError: error => fetchFailedBus.push(error)
-  // })
-
-  fetchBus.push(testData.userGroups)
+  getData({
+    url: urls.usergroups,
+    onSuccess: userGroups => fetchBus.push(userGroups),
+    onError: error => fetchFailedBus.push(error)
+  })
 }
 
 function onReceived (state, userGroups) {
   console.log('Received user groups')
 
-  const newUserGroups = R.prepend(allUserGroupsItem(), userGroups)
-
   return R.compose(
-    R.assocPath(['userGroups', 'items'], newUserGroups),
+    R.assocPath(['userGroups', 'items'], userGroups),
     R.assocPath(['userGroups', 'isLoading'], false)
   )(state)
 }
 
-function onFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
-    title: 'Käyttäjäryhmien haku epäonnistui',
-    text: 'Sulje ja avaa editori uudestaan hakeaksesi uudelleen'
+    titleKey: 'kayttajaryhmienhakuepaonnistui',
+    textKey: 'paivitasivu'
   })
 
   editor.alertsBus.push(alert)
 
-  return R.assocPath(['userGroups', 'isLoading'], false, state)
-}
-
-function allUserGroupsItem () {
-  return {
-    id: -1,
-    'name_fi': 'Kohdenna kaikille käyttöoikeusryhmille',
-    'name_sv': ''
-  }
+  return R.compose(
+    R.assocPath(['editor', 'hasLoadingDependenciesFailed'], true),
+    R.assocPath(['userGroups', 'isLoading'], false)
+  )(state)
 }
 
 function emptyUserGroups () {
@@ -71,7 +59,7 @@ const tags = {
   initialState,
   fetch,
   onReceived,
-  onFailed
+  onFetchFailed
 }
 
 export default tags

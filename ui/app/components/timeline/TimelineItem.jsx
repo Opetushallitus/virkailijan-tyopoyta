@@ -8,8 +8,9 @@ import animate from '../utils/animate'
 
 const propTypes = {
   index: PropTypes.number.isRequired,
-  locale: PropTypes.string.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   dateFormat: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   item: PropTypes.object.isRequired,
   onDisplayRelatedNotificationLinkClick: PropTypes.func.isRequired,
   onEditButtonClick: PropTypes.func.isRequired
@@ -18,8 +19,9 @@ const propTypes = {
 function TimelineItem (props) {
   const {
     index,
-    locale,
+    defaultLocale,
     dateFormat,
+    user,
     item,
     onDisplayRelatedNotificationLinkClick,
     onEditButtonClick
@@ -29,9 +31,17 @@ function TimelineItem (props) {
     id,
     releaseId,
     notificationId,
-    date,
-    content
+    date
   } = item
+
+  const momentDate = moment(date, dateFormat)
+  const dayOfMonth = momentDate.format('D')
+  const dayOfWeek = momentDate.format('dddd')
+  const month = momentDate.format('MMMM')
+  const year = momentDate.format('YYYY')
+
+  // Use default locale's content if the version for user's language is missing
+  const content = item.content[user.lang] || item.content[defaultLocale]
 
   const handleDisplayNotificationLinkClick = event => {
     event.preventDefault()
@@ -51,7 +61,7 @@ function TimelineItem (props) {
       animate({
         node: relatedNotification,
         animation: 'pulse',
-        duration: 1000
+        duration: 750
       })
     } else {
       // Else get related notification
@@ -63,51 +73,51 @@ function TimelineItem (props) {
     onEditButtonClick(releaseId)
   }
 
-  const momentDate = moment(date, dateFormat)
-  const dayOfMonth = momentDate.format('D')
-  const dayOfWeek = momentDate.format('dddd')
-  const month = momentDate.format('MMMM')
-  const year = momentDate.format('YYYY')
-
   return (
     <div
       className={`timeline-item break-word left-align p2
       relative rounded white bg-blue ${index > 0 ? 'mt1' : ''}`}
     >
       {/*Date*/}
-      { index === 0
-        ? <time className="mb1 block" dateTime={date}>
-          <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
+      {
+        index === 0
+          ? <time className="mb1 block" dateTime={date}>
+            <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
 
-          <div className="align-top inline-block">
-            <div className="h5 lowercase bold">{translate(dayOfWeek)}</div>
-            <div className="h6 caps">{translate(month)} {year}</div>
-          </div>
-        </time>
-        : null
+            <div className="align-top inline-block">
+              <div className="h5 lowercase bold">{translate(dayOfWeek)}</div>
+              <div className="h6 caps">{translate(month)} {year}</div>
+            </div>
+          </time>
+          : null
       }
 
       {/*Text*/}
-      <div className="h5 bold">{renderHTML(content[locale].text)}</div>
+      <div className="h5 bold">{renderHTML(content.text)}</div>
 
       {/*Display related notification*/}
-      { notificationId
-        ? <a
-          className="h5 bold"
-          href="#"
-          onClick={handleDisplayNotificationLinkClick}
-        >
-          {translate('naytatapahtumantiedote')}
-        </a>
-        : null
+      {
+        notificationId
+          ? <a
+            className="h5 bold"
+            href="#"
+            onClick={handleDisplayNotificationLinkClick}
+          >
+            {translate('naytatapahtumantiedote')}
+          </a>
+          : null
       }
 
       {/*Edit button*/}
-      <EditButton
-        id={`edit-timeline-release${releaseId}-item${id}`}
-        className="absolute top-0 right-0 white"
-        onClick={handleEditButtonClick}
-      />
+      {
+        user.isAdmin
+          ? <EditButton
+            id={`edit-timeline-release${releaseId}-item${id}`}
+            className="absolute top-0 right-0 white"
+            onClick={handleEditButtonClick}
+          />
+          : null
+      }
     </div>
   )
 }

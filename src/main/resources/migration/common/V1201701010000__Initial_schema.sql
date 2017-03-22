@@ -1,22 +1,21 @@
 CREATE TABLE release(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  created_by INTEGER NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  modified_by INTEGER,
-  modified_at TIMESTAMP,
   send_email BOOLEAN
 );
 
 CREATE TABLE notification(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   release_id INTEGER NOT NULL REFERENCES release(id),
   publish_date DATE NOT NULL,
   expiry_date DATE,
   send_email BOOLEAN NOT NULL DEFAULT FALSE,
+  created_by VARCHAR(24) NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  modified_by VARCHAR(24),
+  modified_at TIMESTAMP,
   deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
-
 CREATE TABLE notification_content(
   notification_id INTEGER NOT NULL REFERENCES notification(id),
   language VARCHAR(2) NOT NULL,
@@ -27,7 +26,7 @@ CREATE TABLE notification_content(
 );
 
 CREATE TABLE timeline_item(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   release_id INTEGER NOT NULL REFERENCES release(id),
   date DATE
 );
@@ -39,19 +38,32 @@ CREATE TABLE timeline_content(
   PRIMARY KEY (timeline_id, language)
 );
 
+CREATE TABLE category(
+  id SERIAL NOT NULL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  role VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tag_group(
+  id SERIAL PRIMARY KEY NOT NULL,
+  name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tag_group_category(
+  group_id INTEGER REFERENCES tag_group(id),
+  category_id INTEGER REFERENCES category(id)
+);
+
 CREATE TABLE tag(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  name VARCHAR(50) NOT NULL
+  id SERIAL PRIMARY KEY NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  tag_type VARCHAR(50),
+  group_id INTEGER REFERENCES tag_group(id)
 );
 
 CREATE TABLE notification_tag(
   notification_id INTEGER NOT NULL REFERENCES notification(id),
   tag_id INTEGER NOT NULL REFERENCES tag(id)
-);
-
-CREATE TABLE category(
-  id SERIAL NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE release_category(
@@ -61,22 +73,21 @@ CREATE TABLE release_category(
 
 CREATE TABLE release_rights(
   release_id INTEGER NOT NULL REFERENCES release(id),
-  usergroup_id INTEGER NOT NULL
+  usergroup_id VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE user_profile(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  uid VARCHAR(200) NOT NULL,
+  user_id VARCHAR(100) PRIMARY KEY NOT NULL,
   send_email BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE user_category(
-  user_id INTEGER NOT NULL REFERENCES user_profile(id),
+  user_id VARCHAR(20) NOT NULL REFERENCES user_profile(user_id),
   category_id INTEGER NOT NULL REFERENCES category(id)
 );
 
 CREATE TABLE email_event(
-  id SERIAL PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   created_at TIMESTAMP NOT NULL,
   release_id INTEGER NOT NULL REFERENCES release(id),
   event_type VARCHAR(50) NOT NULL

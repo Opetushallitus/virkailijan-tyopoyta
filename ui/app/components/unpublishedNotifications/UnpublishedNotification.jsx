@@ -32,7 +32,7 @@ function UnpublishedNotification (props) {
       {/*Create date*/}
       <div className="col-12 md-col-2 mb1 md-pr2">
         <span className="md-hide lg-hide">{translate('luotu')}&nbsp;</span>
-        {notification.created}
+        {notification.createdAt}
       </div>
 
       {/*Publishing date*/}
@@ -43,7 +43,7 @@ function UnpublishedNotification (props) {
 
       {/*Created by*/}
       <div className="col-12 md-col-2 mb1 md-pr2">
-        {notification.creator}
+        {notification.createdBy}
       </div>
     </div>
   )

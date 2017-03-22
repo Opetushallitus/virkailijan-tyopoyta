@@ -3,10 +3,7 @@ import React, { PropTypes } from 'react'
 const propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]).isRequired,
+  label: PropTypes.string.isRequired,
   isRequired: PropTypes.bool,
   labelIsHidden: PropTypes.bool,
   children: PropTypes.node.isRequired

@@ -10,6 +10,6 @@ trait ServerModule extends AuthenticationModule with RepositoryModule {
 
   lazy val routes: Routes = wire[Routes]
 
-  lazy val authenticationService: UserService = wire[UserService]
+  lazy val userService: UserService = wire[UserService]
   lazy val quartzScheduler: QuartzScheduler = wire[QuartzScheduler]
 }

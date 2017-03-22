@@ -98,194 +98,196 @@
   "categories": [
     {
       "id": 1,
-      "name_fi": "Perusopetus"
+      "name": "Perusopetus"
     },
     {
       "id": 2,
-      "name_fi": "Lukiokoulutus"
+      "name": "Lukiokoulutus"
     },
     {
       "id": 3,
-      "name_fi": "Yhteishaut (lukiot)"
+      "name": "Yhteishaut (lukiot)"
     },
     {
       "id": 4,
-      "name_fi": "Ammatillinen koulutus"
+      "name": "Ammatillinen koulutus"
     },
     {
       "id": 5,
-      "name_fi": "Yhteishaut (amm.)"
+      "name": "Yhteishaut (amm.)"
     },
     {
       "id": 6,
-      "name_fi": "PJVK-haut"
+      "name": "PJVK-haut"
     },
     {
       "id": 7,
-      "name_fi": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haku"
+      "name": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haku"
     },
     {
       "id": 8,
-      "name_fi": "Korkeakoulutus"
+      "name": "Korkeakoulutus"
     },
     {
       "id": 9,
-      "name_fi": "Vapaan sivistystyön koulutus"
+      "name": "Vapaan sivistystyön koulutus"
     }
   ],
-  "tags": [
+  "tagGroups": [
     {
       "id": 1,
-      "name_fi": "Perusopetus ja toinen aste",
+      "name": "Perusopetus ja toinen aste",
       "categories": [1, 2, 3, 4, 5, 6, 7],
       "items": [
         {
           "id": 1,
-          "name_fi": "Aikataulut"
+          "name": "Aikataulut"
         },
         {
           "id": 2,
-          "name_fi": "Kielikoe"
+          "name": "Kielikoe"
         },
         {
           "id": 3,
-          "name_fi": "Koski"
+          "name": "Koski"
         },
         {
           "id": 4,
-          "name_fi": "Kehitystyö"
+          "name": "Kehitystyö"
         },
         {
           "id": 5,
-          "name_fi": "Käyttöoikeudet"
+          "name": "Käyttöoikeudet"
         },
         {
           "id": 6,
-          "name_fi": "Opintopolku-info"
+          "name": "Opintopolku-info"
         },
         {
           "id": 7,
-          "name_fi": "Opo-paketti"
+          "name": "Opo-paketti"
         },
         {
           "id": 8,
-          "name_fi": "Oppivalmiustesti"
+          "name": "Oppivalmiustesti"
         },
         {
           "id": 9,
-          "name_fi": "Pääsy- ja soveltuvuuskoe"
+          "name": "Pääsy- ja soveltuvuuskoe"
         },
         {
           "id": 10,
-          "name_fi": "Tarjonta"
+          "name": "Tarjonta"
         },
         {
           "id": 11,
-          "name_fi": "Tiedonsiirrot"
+          "name": "Tiedonsiirrot"
         },
         {
           "id": 12,
-          "name_fi": "Tilastot"
+          "name": "Tilastot"
         },
         {
           "id": 13,
-          "name_fi": "Valinnat"
+          "name": "Valinnat"
         },
         {
           "id": 14,
-          "name_fi": "Raportit"
+          "name": "Raportit"
         }
       ]
     },
     {
       "id": 2,
-      "name_fi": "Korkeakoulutus",
+      "name": "Korkeakoulutus",
       "categories": [8],
       "items": [
         {
           "id": 15,
-          "name_fi": "Aikataulut"
+          "name": "Aikataulut"
         },
         {
           "id": 16,
-          "name_fi": "Erillishaku"
+          "name": "Erillishaku"
         },
         {
           "id": 17,
-          "name_fi": "Hakulomakkeen hallinta"
+          "name": "Hakulomakkeen hallinta"
         },
         {
           "id": 18,
-          "name_fi": "Kehitystyö"
+          "name": "Kehitystyö"
         },
         {
           "id": 19,
-          "name_fi": "Käyttöoikeudet"
+          "name": "Käyttöoikeudet"
         },
         {
           "id": 20,
-          "name_fi": "Lisähaku"
+          "name": "Lisähaku"
         },
         {
           "id": 21,
-          "name_fi": "Opintopolku-info"
+          "name": "Opintopolku-info"
         },
         {
           "id": 22,
-          "name_fi": "Opo-paketti"
+          "name": "Opo-paketti"
         },
         {
           "id": 23,
-          "name_fi": "Raportit"
+          "name": "Raportit"
         },
         {
           "id": 24,
-          "name_fi": "Tarjonta"
+          "name": "Tarjonta"
         },
         {
           "id": 25,
-          "name_fi": "Tiedonsiirrot"
+          "name": "Tiedonsiirrot"
         },
         {
           "id": 26,
-          "name_fi": "Tilastot"
+          "name": "Tilastot"
         },
         {
           "id": 27,
-          "name_fi": "Valinnat"
+          "name": "Valinnat"
         },
         {
           "id": 28,
-          "name_fi": "Valintakoe"
+          "name": "Valintakoe"
         },
         {
           "id": 29,
-          "name_fi": "Yhteishaku"
+          "name": "Yhteishaku"
         }
       ]
     },
     {
       "id": 3,
-      "name_fi": "Vapaa sivistystyö",
+      "name": "Vapaa sivistystyö",
       "categories": [9],
       "items": [
         {
           "id": 30,
-          "name_fi": "Käyttöoikeudet"
+          "name": "Käyttöoikeudet"
         },
         {
           "id": 31,
-          "name_fi": "Tarjonta"
+          "name": "Tarjonta"
         }
       ]
     },
     {
       "id": 4,
       "name": "SPECIAL",
+      "categories": [],
       "items": [
         {
           "id": 32,
-          "type": "DISRUPTION"
+          "type": "DISRUPTION",
+          "name": "Häiriötiedote"
         }
       ]
     }
@@ -293,23 +295,39 @@
   "userGroups": [
     {
       "id": 2,
-      "name_fi": "Pääkäyttäjä",
+      "name": "Pääkäyttäjä",
       "categories": [1, 2, 3, 4]
     },
     {
       "id": 3,
-      "name_fi": "Opinto-ohjaaja",
+      "name": "Opinto-ohjaaja",
       "categories": [1, 2]
     },
     {
       "id": 4,
-      "name_fi": "Oppilaitos- ja tarjontakäyttäjä",
+      "name": "Oppilaitos- ja tarjontakäyttäjä",
       "categories": [3]
     },
     {
       "id": 5,
-      "name_fi": "Tiedonsiirtäjä",
+      "name": "Tiedonsiirtäjä",
       "categories": [4]
+    }
+  ],
+  "targetingGroups": [
+    {
+      "id": 1,
+      "name": "Ammatillisen päivitetty aikataulu",
+      "categories": [4],
+      "userGroups": [1216],
+      "tags": [1, 2]
+    },
+    {
+      "id": 2,
+      "name": "Lukioiden päivitetty aikataulu",
+      "categories": [2, 3],
+      "userGroups": [1221],
+      "tags": [1]
     }
   ]
 }

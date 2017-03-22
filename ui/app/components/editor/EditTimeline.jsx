@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react'
 
 import Button from '../common/buttons/Button'
-import Translation from '../common/Translations'
 import EditTimelineItem from './EditTimelineItem'
+import { translate } from '../common/Translations'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
@@ -27,9 +27,7 @@ function EditTimeline (props) {
 
   return (
     <div>
-      <h3 className="hide">
-        <Translation trans="muokkaaaikajanantapahtumia" />
-      </h3>
+      <h3 className="hide">{translate('muokkaaaikajanantapahtumia')}</h3>
 
       {timeline.map((item, index) =>
         <EditTimelineItem
@@ -44,7 +42,7 @@ function EditTimeline (props) {
       {/*Add new event*/}
       <Button className="button-link regular px0" onClick={handleAddItemClick}>
         <span aria-hidden>+ </span>
-        <Translation trans="lisaauusitapahtuma" />
+        {translate('lisaauusitapahtuma')}
       </Button>
     </div>
   )

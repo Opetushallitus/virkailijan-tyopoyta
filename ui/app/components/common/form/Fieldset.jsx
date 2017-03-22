@@ -2,10 +2,7 @@ import React, { PropTypes } from 'react'
 
 const propTypes = {
   isRequired: PropTypes.bool,
-  legend: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]).isRequired,
+  legend: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired
 }
 

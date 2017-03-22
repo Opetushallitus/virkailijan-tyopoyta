@@ -11,28 +11,32 @@ const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
-  console.log('Fetching categories')
+  console.log('Fetching tag groups')
 
   getData({
-    url: urls.categories,
-    onSuccess: categories => fetchBus.push(categories),
+    url: urls['tags'],
+    onSuccess: tagGroups => fetchBus.push(tagGroups),
     onError: error => fetchFailedBus.push(error)
   })
 }
 
-function onReceived (state, categories) {
-  console.log('Received categories')
+function onReceived (state, tagGroups) {
+  console.log('Received tag groups')
+
+  const regularTags = R.reject(tagGroup => tagGroup.name === 'SPECIAL')(tagGroups)
+  const specialTags = R.prop('tags', R.find(R.propEq('name', 'SPECIAL'))(tagGroups))
 
   return R.compose(
-    R.assocPath(['categories', 'items'], categories),
-    R.assocPath(['categories', 'isLoading'], false)
+    R.assocPath(['tagGroups', 'items'], regularTags),
+    R.assocPath(['tagGroups', 'specialTags'], specialTags),
+    R.assocPath(['tagGroups', 'isLoading'], false)
   )(state)
 }
 
 function onFetchFailed (state) {
   const alert = createAlert({
     type: 'error',
-    titleKey: 'kategorioidenhakuepaonnistui',
+    titleKey: 'avainsanojenhakuepaonnistui',
     textKey: 'paivitasivu'
   })
 
@@ -41,22 +45,23 @@ function onFetchFailed (state) {
 
   return R.compose(
     R.assocPath(['editor', 'hasLoadingDependenciesFailed'], true),
-    R.assocPath(['categories', 'isLoading'], false),
-    R.assocPath(['categories', 'hasLoadingFailed'], true)
+    R.assocPath(['tagGroups', 'hasLoadingFailed'], true),
+    R.assocPath(['tagGroups', 'isLoading'], false)
   )(state)
 }
 
-function emptyCategories () {
+function emptyTagGroups () {
   return {
     items: [],
+    specialTags: [],
     isLoading: true,
     hasLoadingFailed: false
   }
 }
 
-const initialState = emptyCategories()
+const initialState = emptyTagGroups()
 
-const categories = {
+const tagGroups = {
   fetchBus,
   fetchFailedBus,
   initialState,
@@ -65,4 +70,4 @@ const categories = {
   onFetchFailed
 }
 
-export default categories
+export default tagGroups

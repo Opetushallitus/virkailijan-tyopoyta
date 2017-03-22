@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 
-import Button from '../common/buttons/Button'
-import { translate } from '../common/Translations'
+import Button from '../../common/buttons/Button'
+import { translate } from '../../common/Translations'
 
 const propTypes = {
   id: PropTypes.number.isRequired,
@@ -24,8 +24,7 @@ function UserGroupButton (props) {
     <Button
       className="button-primary release-usergroup-button left-align
       flex items-center col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
-      type="button"
-      title={translate('poistakohderyhma')}
+      title={translate('poistakayttooikeusryhma')}
       onClick={handleClick}
     >
       <span className="regular flex-auto pr1">{text}</span>

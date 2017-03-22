@@ -3,31 +3,43 @@ import renderHTML from 'react-render-html'
 import R from 'ramda'
 
 import PreviewTargetingList from './PreviewTargetingList'
-import { translate } from '../common/Translations'
-import * as testData from '../../resources/test/testData.json'
+import { translate } from '../../common/Translations'
 
-import getTimelineItems from './getTimelineItems'
+import getTimelineItems from '../getTimelineItems'
+import getItemsForIDs from '../../utils/getItemsForIDs'
 
 const propTypes = {
   locale: PropTypes.string.isRequired,
-  // categories: PropTypes.array.isRequired,
+  categories: PropTypes.array.isRequired,
   userGroups: PropTypes.array.isRequired,
-  // tags: PropTypes.array.isRequired,
+  tagGroups: PropTypes.array.isRequired,
   release: PropTypes.object.isRequired
 }
 
 function PreviewRelease (props) {
   const {
     locale,
-    // categories,
+    categories,
     userGroups,
-    // tags,
+    tagGroups,
     release
   } = props
 
   const notification = release.notification
   const timeline = release.timeline
   const previewedTimelineItems = getTimelineItems(['incomplete', 'complete'], timeline)
+
+  // Prepend 'Target all user groups' item to user groups
+  const allUserGroupsItem = {
+    id: -1,
+    description: {
+      FI: translate('kohdennakaikilleryhmille'),
+      SV: translate('kohdennakaikilleryhmille'),
+      EN: translate('kohdennakaikilleryhmille')
+    }
+  }
+
+  const userGroupsWithAllItem = R.prepend(allUserGroupsItem, userGroups)
 
   return (
     <div>
@@ -94,47 +106,48 @@ function PreviewRelease (props) {
         </div>
 
         {/*Targeting*/}
-        <div
-          className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5"
-        >
+        <div className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
           <h3 className="h4 center">{translate('kohdennus')}</h3>
 
           <div className="flex flex-wrap">
             {/*Categories*/}
             <div className="col-12 md-col-4 md-mb3 md-pr2">
               <PreviewTargetingList
-                locale={locale}
                 title="julkaisunkategoriat"
-                items={testData.categories}
-                selectedItems={release.categories}
+                items={getItemsForIDs(release.categories, categories)}
               />
             </div>
 
             {/*User groups*/}
             <div className="col-12 md-col-4 md-mb3 md-pr2">
               <PreviewTargetingList
-                locale={locale}
+                locale={locale.toUpperCase()}
                 title="julkaisunkayttooikeusryhmat"
-                items={userGroups}
-                selectedItems={release.userGroups}
+                items={getItemsForIDs(release.userGroups, userGroupsWithAllItem)}
               />
             </div>
 
             {/*Tags*/}
             {
-              release.notification.tags.length > 0
+              notification.validationState === 'incomplete' || notification.validationState === 'complete'
                 ? <div className="col-12 md-col-4 md-pr2">
                   <PreviewTargetingList
-                    locale={locale}
                     title="julkaisunavainsanat"
-                    items={R.flatten(R.pluck('items', testData.tags))}
-                    selectedItems={notification.tags}
+                    items={getItemsForIDs(notification.tags, R.flatten(R.pluck('tags', tagGroups)))}
                   />
                 </div>
                 : null
             }
           </div>
         </div>
+
+        {/*Send email to selected user groups?*/}
+        {
+          notification.sendEmail &&
+          (notification.validationState === 'incomplete' || notification.validationState === 'complete')
+            ? <div className="bold center col-12 mt3">{translate('lahetetaansahkoposti')}</div>
+            : null
+        }
       </div>
     </div>
   )

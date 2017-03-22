@@ -9,12 +9,9 @@ import './resources/styles/app.css'
 const controller = getController()
 const appState = initAppState()
 
-appState.onValue((state) => {
+appState.onValue(state => {
   render(
-    <App
-      state={state}
-      controller={controller}
-    />,
+    <App state={state} controller={controller} />,
     document.getElementById('app')
   )
 })

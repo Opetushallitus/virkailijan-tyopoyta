@@ -52,8 +52,9 @@ function UnpublishedNotifications (props) {
       }
 
       {
-        !isLoading && items.length > 0
-          ? <div>
+        !isLoading && items.length === 0
+          ? <span>{translate('eijulkaisemattomiatiedotteita')}</span>
+          : <div>
             <div className="bold flex flex-wrap xs-hide sm-hide mb2">
               {/*Headers*/}
               <div className="col-6">
@@ -82,7 +83,6 @@ function UnpublishedNotifications (props) {
               />
             )}
           </div>
-        : <span>{translate('eijulkaisemattomiatiedotteita')}</span>
       }
     </div>
   )

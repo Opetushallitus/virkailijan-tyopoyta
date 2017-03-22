@@ -1,10 +1,10 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
+import moment from 'moment'
 
-import targeting from './targeting'
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
-import userGroups from '../userGroups'
+import targeting from './targeting'
 import view from '../view'
 import unpublishedNotifications from '../unpublishedNotifications'
 import notifications from '../notifications'
@@ -12,20 +12,21 @@ import timeline from '../timeline'
 import getData from '../../utils/getData'
 import createAlert from '../../utils/createAlert'
 
-const url = '/virkailijan-tyopoyta/api/release'
+import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 const saveBus = new Bacon.Bus()
 const saveFailedBus = new Bacon.Bus()
-const fetchBus = new Bacon.Bus()
-const fetchFailedBus = new Bacon.Bus()
+const fetchReleaseBus = new Bacon.Bus()
+const fetchReleaseFailedBus = new Bacon.Bus()
+const alertsBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
-    url: url,
+    url: urls.release,
     method: 'GET',
     searchParams: { id },
-    onSuccess: release => { fetchBus.push(release) },
-    onError: error => { fetchFailedBus.push(error) }
+    onSuccess: release => fetchReleaseBus.push(release, id),
+    onError: error => fetchReleaseFailedBus.push(error)
   })
 }
 
@@ -35,27 +36,83 @@ function onReleaseReceived (state, response) {
   // TODO: Remove from production
   response.userGroups = response.userGroups || []
 
-  return R.compose(
-    R.assocPath(['editor', 'isLoading'], false),
-    R.assocPath(['editor', 'editedRelease'], response)
-  )(state)
+  const release = R.compose(
+    R.assocPath(['notification', 'validationState'], response.notification ? 'complete' : 'empty'),
+    R.assoc('notification', response.notification || editNotification.emptyNotification()),
+    R.assoc('validationState', 'complete')
+  )(response)
+
+  /*
+    Check if the requested release is the same as received,
+    as multiple requests for releases may be running at the same time
+  */
+  if (response.id === state.editor.requestedReleaseId) {
+    return R.compose(
+      R.assocPath(['editor', 'isLoadingRelease'], false),
+      R.assocPath(['editor', 'editedRelease'], release)
+    )(state)
+  } else {
+    return state
+  }
 }
 
-function onFetchFailed (state, response) {
+function onFetchReleaseFailed (state, response) {
   console.log('Fetching release failed')
 
   const alert = createAlert({
     type: 'error',
-    title: 'Julkaisun haku epäonnistui',
-    text: 'Sulje ja avaa editori uudestaan hakeaksesi uudelleen'
+    titleKey: 'julkaisunhakuepaonnistui',
+    textKey: 'suljejaavaaeditori'
   })
 
-  const newAlerts = R.append(alert, state.editor.alerts)
+  onAlertsReceived(state, alert)
 
   return R.compose(
-    R.assocPath(['editor', 'isLoading'], false),
-    R.assocPath(['editor', 'alerts'], newAlerts),
-    R.assocPath(['editor', 'editedRelease'], targeting.emptyRelease())
+    R.assocPath(['editor', 'isLoadingRelease'], false),
+    R.assocPath(['editor', 'editedRelease'], emptyRelease())
+  )(state)
+}
+
+function onAlertsReceived (state, alert) {
+  const newViewAlerts = R.append(alert, state.editor.alerts)
+
+  return R.assocPath(['editor', 'alerts'], newViewAlerts, state)
+}
+
+function onSaveComplete (state) {
+  console.log('Release saved')
+
+  const alert = createAlert({
+    type: 'success',
+    titleKey: 'julkaisuonnistui'
+  })
+
+  const month = moment().format('M')
+  const year = moment().format('YYYY')
+
+  const newViewAlerts = R.append(alert, state.view.alerts)
+  const newState = R.compose(
+    R.assocPath(['view', 'alerts'], newViewAlerts),
+    R.assoc('view', view.emptyView()),
+    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
+    R.assoc('notifications', notifications.reset(1)),
+    R.assoc('timeline', timeline.emptyTimeline())
+  )(state)
+
+  timeline.fetch({
+    month,
+    year
+  })
+
+  return close(newState)
+}
+
+function onSaveFailed (state) {
+  console.log('Saving release failed')
+
+  return R.compose(
+    R.assocPath(['editor', 'hasSaveFailed'], true),
+    R.assocPath(['editor', 'isSavingRelease'], false)
   )(state)
 }
 
@@ -88,8 +145,8 @@ function cleanUpRelease (release) {
 }
 
 function editReleaseProperties (key, value) {
-  // Remove validationState
-  if (key === 'validationState') {
+  // Remove validationState and selectedTargetingGroup
+  if (key === 'validationState' || key === 'selectedTargetingGroup') {
     return undefined
   }
 
@@ -105,8 +162,6 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
   // Hide page scrollbar
   document.body.classList.add('overflow-hidden')
 
-  userGroups.fetch()
-
   // Display correct tab on opening
   const newState = toggleTab(state, selectedTab)
 
@@ -117,8 +172,9 @@ function open (state, eventTargetId, releaseId = -1, selectedTab = 'edit-notific
 
     // Set eventTargetId to focus on the element which was clicked to open the editor on closing
     return R.compose(
+      R.assocPath(['editor', 'requestedReleaseId'], releaseId),
       R.assocPath(['editor', 'isVisible'], true),
-      R.assocPath(['editor', 'isLoading'], true),
+      R.assocPath(['editor', 'isLoadingRelease'], true),
       R.assocPath(['editor', 'eventTargetId'], eventTargetId)
     )(newState)
   } else {
@@ -174,20 +230,23 @@ function toggleHasSaveFailed (state, hasSaveFailed) {
 function emptyRelease () {
   return {
     id: -1,
-    sendEmail: false,
     notification: editNotification.emptyNotification(),
     timeline: [editTimeline.newItem(-1, [])],
     categories: [],
     userGroups: [],
+    targetingGroup: null,
+    selectedTargetingGroup: null,
     validationState: 'empty'
   }
 }
 
 function emptyEditor () {
   return {
+    requestedReleaseId: null,
     isVisible: false,
     isPreviewed: false,
-    isLoading: false,
+    isLoadingRelease: false,
+    isSavingRelease: false,
     hasSaveFailed: false,
     alerts: [],
     editedRelease: emptyRelease(),
@@ -204,53 +263,32 @@ function save (state, id) {
   //   ? 'POST'
   //   : 'PUT'
 
+  // Remove all tags and set sendEmail as false if notification is empty
+  const savedRelease = state.editor.editedRelease.notification.validationState === 'empty'
+    ? R.compose(
+      R.assocPath(['notification', 'tags'], []),
+      R.assoc('sendEmail', false)
+    )(state.editor.editedRelease)
+    : state.editor.editedRelease
+
   getData({
-    url: url,
+    url: urls.release,
     requestOptions: {
       method: 'POST',
       dataType: 'json',
-      credentials: 'same-origin',
       headers: {
         'Content-type': 'application/json'
       },
       body: JSON.stringify(
-        cleanUpRelease(state.editor.editedRelease),
+        cleanUpRelease(savedRelease),
         editReleaseProperties
       )
     },
-    onSuccess: json => saveBus.push(json),
+    onSuccess: response => saveBus.push(response),
     onError: error => saveFailedBus.push(error)
   })
 
-  return R.assocPath(['editor', 'isLoading'], true, state)
-}
-
-function onSaveComplete (state) {
-  console.log('Release saved')
-
-  const alert = createAlert({
-    type: 'success',
-    title: 'Julkaisu onnistui'
-  })
-
-  const newViewAlerts = R.append(alert, state.view.alerts)
-  const newState = R.compose(
-    R.assocPath(['view', 'alerts'], newViewAlerts),
-    R.assoc('view', view.emptyView()),
-    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
-    R.assoc('notifications', notifications.reset(1)),
-    R.assoc('timeline', timeline.emptyTimeline())
-  )(state)
-
-  return close(newState)
-}
-
-function onSaveFailed (state) {
-  console.log('Saving release failed')
-
-  const newState = R.assocPath(['editor', 'isLoading'], false, state)
-
-  return R.assocPath(['editor', 'hasSaveFailed'], true, newState)
+  return R.assocPath(['editor', 'isSavingRelease'], true, state)
 }
 
 function saveDraft (state) {
@@ -283,14 +321,16 @@ const initialState = emptyEditor()
 const editor = {
   saveBus,
   saveFailedBus,
-  fetchBus,
-  fetchFailedBus,
+  fetchReleaseBus,
+  fetchReleaseFailedBus,
+  alertsBus,
   events,
   initialState,
   onSaveComplete,
   onSaveFailed,
   onReleaseReceived,
-  onFetchFailed,
+  onFetchReleaseFailed,
+  onAlertsReceived,
   open,
   close,
   toggleTab,

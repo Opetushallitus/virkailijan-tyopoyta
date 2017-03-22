@@ -110,7 +110,12 @@ class Routes(authenticationService: UserService,
         path("unpublished"){
           sendResponse(Future(releaseRepository.unpublished))
         } ~
-        path("categories"){sendResponse(Future(releaseRepository.categories))} ~
+        path("categories"){
+          userService.findUser(uid) match {
+            case Success(u) => sendResponse(Future(releaseRepository.categories(u)))
+            case Failure(e) => complete(StatusCodes.InternalServerError)
+          }
+        } ~
         path("timeline"){
           parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
             (categories, year, month) => sendResponse(Future(releaseRepository.timeline(categories, parseMonth(year, month))))
@@ -151,6 +156,20 @@ class Routes(authenticationService: UserService,
         } ~
         path("user") {
           sendResponse(Future(userService.userProfile(uid)))
+        } ~
+        path("usergroups") {
+          sendResponse(Future(userService.serviceUserGroups))
+        }
+      } ~
+      put {
+        path("release") {
+          entity(as[String]) { json =>
+            val release = parseReleaseUpdate(json)
+            release match {
+              case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
+              case None => complete(StatusCodes.BadRequest)
+            }
+          }
         }
       } ~
       post {
@@ -158,17 +177,24 @@ class Routes(authenticationService: UserService,
           entity(as[String]) { json =>
             val release = parseReleaseUpdate(json)
             release match {
-              case Some(r) => sendResponse(Future(releaseRepository.addRelease(r).map(sendInstantEmails)))
+              case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
               case None => complete(StatusCodes.BadRequest)
             }
           }
         } ~
           path("user") {
+
             extractRequest { request =>
-              parameters("categories".as(CsvSeq[Long]).?, "email".as[Boolean]) { (categories, email) =>
+              entity(as[String]) { json =>
+                val updateProfile = parseUserProfileUpdate(json)
                 val ticket = request.uri.query().get("ticket")
                 ticket match {
-                  case Some(t) => complete(StatusCodes.OK)//sendResponse(Future(releaseRepository.setUserProfile(uid,categories,email)))
+                  case Some(t) => {
+                    updateProfile match {
+                      case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
+                      case None => complete(StatusCodes.Unauthorized)
+                    }
+                  }
                   case None => complete(StatusCodes.Unauthorized)
                 }
               }

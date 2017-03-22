@@ -3,18 +3,32 @@ package fi.vm.sade.vst.model
 import java.time.LocalDate
 
 
-case class Tag(id: Long, name: String)
-case class Category(id: Long, name: String)
+case class Tag(id: Long, name: String, tagType: Option[String], groupId: Long)
+
+case class TagGroup(id: Long, name: String, tags: Seq[Tag] = Seq.empty, categories: Seq[Long] = Seq.empty)
+
+case class Category(id: Long, name: String, role: String)
+
+case class TagGroupCategory(groupId: Long, categoryId: Long)
 
 case class NotificationContent(notificationId: Long, language: String, title: String, text: String)
 
 
-case class User(lastName: String, givenNames: String, language: String, isAdmin: Boolean, groups: Seq[Kayttooikeusryhma], profile: Option[UserProfile])
+case class User(userId: String,
+                lastName: String,
+                givenNames: String,
+                language: String,
+                isAdmin: Boolean,
+                groups: Seq[Kayttooikeusryhma],
+                roles: Seq[String],
+                profile: UserProfile)
 
-case class UserProfile(id: Long,
-                       uid: String,
+case class UserProfile(userId: String,
                        categories: Seq[Long] = Seq.empty,
                        sendEmail: Boolean = false)
+
+case class UserProfileUpdate(categories: Seq[Long] = Seq.empty,
+                             sendEmail: Boolean = true)
 
 case class UserCategory(userId: String, categoryId: Long)
 
@@ -36,27 +50,37 @@ case class Release(id: Long,
                    notification: Option[Notification] = None,
                    timeline: Seq[TimelineItem] = Nil,
                    categories: Seq[Long] = Seq.empty,
-                   createdBy: Int,
-                   createdAt: LocalDate,
-                   modifiedBy: Option[Int] = None,
-                   modifiedAt: Option[LocalDate] = None,
                    deleted: Boolean = false,
                    sendEmail: Boolean = false)
 
+
+case class NotificationList(totalAmount: Int, notifications: Seq[Notification])
 
 case class Notification(id: Long,
                         releaseId: Long,
                         publishDate: LocalDate,
                         expiryDate: Option[LocalDate],
-                        initialStartDate: Option[LocalDate],
                         content: Map[String, NotificationContent] = Map.empty,
                         tags: Seq[Long] = List.empty,
+                        categories: Seq[Long] = List.empty,
+                        createdBy: String,
+                        createdAt: LocalDate,
+                        modifiedBy: Option[String] = None,
+                        modifiedAt: Option[LocalDate] = None,
                         sendEmail: Boolean = false,
                         deleted: Boolean = false)
 
 
+case class NotificationUpdate(id: Long,
+                        releaseId: Long,
+                        publishDate: LocalDate,
+                        expiryDate: Option[LocalDate],
+                        content: Map[String, NotificationContent] = Map.empty,
+                        tags: Seq[Long] = List.empty,
+                        sendEmail: Boolean = false)
+
 case class ReleaseUpdate(id: Long,
-                         notification: Option[Notification] = None,
+                         notification: Option[NotificationUpdate] = None,
                          timeline: Seq[TimelineItem] = Nil,
                          categories: Seq[Long] = Seq.empty)
 
@@ -65,8 +89,8 @@ case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, conten
 
 case class EmailEvent(id: Long, createdAt: LocalDate, releaseId: Long, eventType: String)
 
-case class Kayttooikeusryhma(id: Long, name: String, description: List[KayttoikeusDescription])
+case class Kayttooikeusryhma(id: Long, description: Map[String, Option[String]], roles: Seq[String])
 
 case class Kayttooikeus(palveluName: String, role: String)
 
-case class KayttoikeusDescription(text: String, lang: String)
+case class KayttoikeusDescription(text: Option[String], lang: String)

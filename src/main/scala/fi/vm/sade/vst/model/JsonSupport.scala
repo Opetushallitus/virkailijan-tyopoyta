@@ -13,10 +13,22 @@ trait JsonSupport {
 
   implicit val dateTimeReads: Reads[LocalDate] = Reads.localDateReads("d.M.yyyy HH:mm:ss")
 
-  implicit val tagWrites: Writes[Tag] = (
-    (JsPath \ "id").write[Long] and
-    (JsPath \ "name_fi").write[String]
-    )(unlift(Tag.unapply))
+  implicit val tagWrites: Writes[Tag] = Writes { tag =>
+    Json.obj(
+      "id" -> tag.id,
+      "name" -> tag.name,
+      "type" -> tag.tagType
+    )
+  }
+
+  implicit val tagGroupWrites: Writes[TagGroup] = Writes {tagGroup =>
+    Json.obj(
+      "id" -> tagGroup.id,
+      "name" -> tagGroup.name,
+      "tags" -> tagGroup.tags,
+      "categories" -> tagGroup.categories
+    )
+  }
 
   implicit val timelineContentReads: Reads[TimelineContent] = (
     (JsPath \ "timelineId").read[Long] and
@@ -76,22 +88,15 @@ trait JsonSupport {
       (JsPath \ "text").write[String]
     )(unlift(NotificationContent.unapply))
 
-  implicit val tagReads: Reads[Tag] = (
-    (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String]
-    )(Tag.apply _)
-
-  implicit val NotificationReads: Reads[Notification] = (
+  implicit val notificationReads: Reads[NotificationUpdate] = (
       (JsPath \ "id").read[Long] and
       (JsPath \ "releaseId").read[Long] and
       (JsPath \ "startDate").read[LocalDate](dateReads) and
       (JsPath \ "endDate").readNullable[LocalDate](dateReads) and
-      (JsPath \ "initialStartDate").readNullable[LocalDate](dateReads) and
       (JsPath \ "content").read[Map[String, NotificationContent]] and
       (JsPath \ "tags").read[Seq[Long]] and
-      Reads.pure(false) and
       Reads.pure(false)
-    )(Notification.apply _)
+    )(NotificationUpdate.apply _)
 
   implicit val notificationWrites: Writes[Notification] = Writes { notification =>
     Json.obj(
@@ -99,65 +104,57 @@ trait JsonSupport {
       "releaseId" -> notification.releaseId,
       "startDate" -> notification.publishDate,
       "endDate" -> notification.expiryDate,
-      "initialStartDate" -> notification.initialStartDate,
+      "createdBy" -> notification.createdBy,
+      "createdAt" -> notification.createdAt,
       "content" -> notification.content,
-      "tags" -> notification.tags
+      "tags" -> notification.tags,
+      "categories" -> notification.categories
     )
   }
 
-  implicit val releaseReads: Reads[Release] = (
-    (JsPath \ "id").read[Long] and
-    (JsPath \ "notification").readNullable[Notification] and
-    (JsPath \ "timeline").read[List[TimelineItem]] and
-    (JsPath \ "categories").read[Seq[Long]] and
-    (JsPath \ "createdBy").read[Int] and
-    (JsPath \ "createdAt").read[LocalDate](dateTimeReads) and
-    (JsPath \ "modifiedBy").readNullable[Int] and
-    (JsPath \ "modifiedAt").readNullable[LocalDate](dateTimeReads) and
-    Reads.pure(false) and
-    Reads.pure(false)
-    )(Release.apply _)
+  implicit val notificationListWrites: Writes[NotificationList] = Writes { notificationList =>
+    Json.obj(
+      "count" -> notificationList.totalAmount,
+      "items" -> notificationList.notifications
+    )
+  }
 
   implicit val releaseUpdateReads: Reads[ReleaseUpdate] = (
     (JsPath \ "id").read[Long] and
-    (JsPath \ "notification").readNullable[Notification] and
+    (JsPath \ "notification").readNullable[NotificationUpdate] and
     (JsPath \ "timeline").read[List[TimelineItem]] and
     (JsPath \ "categories").read[List[Long]]
   )(ReleaseUpdate.apply _)
 
-
-  def releasesReads: Reads[List[Release]] = {
-    JsPath.read[List[Release]]
+  implicit val categoryWrites: Writes[Category] = Writes { category =>
+    Json.obj(
+      "id" -> category.id,
+      "name" -> category.name
+    )
   }
-  def tagsReads: Reads[List[Tag]] = {
-    JsPath.read[List[Tag]]
-  }
-
-  implicit val categoryWrites: Writes[Category] = (
-    (JsPath \ "id").write[Long] and
-    (JsPath \ "name").write[String]
-    )(unlift(Category.unapply))
-
-  implicit val categoryReads: Reads[Category] = (
-    (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String]
-  )(Category.apply _)
 
   implicit val kayttoikeusDescriptionReads: Reads[KayttoikeusDescription] = (
-    (JsPath \ "text").read[String] and
+    (JsPath \ "text").readNullable[String] and
     (JsPath \ "lang").read[String]
   )(KayttoikeusDescription.apply _)
 
-  implicit val kayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
+   val kayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
     (JsPath \ "id").read[Long] and
-    (JsPath \ "name").read[String] and
-    (JsPath \ "descriptions" \ "texts").read[List[KayttoikeusDescription]]
+    (JsPath \ "description" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    Reads.pure(Seq.empty)
   )(Kayttooikeusryhma.apply _)
+
+   val userKayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
+    (JsPath \ "ryhmaId").read[Long] and
+    (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    Reads.pure(Seq.empty)
+    )(Kayttooikeusryhma.apply _)
 
   implicit val kayttooikeusryhmaWrites: Writes[Kayttooikeusryhma] = Writes { group =>
     Json.obj(
       "id" -> group.id,
-      "name" -> group.name
+      "description" -> group.description,
+      "roles" -> group.roles
     )
   }
 
@@ -184,46 +181,41 @@ trait JsonSupport {
     )
   }
 
-  def readKayttooikeusryhmat: Reads[List[Kayttooikeusryhma]] = JsPath.read[List[Kayttooikeusryhma]]
+  def readKayttooikeusryhmat(user: Boolean): Reads[List[Kayttooikeusryhma]] = {
+    implicit  val reads = if(user) userKayttooikeusryhmaReads else  kayttooikeusryhmaReads
+
+    JsPath.read[List[Kayttooikeusryhma]]
+  }
 
   def readKayttooikeudet: Reads[List[Kayttooikeus]] = JsPath.read[List[Kayttooikeus]]
 
-  implicit val userProfileWrites: Writes[UserProfile] = (
-    (JsPath \ "id").write[Long] and
-    (JsPath \ "uid").write[String] and
-      (JsPath \ "categories").write[Seq[Long]] and
-      (JsPath \ "sendEmail").write[Boolean]
-    )(unlift(UserProfile.unapply))
-
-  def parseRelease(jsString: String): Option[Release] ={
-    val jsonVal = Json.parse(jsString)
-    val result = Json.fromJson(jsonVal)(releaseReads)
-    result.asOpt
+  implicit val userProfileWrites: Writes[UserProfile] = Writes { profile =>
+    Json.obj(
+      "categories" -> profile.categories,
+      "sendEmail" -> profile.sendEmail
+    )
   }
+
+  implicit val userProfileReads: Reads[UserProfileUpdate] = (
+      (JsPath \ "categories").read[Seq[Long]] and
+      (JsPath \ "sendEmail").read[Boolean]
+    )(UserProfileUpdate.apply _)
+
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseUpdateReads)
     result.asOpt
   }
-  def parseUserProfileUpdate(jsString: String): Option[ReleaseUpdate] ={
+
+  def parseUserProfileUpdate(jsString: String): Option[UserProfileUpdate] ={
     val jsonVal = Json.parse(jsString)
-    val result = Json.fromJson(jsonVal)(releaseUpdateReads)
-    result.asOpt
-  }
-  def parseReleases(jsString: String): Option[List[Release]] ={
-    val jsonVal = Json.parse(jsString)
-    val result = Json.fromJson(jsonVal)(releasesReads)
-    result.asOpt
-  }
-  def parseTags(jsString: String): Option[List[Tag]] ={
-    val jsonVal = Json.parse(jsString)
-    val result = Json.fromJson(jsonVal)(tagsReads)
+    val result = Json.fromJson(jsonVal)(userProfileReads)
     result.asOpt
   }
 
-  def parseKayttooikeusryhmat(jsString: String): Option[List[Kayttooikeusryhma]] = {
+  def parseKayttooikeusryhmat(jsString: String, forUser: Boolean): Option[List[Kayttooikeusryhma]] = {
     val jsonVal = Json.parse(jsString)
-    Json.fromJson(jsonVal)(readKayttooikeusryhmat).asOpt
+    Json.fromJson(jsonVal)(readKayttooikeusryhmat(forUser)).asOpt
   }
 
   def parseKayttooikedet(jsString: String): Option[List[Kayttooikeus]] = {

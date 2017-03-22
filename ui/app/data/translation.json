@@ -136,8 +136,8 @@
     "modifiedBy": "1.2.246.562.24.72453542949",
     "force": false,
     "locale": "fi",
-    "key": "hakusana",
-    "value": "Hakusana"
+    "key": "lisaahakusana",
+    "value": "Lisää hakusana"
   },
   {
     "accesscount": 0,
@@ -151,7 +151,7 @@
     "force": false,
     "locale": "fi",
     "key": "eitunnisteita",
-    "value": "Ei tunnisteita"
+    "value": "Ei avainsanoja"
   },
   {
     "accesscount": 0,
@@ -248,8 +248,8 @@
     "modifiedBy": "1.2.246.562.24.72453542949",
     "force": false,
     "locale": "fi",
-    "key": "muokkaatiedotteita",
-    "value": "Muokkaa tiedotetta"
+    "key": "muokkaasisaltoa",
+    "value": "Muokkaa sisältöä"
   },
   {
     "accesscount": 0,
@@ -501,7 +501,7 @@
     "force": false,
     "locale": "fi",
     "key": "lahetasahkoposti",
-    "value": "Lähetä sähköposti valituille käyttäjäryhmille välittömästi"
+    "value": "Lähetä sähköpostia valituille käyttöoikeusryhmille välittömästi julkaisun yhteydessä"
   },
   {
     "accesscount": 0,
@@ -948,8 +948,8 @@
   },
   {
     "locale": "fi",
-    "key": "poistakohderyhma",
-    "value": "Poista kohderyhmä"
+    "key": "poistakayttooikeusryhma",
+    "value": "Poista käyttöoikeusryhmä"
   },
   {
     "locale": "fi",
@@ -1133,8 +1133,8 @@
   },
   {
     "locale": "fi",
-    "key": "haetaantunnisteita",
-    "value": "Haetaan tunnisteita..."
+    "key": "haetaanavainsanoja",
+    "value": "Haetaan avainsanoja..."
   },
   {
     "locale": "fi",
@@ -1143,8 +1143,13 @@
   },
   {
     "locale": "fi",
-    "key": "haeedellisiatapahtumia",
-    "value": "Hae edellisiä tapahtumia"
+    "key": "naytaedellinenkuukausi",
+    "value": "Näytä edellinen kuukausi"
+  },
+  {
+    "locale": "fi",
+    "key": "naytaseuraavakuukausi",
+    "value": "Näytä seuraava kuukausi"
   },
   {
     "locale": "fi",
@@ -1154,7 +1159,7 @@
   {
     "locale": "fi",
     "key": "tiedotteidenhakuepaonnistui",
-    "value": "Tiedotteiden haku"
+    "value": "Tiedotteiden haku epäonnistui"
   },
   {
     "locale": "fi",
@@ -1198,8 +1203,8 @@
   },
   {
     "locale": "fi",
-    "key": "kohdennusjaavainsanapuuttuu",
-    "value": "Julkaisua ei ole kohdennettu - kohdenna vähintään yhdelle käyttöoikeusryhmälle sekä valitse ainakin yksi avainsana"
+    "key": "avainsanapuuttuu",
+    "value": "sekä valitse ainakin yksi avainsana"
   },
   {
     "locale": "fi",
@@ -1244,7 +1249,7 @@
   {
     "locale": "fi",
     "key": "haetaankategorioita",
-    "value": "Haetaan kategorioita"
+    "value": "Haetaan kategorioita..."
   },
   {
     "locale": "fi",
@@ -1293,17 +1298,112 @@
   },
   {
     "locale": "fi",
-    "key": "rajausta",
-    "value": "rajausta"
-  },
-  {
-    "locale": "fi",
-    "key": "rajaus",
-    "value": "rajaus"
-  },
-  {
-    "locale": "fi",
     "key": "hairiotiedote",
     "value": "Häiriötiedote"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisunhakuepaonnistui",
+    "value": "Julkaisun haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "suljejaavaaeditori",
+    "value": "Sulje ja avaa editori uudestaan hakeaksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisuonnistui",
+    "value": "Julkaisu onnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kategorioidenhakuepaonnistui",
+    "value": "Kategorioiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tiedotteidenhakuepaonnistui",
+    "value": "Tiedotteiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kategorioidentallennusepaonnistui",
+    "value": "Kategorioiden tallennus käyttäjätietoihin epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "valitsekategoriauudestaan",
+    "value": "Valitse kategoria uudestaan yrittääksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "avainsanojenhakuepaonnistui",
+    "value": "Avainsanojen haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tapahtumienhakuepaonnistui",
+    "value": "Tapahtumien haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "julkaisemattomienhakuepaonnistui",
+    "value": "Julkaisemattomien tiedotteiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "suljejaavaadialogi",
+    "value": "Sulje ja avaa dialogi uudestaan hakeaksesi uudelleen"
+  },
+  {
+    "locale": "fi",
+    "key": "kayttajatietojenhakuepaonnistui",
+    "value": "Käyttäjätietojen haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kayttajaryhmienhakuepaonnistui",
+    "value": "Käyttäjäryhmien haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennakaikilleryhmille",
+    "value": "Kohdenna kaikille kayttöoikeusryhmille"
+  },
+  {
+    "locale": "fi",
+    "key": "lahetetaansahkoposti",
+    "value": "Tiedote lähetetään valituille käyttöoikeusryhmille sähköpostitse välittömästi."
+  },
+  {
+    "locale": "fi",
+    "key": "tallennettukohdennus",
+    "value": "Valitse tallennettu kohdennus"
+  },
+  {
+    "locale": "fi",
+    "key": "eikohdennuksia",
+    "value": "Ei kohdennuksia"
+  },
+  {
+    "locale": "fi",
+    "key": "poista",
+    "value": "Poista"
+  },
+  {
+    "locale": "fi",
+    "key": "valittu",
+    "value": "Valittu"
+  },
+  {
+    "locale": "fi",
+    "key": "kohdennusonjoolemassa",
+    "value": "Olet jo tallentanut kohdennuksen nimeltä "
+  },
+  {
+    "locale": "fi",
+    "key": "poistaminenepaonnistui",
+    "value": "Poistaminen epäonnistui"
   }
 ]

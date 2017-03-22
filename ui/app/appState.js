@@ -1,10 +1,9 @@
 import Bacon from 'baconjs'
-import R from 'ramda'
-import moment from 'moment'
 
+import user from './state/user'
 import categories from './state/categories'
 import userGroups from './state/userGroups'
-import tags from './state/tags'
+import tagGroups from './state/tagGroups'
 import view from './state/view'
 import unpublishedNotifications from './state/unpublishedNotifications'
 import notifications from './state/notifications'
@@ -13,7 +12,6 @@ import editor from './state/editor/editor'
 
 import Dispatcher from './dispatcher'
 import { initController } from './controller'
-// import urls from './data/virkailijan-tyopoyta-urls.json'
 
 const dispatcher = new Dispatcher()
 
@@ -25,7 +23,19 @@ const events = {
   editor: editor.events
 }
 
-const authUrl = '/virkailijan-tyopoyta/login'
+const initialState = {
+  defaultLocale: 'fi',
+  dateFormat: 'D.M.YYYY',
+  user: user.initialState,
+  userGroups: userGroups.initialState,
+  categories: categories.initialState,
+  tagGroups: tagGroups.initialState,
+  view: view.initialState,
+  unpublishedNotifications: unpublishedNotifications.initialState,
+  notifications: notifications.initialState,
+  timeline: timeline.initialState,
+  editor: editor.initialState
+}
 
 const controller = initController(dispatcher, events)
 
@@ -33,73 +43,34 @@ export function getController () {
   return controller
 }
 
-function onUserReceived (state, response) {
-  console.log('Received user', JSON.stringify(response))
-
-  const month = moment().format('M')
-  const year = moment().format('YYYY')
-
-  categories.fetch()
-  userGroups.fetch()
-  tags.fetch()
-  notifications.fetch({ page: 1 })
-
-  timeline.fetch({
-    month,
-    year
-  })
-
-  return R.assoc('user', response, state)
-}
-
-export function initAppState () {
-  const userS = Bacon.fromPromise(
-    window.fetch(authUrl, {
-      credentials: 'same-origin',
-      mode: 'no-cors'
-    })
-      .then(resp => { resp.json() })
-  )
-
-  const initialState = {
-    locale: 'fi',
-    dateFormat: 'D.M.YYYY',
-    userGroups: userGroups.initialState,
-    categories: categories.initialState,
-    tags: tags.initialState,
-    view: view.initialState,
-    unpublishedNotifications: unpublishedNotifications.initialState,
-    notifications: notifications.initialState,
-    timeline: timeline.initialState,
-    editor: editor.initialState
-  }
-
+export function setInitialState () {
   return Bacon.update(
     initialState,
 
-    [userS], onUserReceived,
+    // User
+    [user.fetchBus], user.onReceived,
+    [user.fetchFailedBus], user.onFetchFailed,
 
     // Categories
     [categories.fetchBus], categories.onReceived,
-    [categories.fetchFailedBus], categories.onFailed,
+    [categories.fetchFailedBus], categories.onFetchFailed,
 
     // User groups
     [userGroups.fetchBus], userGroups.onReceived,
-    [userGroups.fetchFailedBus], userGroups.onFailed,
+    [userGroups.fetchFailedBus], userGroups.onFetchFailed,
 
     // Tags
-    [tags.fetchBus], tags.onReceived,
-    [tags.fetchFailedBus], tags.onFailed,
+    [tagGroups.fetchBus], tagGroups.onReceived,
+    [tagGroups.fetchFailedBus], tagGroups.onFetchFailed,
 
-     // View
+    // View
     [view.alertsBus], view.onAlertsReceived,
     [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
-    [dispatcher.stream(events.view.toggleMenu)], view.toggleMenu,
 
     // Unpublished notifications
     [unpublishedNotifications.fetchBus], unpublishedNotifications.onReceived,
-    [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFailed,
+    [unpublishedNotifications.fetchFailedBus], unpublishedNotifications.onFetchFailed,
     [dispatcher.stream(events.unpublishedNotifications.open)], unpublishedNotifications.open,
     [dispatcher.stream(events.unpublishedNotifications.close)], unpublishedNotifications.close,
     [dispatcher.stream(events.unpublishedNotifications.edit)], unpublishedNotifications.edit,
@@ -112,13 +83,12 @@ export function initAppState () {
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.toggleCategory)], notifications.toggleCategory,
-    [dispatcher.stream(events.notifications.setSelectedCategories)], notifications.setSelectedCategories,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
 
     // Timeline
     [timeline.fetchBus], timeline.onReceived,
-    [timeline.fetchFailedBus], timeline.onFailed,
+    [timeline.fetchFailedBus], timeline.onFetchFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
@@ -128,8 +98,9 @@ export function initAppState () {
     // Editor
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
-    [editor.fetchBus], editor.onReleaseReceived,
-    [editor.fetchFailedBus], editor.onFetchFailed,
+    [editor.fetchReleaseBus], editor.onReleaseReceived,
+    [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
+    [editor.alertsBus], editor.onAlertsReceived,
     [dispatcher.stream(events.editor.open)], editor.open,
     [dispatcher.stream(events.editor.close)], editor.close,
     [dispatcher.stream(events.editor.toggleTab)], editor.toggleTab,
@@ -139,17 +110,30 @@ export function initAppState () {
     [dispatcher.stream(events.editor.save)], editor.save,
     [dispatcher.stream(events.editor.saveDraft)], editor.saveDraft,
 
+    [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
+    [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
+    [dispatcher.stream(events.editor.editNotification.setAsDisruptionNotification)],
+    editor.editNotification.setAsDisruptionNotification,
+
     [dispatcher.stream(events.editor.editTimeline.update)], editor.editTimeline.update,
     [dispatcher.stream(events.editor.editTimeline.updateContent)], editor.editTimeline.updateContent,
     [dispatcher.stream(events.editor.editTimeline.add)], editor.editTimeline.add,
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
 
-    [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
-    [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
-
+    [editor.targeting.removeTargetingGroupBus], editor.targeting.onTargetingGroupRemoved,
+    [editor.targeting.removeTargetingGroupFailedBus], editor.targeting.onRemoveTargetingGroupFailed,
     [dispatcher.stream(events.editor.targeting.update)], editor.targeting.update,
+    [dispatcher.stream(events.editor.targeting.toggleTargetingGroup)], editor.targeting.toggleTargetingGroup,
+    [dispatcher.stream(events.editor.targeting.removeTargetingGroup)], editor.targeting.removeTargetingGroup,
     [dispatcher.stream(events.editor.targeting.toggleCategory)], editor.targeting.toggleCategory,
     [dispatcher.stream(events.editor.targeting.toggleUserGroup)], editor.targeting.toggleUserGroup,
-    [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag
+    [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag,
+    [dispatcher.stream(events.editor.targeting.toggleSendEmail)], editor.targeting.toggleSendEmail,
   )
+}
+
+export function initAppState () {
+  user.fetch()
+
+  return setInitialState()
 }

@@ -11,6 +11,8 @@
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 taulukko, joka sisältää kaikki kategoriat JSON-muodossa järjestettynä nousevasti id:n mukaan.
 
+Yksittäisen kategorian *name*-ominaisuuden arvo on lokalisoitu käyttäjän kielen mukaan. 
+
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
 ##Esimerkki
@@ -19,8 +21,7 @@ Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 [
     {
         "id": 1,
-        "name_fi": "Perusopetus",
-        "name_sv": "Grundläggande utbildning"
+        "name": "Perusopetus"
     },
     ...
 ]

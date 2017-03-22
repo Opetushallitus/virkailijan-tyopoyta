@@ -32,9 +32,7 @@ function CloseButton (props) {
       disabled={disabled}
       onClick={onClick}
     >
-      &times;
-
-      <span className="hide">{translate(title)}</span>
+      <span aria-hidden>&times;</span>
     </Button>
   )
 }

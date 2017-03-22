@@ -1,22 +1,28 @@
 import React, { PropTypes } from 'react'
 
 const propTypes = {
+  className: PropTypes.string,
   text: PropTypes.string.isRequired
 }
 
-const classList = [
-  'h6',
-  'caps',
-  'inline-block',
-  'mr1',
-  'mb1',
-  'px1',
-  'rounded',
-  'white',
-  'bg-gray-lighten-1'
-]
+const defaultProps = {
+  className: ''
+}
 
 function Tag (props) {
+  const classList = [
+    'h6',
+    'caps',
+    'inline-block',
+    'mr1',
+    'mb1',
+    'px1',
+    'rounded',
+    'white',
+    'bg-gray',
+    props.className
+  ]
+
   return (
     <span className={classList.join(' ')}>
       {props.text}
@@ -25,5 +31,6 @@ function Tag (props) {
 }
 
 Tag.propTypes = propTypes
+Tag.defaultProps = defaultProps
 
 export default Tag

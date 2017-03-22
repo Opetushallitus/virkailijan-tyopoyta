@@ -33,6 +33,15 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
       casParams, client.blaze.defaultClient, "virkailijan-tyopoyta")
 
+    private def handleResponse(response: Response): Try[String] = {
+      lazy val body = EntityDecoder.decodeString(response).unsafePerformSync
+      if (response.status.isSuccess) {
+        Success(body)
+      } else {
+        Failure(new RuntimeException(body))
+      }
+    }
+
     def authenticatedRequest[A](uri: String,
                                 method: RequestMethod.Value,
                                 headers: Headers = Headers.empty,
@@ -59,13 +68,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
         authenticatingClient.httpClient.toHttpService.run(finalRequest)
       }
 
-      Try(send.unsafePerformSync).flatMap { response =>
-        lazy val result = EntityDecoder.decodeString(response).unsafePerformSync
-        response.status match {
-          case Status.Ok => Success(result)
-          case _ => Failure(new IllegalStateException(result))
-        }
-      }
+      Try(send.unsafePerformSync).flatMap(handleResponse)
     }
   }
 

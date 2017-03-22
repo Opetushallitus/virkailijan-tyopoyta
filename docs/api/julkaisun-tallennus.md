@@ -23,6 +23,7 @@ Pyynnössä lähetetään julkaisu JSON-muotoisena merkkijonona.
     "tags": [1],
     "userGroups": [3, 4]
     "sendEmail": true,
+    "targetingGroup": "Ammatillisen päivitetty aikataulu",
     "notification": {
         "id": -1,
         "releaseId": -1,
