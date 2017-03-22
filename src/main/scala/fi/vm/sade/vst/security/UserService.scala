@@ -30,6 +30,7 @@ class UserService(val casUtils: CasUtils,
 
   private def createUser(ldapUser: LdapUser): User = {
     val groups = kayttooikeusService.userGroupsForUser(ldapUser.roles)
+    //TODO: Do not memoize userprofile (firstLogin)
     val profile = userRepository.userProfile(ldapUser.oid)
     val lang = ldapUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
     val isAdmin = ldapUser.roles.contains(adminRole)

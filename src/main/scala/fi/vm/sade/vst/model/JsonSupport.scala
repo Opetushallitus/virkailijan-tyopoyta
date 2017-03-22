@@ -184,7 +184,8 @@ trait JsonSupport {
   implicit val userProfileWrites: Writes[UserProfile] = Writes { profile =>
     Json.obj(
       "categories" -> profile.categories,
-      "sendEmail" -> profile.sendEmail
+      "sendEmail" -> profile.sendEmail,
+      "firstLogin" -> profile.firstLogin
     )
   }
 

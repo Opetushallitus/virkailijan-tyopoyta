@@ -25,7 +25,8 @@ case class User(userId: String,
 
 case class UserProfile(userId: String,
                        categories: Seq[Long] = Seq.empty,
-                       sendEmail: Boolean = false)
+                       sendEmail: Boolean = false,
+                       firstLogin: Boolean = false)
 
 case class UserProfileUpdate(categories: Seq[Long] = Seq.empty,
                              sendEmail: Boolean = true)
