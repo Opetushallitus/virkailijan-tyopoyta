@@ -23,6 +23,7 @@ const autoSaveBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
+    // url: `${urls.release}/${id}`,
     url: urls.release,
     method: 'GET',
     searchParams: { id },

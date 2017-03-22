@@ -28,6 +28,7 @@ function fetch (options) {
 
   // TODO: Using /api/release to get a notification by id for now, remove when /api/notifications takes an id as parameter
   getData({
+    // url: id ? `${urls.notifications}/${id}` : urls.notifications,
     url: id ? urls.release : urls.notifications,
     searchParams: {
       page,
