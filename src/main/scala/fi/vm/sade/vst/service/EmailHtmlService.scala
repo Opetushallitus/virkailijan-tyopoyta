@@ -7,6 +7,7 @@ import scala.util.Try
 import scala.xml.{Elem, XML}
 
 object EmailHtmlService extends Configuration {
+  // TODO: Email forming could be done using templates, it was just easier to make if using pure scala for now
   def htmlString(date: DateTime, releases: Iterable[Release], language: String) = {
     s"""<!DOCTYPE html>
         |${htmlBasicFrame(date, releases, language)}

@@ -8,11 +8,19 @@ import scalikejdbc._
 import Tables._
 
 class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
-  val (r, n, c, nt, tl, tc) =
-    (ReleaseTable.syntax, NotificationTable.syntax, NotificationContentTable.syntax, NotificationTagTable.syntax, TimelineTable.syntax, TimelineContentTable.syntax)
-
-  val (t, tg, tgc) = (TagTable.syntax, TagGroupTable.syntax, TagGroupCategoryTable.syntax)
-  val (cat, rc) = (CategoryTable.syntax, ReleaseCategoryTable.syntax)
+  val (r, n, c, nt, t, tg, tgc, tl, tc, cat, rc, ee) = (
+    ReleaseTable.syntax,
+    NotificationTable.syntax,
+    NotificationContentTable.syntax,
+    NotificationTagTable.syntax,
+    TagTable.syntax,
+    TagGroupTable.syntax,
+    TagGroupCategoryTable.syntax,
+    TimelineTable.syntax,
+    TimelineContentTable.syntax,
+    CategoryTable.syntax,
+    ReleaseCategoryTable.syntax,
+    EmailEventTable.syntax)
 
   private def findRelease(id: Long): Option[Release] =
     withSQL[Release]{
@@ -351,4 +359,20 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val timelineContent = TimelineContent(timelineId, "fi", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
     insertTimelineContent(timelineId, timelineContent)
   }
+
+  def emailReleasesForDate(date: LocalDate): Seq[Release] = {
+    val result = withSQL[Release] {
+      select.from(ReleaseTable as r)
+        .join(NotificationTable as n).on(r.id, n.releaseId)
+        .leftJoin(EmailEventTable as ee).on(r.id, ee.releaseId)
+        .where.eq(n.publishDate, date).and.isNull(ee.id)
+    }
+    result.map(ReleaseTable(r))
+      .list
+      .apply()
+      .flatMap(r => release(r.id))
+      .toSeq
+  }
+
+  def emailLogs: Seq[EmailEvent] = withSQL{select.from(EmailEventTable as ee)}.map(EmailEventTable(ee)).list.apply
 }

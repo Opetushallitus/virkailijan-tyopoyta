@@ -28,9 +28,8 @@ libraryDependencies ++= Seq(
 // OPH dependencies
 libraryDependencies ++= Seq(
   "fi.vm.sade" %% "scala-cas" % "0.4.0-SNAPSHOT",
-  "fi.vm.sade" %% "scala-group-emailer" % "0.2.0-SNAPSHOT",
-  "fi.vm.sade" %% "scala-ldap-client" % "1.0.0-SNAPSHOT",
-  "fi.vm.sade" %% "scala-utils" % "0.3.1-SNAPSHOT"
+  "fi.vm.sade" %% "scala-group-emailer" % "0.3.0-SNAPSHOT",
+  "fi.vm.sade" %% "scala-ldap-client" % "1.0.0-SNAPSHOT"
 )
 
 // Extra util dependencies
@@ -49,4 +48,9 @@ libraryDependencies ++= Seq(
   "org.scalikejdbc" %% "scalikejdbc-config" % "2.5.0",
   "org.scalikejdbc" %% "scalikejdbc-jsr310" % "2.5.0",
   "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % "2.5.0"
+)
+
+// Akka-quartz-scheduler for Scheduling / Cron jobs
+libraryDependencies ++= Seq(
+  "com.enragedginger" %% "akka-quartz-scheduler" % "1.4.0-akka-2.3.x"
 )

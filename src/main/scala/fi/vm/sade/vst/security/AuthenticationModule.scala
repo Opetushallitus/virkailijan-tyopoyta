@@ -3,6 +3,7 @@ package fi.vm.sade.vst.security
 import fi.vm.sade.security.ldap.LdapClient
 import fi.vm.sade.utils.cas._
 import fi.vm.sade.vst.Configuration
+import fi.vm.sade.vst.service.EmailService
 import org.http4s.client
 
 trait AuthenticationModule extends Configuration {
@@ -14,5 +15,5 @@ trait AuthenticationModule extends Configuration {
   lazy val casUtils: CasUtils = wire[CasUtils]
   lazy val ldapClient: LdapClient = wire[LdapClient]
   lazy val kayttooikeusService: KayttooikeusService = wire[KayttooikeusService]
-
+  lazy val emailService: EmailService = wire[EmailService]
 }

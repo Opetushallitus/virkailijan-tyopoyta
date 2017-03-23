@@ -49,9 +49,9 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
         update(UserProfileTable).set(u.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId)
       }.update().apply()
       withSQL {
-        delete.from(UserCategoryTable).where.eq(uc.userId,userId)
+        delete.from(UserCategoryTable).where.eq(uc.userId, userId)
       }.update().apply()
-      userProfileUpdate.categories.foreach(id => insertUserCategory(userId,id))
+      userProfileUpdate.categories.foreach(id => insertUserCategory(userId, id))
     }
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }

@@ -10,9 +10,9 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.{JsonSupport, Release}
+import fi.vm.sade.vst.model.{JsonSupport, Release, User}
 import fi.vm.sade.vst.repository.ReleaseRepository
-import fi.vm.sade.vst.security.UserService
+import fi.vm.sade.vst.security.{UserService, KayttooikeusService}
 import fi.vm.sade.vst.service.EmailService
 import play.api.libs.json.{Json, Writes}
 
@@ -20,7 +20,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class Routes(userService: UserService, releaseRepository: ReleaseRepository) extends Directives with JsonSupport {
+class Routes(authenticationService: UserService,
+             emailService: EmailService,
+             kayttooikeusService: KayttooikeusService,
+             releaseRepository: ReleaseRepository,
+             userService: UserService)
+  extends Directives
+  with JsonSupport {
 
   val sessionConfig: SessionConfig = SessionConfig.default("some_very_long_secret_and_random_string_some_very_long_secret_and_random_string")
   implicit val sessionManager = new SessionManager[String](sessionConfig)
@@ -70,7 +76,7 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
 
   def sendInstantEmails(release: Release) = {
     // Release.sendEmail seems to have been removed and no replacement is given, rethink this part
-    if (true) EmailService.sendEmails(Vector(release), EmailService.ImmediateEmail)
+    if (release.notification.exists(_.sendEmail)) emailService.sendEmails(Vector(release), emailService.ImmediateEmail)
     release
   }
 
@@ -116,10 +122,31 @@ class Routes(userService: UserService, releaseRepository: ReleaseRepository) ext
           }
         } ~
         path("tags"){sendResponse(Future(releaseRepository.tags))} ~
-        path("emailhtml"){sendHtml(Future {
-          val releases = releaseRepository.releases.flatMap(r => releaseRepository.release(r.id))
-          EmailService.sendEmails(releases, EmailService.TimedEmail)
-        })} ~
+        path("emailLogs"){sendResponse(Future(releaseRepository.emailLogs))} ~
+        path("releasesForDate"){
+          parameters("year".as[Int], "month".as[Int], "day".as[Int]) {
+            (year, month, day) => {
+              val date = java.time.LocalDate.of(year, month, day)
+              val releases = releaseRepository.emailReleasesForDate(date)
+              sendResponse(Future(releases))
+            }
+          }
+        } ~
+        path("emailhtml"){
+          parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
+            (year, month, day) => {
+              sendHtml(Future {
+                val date = (for {
+                  y <- year
+                  m <- month
+                  d <- day
+                } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
+                val releases = releaseRepository.emailReleasesForDate(date)
+                emailService.sendEmails(releases, emailService.TimedEmail)
+              })
+            }
+          }
+        } ~
         path("generate"){
           parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
             (amount, year, month) => {

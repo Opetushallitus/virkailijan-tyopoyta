@@ -1,7 +1,7 @@
 package fi.vm.sade.vst.repository
 
 import fi.vm.sade.vst.model._
-import java.time.YearMonth
+import java.time.{LocalDate, YearMonth}
 
 trait ReleaseRepository{
   type RowIds = Option[Seq[Long]]
@@ -19,5 +19,6 @@ trait ReleaseRepository{
   def addRelease(uid: String, release: ReleaseUpdate): Option[Release]
   def updateRelease(uid: String, release: ReleaseUpdate): Option[Release]
   def generateReleases(amount: Int, month: YearMonth): Seq[Release]
-
+  def emailReleasesForDate(date: LocalDate): Seq[Release]
+  def emailLogs: Seq[EmailEvent]
 }
