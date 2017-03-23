@@ -7,9 +7,11 @@ import fi.vm.sade.vst.actor.scheduler.ProcedureRunnerActor.DailyEmailReleaseChec
 import fi.vm.sade.vst.service.EmailService
 
 class QuartzScheduler(emailService: EmailService) extends Configuration {
-  val system = ActorSystem("Virkailijan-Tyopoyta")
+  val system = ActorSystem("Virkailijan-Tyopoyta", config)
   val scheduler: QuartzSchedulerExtension = QuartzSchedulerExtension(system)
   val procedureRunnerActor: ActorRef = system.actorOf(ProcedureRunnerActor.props(emailService))
 
-  scheduler.schedule("AutomatedReleasesEmail", procedureRunnerActor, DailyEmailReleaseCheck)
+  def init(): Unit = {
+    scheduler.schedule("AutomatedReleasesEmail", procedureRunnerActor, DailyEmailReleaseCheck)
+  }
 }

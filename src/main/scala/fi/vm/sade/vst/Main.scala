@@ -12,4 +12,5 @@ object Main extends App with ServerModule with Configuration {
   println("Fetching service user groups")
   val groups = userService.serviceUserGroups
   server.start()
+  quartzScheduler.init()
 }

@@ -25,7 +25,6 @@ class EmailService(casUtils: CasUtils) extends RepositoryModule with GroupEmailC
         val parsedXml = s \\ "henkiloEmail"
         parsedXml.map(_.text)
       case Failure(f) =>
-        println(s"Could not properly load response string as xml: $f")
         Seq.empty
     }
   }
@@ -35,14 +34,12 @@ class EmailService(casUtils: CasUtils) extends RepositoryModule with GroupEmailC
       case Success(s) =>
         parseEmailFromResponse(s)
       case Failure(f) =>
-        println(s"Error response from ${emailConfig.serviceAddress}: $f")
         Seq.empty
     }
   }
 
   def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
-    val filteredReleases = releases.filterNot(releaseEventExists)
-    val emailsToReleases = filteredReleases.flatMap { release =>
+    val emailsToReleases = releases.flatMap { release =>
       val emails = emailsForUserGroup(userGroupsForRelease(release))
       emails.map(_ -> release)
     }
@@ -54,16 +51,12 @@ class EmailService(casUtils: CasUtils) extends RepositoryModule with GroupEmailC
         groupEmailService.sendMailWithoutTemplate(EmailData(email, recipients))
     }
 
-    addEmailEvents(filteredReleases.map(releaseToEmailEvent(_, eventType)))
+    addEmailEvents(releases.map(releaseToEmailEvent(_, eventType)))
     result
   }
 
   def sendEmailsForDate(date: LocalDate): Unit = {
     val releases = releaseRepository.emailReleasesForDate(date)
-
-    println(s"Releases for date: $date")
-    releases.foreach(r => println(s"  $r"))
-
     sendEmails(releases, TimedEmail)
   }
 

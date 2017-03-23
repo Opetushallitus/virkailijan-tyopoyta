@@ -1,10 +1,9 @@
 package fi.vm.sade.vst.actor.scheduler
 
-import java.time.LocalDate
-
 import akka.actor.{Actor, Props}
-import ProcedureRunnerActor._
 import fi.vm.sade.vst.service.EmailService
+import java.time.LocalDate
+import ProcedureRunnerActor._
 
 object ProcedureRunnerActor {
   def props(emailService: EmailService): Props = Props(new ProcedureRunnerActor(emailService))
