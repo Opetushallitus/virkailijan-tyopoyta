@@ -1,5 +1,5 @@
 server.port={{palvelu_portti}}
-virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}
+virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}}
 
 
 #CAS
