@@ -166,6 +166,7 @@ trait JsonSupport {
   implicit val userWrites: Writes[User] = Writes { user =>
     Json.obj(
       "lang" -> user.language,
+      "userId" -> user.userId,
       "isAdmin" -> user.isAdmin,
       "groups" -> user.groups,
       "profile" -> user.profile
