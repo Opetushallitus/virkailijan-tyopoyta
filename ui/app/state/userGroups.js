@@ -23,8 +23,11 @@ function fetch () {
 function onReceived (state, userGroups) {
   console.log('Received user groups')
 
+  // TODO: Remove when user groups have category IDs
+  const newGroups = R.map(group => R.assoc('categories', [1], group), userGroups)
+
   return R.compose(
-    R.assocPath(['userGroups', 'items'], userGroups),
+    R.assocPath(['userGroups', 'items'], newGroups),
     R.assocPath(['userGroups', 'isLoading'], false)
   )(state)
 }

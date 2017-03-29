@@ -1415,5 +1415,40 @@
     "locale": "fi",
     "key": "eiluonnosta",
     "value": "Ei luonnosta"
+  },
+  {
+    "locale": "fi",
+    "key": "tallennusepaonnistui",
+    "value": "Tallennus epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "vahvistatiedotteenpoistaminen",
+    "value": "Vahvista tiedotteen poistaminen"
+  },
+  {
+    "locale": "fi",
+    "key": "tiedotteenpoistoepaonnistui",
+    "value": "Tiedotteen poistaminen epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tiedotepoistettu",
+    "value": "Tiedote poistettu"
+  },
+  {
+    "locale": "fi",
+    "key": "vahvistatapahtumanpoistaminen",
+    "value": "Vahvista tapahtuman poistaminen"
+  },
+  {
+    "locale": "fi",
+    "key": "tapahtumanpoistoepaonnistui",
+    "value": "Tapahtuman poistaminen epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tapahtumapoistettu",
+    "value": "Tapahtuma poistettu"
   }
 ]

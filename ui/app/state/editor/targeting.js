@@ -35,7 +35,6 @@ function update (state, { prop, value }) {
 
   const newState = R.assocPath(concatenatedPath, value, state)
 
-
   const validatedRelease = validate(
     R.path(path, newState),
     rules(newState)['release']
@@ -109,7 +108,7 @@ function toggleCategory (state, category) {
 
   const categories = state.editor.editedRelease.categories
   const newCategories = R.contains(category, categories)
-    ? R.reject(c => c === category, categories)
+    ? R.reject(id => id === category, categories)
     : R.append(category, categories)
 
   return removeSelectedTags(
@@ -138,7 +137,7 @@ function removeSelectedTags (state, categoryId) {
     Get all tag IDs from tag groups which are linked to selected categories
     Always allow tags in state.tagGroups.specialTags
   */
-  const allowedTags = R.pluck('id', R.flatten(R.pluck('items',
+  const allowedTags = R.pluck('id', R.flatten(R.pluck('tags',
     R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tagGroups.items)
   ))).concat(R.pluck('id', state.tagGroups.specialTags))
 

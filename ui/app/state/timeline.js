@@ -11,6 +11,7 @@ import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
+const removeItemBus = new Bacon.Bus()
 
 function fetch (options) {
   console.log('Fetching timeline')
@@ -68,6 +69,43 @@ function onFetchFailed (state) {
     R.assocPath(['timeline', 'hasLoadingFailed'], true),
     R.assocPath(['timeline', 'isInitialLoad'], false)
   )(state)
+}
+
+function onItemRemoved (state, { result, nodeSelector, parentSelector }) {
+  const alert = createAlert({
+    type: 'success',
+    titleKey: 'tapahtumapoistettu'
+  })
+
+  const node = document.querySelector(nodeSelector)
+  const overlay = document.querySelector(`${nodeSelector}-overlay`)
+  const parent = document.querySelector(parentSelector)
+
+  if (result) {
+    setTimeout(() => {
+      node.style.opacity = 0
+    }, 500)
+
+    setTimeout(() => {
+      if (parent.children.length === 1) {
+        parent.remove()
+      } else {
+        node.remove()
+      }
+    }, 1000)
+  } else {
+    alert.type = 'error'
+    alert.titleKey = 'tapahtumanpoistoepaonnistui'
+
+    setTimeout(() => {
+      node.style.opacity = 1
+      overlay.classList.add('display-none')
+    }, 500)
+  }
+
+  view.alertsBus.push(alert)
+
+  return state
 }
 
 function onCurrentMonthReceived (state, response) {
@@ -244,6 +282,29 @@ function edit (state, releaseId) {
   return editor.open(state, null, releaseId, 'edit-timeline')
 }
 
+function confirmRemove (state, { id, nodeSelector, parentSelector }) {
+  console.log('Removing timeline item with id', id)
+
+  getData({
+    url: `${urls.timeline}/${id}`,
+    requestOptions: {
+      method: 'DELETE'
+    },
+    onSuccess: () => removeItemBus.push({
+      result: true,
+      nodeSelector,
+      parentSelector
+    }),
+    onError: () => removeItemBus.push({
+      result: false,
+      nodeSelector,
+      parentSelector
+    })
+  })
+
+  return state
+}
+
 function emptyTimeline () {
   return {
     items: [],
@@ -253,6 +314,7 @@ function emptyTimeline () {
     isLoadingNext: false,
     isLoadingPrevious: false,
     isInitialLoad: true,
+    isRemovingItem: false,
     hasLoadingFailed: false
   }
 }
@@ -264,7 +326,8 @@ const events = {
   getNextMonth,
   getPreviousMonth,
   getRelatedNotification,
-  edit
+  edit,
+  confirmRemove
 }
 
 const initialState = emptyTimeline()
@@ -272,10 +335,12 @@ const initialState = emptyTimeline()
 const timeline = {
   fetchBus,
   fetchFailedBus,
+  removeItemBus,
   events,
   initialState,
   onReceived,
   onFetchFailed,
+  onItemRemoved,
   fetch,
   getCurrentMonth,
   getPreloadedMonth,
@@ -283,6 +348,7 @@ const timeline = {
   getNextMonth,
   getRelatedNotification,
   edit,
+  confirmRemove,
   emptyTimeline
 }
 

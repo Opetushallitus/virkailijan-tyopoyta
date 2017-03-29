@@ -10,6 +10,7 @@ import urls from '../data/virkailijan-tyopoyta-urls.json'
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 const saveCategoriesFailedBus = new Bacon.Bus()
+const removeNotificationBus = new Bacon.Bus()
 
 function fetch (options) {
   console.log('Fetching notifications')
@@ -26,13 +27,10 @@ function fetch (options) {
     return
   }
 
-  // TODO: Using /api/release to get a notification by id for now, remove when /api/notifications takes an id as parameter
   getData({
-    // url: id ? `${urls.notifications}/${id}` : urls.notifications,
-    url: id ? urls.release : urls.notifications,
+    url: id ? `${urls.notifications}/${id}` : urls.notifications,
     searchParams: {
       page,
-      id,
       tags,
       categories
     },
@@ -63,18 +61,19 @@ function onNotificationsReceived (state, response) {
   console.log('Received notifications')
 
   /*
-    Response's 'items' property has either an array (page of notifications)
+    Response has either an array in 'items' property (a page of notifications)
     or an object (single notification related to a timeline item)
   */
 
   // Set a property to notification related to timeline item for rendering
-  if (!R.isArrayLike(response.items)) {
-    response.notification.isRelatedToTimelineItem = true
+  if (!response.items) {
+    response.isRelatedToTimelineItem = true
+    response.count = 1
   }
 
   const notifications = state.notifications
   const items = notifications.items
-  const newItems = R.isArrayLike(response.items) ? items.concat(response.items) : [response.notification]
+  const newItems = response.items ? items.concat(response.items) : [response]
 
   return R.compose(
     R.assocPath(['notifications', 'items'], newItems),
@@ -96,6 +95,47 @@ function onFetchNotificationsFailed (state) {
     R.assocPath(['notifications', 'isLoading'], false),
     R.assocPath(['notifications', 'hasLoadingFailed'], true)
   )(state)
+}
+
+function onNotificationRemoved (state, { result, notification, index }) {
+  const alert = createAlert({
+    type: 'success',
+    titleKey: 'tiedotepoistettu'
+  })
+
+  if (result && notification.isRelatedToTimelineItem) {
+    fetch({ page: 1 })
+    view.alertsBus.push(alert)
+
+    return R.assoc('notifications', emptyNotifications(), state)
+  }
+
+  if (result) {
+    view.alertsBus.push(alert)
+
+    return R.compose(
+      R.assocPath(
+        ['notifications', 'items'],
+        R.update(index, R.assoc('isRemoved', true, notification), state.notifications.items),
+      ),
+      R.assocPath(['notifications', 'count'], R.dec(state.notifications.count))
+    )(state)
+  }
+
+  alert.type = 'error'
+  alert.titleKey = 'tiedotteenpoistoepaonnistui'
+
+  view.alertsBus.push(alert)
+
+  return onRemoveNotificationFailed(state, notification, index)
+}
+
+function onRemoveNotificationFailed (state, notification, index) {
+  return R.assocPath(
+    ['notifications', 'items'],
+    R.update(index, R.assoc('isRemoving', false, notification), state.notifications.items),
+    state
+  )
 }
 
 function onSaveCategoriesFailed (state) {
@@ -207,6 +247,46 @@ function edit (state, releaseId) {
   return editor.open(state, null, releaseId, 'edit-notification')
 }
 
+function remove (state, { notification, index, value }) {
+  return R.assocPath(
+    ['notifications', 'items'],
+    R.update(index, R.assoc('confirmRemove', value, notification), state.notifications.items),
+    state
+  )
+}
+
+function confirmRemove (state, { notification, index }) {
+  console.log('Removing notification with id', notification.id)
+
+  const newNotification = R.compose(
+    R.assoc('isRemoving', true),
+    R.assoc('confirmRemove', false)
+  )(notification)
+
+  getData({
+    url: `${urls.notifications}/${notification.id}`,
+    requestOptions: {
+      method: 'DELETE'
+    },
+    onSuccess: () => removeNotificationBus.push({
+      result: true,
+      notification,
+      index
+    }),
+    onError: () => removeNotificationBus.push({
+      result: false,
+      notification,
+      index
+    })
+  })
+
+  return R.assocPath(
+    ['notifications', 'items'],
+    R.update(index, newNotification, state.notifications.items),
+    state
+  )
+}
+
 function emptyNotifications () {
   return {
     items: [],
@@ -224,7 +304,9 @@ const events = {
   setSelectedTags,
   toggleCategory,
   getPage,
-  edit
+  edit,
+  remove,
+  confirmRemove
 }
 
 const initialState = emptyNotifications()
@@ -232,6 +314,7 @@ const initialState = emptyNotifications()
 const notifications = {
   fetchBus,
   fetchFailedBus,
+  removeNotificationBus,
   saveCategoriesFailedBus,
   events,
   initialState,
@@ -239,13 +322,16 @@ const notifications = {
   reset,
   onNotificationsReceived,
   onFetchNotificationsFailed,
+  onNotificationRemoved,
   onSaveCategoriesFailed,
   toggleTag,
   setSelectedTags,
   toggleCategory,
   getPage,
   getNotificationById,
-  edit
+  edit,
+  remove,
+  confirmRemove
 }
 
 export default notifications

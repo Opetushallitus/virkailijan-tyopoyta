@@ -6,6 +6,7 @@ import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
+import * as testData from '../resources/test/testData.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -13,11 +14,13 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching categories')
 
-  getData({
-    url: urls.categories,
-    onSuccess: categories => fetchBus.push(categories),
-    onError: error => fetchFailedBus.push(error)
-  })
+  // getData({
+  //   url: urls.categories,
+  //   onSuccess: categories => fetchBus.push(categories),
+  //   onError: error => fetchFailedBus.push(error)
+  // })
+
+  fetchBus.push(testData.categories)
 }
 
 function onReceived (state, categories) {

@@ -23,6 +23,7 @@
     "babel-preset-react": "^6.3.13",
     "clean-webpack-plugin": "0.1.10",
     "css-loader": "^0.23.1",
+    "cssnano": "^3.10.0",
     "eslint": "^3.13.1",
     "eslint-config-airbnb": "^14.0.0",
     "eslint-config-standard": "^6.2.1",
@@ -48,6 +49,7 @@
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",
     "webpack-livereload-plugin": "^0.8.1",
+    "webpack-uglify-js-plugin": "^1.1.9",
     "webpack-validator": "^2.1.1"
   },
   "dependencies": {
@@ -63,6 +65,7 @@
     "font-awesome": "4.7.0",
     "lodash.debounce": "4.0.8",
     "moment": "2.15.1",
+    "oph-virkailija-style-guide": "github:opetushallitus/virkailija-styles#styleguide",
     "ramda": "0.23.0",
     "react": "15.4.2",
     "react-addons-shallow-compare": "15.3.2",
@@ -70,7 +73,6 @@
     "react-dom": "15.4.2",
     "react-render-html": "0.1.6",
     "semantic-ui-css": "2.2.4",
-    "semantic-ui-react": "0.61.7",
-    "virkailija-style-guide": "github:opetushallitus/virkailija-styles#styleguide"
+    "semantic-ui-react": "0.61.7"
   }
 }

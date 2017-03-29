@@ -10,14 +10,15 @@ const webpack = require('webpack')
 const PATHS = {
   build: path.join(__dirname, 'src/main/resources/ui'),
   app: path.join(__dirname, 'ui/app'),
-  style: path.join(__dirname, 'ui/app/resources/styles'),
+  style: path.join(__dirname, 'ui/app/resources/styles/app.css'),
   images: path.join(__dirname, 'ui/app/resources/img'),
   fonts: path.join(__dirname, 'ui/app/resources/fonts')
 }
 
 const config = {
   entry: {
-    app: PATHS.app
+    app: PATHS.app,
+    style: PATHS.style
   },
   output: {
     path: PATHS.build,
@@ -61,8 +62,7 @@ const config = {
       },
       {
         test: /\.css$/,
-        loader: 'style!css!postcss-loader',
-        include: PATHS.style
+        loader: ExtractTextPlugin.extract('style', 'css!postcss-loader')
       }
     ]
   },
@@ -82,8 +82,10 @@ const config = {
     inline: true,
     stats: 'errors-only'
   },
-
   plugins: [
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: { warnings: false }
+    // }),
     new ExtractTextPlugin('[name].css'),
     new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()

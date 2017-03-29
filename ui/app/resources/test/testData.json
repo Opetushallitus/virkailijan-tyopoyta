@@ -138,7 +138,7 @@
       "id": 1,
       "name": "Perusopetus ja toinen aste",
       "categories": [1, 2, 3, 4, 5, 6, 7],
-      "items": [
+      "tags": [
         {
           "id": 1,
           "name": "Aikataulut"
@@ -201,7 +201,7 @@
       "id": 2,
       "name": "Korkeakoulutus",
       "categories": [8],
-      "items": [
+      "tags": [
         {
           "id": 15,
           "name": "Aikataulut"
@@ -268,7 +268,7 @@
       "id": 3,
       "name": "Vapaa sivistystyö",
       "categories": [9],
-      "items": [
+      "tags": [
         {
           "id": 30,
           "name": "Käyttöoikeudet"
@@ -283,7 +283,7 @@
       "id": 4,
       "name": "SPECIAL",
       "categories": [],
-      "items": [
+      "tags": [
         {
           "id": 32,
           "type": "DISRUPTION",

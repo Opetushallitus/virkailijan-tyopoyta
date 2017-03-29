@@ -39,6 +39,12 @@ class Notifications extends React.Component {
       .onValue(() => this.autoLoadNotifications())
   }
 
+  componentDidUpdate () {
+    if (this.placeholderNotification) {
+      this.autoLoadNotifications()
+    }
+  }
+
   getNextPage () {
     const {
       currentPage,
@@ -60,8 +66,10 @@ class Notifications extends React.Component {
       return
     }
 
-    const isPlaceholderVisible = window.scrollY >=
-      document.body.scrollHeight - window.innerHeight - this.placeholderNotification.clientHeight
+    const offset = this.placeholderNotification.getBoundingClientRect()
+
+    const isPlaceholderVisible = offset.bottom > 0 &&
+      offset.top < (window.innerHeight || document.documentElement.clientHeight)
 
     if (isPlaceholderVisible) {
       this.getNextPage()
@@ -74,7 +82,7 @@ class Notifications extends React.Component {
       count
     } = this.props.notifications
 
-    return items.length <= count
+    return items.length >= count
   }
 
   render () {
@@ -117,8 +125,11 @@ class Notifications extends React.Component {
         {/*Filter notifications by categories*/}
         <Collapse
           id="collapseNotificationCategories"
-          title={`${translate('rajoitanakyviatiedotteita')}
-          (${getNotificationSelectedCategoriesString(notifications.categories.length)})`}
+          title={
+            `${translate('rajoitanakyviatiedotteita')}
+            (${getNotificationSelectedCategoriesString(notifications.categories.length)})`
+          }
+          isVisible={R.path(['profile', 'firstLogin'], user)}
         >
           <NotificationCategoryCheckboxes
             controller={controller}
@@ -151,10 +162,11 @@ class Notifications extends React.Component {
         {
           count > 0
             ? <div>
-              {items.map(notification =>
+              {items.map((notification, index) =>
                 <Notification
-                  defaultLocale={defaultLocale}
                   key={`notification${notification.id}`}
+                  index={index}
+                  defaultLocale={defaultLocale}
                   controller={controller}
                   user={user}
                   notification={notification}

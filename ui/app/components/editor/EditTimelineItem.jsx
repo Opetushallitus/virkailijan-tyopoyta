@@ -1,10 +1,9 @@
 import React, { PropTypes } from 'react'
 
-import Button from '../common/buttons/Button'
+import TextEditor from '../texteditor/TextEditor'
+import RemoveButton from '../common/buttons/RemoveButton'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
-import Icon from '../common/Icon'
-import TextEditor from '../texteditor/TextEditor'
 import { translate } from '../common/Translations'
 
 import getFormattedDate from './getFormattedDate'
@@ -33,8 +32,6 @@ function EditTimelineItem (props) {
   const handleRemoveItemClick = () => {
     controller.remove(item.id)
   }
-
-  // TODO: createdAt is missing from saved timeline items
 
   return (
     <div key={item.id} className="timeline-item-form">
@@ -81,20 +78,12 @@ function EditTimelineItem (props) {
         </div>
 
         {/*Remove event*/}
-        {
-          item.initialDate
-            ? null
-            : <div className="flex-auto flex items-end justify-end">
-              <Button
-                className="button-link h3 pr0 gray-lighten-1"
-                title={translate('poistatapahtuma')}
-                onClick={handleRemoveItemClick}
-              >
-                <Icon name="trash" />
-                <span className="hide">{translate('poistatapahtuma')}</span>
-              </Button>
-            </div>
-        }
+        <div className="h3 flex-auto flex items-end justify-end">
+          <RemoveButton
+            title="poistatapahtuma"
+            onClick={handleRemoveItemClick}
+          />
+        </div>
       </div>
     </div>
   )

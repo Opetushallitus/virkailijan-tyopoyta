@@ -17,7 +17,7 @@ function getData (options) {
     maxRequestTime = minute,
     requestOptions = {},
     onSuccess = () => {},
-    onError
+    onError = () => {}
   } = options
 
   const urlWithParams = `${url}${searchParams ? getSearchParamsString(searchParams) : ''}`

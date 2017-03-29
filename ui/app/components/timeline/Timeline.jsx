@@ -5,7 +5,6 @@ import moment from 'moment'
 // Components
 import TimelineHeading from './TimelineHeading'
 import TimelineDay from './TimelineDay'
-import TimelinePlaceholder from './TimelinePlaceholder'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
@@ -76,7 +75,7 @@ class Timeline extends React.Component {
       return
     }
 
-    // Scroll to first month on initial load and after user fetches the previous month
+    // Scroll to first month on initial load and after user scrolls to the previous month
     if (timeline.items.length === 1 || timeline.direction === 'up') {
       this.timelineViewport.scrollTop = this.months.offsetTop
     }
@@ -139,17 +138,9 @@ class Timeline extends React.Component {
 
     return (
       <div>
-        {/*Placeholder to display on initial load*/}
-        {
-          isInitialLoad
-            ? <TimelinePlaceholder />
-            : null
-        }
-
         <div
           ref={timelineViewport => (this.timelineViewport = timelineViewport)}
-          className={`timeline-viewport timeline-line
-          ${isInitialLoad ? 'display-none' : ''}`}
+          className="timeline-viewport timeline-line"
         >
           <h2 className="hide">{translate('tapahtumatalkaen')} {currentDate}</h2>
 
@@ -184,12 +175,14 @@ class Timeline extends React.Component {
                     {Object.keys(month.days || {}).map(key =>
                       <TimelineDay
                         key={`timelineDay${key}.${month.month}.${month.year}`}
+                        id={`timeline-day${key}-${month.month}-${month.year}`}
                         defaultLocale={defaultLocale}
                         user={user}
                         dateFormat={dateFormat}
                         items={month.days[key]}
-                        onEditButtonClick={controller.edit}
                         onDisplayRelatedNotificationLinkClick={controller.getRelatedNotification}
+                        onEditButtonClick={controller.edit}
+                        onConfirmRemoveButtonClick={controller.confirmRemove}
                       />
                     )}
                   </div>
@@ -206,7 +199,7 @@ class Timeline extends React.Component {
               </button>
 
               <div
-                className="py3"
+                className={`py3 ${isInitialLoad ? 'display-none' : ''}`}
                 ref={nextMonthSpinner => (this.nextMonthSpinner = nextMonthSpinner)}
               >
                 <Spinner isVisible={!hasLoadingFailed} />

@@ -24,7 +24,12 @@ export function initController (dispatcher, events) {
 
     getPage: page => dispatcher.push(events.notifications.getPage, page),
 
-    edit: releaseId => dispatcher.push(events.notifications.edit, releaseId)
+    edit: releaseId => dispatcher.push(events.notifications.edit, releaseId),
+
+    remove: (notification, index, value) =>
+      dispatcher.push(events.notifications.remove, { notification, index, value }),
+
+    confirmRemove: (notification, index) => dispatcher.push(events.notifications.confirmRemove, { notification, index })
   }
 
   const timeline = {
@@ -36,7 +41,10 @@ export function initController (dispatcher, events) {
 
     getRelatedNotification: id => dispatcher.push(events.timeline.getRelatedNotification, id),
 
-    edit: releaseId => dispatcher.push(events.timeline.edit, releaseId)
+    edit: releaseId => dispatcher.push(events.timeline.edit, releaseId),
+
+    confirmRemove: (id, nodeSelector, parentSelector) =>
+      dispatcher.push(events.timeline.confirmRemove, { id, nodeSelector, parentSelector })
   }
 
   const editor = {
@@ -115,7 +123,9 @@ export function initController (dispatcher, events) {
       setSelectedTags: notifications.setSelectedTags,
       toggleCategory: notifications.toggleCategory,
       getPage: notifications.getPage,
-      edit: notifications.edit
+      edit: notifications.edit,
+      remove: notifications.remove,
+      confirmRemove: notifications.confirmRemove
     },
 
     timeline: {
@@ -123,7 +133,8 @@ export function initController (dispatcher, events) {
       getNextMonth: timeline.getNextMonth,
       getPreviousMonth: timeline.getPreviousMonth,
       getRelatedNotification: timeline.getRelatedNotification,
-      edit: timeline.edit
+      edit: timeline.edit,
+      confirmRemove: timeline.confirmRemove
     },
 
     editor: {

@@ -6,7 +6,12 @@ import Icon from './Icon'
 const propTypes = {
   id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  isVisible: PropTypes.bool
+}
+
+const defaultProps = {
+  isVisible: false
 }
 
 class Collapse extends React.Component {
@@ -14,7 +19,7 @@ class Collapse extends React.Component {
     super(props)
 
     this.state = {
-      isVisible: false
+      isVisible: props.isVisible
     }
 
     this.handleToggleButtonClick = this.handleToggleButtonClick.bind(this)
@@ -36,7 +41,7 @@ class Collapse extends React.Component {
     return (
       <div className={this.state.isVisible ? 'mb3' : 'mb2'}>
         <Button
-          className="button-link regular px0"
+          className="button-link regular py2 px0"
           onClick={this.handleToggleButtonClick}
           aria-controls={id}
           aria-expanded={this.state.isVisible}
@@ -62,5 +67,6 @@ class Collapse extends React.Component {
 }
 
 Collapse.propTypes = propTypes
+Collapse.defaultProps = defaultProps
 
 export default Collapse

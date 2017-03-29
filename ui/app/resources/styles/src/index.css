@@ -1,7 +1,6 @@
 /* Component styles */
 @import "components/alerts.css";
 @import "components/buttons.css";
-@import "components/popups.css";
 @import "components/spinner.css";
 
 *,
@@ -112,6 +111,10 @@ a:focus {
 
 .border-blue {
   border-color: var(--blue);
+}
+
+.border-blue-lighten-1 {
+  border-color: var(--blue-lighten-1);
 }
 
 .border-blue-lighten-3 {
@@ -246,6 +249,11 @@ a:focus {
 .button-icon {
   padding-top: var(--space-2);
   padding-bottom: var(--space-2);
+}
+
+.button-icon:hover,
+.button-icon:focus {
+  color: var(--link-color-hover);
 }
 
 .button-icon[disabled] {

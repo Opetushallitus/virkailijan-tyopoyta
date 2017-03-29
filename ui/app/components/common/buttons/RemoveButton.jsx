@@ -8,18 +8,21 @@ import { translate } from '../Translations'
 const propTypes = {
   id: PropTypes.string,
   className: PropTypes.string,
+  title: PropTypes.string,
   onClick: PropTypes.func.isRequired
 }
 
 const defaultProps = {
   id: '',
-  className: ''
+  className: '',
+  title: 'poista'
 }
 
-function EditButton (props) {
+function RemoveButton (props) {
   const {
     id,
     className,
+    title,
     onClick
   } = props
 
@@ -27,17 +30,16 @@ function EditButton (props) {
     <Button
       id={id}
       className={`button-icon gray ${className}`}
-      title={translate('muokkaa')}
+      title={translate(title)}
+      aria-label={translate(title)}
       onClick={onClick}
     >
-      <Icon name="pencil" />
-
-      <span className="hide">{translate('muokkaa')}</span>
+      <Icon name="trash" />
     </Button>
   )
 }
 
-EditButton.propTypes = propTypes
-EditButton.defaultProps = defaultProps
+RemoveButton.propTypes = propTypes
+RemoveButton.defaultProps = defaultProps
 
-export default EditButton
+export default RemoveButton

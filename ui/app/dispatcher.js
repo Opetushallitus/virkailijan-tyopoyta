@@ -1,21 +1,21 @@
 import Bacon from 'baconjs'
 
-module.exports = function() {
-  const busCache = {};
+module.exports = function () {
+  const busCache = {}
 
-  this.stream = function(name) {
+  this.stream = function (name) {
     return bus(name)
-  };
+  }
 
-  this.push = function(name, value) {
+  this.push = function (name, value) {
     bus(name).push(value)
-  };
+  }
 
-  this.plug = function(name, value) {
+  this.plug = function (name, value) {
     bus(name).plug(value)
-  };
+  }
 
-  function bus(name) {
+  function bus (name) {
     return busCache[name] = busCache[name] || new Bacon.Bus()
   }
-};
+}

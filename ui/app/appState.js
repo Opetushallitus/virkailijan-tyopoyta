@@ -44,6 +44,8 @@ export function getController () {
   return controller
 }
 
+// TODO: Combine buses?
+
 export function setInitialState () {
   return Bacon.update(
     initialState,
@@ -80,21 +82,26 @@ export function setInitialState () {
     // Notifications
     [notifications.fetchBus], notifications.onNotificationsReceived,
     [notifications.fetchFailedBus], notifications.onFetchNotificationsFailed,
+    [notifications.removeNotificationBus], notifications.onNotificationRemoved,
     [notifications.saveCategoriesFailedBus], notifications.onSaveCategoriesFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
     [dispatcher.stream(events.notifications.toggleCategory)], notifications.toggleCategory,
     [dispatcher.stream(events.notifications.getPage)], notifications.getPage,
     [dispatcher.stream(events.notifications.edit)], notifications.edit,
+    [dispatcher.stream(events.notifications.remove)], notifications.remove,
+    [dispatcher.stream(events.notifications.confirmRemove)], notifications.confirmRemove,
 
     // Timeline
     [timeline.fetchBus], timeline.onReceived,
     [timeline.fetchFailedBus], timeline.onFetchFailed,
+    [timeline.removeItemBus], timeline.onItemRemoved,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
     [dispatcher.stream(events.timeline.getRelatedNotification)], timeline.getRelatedNotification,
     [dispatcher.stream(events.timeline.edit)], timeline.edit,
+    [dispatcher.stream(events.timeline.confirmRemove)], timeline.confirmRemove,
 
     // Editor
     [editor.saveBus], editor.onSaveComplete,

@@ -9,13 +9,14 @@ const propTypes = {
   type: PropTypes.oneOf(types).isRequired,
   position: PropTypes.oneOf(positions).isRequired,
   title: PropTypes.string.isRequired,
-  text: PropTypes.string,
+  children: PropTypes.node,
   onOutsideClick: PropTypes.func
 }
 
 const defaultProps = {
   target: '',
   text: null,
+  children: null,
   onOutsideClick: () => {}
 }
 
@@ -54,29 +55,30 @@ class Popup extends React.Component {
       type,
       position,
       title,
-      text
+      children
     } = this.props
 
     const node = target ? document.querySelector(target) : null
-    const rectangle = target ? node.getBoundingClientRect() : null
+    const offset = target ? node.getBoundingClientRect() : null
     const top = target ? `${node.offsetTop}px` : 0
-    const left = target ? `${node.offsetLeft + rectangle.width}px` : 0
+    const left = target ? `${node.offsetLeft + offset.width}px` : 0
 
     return (
       <div
         ref={popup => (this.popup = popup)}
-        className={`popup ${type ? `popup-${type}` : ''} popup-${position}`}
+        className={`oph-popup ${type ? `oph-popup-${type}` : ''} oph-popup-${position}`}
         style={{
           top,
           left
         }}
-        role="tooltip"
       >
-        <div className="popup-title">{title}</div>
+        <div className="oph-popup-arrow" />
+
+        <div className="oph-popup-title">{title}</div>
 
         {
-          text
-            ? <div className="popup-text">{text}</div>
+          children
+            ? <div className="oph-popup-content">{children}</div>
             : null
         }
       </div>

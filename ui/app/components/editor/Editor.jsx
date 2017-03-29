@@ -79,6 +79,7 @@ function Editor (props) {
     isLoadingRelease,
     isSavingRelease,
     hasSaveFailed,
+    hasSaveDraftFailed,
     hasLoadingDependenciesFailed
   } = editor
 
@@ -179,13 +180,23 @@ function Editor (props) {
 
         {/*Publication state*/}
         <div
-          className="h5 caps muted md-flex flex-auto items-center justify-end
+          className="h5 caps md-flex items-center justify-end md-col-4
           mt2 md-mt0 md-border-bottom border-gray-lighten-3"
         >
           {
             isLoadingRelease
               ? null
-              : <span>{translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}</span>
+              : <div>
+                <div className="md-right-align lg-inline-block muted">
+                  {translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}
+                </div>
+
+                {
+                  hasSaveDraftFailed
+                    ? <div className="lg-inline-block md-ml2 mt1 lg-mt0 red">{translate('tallennusepaonnistui')}</div>
+                    : null
+                }
+              </div>
           }
         </div>
       </div>

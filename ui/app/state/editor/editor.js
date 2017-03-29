@@ -23,6 +23,7 @@ const autoSaveBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
+    // TODO: Change URL
     // url: `${urls.release}/${id}`,
     url: urls.release,
     method: 'GET',
@@ -102,6 +103,8 @@ function onSaveComplete (state) {
     R.assoc('draft', null)
   )(state)
 
+  window.localStorage.removeItem(state.draftKey)
+
   timeline.fetch({
     month,
     year
@@ -120,9 +123,7 @@ function onSaveFailed (state) {
 }
 
 function onAutoSave (state) {
-  saveDraft(state)
-
-  return state
+  return saveDraft(state)
 }
 
 function toggleValue (value, values) {
@@ -136,13 +137,18 @@ function toggleValue (value, values) {
 }
 
 function cleanTimeline (timeline) {
-  return timeline.filter(tl => tl.date != null).map(tl =>
-    R.assoc('content', R.pickBy(c => c.text !== '', tl.content), tl))
+  return timeline
+    .filter(item => item.date != null)
+    .map(item => R.assoc('content', R.pickBy(content => content.text !== '', item.content), item))
 }
 
 function cleanNotification (notification) {
   return notification.validationState === 'complete'
-    ? R.assoc('content', R.pickBy(c => (c.text !== '' && c.title !== ''), notification.content), notification)
+    ? R.assoc(
+      'content',
+      R.pickBy(content => (content.text !== '' && content.title !== ''), notification.content),
+      notification
+    )
     : null
 }
 
@@ -343,7 +349,12 @@ function saveDraft (state) {
     return state
   }
 
+  // Save draft to localStorage and database
   console.log('Saving draft', editedRelease)
+
+  const draft = JSON.stringify(editedRelease)
+
+  window.localStorage.setItem(state.draftKey, draft)
 
   getData({
     url: urls.draft,
@@ -353,10 +364,8 @@ function saveDraft (state) {
       headers: {
         'Content-type': 'application/json'
       },
-      body: JSON.stringify(editedRelease)
-    },
-    // onSuccess: () => {}
-    onError: () => {}
+      body: draft
+    }
   })
 
   return R.assoc('draft', editedRelease, state)

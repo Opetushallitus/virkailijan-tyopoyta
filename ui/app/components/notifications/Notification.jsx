@@ -4,16 +4,21 @@ import renderHTML from 'react-render-html'
 // Components
 import Button from '../common/buttons/Button'
 import EditButton from '../common/buttons/EditButton'
+import RemoveButton from '../common/buttons/RemoveButton'
 import CloseButton from '../common/buttons/CloseButton'
 import Tag from '../common/Tag'
 import Icon from '../common/Icon'
+import Popup from '../common/Popup'
+import Overlay from '../common/Overlay'
+import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
 
 import animate from '../utils/animate'
 
 const propTypes = {
-  defaultLocale: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
   controller: PropTypes.object.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
   categories: PropTypes.array.isRequired,
@@ -26,7 +31,14 @@ class Notification extends React.Component {
 
     this.handleNotificationClick = this.handleNotificationClick.bind(this)
     this.handleEditButtonClick = this.handleEditButtonClick.bind(this)
+    this.handleRemoveButtonClick = this.handleRemoveButtonClick.bind(this)
+    this.handleConfirmRemoveButtonClick = this.handleConfirmRemoveButtonClick.bind(this)
+    this.handleOutsidePopupClick = this.handleOutsidePopupClick.bind(this)
     this.handleCloseRelatedNotificationButtonClick = this.handleCloseRelatedNotificationButtonClick.bind(this)
+
+    this.state = {
+      isVisible: true
+    }
   }
 
   componentDidMount () {
@@ -40,12 +52,34 @@ class Notification extends React.Component {
     }
   }
 
+  componentWillReceiveProps (newProps) {
+    if (newProps.notification.isRemoved) {
+      setTimeout(() => {
+        this.setState({
+          isVisible: false
+        })
+      }, 500)
+    }
+  }
+
   handleNotificationClick () {
     this.notification.classList.toggle('notification-is-expanded')
   }
 
   handleEditButtonClick () {
     this.props.controller.edit(this.props.notification.releaseId)
+  }
+
+  handleRemoveButtonClick () {
+    this.props.controller.remove(this.props.notification, this.props.index, true)
+  }
+
+  handleOutsidePopupClick () {
+    this.props.controller.remove(this.props.notification, this.props.index, false)
+  }
+
+  handleConfirmRemoveButtonClick () {
+    this.props.controller.confirmRemove(this.props.notification, this.props.index)
   }
 
   handleCloseRelatedNotificationButtonClick () {
@@ -61,6 +95,12 @@ class Notification extends React.Component {
       tags
     } = this.props
 
+    const {
+      confirmRemove,
+      isRemoving,
+      isRemoved
+    } = notification
+
     const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
     const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
 
@@ -68,19 +108,18 @@ class Notification extends React.Component {
     const content = notification.content[user.lang] || notification.content[defaultLocale]
 
     // Strip HTML tags from text
-    // TODO: do not use regex
     const parsedText = content.text.replace(/(<([^>]+)>)/ig, '')
 
     const excerptLength = 100
     const isExpandable = parsedText.length > excerptLength
 
     const classList = [
+      'notification',
       'relative',
       'mb3',
       'pt2',
       'px2',
       'pb1',
-      'z1',
       'border',
       'border-gray-lighten-3',
       'rounded',
@@ -90,12 +129,24 @@ class Notification extends React.Component {
       `${isDisruptionNotification ? 'notification-disruption' : ''}`
     ]
 
-    return (
+    return this.state.isVisible && (
       <div
         ref={notification => (this.notification = notification)}
         id={`notification${notification.id}`}
-        className="notification relative"
+        className={
+          `notification-container relative
+          ${isRemoving ? 'notification-is-overlaid' : ''}
+          ${isRemoved ? 'notification-is-removed' : ''}`
+        }
       >
+        {
+          isRemoving
+            ? <Overlay variants={['component', 'transparent']}>
+              <Spinner isVisible />
+            </Overlay>
+            : null
+        }
+
         {/*Title for screen readers*/}
         <h3 className="hide">
           {content.title}
@@ -104,9 +155,9 @@ class Notification extends React.Component {
         {/*Expand/contract button*/}
         {
           isExpandable && !isRelatedToTimelineItem
-            ? <div className="absolute top-0 right-0 z2">
+            ? <div className={`notification absolute top-0 right-0 z2`}>
               <Button
-                className="notification-expand-button button-icon gray-lighten-1"
+                className="notification-expand-button button-icon gray"
                 title={translate('naytatiedote')}
                 onClick={this.handleNotificationClick}
               >
@@ -115,7 +166,7 @@ class Notification extends React.Component {
               </Button>
 
               <Button
-                className="notification-contract-button button-icon gray-lighten-1"
+                className="notification-contract-button button-icon gray"
                 title={translate('naytakatkelma')}
                 onClick={this.handleNotificationClick}
               >
@@ -137,13 +188,37 @@ class Notification extends React.Component {
             : null
         }
 
-        {/*Edit button*/}
+        {/*Edit & remove buttons*/}
         {
           user.isAdmin
-            ? <EditButton
-              className="absolute bottom-0 right-0 z2 gray-lighten-1"
-              onClick={this.handleEditButtonClick}
-            />
+            ? <div
+              id={`notification${notification.id}-actions`}
+              className="absolute bottom-0 right-0 z2"
+            >
+              <EditButton onClick={this.handleEditButtonClick} />
+              <RemoveButton onClick={this.handleRemoveButtonClick} />
+            </div>
+            : null
+        }
+
+        {/*Confirm removing*/}
+        {
+          confirmRemove && !isRemoved
+            ? <Popup
+              target={`#notification${notification.id}-actions`}
+              type="default"
+              position="right"
+              title={translate('vahvistatiedotteenpoistaminen')}
+              onOutsideClick={this.handleOutsidePopupClick}
+            >
+              <Button className="oph-button-confirm" onClick={this.handleConfirmRemoveButtonClick}>
+                {translate('poista')}
+              </Button>
+
+              <Button className="oph-button-cancel" onClick={this.handleOutsidePopupClick}>
+                {translate('peruuta')}
+              </Button>
+            </Popup>
             : null
         }
 
