@@ -1,13 +1,15 @@
 package fi.vm.sade.vst.repository
 
 import fi.vm.sade.vst.DBConfig
-import fi.vm.sade.vst.model.{UserProfile, UserProfileUpdate}
-import fi.vm.sade.vst.repository.Tables.{UserCategoryTable, UserProfileTable}
+import fi.vm.sade.vst.model.{Draft, User, UserProfile, UserProfileUpdate}
+import fi.vm.sade.vst.repository.Tables.{DraftTable, UserCategoryTable, UserProfileTable}
 import scalikejdbc._
+
+import scala.util.Try
 
 class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo {
 
-  val (u, uc) = (UserProfileTable.syntax, UserCategoryTable.syntax)
+  val (u, uc, d) = (UserProfileTable.syntax, UserCategoryTable.syntax, DraftTable.syntax)
 
   private def fetchUserProfile(userId: String) = withSQL[UserProfile] {
     select
@@ -58,7 +60,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   override def setUserProfile(userId: String, userProfileData: UserProfileUpdate): UserProfile ={
     fetchUserProfile(userId) match {
-      case Some(userProfile) => updateUserProfile(userId, userProfileData)
+      case Some(_) => updateUserProfile(userId, userProfileData)
       case None => insertUserProfile(userId, userProfileData)
     }
   }
@@ -71,4 +73,36 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   }
 
   override def categoriesForUser(oid: String): Seq[Long] = ???
+
+  override def fetchDraft(userId: String): Option[Draft] = {
+    withSQL[Draft] {
+      select.from(DraftTable as d).where.eq(d.userId, userId)
+    }.map(DraftTable(d)).single().apply()
+  }
+
+  private def updateDraft(userId: String, data: String) = {
+    withSQL{
+      update(DraftTable).set(d.data -> data).where.eq(d.userId, userId)
+    }.update().apply()
+  }
+
+  private def insertDraft(userId: String, data: String) = {
+    val column = DraftTable.column
+    withSQL{
+      insert.into(DraftTable).namedValues(
+        column.userId -> userId,
+        column.data -> data
+      )
+    }.update().apply()
+  }
+
+  override def saveDraft(user: User, data: String): Unit = {
+    val currentDraft = fetchDraft(user.userId)
+    Try{
+      currentDraft match {
+        case Some(_) => updateDraft(user.userId, data)
+        case None => insertDraft(user.userId, data)
+      }
+    }
+  }
 }

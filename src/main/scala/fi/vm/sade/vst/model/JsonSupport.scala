@@ -70,7 +70,8 @@ trait JsonSupport {
       "id" -> release.id,
       "notification" -> release.notification,
       "timeline" -> release.timeline,
-      "categories" -> release.categories
+      "categories" -> release.categories,
+      "userGroups" -> release.usergroups
     )
   }
 
@@ -123,7 +124,8 @@ trait JsonSupport {
     (JsPath \ "id").read[Long] and
     (JsPath \ "notification").readNullable[NotificationUpdate] and
     (JsPath \ "timeline").read[List[TimelineItem]] and
-    (JsPath \ "categories").read[List[Long]]
+    (JsPath \ "categories").read[List[Long]] and
+    (JsPath \ "userGroups").read[List[Long]]
   )(ReleaseUpdate.apply _)
 
   implicit val categoryWrites: Writes[Category] = Writes { category =>
@@ -200,7 +202,7 @@ trait JsonSupport {
 
   implicit val userProfileReads: Reads[UserProfileUpdate] = (
       (JsPath \ "categories").read[Seq[Long]] and
-      (JsPath \ "sendEmail").read[Boolean]
+      (JsPath \ "email").read[Boolean]
     )(UserProfileUpdate.apply _)
 
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] ={

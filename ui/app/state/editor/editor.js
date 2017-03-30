@@ -303,9 +303,9 @@ function save (state, id) {
   console.log('Saving release')
 
   // POST for new releases, PUT for updating
-  // const method = id === -1
-  //   ? 'POST'
-  //   : 'PUT'
+  const method = id === -1
+    ? 'POST'
+    : 'PUT'
 
   // Remove all tags and set sendEmail as false if notification is empty
   const savedRelease = state.editor.editedRelease.notification.validationState === 'empty'
@@ -318,7 +318,7 @@ function save (state, id) {
   getData({
     url: urls.release,
     requestOptions: {
-      method: 'POST',
+      method: method,
       dataType: 'json',
       headers: {
         'Content-type': 'application/json'

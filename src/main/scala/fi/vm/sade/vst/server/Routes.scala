@@ -182,24 +182,28 @@ class Routes(authenticationService: UserService,
             }
           }
         } ~
-          path("user") {
-
-            extractRequest { request =>
-              entity(as[String]) { json =>
-                val updateProfile = parseUserProfileUpdate(json)
-                val ticket = request.uri.query().get("ticket")
-                ticket match {
-                  case Some(t) => {
-                    updateProfile match {
-                      case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
-                      case None => complete(StatusCodes.Unauthorized)
-                    }
-                  }
-                  case None => complete(StatusCodes.Unauthorized)
+        pathPrefix("user") {
+          pathEnd {
+            entity(as[String]) { json =>
+              val updateProfile = parseUserProfileUpdate(json)
+              updateProfile match {
+                case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
+                case None => complete(StatusCodes.Unauthorized)
+              }
+            }
+          } ~
+          path("draft") {
+            entity(as[String]) { json =>
+              userService.findUser(uid) match {
+                case Success(u) => onComplete(Future(userService.saveDraft(u, json))){
+                  case Success(_) => complete(StatusCodes.OK)
+                  case Failure(_) => complete(StatusCodes.InternalServerError)
                 }
+                case Failure(e) => complete(StatusCodes.InternalServerError)
               }
             }
           }
+        }
       } ~
       delete {
         path("releases"){

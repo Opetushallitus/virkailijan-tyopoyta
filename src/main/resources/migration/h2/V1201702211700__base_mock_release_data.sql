@@ -1,10 +1,8 @@
 INSERT INTO release (
   id,
-  deleted,
-  send_email
+  deleted
 ) VALUES (
   1,
-  FALSE,
   FALSE
 );
 
@@ -68,11 +66,9 @@ INSERT INTO timeline_content (
 
 INSERT INTO release (
   id,
-  deleted,
-  send_email
+  deleted
 ) VALUES (
   2,
-  FALSE,
   FALSE
 );
 
@@ -116,11 +112,9 @@ INSERT INTO notification_content (
 
 INSERT INTO release (
   id,
-  deleted,
-  send_email
+  deleted
 ) VALUES (
   3,
-  FALSE,
   FALSE
 );
 
@@ -169,7 +163,7 @@ INSERT INTO timeline_item (
 ) VALUES (
   2,
   3,
-  CAST('2016-05-26' AS DATE)
+  CAST('2017-05-26' AS DATE)
 );
 
 INSERT INTO timeline_content (
@@ -184,11 +178,9 @@ INSERT INTO timeline_content (
 
 INSERT INTO release (
   id,
-  deleted,
-  send_email
+  deleted
 ) VALUES (
   4,
-  FALSE,
   FALSE
 );
 
@@ -232,11 +224,9 @@ INSERT INTO notification_content (
 
 INSERT INTO release (
   id,
-  deleted,
-  send_email
+  deleted
 ) VALUES (
   5,
-  FALSE,
   FALSE
 );
 
