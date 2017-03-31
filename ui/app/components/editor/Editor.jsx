@@ -10,6 +10,8 @@ import ValidationMessages from './preview/ValidationMessages'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
+import TabContent from '../common/tabs/TabContent'
+import TabPane from '../common/tabs/TabPane'
 import Alert from '../common/Alert'
 import Popup from '../common/Popup'
 import Delay from '../common/Delay'
@@ -124,59 +126,61 @@ function Editor (props) {
 
       {/*Tabs and release's state*/}
       <div className="flex flex-wrap px3">
-        <Tabs className="md-col-8 mb0">
-          <TabItem
-            name="edit-notification"
-            selectedTab={selectedTab}
-            onClick={controller.toggleTab}
-          >
-            {translate('tiedote')}
+        <div className="flex flex-wrap md-col-8 mb0">
+          <Tabs>
+            <TabItem
+              name="edit-notification"
+              selectedTab={selectedTab}
+              onClick={controller.toggleTab}
+            >
+              {translate('tiedote')}
 
-            {
-              isLoadingRelease
-                ? null
-                : <span className="lowercase">
-                  &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
-                </span>
-            }
-          </TabItem>
+              {
+                isLoadingRelease
+                  ? null
+                  : <span className="lowercase">
+                    &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
+                  </span>
+              }
+            </TabItem>
 
-          <TabItem
-            name="edit-timeline"
-            selectedTab={selectedTab}
-            onClick={controller.toggleTab}
-          >
-            {translate('aikajana')}
+            <TabItem
+              name="edit-timeline"
+              selectedTab={selectedTab}
+              onClick={controller.toggleTab}
+            >
+              {translate('aikajana')}
 
-            {
-              isLoadingRelease
-                ? null
-                : <span className="lowercase">
-                  &nbsp;({
-                    completeTimelineItems.length
-                      ? completeTimelineItems.length
-                      : translate('eisisaltoa')
-                  })
-                </span>
-            }
-          </TabItem>
+              {
+                isLoadingRelease
+                  ? null
+                  : <span className="lowercase">
+                    &nbsp;({
+                      completeTimelineItems.length
+                        ? completeTimelineItems.length
+                        : translate('eisisaltoa')
+                    })
+                  </span>
+              }
+            </TabItem>
 
-          <TabItem
-            name="targeting"
-            selectedTab={selectedTab}
-            onClick={controller.toggleTab}
-          >
-            {translate('kohdennus')}
+            <TabItem
+              name="targeting"
+              selectedTab={selectedTab}
+              onClick={controller.toggleTab}
+            >
+              {translate('kohdennus')}
 
-            {
-              isLoadingRelease
-                ? null
-                : <span className="lowercase">
-                  &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
-                </span>
-            }
-          </TabItem>
-        </Tabs>
+              {
+                isLoadingRelease
+                  ? null
+                  : <span className="lowercase">
+                    &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
+                  </span>
+              }
+            </TabItem>
+          </Tabs>
+        </div>
 
         {/*Publication state*/}
         <div
@@ -205,68 +209,70 @@ function Editor (props) {
       {
         hasLoadingDependenciesFailed
           ? <div className="py3" />
-          : <div className="tab-content">
-            {/*Notification*/}
-            <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
-              {
-                isLoadingRelease ||
-                categories.isLoadingRelease ||
-                userGroups.isLoadingRelease ||
-                tagGroups.isLoadingRelease
-                  ? <Delay time={1000}>
-                    <Spinner isVisible />
-                  </Delay>
-                  : <EditNotification
-                    locale={user.lang}
-                    dateFormat={dateFormat}
-                    controller={controller.editNotification}
-                    notification={editedRelease.notification}
-                    disruptionNotificationTag={disruptionNotificationTag}
-                  />
-              }
-            </section>
+          : <TabContent>
+            <div className="px3">
+              {/*Notification*/}
+              <TabPane isActive={selectedTab === 'edit-notification'}>
+                {
+                  isLoadingRelease ||
+                  categories.isLoadingRelease ||
+                  userGroups.isLoadingRelease ||
+                  tagGroups.isLoadingRelease
+                    ? <Delay time={1000}>
+                      <Spinner isVisible />
+                    </Delay>
+                    : <EditNotification
+                      locale={user.lang}
+                      dateFormat={dateFormat}
+                      controller={controller.editNotification}
+                      notification={editedRelease.notification}
+                      disruptionNotificationTag={disruptionNotificationTag}
+                    />
+                }
+              </TabPane>
 
-            {/*Timeline*/}
-            <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
-              {
-                isLoadingRelease ||
-                categories.isLoadingRelease ||
-                userGroups.isLoadingRelease ||
-                tagGroups.isLoadingRelease
-                  ? <Delay time={1000}>
-                    <Spinner isVisible />
-                  </Delay>
-                  : <EditTimeline
-                    locale={user.lang}
-                    dateFormat={dateFormat}
-                    controller={controller.editTimeline}
-                    releaseId={editedRelease.id}
-                    timeline={editedRelease.timeline}
-                  />
-              }
-            </section>
+              {/*Timeline*/}
+              <TabPane isActive={selectedTab === 'edit-timeline'}>
+                {
+                  isLoadingRelease ||
+                  categories.isLoadingRelease ||
+                  userGroups.isLoadingRelease ||
+                  tagGroups.isLoadingRelease
+                    ? <Delay time={1000}>
+                      <Spinner isVisible />
+                    </Delay>
+                    : <EditTimeline
+                      locale={user.lang}
+                      dateFormat={dateFormat}
+                      controller={controller.editTimeline}
+                      releaseId={editedRelease.id}
+                      timeline={editedRelease.timeline}
+                    />
+                }
+              </TabPane>
 
-            {/*Categories and user groups*/}
-            <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
-              {
-                isLoadingRelease ||
-                categories.isLoadingRelease ||
-                userGroups.isLoadingRelease ||
-                tagGroups.isLoadingRelease
-                  ? <Delay time={1000}>
-                    <Spinner isVisible />
-                  </Delay>
-                  : <Targeting
-                    controller={controller.targeting}
-                    user={user}
-                    userGroups={userGroups.items}
-                    categories={categories.items}
-                    tagGroups={tagGroups.items}
-                    release={editedRelease}
-                  />
-              }
-            </section>
-          </div>
+              {/*Categories and user groups*/}
+              <TabPane isActive={selectedTab === 'targeting'}>
+                {
+                  isLoadingRelease ||
+                  categories.isLoadingRelease ||
+                  userGroups.isLoadingRelease ||
+                  tagGroups.isLoadingRelease
+                    ? <Delay time={1000}>
+                      <Spinner isVisible />
+                    </Delay>
+                    : <Targeting
+                      controller={controller.targeting}
+                      user={user}
+                      userGroups={userGroups.items}
+                      categories={categories.items}
+                      tagGroups={tagGroups.items}
+                      release={editedRelease}
+                    />
+                }
+              </TabPane>
+            </div>
+          </TabContent>
       }
 
       {/*Preview*/}

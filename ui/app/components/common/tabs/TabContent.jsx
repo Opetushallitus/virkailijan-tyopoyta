@@ -4,14 +4,14 @@ const propTypes = {
   children: PropTypes.node.isRequired
 }
 
-function Tabs (props) {
+function TabContent (props) {
   return (
-    <div className="oph-tabs">
+    <div className="oph-tab-content">
       {props.children}
     </div>
   )
 }
 
-Tabs.propTypes = propTypes
+TabContent.propTypes = propTypes
 
-export default Tabs
+export default TabContent

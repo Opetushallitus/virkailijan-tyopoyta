@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react'
 
 const propTypes = {
-  className: PropTypes.string,
   name: PropTypes.string.isRequired,
   selectedTab: PropTypes.string,
   onClick: PropTypes.func.isRequired,
@@ -15,7 +14,6 @@ const defaultProps = {
 
 function TabItem (props) {
   const {
-    className,
     name,
     selectedTab,
     onClick,
@@ -30,7 +28,7 @@ function TabItem (props) {
 
   return (
     <a
-      className={`oph-tab-item ${className} ${selectedTab === name ? 'oph-tab-item-is-active' : ''}`}
+      className={`oph-tab-item ${selectedTab === name ? 'oph-tab-item-is-active' : ''}`}
       href={`#${name}`}
       onClick={handleClick}
     >

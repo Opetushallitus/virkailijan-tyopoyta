@@ -3,6 +3,8 @@ target
 */*/target
 **/*~
 *~
+npm-debug.log
+.log
 .project
 .settings
 .classpath
