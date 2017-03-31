@@ -1,12 +1,12 @@
-#Kategoriat
+# Kategoriat
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/categories`
 
-##Ei parametrejä
+## Ei parametrejä
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 taulukko, joka sisältää kaikki kategoriat JSON-muodossa järjestettynä nousevasti id:n mukaan.
@@ -15,7 +15,7 @@ Yksittäisen kategorian *name*-ominaisuuden arvo on lokalisoitu käyttäjän kie
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 ```
 [

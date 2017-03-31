@@ -1,6 +1,6 @@
-#Julkaisun tallennus
+# Julkaisun tallennus
 
-##Endpointit
+## Endpointit
 
 Uuden julkaisun tallennus: `POST /virkailijan-tyopoyta/api/release`
 
@@ -8,13 +8,13 @@ Päivittäminen ja poisto: `PUT /virkailijan-tyopoyta/api/release`
 
 Luonnoksen tallennus: `POST /virkailijan-tyopoyta/api/release/draft`
 
-##Ei parametrejä
+## Ei parametrejä
 
-##Pyynnön muoto
+## Pyynnön muoto
 
 Pyynnössä lähetetään julkaisu JSON-muotoisena merkkijonona.
 
-##Esimerkki, uuden tallennus
+## Esimerkki, uuden tallennus
 
 ```
 {
@@ -63,6 +63,6 @@ Pyynnössä lähetetään julkaisu JSON-muotoisena merkkijonona.
 }
 ```
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastaus on tyhjä.

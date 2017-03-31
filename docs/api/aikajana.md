@@ -1,10 +1,10 @@
-#Aikajana
+# Aikajana
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/timeline?month={month}&year={year}`
 
-##Parametrit
+## Parametrit
 
 month: *Valinnainen.* Määrittää, minkä kuukauden tapahtumat palautetaan.
 Oletusarvo on kuluva kuukausi.
@@ -12,7 +12,7 @@ Oletusarvo on kuluva kuukausi.
 year: *Valinnainen.* Määrittää, minkä vuoden tapahtumat palautetaan.
 Oletusarvo on kuluva vuosi.
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 JSON-objekti, joka sisältää haetun kuukauden, vuoden sekä tapahtumia sisältävät
@@ -22,7 +22,7 @@ päivät JSON-objektina. Tapahtumat on järjestetty tapahtumapäivämäärän mu
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 `/virkailijan-tyopoyta/api/timeline?month=3&year=2017`
 

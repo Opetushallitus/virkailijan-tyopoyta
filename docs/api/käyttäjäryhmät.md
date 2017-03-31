@@ -1,15 +1,15 @@
-#Käyttäjäryhmät
+# Käyttäjäryhmät
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/usergroups?locale={locale}`
 
-##Parametrit
+## Parametrit
 
 Locale: *Valinnainen.* Määrittää, millä kielellä käyttäjäryhmien nimet palautetaan.
 Puuttuvalla arvolla palautetaan suomenkieliset.
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 taulukko, joka sisältää kaikki käyttäjäryhmät JSON-muodossa järjestettynä nousevasti id:n mukaan.
@@ -18,7 +18,7 @@ Yksittäisen käyttäjän *name*-ominaisuuden arvo on lokalisoitu käyttäjän k
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 `GET /virkailijan-tyopoyta/api/usergroups?locale=fi`
 
