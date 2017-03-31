@@ -94,7 +94,7 @@ case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, conten
 
 case class EmailEvent(id: Long, createdAt: LocalDate, releaseId: Long, eventType: String)
 
-case class Kayttooikeusryhma(id: Long, description: Map[String, Option[String]], roles: Seq[String])
+case class Kayttooikeusryhma(id: Long, name: String, description: Map[String, Option[String]], roles: Seq[String])
 
 case class Kayttooikeus(palveluName: String, role: String)
 
