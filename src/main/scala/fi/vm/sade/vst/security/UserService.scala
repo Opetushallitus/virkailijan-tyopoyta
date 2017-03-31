@@ -50,6 +50,8 @@ class UserService(val casUtils: CasUtils,
 
   def serviceUserGroups = kayttooikeusService.appGroups
 
+  def saveDraft(user: User, draft: String) = userRepository.saveDraft(user, draft)
+
   def authenticate(ticket: String): Option[(String, User)] = {
 
     val uid = casUtils.validateTicket(ticket)

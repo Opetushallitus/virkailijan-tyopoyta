@@ -80,7 +80,7 @@ function TimelineItem (props) {
   }
 
   const handleEditButtonClick = () => {
-    onEditButtonClick(id)
+    onEditButtonClick(releaseId)
   }
 
   const handleRemoveButtonClick = () => {
