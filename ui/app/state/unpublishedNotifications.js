@@ -36,7 +36,7 @@ function onReceived (state, response) {
 
 function onFetchFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'julkaisemattomienhakuepaonnistui',
     textKey: 'suljejaavaadialogi'
   })

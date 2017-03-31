@@ -11,7 +11,7 @@ const defaultProps = {
 
 function Tabs (props) {
   return (
-    <div className={`tabs ${props.className}`}>
+    <div className={`oph-tabs ${props.className}`}>
       {props.children}
     </div>
   )

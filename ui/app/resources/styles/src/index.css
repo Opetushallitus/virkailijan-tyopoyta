@@ -1,27 +1,6 @@
 /* Component styles */
-@import "components/alerts.css";
 @import "components/buttons.css";
-@import "components/spinner.css";
 
-*,
-:after,
-:before {
-  box-sizing: inherit;
-}
-
-html {
-  font-family: var(--base-font-family);
-  font-size: var(--base-font-size);
-  line-height: var(--base-line-height);
-  text-size-adjust: 100%;
-  color: var(--body-copy-color);
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background-color: var(--gray-lighten-4);
-}
 
 /* Typography */
 
@@ -138,10 +117,7 @@ a:focus {
 
 /* Layout */
 
-.container {
-  max-width: var(--container-width);
-  padding: 0 var(--space-2);
-}
+
 
 .box-shadow {
   box-shadow: var(--box-shadow);
@@ -163,88 +139,7 @@ a:focus {
   clip: auto;
 }
 
-/* Tabs */
-
-.tabs {
-  position: relative;
-  width: 100%;
-
-  @media (--breakpoint-sm) {
-    display: flex;
-    padding-bottom: 0;
-  }
-}
-
-.tabs:after {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  content: "";
-  border-bottom: 1px solid var(--border-color);
-}
-
-.tab-item {
-  font-weight: var(--font-weight-bold);
-  text-align: center;
-  text-decoration: none;
-  display: block;
-  padding: var(--space-1) var(--space-3);
-
-  @media (--breakpoint-sm) {
-    display: inline-block;
-    border-width: 1px;
-    border-style: solid;
-    border-color: transparent;
-    border-top-width: var(--border-widen-1);
-    border-bottom-color: var(--border-color);
-  }
-}
-
-.tab-item:focus {
-  outline: 0;
-}
-
-.tab-item-is-active {
-  z-index: var(--z2);
-  color: var(--body-copy-color);
-  background-color: var(--white);
-  outline: 0;
-
-  @media (--breakpoint-sm) {
-    border-top: var(--border-widen-1) solid var(--link-color);
-    border-right: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--white);
-    border-left: 1px solid var(--border-color);
-  }
-}
-
-.tab-item-is-active:hover,
-.tab-item-is-active:focus {
-  color: var(--body-copy-color);
-  cursor: default;
-}
-
-.tab-pane {
-  display: none;
-}
-
-.tab-pane-is-active {
-  display: block;
-  padding: var(--space-3) 0;
-}
-
 /* Buttons */
-
-.oph-button-cancel {
-  background-color: var(--gray);
-  color: var(--white);
-}
-
-.oph-button-cancel:hover,
-.oph-button-cancel:focus {
-  background-color: var(--gray-lighten-1);
-}
 
 .button-icon {
   padding-top: var(--space-2);

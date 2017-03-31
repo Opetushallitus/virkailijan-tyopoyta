@@ -35,7 +35,7 @@ function UnpublishedNotifications (props) {
           <Alert
             key={alert.id}
             id={alert.id}
-            type={alert.type}
+            variant={alert.variant}
             title={alert.title}
             text={alert.text}
             onCloseButtonClick={controller.removeAlert}
@@ -56,7 +56,7 @@ function UnpublishedNotifications (props) {
           ? <span>{translate('eijulkaisemattomiatiedotteita')}</span>
           : <div>
             <div className="bold flex flex-wrap xs-hide sm-hide mb2">
-              {/*Headers*/}
+              {/*Headings*/}
               <div className="col-6">
                 {translate('otsikko')}
               </div>

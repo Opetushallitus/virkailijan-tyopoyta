@@ -114,7 +114,7 @@ function Editor (props) {
           <Alert
             key={`editorAlert${alert.id}`}
             id={alert.id}
-            type={alert.type}
+            variant={alert.variant}
             titleKey={alert.titleKey}
             textKey={alert.textKey}
             onCloseButtonClick={controller.removeAlert}

@@ -34,7 +34,7 @@ function onReceived (state, categories) {
 
 function onFetchFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'kategorioidenhakuepaonnistui',
     textKey: 'paivitasivu'
   })

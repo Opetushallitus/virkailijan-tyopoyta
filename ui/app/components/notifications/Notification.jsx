@@ -230,7 +230,7 @@ class Notification extends React.Component {
 
           {/*Content*/}
           <div className="col-12">
-            <div className="notification-content mb2">{renderHTML(content.text)}</div>
+            <div className={`mb2 ${isExpandable ? 'notification-content' : ''}`}>{renderHTML(content.text)}</div>
           </div>
 
           {/*Create date and creator's initials*/}

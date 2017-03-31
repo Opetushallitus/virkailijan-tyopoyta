@@ -177,16 +177,17 @@ function TimelineItem (props) {
               className={`h5 bold center mt1 pt1 border-top border-blue-lighten-1 display-none
               ${`timeline-release${releaseId}-item${id}-remove-container`}`}
             >
-              {translate('vahvistatapahtumanpoistaminen')}:
-              <br />
+              {translate('vahvistatapahtumanpoistaminen')}
 
-              <Button className="oph-button-ghost white" onClick={handleConfirmRemoveButtonClick}>
-                {translate('poista')}
-              </Button>
+              <div className="mt1">
+                <Button className="oph-button-confirm" onClick={handleConfirmRemoveButtonClick}>
+                  {translate('poista')}
+                </Button>
 
-              <Button className="oph-button-ghost white" onClick={handleCancelRemoveButtonClick}>
-                {translate('peruuta')}
-              </Button>
+                <Button className="oph-button-ghost white" onClick={handleCancelRemoveButtonClick}>
+                  {translate('peruuta')}
+                </Button>
+              </div>
             </div>
             : null
         }

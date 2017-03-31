@@ -3,17 +3,19 @@ import React, { PropTypes } from 'react'
 import CloseButton from './buttons/CloseButton'
 import { translate } from './Translations'
 
+const variants = ['big']
+
 const propTypes = {
+  variant: PropTypes.oneOf(variants),
   title: PropTypes.string.isRequired,
   isCloseDisabled: PropTypes.bool,
-  variant: PropTypes.string,
-  onCloseButtonClick: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  onCloseButtonClick: PropTypes.func.isRequired
 }
 
 const defaultProps = {
-  isCloseDisabled: false,
-  variant: ''
+  variant: '',
+  isCloseDisabled: false
 }
 
 class Modal extends React.Component {
@@ -26,8 +28,8 @@ class Modal extends React.Component {
   }
 
   componentDidMount () {
-    // Focus on modal when opening it
-    this.modal.focus()
+    // Focus on overlay when opening it
+    this.overlay.focus()
 
     // Animate the overlay
     this.overlay.classList.add('oph-overlay-bg')
@@ -55,11 +57,11 @@ class Modal extends React.Component {
     }
   }
 
-  // Focus to close button when clicking / focusing out from 'Back to dialog top' link for keyboard usability
+  // Focus to overlay when clicking / focusing out from 'Back to dialog top' link for keyboard usability
   handleBackToTopLinkClick (event) {
     event.preventDefault()
 
-    this.modal.focus()
+    this.overlay.focus()
   }
 
   render () {
@@ -75,39 +77,35 @@ class Modal extends React.Component {
       <div
         ref={overlay => (this.overlay = overlay)}
         className="oph-overlay oph-overlay-is-visible"
+        role="dialog"
+        tabIndex="-1"
+        aria-labelledby={`#modal-${title}`}
         onClick={this.handleOverlayClick}
       >
         <div
           ref={modal => (this.modal = modal)}
           className={`oph-modal ${variant === '' ? '' : `oph-modal-${variant}`}`}
-          role="dialog"
-          tabIndex="-1"
-          aria-labelledby={`#modal-${title}`}
+          role="document"
         >
-          <div
-            className="oph-modal-dialog"
-            role="document"
+          <h1 id={`#modal-${title}`} className="hide">{title}</h1>
+
+          <CloseButton
+            disabled={isCloseDisabled}
+            onClick={onCloseButtonClick}
+          />
+
+          {/*Modal content*/}
+          {children}
+
+          {/*'Back to dialog top' link*/}
+          <a
+            className="oph-link oph-modal-back-to-top-link absolute bottom-0 right-0 mb1 mr2 is-visible-on-focus"
+            href="#"
+            onClick={this.handleBackToTopLinkClick}
+            onBlur={this.handleBackToTopLinkClick}
           >
-            <h2 id={`#modal-${title}`} className="hide">{title}</h2>
-
-            <CloseButton
-              disabled={isCloseDisabled}
-              onClick={onCloseButtonClick}
-            />
-
-            {/*Modal content*/}
-            {children}
-
-            {/*'Back to dialog top' link*/}
-            <a
-              className="oph-link oph-modal-back-to-top-link absolute bottom-0 right-0 mb1 mr2 is-visible-on-focus"
-              href="#"
-              onClick={this.handleBackToTopLinkClick}
-              onBlur={this.handleBackToTopLinkClick}
-            >
-              {translate('palaadialoginalkuun')}
-            </a>
-          </div>
+            {translate('palaadialoginalkuun')}
+          </a>
         </div>
       </div>
     )

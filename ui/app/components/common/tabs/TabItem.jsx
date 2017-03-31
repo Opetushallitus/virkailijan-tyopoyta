@@ -22,7 +22,7 @@ function TabItem (props) {
     children
   } = props
 
-  const handleOnClick = event => {
+  const handleClick = event => {
     event.preventDefault()
 
     onClick(name)
@@ -30,9 +30,9 @@ function TabItem (props) {
 
   return (
     <a
-      className={`tab-item ${className} ${selectedTab === name ? 'tab-item-is-active' : ''}`}
+      className={`oph-tab-item ${className} ${selectedTab === name ? 'oph-tab-item-is-active' : ''}`}
       href={`#${name}`}
-      onClick={handleOnClick}
+      onClick={handleClick}
     >
       {children}
     </a>

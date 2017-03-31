@@ -4,7 +4,8 @@
 @import "font-awesome";
 @import "semantic-ui-css/components/dropdown";
 @import "semantic-ui-css/components/transition";
-@import "oph-virkailija-style-guide/oph-styles-min.css";
+@import "oph-virkailija-style-guide/oph-styles.css";
+@import "oph-virkailija-style-guide/src/modules/variables.css";
 
 /* Common */
 @import "src/index.css";

@@ -35,7 +35,7 @@ function onReceived (state, tagGroups) {
 
 function onFetchFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'avainsanojenhakuepaonnistui',
     textKey: 'paivitasivu'
   })

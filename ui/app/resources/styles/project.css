@@ -1,12 +1,49 @@
 /* Project styles */
 
+/* Reset */
+*,
+:after,
+:before {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--space-2);
+}
+
 /* Basscss overrides */
+
+[class*='col-'] {
+  box-sizing: border-box;
+}
 
 .caps {
   letter-spacing: .1em;
 }
 
+/* Styleguide overrides */
+
+.oph-alert {
+  animation-duration: .5s;
+  animation-fill-mode: both;
+  animation-name: fadeIn;
+}
+
+.oph-spinner .oph-bounce {
+  margin-right: 2px;
+}
+
 /* Semantic UI Dropdown */
+
+.semantic-ui.dropdown {
+  box-sizing: border-box;
+}
 
 .semantic-ui.ui.selection.dropdown {
   padding-right: 1rem;
@@ -365,6 +402,17 @@
   }
 }
 
+/* View alerts */
+.alert-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  max-width: calc(var(--container-width / 2));
+  /*Center fixed container vertically*/
+  transform: translateX(-50%);
+  z-index: var(--z2);
+}
+
 /* Notifications */
 .notification-tag-select.semantic-ui.ui.dropdown .menu > .item:not(.selected, :hover):nth-of-type(even) {
   background-color: var(--gray-lighten-5);
@@ -681,14 +729,6 @@
 
 .invisible {
   visibility: hidden;
-}
-
-.oph-modal:focus {
-  outline: none;
-}
-
-.oph-modal-big {
-  width: var(--container-width);
 }
 
 .oph-popup {

@@ -8,6 +8,7 @@ const esLintFriendlyFormatter = require('eslint-friendly-formatter')
 const webpack = require('webpack')
 
 const PATHS = {
+  dev: path.join(__dirname, 'target/scala-2.11/classes/ui'),
   build: path.join(__dirname, 'src/main/resources/ui'),
   app: path.join(__dirname, 'ui/app'),
   style: path.join(__dirname, 'ui/app/resources/styles/app.css'),
@@ -87,7 +88,7 @@ const config = {
     //   compress: { warnings: false }
     // }),
     new ExtractTextPlugin('[name].css'),
-    new CleanWebpackPlugin([PATHS.build], {
+    new CleanWebpackPlugin([PATHS.build, PATHS.dev], {
       root: process.cwd()
     }),
     new HtmlWebpackPlugin({

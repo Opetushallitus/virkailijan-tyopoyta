@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react'
 import { translate } from './Translations'
 
+const variants = ['in-button']
+
 const propTypes = {
-  variant: PropTypes.string,
+  variant: PropTypes.oneOf(variants),
   isVisible: PropTypes.bool
 }
 
@@ -18,12 +20,16 @@ function Spinner (props) {
   } = props
 
   return (
-    <div className={`${isVisible ? 'spinner' : 'display-none'} ${variant ? `spinner-${variant}` : ''}`}>
-      <span className="hide">{translate('hetkinen')}</span>
-
-      <div className="bounce bounce1" aria-hidden />
-      <div className="bounce bounce2" aria-hidden />
-      <div className="bounce bounce3" aria-hidden />
+    <div
+      className={`
+        ${isVisible ? 'oph-spinner' : 'display-none'}
+        ${variant ? `oph-spinner-${variant}` : ''}
+      `}
+      aria-label={translate('hetkinen')}
+    >
+      <div className="oph-bounce oph-bounce1" aria-hidden />
+      <div className="oph-bounce oph-bounce2" aria-hidden />
+      <div className="oph-bounce oph-bounce3" aria-hidden />
     </div>
   )
 }
