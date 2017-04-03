@@ -97,19 +97,8 @@ p {
 
 /* Styleguide overrides */
 
-.oph-alert {
-  animation-duration: .5s;
-  animation-fill-mode: both;
-  animation-name: fadeIn;
-}
-
 .oph-spinner .oph-bounce {
   margin-right: 2px;
-}
-
-.oph-button-small {
-  padding-left: var(--space-1);
-  padding-right: var(--space-1);
 }
 
 .oph-button-icon {
@@ -136,22 +125,6 @@ p {
   color: var(--link-color);
 }
 
-.oph-modal-back-to-top-link {
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-}
-
-.oph-modal-back-to-top-link:focus {
-  position: relative;
-  height: auto;
-  width: auto;
-  overflow: auto;
-  clip: auto;
-}
-
 .oph-legend {
   padding-left: 0;
 }
@@ -164,15 +137,6 @@ p {
 
 .oph-popup {
   width: 20rem;
-  animation-duration: .5s;
-}
-
-.oph-popup-arrow {
-  border-width: 12px;
-}
-
-.oph-popup-arrow:after {
-  border-width: 11px;
 }
 
 .oph-is-overlaid {
@@ -624,7 +588,6 @@ p {
 }
 
 .notification {
-  display: relative;
   margin-bottom: var(--space-3);
   padding-top: var(--space-2);
   padding-right: var(--space-2);
@@ -886,6 +849,10 @@ p {
   background-color: var(--blue);
   color: var(--white);
   transition: opacity .5s ease;
+}
+
+.timeline-item-with-actions {
+  min-height: 6rem;
 }
 
 .timeline-item .oph-link {

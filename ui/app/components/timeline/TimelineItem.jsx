@@ -114,7 +114,7 @@ function TimelineItem (props) {
 
       <div
         id={htmlId}
-        className={`timeline-item ${index > 0 ? 'mt1' : ''}`}
+        className={`timeline-item ${user.isAdmin ? 'timeline-item-with-actions' : ''} ${index > 0 ? 'mt1' : ''}`}
       >
 
         {/*Date*/}
