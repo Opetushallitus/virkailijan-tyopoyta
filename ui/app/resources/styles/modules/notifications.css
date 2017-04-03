@@ -131,3 +131,11 @@
     height: var(--space-4);
   }
 }
+
+@media (--viewport-sm) {
+  .notification .oph-popup {
+    position: fixed;
+    top: 120px !important;
+    left: var(--space-2) !important;
+  }
+}

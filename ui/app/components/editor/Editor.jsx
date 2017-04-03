@@ -278,7 +278,7 @@ function Editor (props) {
       }
 
       {/*Form actions*/}
-      <div className={`center pt3 px3 ${isPreviewed ? '' : 'border-top'}`}>
+      <div className={`editor-actions ${isPreviewed ? '' : 'border-top'}`}>
         {/*Validation messages*/}
         {
           isLoadingRelease || hasLoadingDependenciesFailed
@@ -314,20 +314,20 @@ function Editor (props) {
         >
           {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
         </Button>
-      </div>
 
-      {
-        hasSaveFailed
-          ? <Popup
-            target="#editor-button-save"
-            variant="error"
-            position="right"
-            title={translate('julkaisuepaonnistui')}
-            text={translate('kokeileuudestaan')}
-            onOutsideClick={controller.toggleHasSaveFailed}
-          />
-          : null
-      }
+        {
+          hasSaveFailed
+            ? <Popup
+              target="#editor-button-save"
+              variant="error"
+              position="right"
+              title={translate('julkaisuepaonnistui')}
+              text={translate('kokeileuudestaan')}
+              onOutsideClick={controller.toggleHasSaveFailed}
+            />
+            : null
+        }
+      </div>
     </form>
   )
 }

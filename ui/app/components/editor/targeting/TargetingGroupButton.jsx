@@ -29,7 +29,7 @@ function TargetingGroupButton (props) {
 
   return (
     <button
-      className={`oph-button release-targeting-group-button ${isActive ? 'oph-blue-lighten-2' : 'oph-black'}`}
+      className={`oph-button editor-targeting-group-button ${isActive ? 'oph-blue-lighten-2' : 'oph-black'}`}
       disabled={disabled}
       type="button"
       onClick={handleClick}

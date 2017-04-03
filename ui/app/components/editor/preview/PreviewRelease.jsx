@@ -107,7 +107,7 @@ function PreviewRelease (props) {
 
         {/*Targeting*/}
         <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
-          <h3 className="oph-h4 center">{translate('kohdennus')}</h3>
+          <h3 className="oph-h4 md-center">{translate('kohdennus')}</h3>
 
           <div className="flex flex-wrap">
             {/*Categories*/}

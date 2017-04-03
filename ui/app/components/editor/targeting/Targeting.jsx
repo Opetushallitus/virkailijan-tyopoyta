@@ -120,7 +120,7 @@ function Targeting (props) {
                 {translate('tallennettukohdennus')}
               </label>
 
-              <div className="release-targeting-group-select col-12 lg-col-5 lg-ml3">
+              <div className="editor-targeting-group-select col-12 lg-col-5 lg-ml3">
                 {user.targetingGroups.map(targetingGroup =>
                   <div key={`releaseTargetingGroup${targetingGroup.id}`} className="flex flex-wrap">
                     <div className="col-9 my1 sm-pr2">
@@ -134,7 +134,7 @@ function Targeting (props) {
 
                       {
                         targetingGroup.hasLoadingFailed
-                          ? <div className="red px2">{translate('poistaminenepaonnistui')}</div>
+                          ? <div className="oph-error px2">{translate('poistaminenepaonnistui')}</div>
                           : null
                       }
                     </div>

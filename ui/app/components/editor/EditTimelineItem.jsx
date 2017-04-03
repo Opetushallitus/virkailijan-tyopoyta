@@ -34,7 +34,7 @@ function EditTimelineItem (props) {
   }
 
   return (
-    <div className="timeline-item-form">
+    <div className="editor-timeline-item-form">
       {/*Info*/}
       <div className="flex flex-wrap mb2">
         <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">

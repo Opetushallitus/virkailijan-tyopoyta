@@ -24,8 +24,8 @@
 @import "modules/utils.css";
 @import "modules/animations.css";
 @import "modules/alerts.css";
-@import "modules/notifications.css";
 @import "modules/tags.css";
+@import "modules/notifications.css";
 @import "modules/timeline.css";
 @import "modules/editor.css";
 
