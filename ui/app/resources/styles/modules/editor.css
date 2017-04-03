@@ -1,0 +1,52 @@
+/* Editor */
+
+.editor-has-link-form {
+  min-height: 15rem;
+}
+
+.timeline-item-form {
+  margin-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-color-base);
+}
+
+.timeline-item-form:first-of-type {
+  margin-top: 0
+}
+
+.timeline-item-form:last-of-type {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.timeline-item-form .DraftEditor-editorContainer {
+  min-height: 6rem;
+}
+
+.release-targeting-group-select {
+  max-height: 20rem;
+  overflow-y: auto;
+  border: 1px solid var(--border-color-base);
+  border-radius: var(--border-radius-base);
+}
+
+.release-targeting-group-button {
+  font-weight: 400;
+  text-align: left;
+}
+
+.release-targeting-group-button[disabled] {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-muted);
+}
+
+.release-targeting-group-button:hover,
+.release-targeting-group-button:focus {
+  color: var(--blue-lighten-2);
+}
+
+.release-usergroup-button:hover,
+.release-usergroup-button:focus {
+  color: var(--white);
+}

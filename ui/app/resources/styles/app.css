@@ -15,8 +15,19 @@
 @import "basscss-responsive-padding";
 @import "basscss-responsive-layout";
 
-/* Project styles */
-@import "project.css";
+/* App styles */
+@import "modules/semantic-ui-dropdown.css";
+@import "modules/draft-js.css";
+@import "modules/react-datepicker.css";
+@import "modules/basscss.css";
+@import "modules/styleguide.css";
+@import "modules/utils.css";
+@import "modules/animations.css";
+@import "modules/alerts.css";
+@import "modules/notifications.css";
+@import "modules/tags.css";
+@import "modules/timeline.css";
+@import "modules/editor.css";
 
 /* Variables */
 /* Naming: component-property-modifier */

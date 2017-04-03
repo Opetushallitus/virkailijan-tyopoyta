@@ -1,0 +1,26 @@
+/* Draft.js */
+
+.RichEditor-root {
+  position: relative;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-color-base);
+  border-radius: var(--border-radius);
+  box-shadow: inset var(--box-shadow-base);
+  transition-property: border;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
+}
+
+.RichEditor-root:hover {
+  border-color: var(--gray-lighten-1);
+}
+
+.RichEditor-controls-container {
+  border-bottom: 1px solid var(--border-color-base);
+}
+
+.DraftEditor-editorContainer {
+  font-size: inherit;
+  min-height: 15rem;
+  padding: var(--space-2) 0;
+}

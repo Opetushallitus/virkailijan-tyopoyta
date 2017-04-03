@@ -1,0 +1,52 @@
+/* Style guide overrides */
+
+.oph-spinner .oph-bounce {
+  margin-right: 2px;
+}
+
+.oph-button-icon {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  color: var(--gray);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
+}
+
+.oph-button-icon:hover,
+.oph-button-icon:focus {
+  color: var(--link-color-hover);
+}
+
+.oph-button-icon[disabled] {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-muted);
+}
+
+.oph-button-icon-is-active {
+  color: var(--link-color);
+}
+
+.oph-checkable-icon {
+  margin-top: 4px;
+  margin-right: var(--space-1);
+  color: var(--color-primary);
+}
+
+.oph-popup {
+  width: 20rem;
+}
+
+.oph-is-overlaid {
+  opacity: .3;
+}
+
+.oph-overlay-component {
+  position: absolute;
+  align-items: center;
+}
+
+.oph-overlay-transparent {
+  background-color: transparent;
+}
