@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react'
 
-import IconButton from '../common/buttons/IconButton'
+import IconButton from '../../common/buttons/IconButton'
 
 const propTypes = {
   title: PropTypes.string.isRequired,

@@ -10,7 +10,9 @@ export function rules (state) {
     release: {
       targetingGroup: value => {
         // Check if user.targetingGroups contains the new targeting group's name, the name must be unique
-        return value ? !R.contains(value, R.pluck('name', state.user.targetingGroups)) : null
+        return value
+          ? !R.contains(value, R.pluck('name', state.user.targetingGroups))
+          : null
       },
       userGroups: isNotEmpty,
       'notification.tags': value => {

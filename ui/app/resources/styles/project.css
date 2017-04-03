@@ -95,7 +95,7 @@ p {
   border-color: var(--blue-lighten-1);
 }
 
-/* Styleguide overrides */
+/* Style guide overrides */
 
 .oph-spinner .oph-bounce {
   margin-right: 2px;
@@ -118,21 +118,17 @@ p {
 .oph-button-icon[disabled] {
   border-color: transparent;
   background-color: transparent;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .oph-button-icon-is-active {
   color: var(--link-color);
 }
 
-.oph-legend {
-  padding-left: 0;
-}
-
 .oph-checkable-icon {
   margin-top: 4px;
   margin-right: var(--space-1);
-  color: var(--primary);
+  color: var(--color-primary);
 }
 
 .oph-popup {
@@ -176,7 +172,7 @@ p {
 }
 
 .semantic-ui .search {
-  font-family: var(--base-font-family);
+  font-family: var(--font-family-base);
   font-size: inherit;
 }
 
@@ -189,7 +185,7 @@ p {
 
 .semantic-ui.ui.multiple.search.dropdown > .text,
 .semantic-ui.ui.dropdown:not(.button) > .default.text {
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .semantic-ui.ui.multiple.dropdown > .label {
@@ -250,7 +246,7 @@ p {
 }
 
 .semantic-ui.ui.selection.dropdown .menu > .message {
-  color: var(--muted);
+  color: var(--color-muted);
   padding: var(--space-1) var(--space-2);
 }
 
@@ -420,7 +416,7 @@ p {
   width: 14%;
   max-width: var(--space-4);
   margin: 0;
-  padding: var(--space-05) var(--space-2);
+  padding: .25rem var(--space-2);
 }
 
 .react-datepicker__current-month,
@@ -431,7 +427,7 @@ p {
 }
 
 .react-datepicker__week-number {
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .react-datepicker__day {
@@ -445,7 +441,7 @@ p {
 }
 
 .react-datepicker__day--selected {
-  background-color: var(--primary);
+  background-color: var(--color-primary);
   color: var(--white);
 }
 
@@ -470,7 +466,7 @@ p {
 }
 
 .react-datepicker__day--disabled {
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .react-datepicker__day:hover,
@@ -484,7 +480,7 @@ p {
 .react-datepicker__day--disabled.react-datepicker__day--selected,
 .react-datepicker__day--disabled:hover {
   background-color: transparent;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .react-datepicker__day:hover,
@@ -564,7 +560,7 @@ p {
   width: 100%;
   margin-top: var(--space-1);
   margin-left: 0;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 @media (--breakpoint-lg) {
@@ -646,7 +642,7 @@ p {
   display: inline-block;
   margin-bottom: var(--space-2);
   margin-right: var(--space-2);
-  color: var(--primary);
+  color: var(--color-primary);
   transition-property: color;
   transition-duration: var(--transition-duration-base);
   transition-timing-function: var(--transition-timing-function-base);
@@ -654,7 +650,7 @@ p {
 
 .notification-content {
   position: relative;
-  height: var(--base-line-height)rem;
+  height: var(--line-height-base)rem;
   overflow: hidden;
 }
 
@@ -735,7 +731,7 @@ p {
 
 .timeline-heading {
   margin-left: calc(var(--space-2) + var(--space-1));
-  padding: var(--space-05) var(--space-1);
+  padding: .25rem var(--space-1);
 }
 
 .timeline-heading:first-of-type {
@@ -785,7 +781,7 @@ p {
   transform: translateX(-4px);
   content: "";
   border-radius: 50%;
-  background: var(--blue-darken);
+  background: var(--blue-darken-1);
 }
 
 @media (--sm-and-lg) {
@@ -936,7 +932,7 @@ p {
 .release-targeting-group-button[disabled] {
   border-color: transparent;
   background-color: transparent;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
 .release-targeting-group-button:hover,

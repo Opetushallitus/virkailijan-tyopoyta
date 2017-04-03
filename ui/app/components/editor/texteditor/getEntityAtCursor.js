@@ -1,7 +1,6 @@
-
 function getEntityAtOffset (block, offset) {
   let entityKey = block.getEntityAt(offset)
-  if (entityKey == null) {
+  if (entityKey === null) {
     return null
   }
   let startOffset = offset
@@ -37,7 +36,7 @@ export function getEntityAtCursor (editorState) {
   let startEntityKey = startBlock.getEntityAt(startOffset)
   for (let i = startOffset; i < endOffset; i++) {
     let entityKey = startBlock.getEntityAt(i)
-    if (entityKey == null || entityKey !== startEntityKey) {
+    if (entityKey === null || entityKey !== startEntityKey) {
       return null
     }
   }

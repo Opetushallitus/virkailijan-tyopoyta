@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react'
 
-import TextEditor from '../texteditor/TextEditor'
+import TextEditor from './texteditor/TextEditor'
 import IconButton from '../common/buttons/IconButton'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'

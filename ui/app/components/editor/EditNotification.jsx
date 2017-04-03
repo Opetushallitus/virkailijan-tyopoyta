@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 import moment from 'moment'
 
-import TextEditor from '../texteditor/TextEditor'
+import TextEditor from './texteditor/TextEditor'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
 import LimitedTextField from '../common/form/LimitedTextField'

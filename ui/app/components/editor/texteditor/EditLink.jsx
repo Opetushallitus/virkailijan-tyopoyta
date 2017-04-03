@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react'
 
-import Button from '../common/buttons/Button'
-import Field from '../common/form/Field'
-import { translate } from '../common/Translations'
+import Button from '../../common/buttons/Button'
+import Field from '../../common/form/Field'
+import { translate } from '../../common/Translations'
 
 const propTypes = {
   url: PropTypes.string,

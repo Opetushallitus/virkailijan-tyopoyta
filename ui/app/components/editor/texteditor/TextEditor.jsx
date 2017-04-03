@@ -8,9 +8,9 @@ import Link from './Link'
 import EditLink from './EditLink'
 import InlineStyleControls from './InlineStyleControls'
 import BlockStyleControls from './BlockStyleControls'
-import CloseButton from '../common/buttons/CloseButton'
-import IconButton from '../common/buttons/IconButton'
-import { translate } from '../common/Translations'
+import CloseButton from '../../common/buttons/CloseButton'
+import IconButton from '../../common/buttons/IconButton'
+import { translate } from '../../common/Translations'
 
 import { getEntityAtCursor } from './getEntityAtCursor'
 

@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 import R from 'ramda'
 
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 import StyleButton from './StyleButton'
 
 const propTypes = {
