@@ -43,7 +43,7 @@ function PreviewRelease (props) {
 
   return (
     <div>
-      <h2 className="h3 center mb3">
+      <h2 className="oph-h3 center mb3">
         {translate('oletjulkaisemassa')}
       </h2>
 
@@ -52,8 +52,8 @@ function PreviewRelease (props) {
         <div className="flex flex-wrap flex-1 col-12">
           {/*Notification*/}
           <div className="flex flex-1 col-12 md-col-6 md-pr2 mb3">
-            <div className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
-              <h3 className="h4">
+            <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
+              <h3 className="oph-h4">
                 {translate('tiedote')}
               </h3>
 
@@ -85,8 +85,8 @@ function PreviewRelease (props) {
 
           {/*Timeline*/}
           <div className="flex flex-1 col-12 md-col-6 md-pl2 mb3">
-            <div className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
-              <h3 className="h4">{translate('aikajanatapahtuma')}</h3>
+            <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
+              <h3 className="oph-h4">{translate('aikajanatapahtuma')}</h3>
 
               {previewedTimelineItems.length
                 ? <div>
@@ -106,8 +106,8 @@ function PreviewRelease (props) {
         </div>
 
         {/*Targeting*/}
-        <div className="col-12 p2 border rounded border-gray-lighten-2 bg-gray-lighten-5">
-          <h3 className="h4 center">{translate('kohdennus')}</h3>
+        <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
+          <h3 className="oph-h4 center">{translate('kohdennus')}</h3>
 
           <div className="flex flex-wrap">
             {/*Categories*/}
@@ -145,7 +145,7 @@ function PreviewRelease (props) {
         {
           notification.sendEmail &&
           (notification.validationState === 'incomplete' || notification.validationState === 'complete')
-            ? <div className="bold center col-12 mt3">{translate('lahetetaansahkoposti')}</div>
+            ? <div className="oph-bold center col-12 mt3">{translate('lahetetaansahkoposti')}</div>
             : null
         }
       </div>

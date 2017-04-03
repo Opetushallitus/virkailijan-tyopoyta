@@ -31,7 +31,7 @@ const propTypes = {
 }
 
 // Returns a translation key representing the notification's publication state
-const getNotificationPublicationStateString = (createdAt, dateFormat) => {
+const getNotificationPublishingStateString = (createdAt, dateFormat) => {
   // No createdAt = a draft
   if (!createdAt) {
     return 'luonnos'
@@ -49,15 +49,15 @@ const getNotificationPublicationStateString = (createdAt, dateFormat) => {
 }
 
 const notificationValidationStateKeys = {
-  'empty': 'eisisaltoa',
-  'incomplete': 'kesken',
-  'complete': 'taytetty'
+  empty: 'eisisaltoa',
+  incomplete: 'kesken',
+  complete: 'taytetty'
 }
 
 const releaseValidationStateKeys = {
-  'empty': 'eikohdennettu',
-  'incomplete': 'eikohdennettu',
-  'complete': 'valmis'
+  empty: 'eikohdennettu',
+  incomplete: 'eikohdennettu',
+  complete: 'valmis'
 }
 
 // TODO: Throttle onChange updates
@@ -81,7 +81,6 @@ function Editor (props) {
     isLoadingRelease,
     isSavingRelease,
     hasSaveFailed,
-    hasSaveDraftFailed,
     hasLoadingDependenciesFailed
   } = editor
 
@@ -91,7 +90,7 @@ function Editor (props) {
   const incompleteTimelineItems = getTimelineItems(['incomplete'], timeline)
   const completeTimelineItems = getTimelineItems(['complete'], timeline)
 
-  const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
+  const notificationPublishingStateString = getNotificationPublishingStateString(notification.createdAt, dateFormat)
 
   const disruptionNotificationTag = R.find(R.propEq('type', 'DISRUPTION'))(tagGroups.specialTags)
 
@@ -107,9 +106,6 @@ function Editor (props) {
 
   return (
     <form noValidate onSubmit={handleSubmit}>
-      {/*Heading for screen readers*/}
-      <h2 className="hide">{translate('muokkaasisaltoa')}</h2>
-
       {/*Alerts*/}
       <div className={`my3 ${alerts.length > 0 ? '' : 'display-none'}`}>
         {alerts.map(alert =>
@@ -125,7 +121,7 @@ function Editor (props) {
       </div>
 
       {/*Tabs and release's state*/}
-      <div className="flex flex-wrap px3">
+      <div className="md-flex flex-wrap px3">
         <div className="flex flex-wrap md-col-8 mb0">
           <Tabs>
             <TabItem
@@ -182,24 +178,13 @@ function Editor (props) {
           </Tabs>
         </div>
 
-        {/*Publication state*/}
-        <div
-          className="h5 caps md-flex items-center justify-end md-col-4
-          mt2 md-mt0 md-border-bottom border-gray-lighten-3"
-        >
+        {/*Publishing state*/}
+        <div className="oph-h5 caps md-flex items-center justify-end md-col-4 mt2 md-mt0 md-border-bottom">
           {
             isLoadingRelease
               ? null
-              : <div>
-                <div className="md-right-align lg-inline-block muted">
-                  {translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}
-                </div>
-
-                {
-                  hasSaveDraftFailed
-                    ? <div className="lg-inline-block md-ml2 mt1 lg-mt0 red">{translate('tallennusepaonnistui')}</div>
-                    : null
-                }
+              : <div className="oph-muted md-right-align lg-inline-block">
+                {translate('tila')}:&nbsp;{translate(notificationPublishingStateString)}
               </div>
           }
         </div>
@@ -210,8 +195,8 @@ function Editor (props) {
         hasLoadingDependenciesFailed
           ? <div className="py3" />
           : <TabContent>
+            {/*Notification*/}
             <div className="px3">
-              {/*Notification*/}
               <TabPane isActive={selectedTab === 'edit-notification'}>
                 {
                   isLoadingRelease ||
@@ -230,8 +215,10 @@ function Editor (props) {
                     />
                 }
               </TabPane>
+            </div>
 
-              {/*Timeline*/}
+            {/*Timeline*/}
+            <div className="px3">
               <TabPane isActive={selectedTab === 'edit-timeline'}>
                 {
                   isLoadingRelease ||
@@ -250,35 +237,35 @@ function Editor (props) {
                     />
                 }
               </TabPane>
-
-              {/*Categories and user groups*/}
-              <TabPane isActive={selectedTab === 'targeting'}>
-                {
-                  isLoadingRelease ||
-                  categories.isLoadingRelease ||
-                  userGroups.isLoadingRelease ||
-                  tagGroups.isLoadingRelease
-                    ? <Delay time={1000}>
-                      <Spinner isVisible />
-                    </Delay>
-                    : <Targeting
-                      controller={controller.targeting}
-                      user={user}
-                      userGroups={userGroups.items}
-                      categories={categories.items}
-                      tagGroups={tagGroups.items}
-                      release={editedRelease}
-                    />
-                }
-              </TabPane>
             </div>
+
+            {/*Categories and user groups*/}
+            <TabPane isActive={selectedTab === 'targeting'}>
+              {
+                isLoadingRelease ||
+                categories.isLoadingRelease ||
+                userGroups.isLoadingRelease ||
+                tagGroups.isLoadingRelease
+                  ? <Delay time={1000}>
+                    <Spinner isVisible />
+                  </Delay>
+                  : <Targeting
+                    controller={controller.targeting}
+                    user={user}
+                    userGroups={userGroups.items}
+                    categories={categories.items}
+                    tagGroups={tagGroups.items}
+                    release={editedRelease}
+                  />
+              }
+            </TabPane>
           </TabContent>
       }
 
       {/*Preview*/}
       {
         isPreviewed
-          ? <section className="py3 px3 border-top border-bottom border-gray-lighten-3">
+          ? <section className="py3 px3 border-top border-bottom">
             <PreviewRelease
               locale={user.lang}
               categories={categories.items}
@@ -291,7 +278,7 @@ function Editor (props) {
       }
 
       {/*Form actions*/}
-      <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
+      <div className={`center pt3 px3 ${isPreviewed ? '' : 'border-top'}`}>
         {/*Validation messages*/}
         {
           isLoadingRelease || hasLoadingDependenciesFailed
@@ -307,7 +294,8 @@ function Editor (props) {
 
         {/*Preview & publish*/}
         <Button
-          className="editor-button-save button button-primary button-lg"
+          id="editor-button-save"
+          variants={['primary', 'big']}
           type="submit"
           disabled={
             isSavingRelease || isLoadingRelease ||
@@ -331,8 +319,8 @@ function Editor (props) {
       {
         hasSaveFailed
           ? <Popup
-            target=".editor-button-save"
-            type="error"
+            target="#editor-button-save"
+            variant="error"
             position="right"
             title={translate('julkaisuepaonnistui')}
             text={translate('kokeileuudestaan')}

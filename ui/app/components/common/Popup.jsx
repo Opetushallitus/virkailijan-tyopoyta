@@ -1,12 +1,12 @@
 import React, { PropTypes } from 'react'
 
 const debounce = require('lodash.debounce')
-const types = ['info', 'success', 'warning', 'error', 'default']
+const variants = ['info', 'success', 'warning', 'error', 'default']
 const positions = ['top', 'right', 'bottom', 'left']
 
 const propTypes = {
   target: PropTypes.string,
-  type: PropTypes.oneOf(types).isRequired,
+  variant: PropTypes.oneOf(variants).isRequired,
   position: PropTypes.oneOf(positions).isRequired,
   title: PropTypes.string.isRequired,
   children: PropTypes.node,
@@ -52,7 +52,7 @@ class Popup extends React.Component {
   render () {
     const {
       target,
-      type,
+      variant,
       position,
       title,
       children
@@ -66,7 +66,7 @@ class Popup extends React.Component {
     return (
       <div
         ref={popup => (this.popup = popup)}
-        className={`oph-popup ${type ? `oph-popup-${type}` : ''} oph-popup-${position}`}
+        className={`oph-popup ${variant ? `oph-popup-${variant}` : ''} oph-popup-${position}`}
         style={{
           top,
           left

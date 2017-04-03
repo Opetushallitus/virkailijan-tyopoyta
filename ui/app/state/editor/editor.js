@@ -40,6 +40,7 @@ function onReleaseReceived (state, response) {
   response.userGroups = response.userGroups || []
 
   const release = R.compose(
+    R.assocPath(['notification', 'content', 'sv'], response.notification.content.sv || {}),
     R.assocPath(['notification', 'validationState'], response.notification ? 'complete' : 'empty'),
     R.assoc('notification', response.notification || editNotification.emptyNotification()),
     R.assoc('validationState', 'complete')
@@ -86,7 +87,7 @@ function onSaveComplete (state) {
   console.log('Release saved')
 
   const alert = createAlert({
-    type: 'success',
+    variant: 'success',
     titleKey: 'julkaisuonnistui'
   })
 
@@ -138,7 +139,7 @@ function toggleValue (value, values) {
 
 function cleanTimeline (timeline) {
   return timeline
-    .filter(item => item.date != null)
+    .filter(item => item.date !== null)
     .map(item => R.assoc('content', R.pickBy(content => content.text !== '', item.content), item))
 }
 

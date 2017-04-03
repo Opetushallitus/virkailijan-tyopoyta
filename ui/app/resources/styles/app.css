@@ -7,9 +7,6 @@
 @import "oph-virkailija-style-guide/oph-styles.css";
 @import "oph-virkailija-style-guide/src/modules/variables.css";
 
-/* Common */
-@import "src/index.css";
-
 /* Basscss */
 @import "basscss";
 @import "basscss-responsive-type-scale";
@@ -40,6 +37,7 @@
   --space-05:        .25rem;
 
   /* Z-index */
+
   --z1: 100;
   --z2: 200;
   --z3: 300;

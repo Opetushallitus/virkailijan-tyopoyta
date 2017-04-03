@@ -11,9 +11,9 @@ const propTypes = {
 }
 
 const INLINE_STYLES = [
-  {label: translate('lihavoi'), style: 'BOLD', icon: 'bold'},
-  {label: translate('kursivoi'), style: 'ITALIC', icon: 'italic'},
-  {label: translate('alleviivaa'), style: 'UNDERLINE', icon: 'underline'}
+  {title: translate('lihavoi'), style: 'BOLD', icon: 'bold'},
+  {title: translate('kursivoi'), style: 'ITALIC', icon: 'italic'},
+  {title: translate('alleviivaa'), style: 'UNDERLINE', icon: 'underline'}
 ]
 
 function InlineStyleControls (props) {
@@ -30,8 +30,8 @@ function InlineStyleControls (props) {
     <span className="RichEditor-controls">
       {styles.map(type =>
         <StyleButton
-          key={type.label}
-          label={type.label}
+          key={`richEditorButton${type.style}`}
+          title={type.title}
           style={type.style}
           icon={type.icon}
           isActive={currentStyle.has(type.style)}

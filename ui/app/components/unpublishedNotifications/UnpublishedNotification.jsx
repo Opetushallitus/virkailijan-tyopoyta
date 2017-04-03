@@ -26,7 +26,7 @@ function UnpublishedNotification (props) {
     <div className="flex flex-wrap mb1">
       {/*Title*/}
       <div className="col-12 md-col-6 mb1 md-pr2">
-        <a href="#" onClick={handleTitleClick}>{content.title}</a>
+        <a className="oph-link" href="#" onClick={handleTitleClick}>{content.title}</a>
       </div>
 
       {/*Create date*/}

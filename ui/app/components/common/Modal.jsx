@@ -99,7 +99,7 @@ class Modal extends React.Component {
 
           {/*'Back to dialog top' link*/}
           <a
-            className="oph-link oph-modal-back-to-top-link absolute bottom-0 right-0 mb1 mr2 is-visible-on-focus"
+            className="oph-link oph-modal-back-to-top-link"
             href="#"
             onClick={this.handleBackToTopLinkClick}
             onBlur={this.handleBackToTopLinkClick}

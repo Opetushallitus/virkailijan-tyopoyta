@@ -3,12 +3,13 @@ import React, { PropTypes } from 'react'
 const propTypes = {
   name: PropTypes.string.isRequired,
   selectedTab: PropTypes.string,
+  column: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   children: PropTypes.node.isRequired
 }
 
 const defaultProps = {
-  className: '',
+  column: '',
   selectedTab: ''
 }
 
@@ -16,6 +17,7 @@ function TabItem (props) {
   const {
     name,
     selectedTab,
+    column,
     onClick,
     children
   } = props
@@ -28,7 +30,7 @@ function TabItem (props) {
 
   return (
     <a
-      className={`oph-tab-item ${selectedTab === name ? 'oph-tab-item-is-active' : ''}`}
+      className={`oph-tab-item ${selectedTab === name ? 'oph-tab-item-is-active' : ''} ${column}`}
       href={`#${name}`}
       onClick={handleClick}
     >

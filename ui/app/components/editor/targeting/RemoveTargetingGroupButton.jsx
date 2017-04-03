@@ -30,7 +30,7 @@ function TargetingGroupButton (props) {
 
   return (
     <Button
-      className="oph-button-cancel p1"
+      variants={['cancel', 'small']}
       disabled={disabled}
       onClick={handleClick}
       isLoading={isLoading}

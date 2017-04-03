@@ -41,7 +41,8 @@ class Collapse extends React.Component {
     return (
       <div className={this.state.isVisible ? 'mb3' : 'mb2'}>
         <Button
-          className="button-link regular py2 px0"
+          variants={['ghost']}
+          className="regular py2 px0"
           onClick={this.handleToggleButtonClick}
           aria-controls={id}
           aria-expanded={this.state.isVisible}
@@ -56,7 +57,7 @@ class Collapse extends React.Component {
         <div
           id={`#${id}`}
           className={this.state.isVisible
-            ? 'border-top border-bottom border-gray-lighten-2 p2'
+            ? 'border-top border-bottom p2'
             : 'display-none'}
         >
           {children}

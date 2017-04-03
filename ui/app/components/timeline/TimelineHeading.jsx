@@ -8,25 +8,11 @@ const propTypes = {
   year: PropTypes.number.isRequired
 }
 
-const classList = [
-  'timeline-heading',
-  'h6',
-  'caps',
-  'regular',
-  'center',
-  'mb0',
-  'p1',
-  'inline-block',
-  'rounded',
-  'white',
-  'bg-blue-darken'
-]
-
 function TimelineHeading (props) {
   const month = moment(props.month, 'M').format('MMMM')
 
   return (
-    <h2 className={classList.join(' ')}>
+    <h2 className="timeline-heading">
       {translate(month)} {props.year}
     </h2>
   )

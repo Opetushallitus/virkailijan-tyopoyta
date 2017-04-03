@@ -21,7 +21,7 @@ function PreviewTargetingList (props) {
 
   return (
     <div>
-      <p className="bold pr2">{translate(title)}</p>
+      <p className="oph-bold pr2">{translate(title)}</p>
 
       <ul className="list-reset">
         {items.map(item =>

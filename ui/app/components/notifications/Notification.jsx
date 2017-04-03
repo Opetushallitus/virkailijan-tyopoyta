@@ -3,11 +3,9 @@ import renderHTML from 'react-render-html'
 
 // Components
 import Button from '../common/buttons/Button'
-import EditButton from '../common/buttons/EditButton'
-import RemoveButton from '../common/buttons/RemoveButton'
 import CloseButton from '../common/buttons/CloseButton'
+import IconButton from '../common/buttons/IconButton'
 import Tag from '../common/Tag'
-import Icon from '../common/Icon'
 import Popup from '../common/Popup'
 import Overlay from '../common/Overlay'
 import Spinner from '../common/Spinner'
@@ -113,31 +111,15 @@ class Notification extends React.Component {
     const excerptLength = 100
     const isExpandable = parsedText.length > excerptLength
 
-    const classList = [
-      'notification',
-      'relative',
-      'mb3',
-      'pt2',
-      'px2',
-      'pb1',
-      'border',
-      'border-gray-lighten-3',
-      'rounded',
-      'bg-white',
-      'box-shadow',
-      `${isExpandable ? 'notification-is-expandable' : ''}`,
-      `${isDisruptionNotification ? 'notification-disruption' : ''}`
-    ]
-
     return this.state.isVisible && (
       <div
         ref={notification => (this.notification = notification)}
         id={`notification${notification.id}`}
-        className={
-          `notification-container relative
+        className={`
+          notification-container
           ${isRemoving ? 'notification-is-overlaid' : ''}
-          ${isRemoved ? 'notification-is-removed' : ''}`
-        }
+          ${isRemoved ? 'notification-is-removed' : ''}
+        `}
       >
         {
           isRemoving
@@ -155,24 +137,22 @@ class Notification extends React.Component {
         {/*Expand/contract button*/}
         {
           isExpandable && !isRelatedToTimelineItem
-            ? <div className={`notification absolute top-0 right-0 z2`}>
-              <Button
-                className="notification-expand-button button-icon gray"
-                title={translate('naytatiedote')}
-                onClick={this.handleNotificationClick}
-              >
-                <Icon name="chevron-down" />
-                <span className="hide">{translate('naytatiedote')}</span>
-              </Button>
+            ? <div className="absolute top-0 right-0 z2">
+              <div className="notification-expand-button">
+                <IconButton
+                  icon="chevron-down"
+                  title={translate('naytatiedote')}
+                  onClick={this.handleNotificationClick}
+                />
+              </div>
 
-              <Button
-                className="notification-contract-button button-icon gray"
-                title={translate('naytakatkelma')}
-                onClick={this.handleNotificationClick}
-              >
-                <Icon name="chevron-up" />
-                <span className="hide">{translate('naytakatkelma')}</span>
-              </Button>
+              <div className="notification-contract-button">
+                <IconButton
+                  icon="chevron-up"
+                  title={translate('naytakatkelma')}
+                  onClick={this.handleNotificationClick}
+                />
+              </div>
             </div>
             : null
         }
@@ -195,8 +175,16 @@ class Notification extends React.Component {
               id={`notification${notification.id}-actions`}
               className="absolute bottom-0 right-0 z2"
             >
-              <EditButton onClick={this.handleEditButtonClick} />
-              <RemoveButton onClick={this.handleRemoveButtonClick} />
+              <IconButton
+                icon="pencil"
+                title={translate('muokkaa')}
+                onClick={this.handleEditButtonClick}
+              />
+              <IconButton
+                icon="trash"
+                title={translate('poista')}
+                onClick={this.handleRemoveButtonClick}
+              />
             </div>
             : null
         }
@@ -206,25 +194,32 @@ class Notification extends React.Component {
           confirmRemove && !isRemoved
             ? <Popup
               target={`#notification${notification.id}-actions`}
-              type="default"
+              variant="default"
               position="right"
               title={translate('vahvistatiedotteenpoistaminen')}
               onOutsideClick={this.handleOutsidePopupClick}
             >
-              <Button className="oph-button-confirm" onClick={this.handleConfirmRemoveButtonClick}>
+              <Button variants={['confirm']} onClick={this.handleConfirmRemoveButtonClick}>
                 {translate('poista')}
               </Button>
 
-              <Button className="oph-button-cancel" onClick={this.handleOutsidePopupClick}>
+              <Button variants={['cancel']} onClick={this.handleOutsidePopupClick}>
                 {translate('peruuta')}
               </Button>
             </Popup>
             : null
         }
 
-        <div className={classList.join(' ')} onClick={isExpandable ? this.handleNotificationClick : null}>
+        <div
+          className={`
+            notification
+            ${isExpandable ? 'notification-is-expandable' : ''}
+            ${isDisruptionNotification ? 'notification-disruption' : ''}
+          `}
+          onClick={isExpandable ? this.handleNotificationClick : null}
+        >
           {/*Visible title*/}
-          <h3 className="notification-heading h4 primary bold inline-block mb2 mr2" aria-hidden>
+          <h3 className="notification-heading" aria-hidden>
             {content.title}
           </h3>
 
@@ -234,7 +229,7 @@ class Notification extends React.Component {
           </div>
 
           {/*Create date and creator's initials*/}
-          <span className={`h5 mb1 muted ${!notification.tags.length ? 'inline-block' : ''}`}>
+          <span className={`oph-h5 oph-muted mb1 ${notification.tags.length === 0 ? 'inline-block' : ''}`}>
             <time className="mr1">{notification.createdAt}</time>
             {user.isAdmin ? notification.createdBy : null}
           </span>
@@ -244,7 +239,7 @@ class Notification extends React.Component {
             {categories.map(category =>
               <Tag
                 key={`notificationTag${category.id}`}
-                className="bg-blue-lighten-2"
+                variant="blue"
                 text={category.name}
               />
             )}

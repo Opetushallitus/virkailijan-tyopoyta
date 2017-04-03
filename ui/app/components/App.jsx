@@ -109,6 +109,7 @@ class App extends React.Component {
 
     return (
       <div>
+        {/*Alert for failed login*/}
         {
           state.user.hasLoadingFailed
             ? <Alert
@@ -190,25 +191,27 @@ class App extends React.Component {
 
           <div className={`flex flex-wrap col-12 ${state.user.isLoading ? 'display-none' : ''}`}>
             {/*Notification/timeline view selection for small screens*/}
-            <Tabs className="mt3 md-hide lg-hide">
-              <TabItem
-                className="sm-col-6"
-                name="notifications"
-                selectedTab={selectedTab}
-                onClick={controller.view.toggleTab}
-              >
-                {translate('tiedotteet')}
-              </TabItem>
+            <div className="col-12 mt3 md-hide lg-hide">
+              <Tabs>
+                <TabItem
+                  name="notifications"
+                  selectedTab={selectedTab}
+                  column="sm-col-6"
+                  onClick={controller.view.toggleTab}
+                >
+                  {translate('tiedotteet')}
+                </TabItem>
 
-              <TabItem
-                className="sm-col-6"
-                name="timeline"
-                selectedTab={selectedTab}
-                onClick={controller.view.toggleTab}
-              >
-                {translate('aikajana')}
-              </TabItem>
-            </Tabs>
+                <TabItem
+                  name="timeline"
+                  selectedTab={selectedTab}
+                  column="sm-col-6"
+                  onClick={controller.view.toggleTab}
+                >
+                  {translate('aikajana')}
+                </TabItem>
+              </Tabs>
+            </div>
 
             {/*Notifications*/}
             <section

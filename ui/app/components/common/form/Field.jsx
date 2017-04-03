@@ -1,40 +1,59 @@
 import React, { PropTypes } from 'react'
 
 const propTypes = {
-  className: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   isRequired: PropTypes.bool,
   labelIsHidden: PropTypes.bool,
+  hasError: PropTypes.bool,
+  helpTextId: PropTypes.string,
+  helpText: PropTypes.string,
   children: PropTypes.node.isRequired
 }
 
 const defaultProps = {
-  className: '',
   isRequired: false,
-  labelIsHidden: false
+  labelIsHidden: false,
+  hasError: false,
+  helpTextId: '',
+  helpText: null
 }
 
 function Field (props) {
   const {
-    className,
     name,
     label,
     labelIsHidden,
     isRequired,
+    hasError,
+    helpTextId,
+    helpText,
     children
   } = props
 
   return (
-    <div className={`field ${isRequired ? 'field-is-required' : ''} ${className}`}>
+    <div
+      className={`oph-field ${isRequired ? 'oph-field-is-required' : ''}`}
+      aria-required={isRequired}
+    >
       <label
-        className={`label ${labelIsHidden ? 'display-none' : ''}`}
+        className={`oph-label ${labelIsHidden ? 'display-none' : ''}`}
         htmlFor={name}
+        aria-describedby={helpTextId}
+        aria-invalid={hasError}
       >
         {label}
       </label>
 
       {children}
+
+      {
+        helpText
+          ? <div id={helpTextId} className={`oph-field-text ${hasError ? 'oph-error' : ''}`}>
+            {helpText}
+          </div>
+          : null
+      }
     </div>
   )
 }

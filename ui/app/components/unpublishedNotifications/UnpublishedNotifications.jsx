@@ -27,7 +27,7 @@ function UnpublishedNotifications (props) {
 
   return (
     <div className="px3">
-      <h2>{translate('julktiedotteet')}</h2>
+      <h2 className="oph-h2 oph-bold">{translate('julktiedotteet')}</h2>
 
       {/*Alerts*/}
       <div className={`my3 ${alerts.length > 0 ? '' : 'display-none'}`}>
@@ -55,7 +55,7 @@ function UnpublishedNotifications (props) {
         !isLoading && items.length === 0
           ? <span>{translate('eijulkaisemattomiatiedotteita')}</span>
           : <div>
-            <div className="bold flex flex-wrap xs-hide sm-hide mb2">
+            <div className="oph-bold flex flex-wrap xs-hide sm-hide mb2">
               {/*Headings*/}
               <div className="col-6">
                 {translate('otsikko')}

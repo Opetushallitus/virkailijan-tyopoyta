@@ -4,11 +4,27 @@
 *,
 :after,
 :before {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  margin-top: 0;
+}
+
+p {
+  margin-top: 0;
+}
+
+.lowercase {
+  text-transform: lowercase;
+}
+
+.line-height-1 {
+  line-height: 1;
 }
 
 .container {
@@ -17,14 +33,66 @@ body {
   padding: 0 var(--space-2);
 }
 
-/* Basscss overrides */
-
-[class*='col-'] {
-  box-sizing: border-box;
+.invisible {
+  visibility: hidden;
 }
+
+.box-shadow {
+  box-shadow: var(--box-shadow-base);
+}
+
+@media (--breakpoint-md) {
+  .md-border-bottom {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+  }
+}
+
+/* Animations */
+
+@keyframes pulse {
+  from {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+
+  50% {
+    -webkit-transform: scale3d(1.05, 1.05, 1.05);
+    transform: scale3d(1.05, 1.05, 1.05);
+  }
+
+  to {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.is-animated {
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.animation-pulse {
+  -webkit-animation-name: pulse;
+  animation-name: pulse;
+}
+
+/* Basscss overrides */
 
 .caps {
   letter-spacing: .1em;
+}
+
+.border,
+[class*='border-'],
+[class*='-border-'] {
+  border-color: var(--border-color-base);
+}
+
+.border-blue-lighten-1 {
+  border-color: var(--blue-lighten-1);
 }
 
 /* Styleguide overrides */
@@ -39,34 +107,108 @@ body {
   margin-right: 2px;
 }
 
-/* Semantic UI Dropdown */
-
-.semantic-ui.dropdown {
-  box-sizing: border-box;
+.oph-button-small {
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
 }
+
+.oph-button-icon {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  color: var(--gray);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
+}
+
+.oph-button-icon:hover,
+.oph-button-icon:focus {
+  color: var(--link-color-hover);
+}
+
+.oph-button-icon[disabled] {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--muted);
+}
+
+.oph-button-icon-is-active {
+  color: var(--link-color);
+}
+
+.oph-modal-back-to-top-link {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+.oph-modal-back-to-top-link:focus {
+  position: relative;
+  height: auto;
+  width: auto;
+  overflow: auto;
+  clip: auto;
+}
+
+.oph-legend {
+  padding-left: 0;
+}
+
+.oph-checkable-icon {
+  margin-top: 4px;
+  margin-right: var(--space-1);
+  color: var(--primary);
+}
+
+.oph-popup {
+  width: 20rem;
+  animation-duration: .5s;
+}
+
+.oph-popup-arrow {
+  border-width: 12px;
+}
+
+.oph-popup-arrow:after {
+  border-width: 11px;
+}
+
+.oph-is-overlaid {
+  opacity: .3;
+}
+
+.oph-overlay-component {
+  position: absolute;
+  align-items: center;
+}
+
+.oph-overlay-transparent {
+  background-color: transparent;
+}
+
+/* Semantic UI Dropdown */
 
 .semantic-ui.ui.selection.dropdown {
   padding-right: 1rem;
   padding-left: 1rem;
-  border-color: var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow-inner);
-}
-
-.semantic-ui.ui.disabled.dropdown {
-  background-color: var(--gray-lighten-5);
-  border-color: var(--gray-lighten-4);
-  box-shadow: 0 0 0;
+  border-color: var(--border-color-base);
+  border-radius: var(--border-radius-base);
+  box-shadow: inset var(--box-shadow-base);
+  transition-property: border;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .semantic-ui.ui.selection.active.dropdown:hover,
 .semantic-ui.ui.selection.active.dropdown:focus {
-  box-shadow: var(--box-shadow-inner);
+  box-shadow: inset var(--box-shadow-base);
 }
 
 .semantic-ui.ui.selection.dropdown:hover,
 .semantic-ui.ui.selection.dropdown:focus {
-  border-color: var(--border-color-hover)
+  border-color: var(--gray-lighten-1)
 }
 
 .semantic-ui .search {
@@ -88,14 +230,17 @@ body {
 
 .semantic-ui.ui.multiple.dropdown > .label {
   margin-right: var(--space-1);
-  background-color: var(--gray-lighten-1);
+  background-color: var(--gray);
   border-radius: var(--border-radius);
   color: var(--white);
   box-shadow: 0 0 0;
+  transition-property: background;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .semantic-ui.ui.multiple.dropdown > .label:hover {
-  background-color: var(--gray-lighten-2);
+  background-color: var(--gray-lighten-1);
   cursor: pointer;
 }
 
@@ -117,7 +262,7 @@ body {
 .semantic-ui.ui.selection.dropdown:focus .menu {
   margin-top: 1px;
   padding: var(--space-1) 0;
-  border-color: var(--border-color);
+  border-color: var(--border-color-base);
   z-index: var(--z2);
 }
 
@@ -126,6 +271,9 @@ body {
   display: flex;
   flex-wrap: wrap;
   border-top: 0;
+  transition-property: background;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .semantic-ui.ui.dropdown .menu > .item > .text {
@@ -146,18 +294,21 @@ body {
 
 .RichEditor-root {
   position: relative;
-  padding: 0 var(--input-padding-x);
-  border: 1px solid var(--border-color);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-color-base);
   border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow-inner);
+  box-shadow: inset var(--box-shadow-base);
+  transition-property: border;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .RichEditor-root:hover {
-  border-color: var(--border-color-hover);
+  border-color: var(--gray-lighten-1);
 }
 
 .RichEditor-controls-container {
-  border-bottom: 1px solid var(--gray-lighten-3);
+  border-bottom: 1px solid var(--border-color-base);
 }
 
 .DraftEditor-editorContainer {
@@ -182,7 +333,10 @@ body {
   margin-top: -3px;
   padding: var(--space-2);
   background-color: inherit;
-  color: var(--black);
+  color: var(--font-color-base);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .react-datepicker__close-icon:hover::after {
@@ -191,8 +345,8 @@ body {
 
 .react-datepicker {
   font-size: var(--h5);
-  border-radius: var(--border-radius);
-  border-color: var(--border-color);
+  border-radius: var(--border-radius-base);
+  border-color: var(--border-color-base);
   background-color: var(--white);
 }
 
@@ -201,7 +355,7 @@ body {
 }
 
 .react-datepicker__header {
-  background-color: var(--gray-lighten-4);
+  background-color: var(--gray-lighten-5);
 }
 
 .react-datepicker__current-month,
@@ -214,13 +368,16 @@ body {
   overflow-y: scroll;
   overflow-x: hidden;
   padding: .5rem 0;
-  border-color: var(--border-color);
+  border-color: var(--border-color-base);
   background-color: var(--white);
 }
 
 .react-datepicker__month-read-view {
   padding: var(--space-1);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-base);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .react-datepicker__month-read-view:hover {
@@ -232,12 +389,15 @@ body {
 }
 
 .react-datepicker__month-read-view--down-arrow {
-  border-top-color: var(--gray-lighten-1);
+  border-top-color: var(--font-color-base);
 }
 
 .react-datepicker__month-option {
   padding-top: var(--space-1);
   padding-bottom: var(--space-1);
+  transition-property: background;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .react-datepicker__month-option:first-of-type,
@@ -251,6 +411,9 @@ body {
 
 .react-datepicker__navigation {
   border: 0;
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .react-datepicker__navigation--next {
@@ -265,7 +428,7 @@ body {
   position: absolute;
   width: var(--space-4);
   padding: var(--space-2);
-  color: var(--gray-lighten-1);
+  color: var(--font-color-base);
 }
 
 .react-datepicker__navigation:hover:after {
@@ -300,11 +463,17 @@ body {
 .react-datepicker__month-read-view,
 .react-datepicker__month-dropdown,
 .react-datepicker__day-name {
-  color: var(--body-copy-color);
+  color: var(--font-color-base);
 }
 
 .react-datepicker__week-number {
   color: var(--muted);
+}
+
+.react-datepicker__day {
+  transition-property: color, background;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .react-datepicker__day--today {
@@ -333,7 +502,7 @@ body {
 
 .react-datepicker__day.react-datepicker__day--in-selecting-range:not(.react-datepicker__day--in-range) {
   background-color: var(--blue-lighten-4);
-  color: var(--body-copy-color);
+  color: var(--font-color-base);
 }
 
 .react-datepicker__day--disabled {
@@ -364,6 +533,9 @@ body {
 
 .react-datepicker__today-button {
   font-weight: normal;
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .react-datepicker__today-button:hover,
@@ -389,7 +561,7 @@ body {
   .react-datepicker {
     width: 100%;
     border: 0;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color-base);
     border-radius: 0;
   }
 
@@ -448,6 +620,26 @@ body {
 .notification-container {
   /* Notifications overlap the notification tag dropdown if z-index isn't set */
   z-index: 1;
+  position: relative;
+}
+
+.notification {
+  display: relative;
+  margin-bottom: var(--space-3);
+  padding-top: var(--space-2);
+  padding-right: var(--space-2);
+  padding-bottom: var(--space-1);
+  padding-left: var(--space-2);
+  border: 1px solid var(--border-color-base);
+  border-radius: var(--border-radius-base);
+  background-color: var(--white);
+  box-shadow: var(--box-shadow-base);
+}
+
+.notification,
+.notification .oph-button,
+.notification .oph-spinner {
+  transition: opacity .5s ease;
 }
 
 .notification-is-overlaid .notification,
@@ -456,13 +648,9 @@ body {
 }
 
 .notification-is-removed .notification,
-.notification-is-removed .oph-button {
+.notification-is-removed .oph-button,
+.notification-is-removed .oph-spinner {
   opacity: 0;
-}
-
-.notification,
-.notification .oph-button {
-  transition: opacity .5s ease;
 }
 
 .notification-is-expandable:hover {
@@ -487,6 +675,18 @@ body {
 
 .notification-is-expanded .notification-contract-button {
   display: block;
+}
+
+.notification-heading {
+  font-size: var(--h4);
+  font-weight: var(--font-weight-bold);
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  margin-right: var(--space-2);
+  color: var(--primary);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
 }
 
 .notification-content {
@@ -519,6 +719,26 @@ body {
   }
 }
 
+/* Tags */
+
+.tag {
+  font-size: var(--h6);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  display: inline-block;
+  margin-right: var(--space-1);
+  margin-bottom: var(--space-1);
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+  border-radius: var(--border-radius-base);
+  background-color: var(--gray);
+  color: var(--white);
+}
+
+.tag-blue {
+  background-color: var(--blue-lighten-2);
+}
+
 /* Timeline */
 
 .timeline-viewport {
@@ -547,7 +767,7 @@ body {
   bottom: 0;
   left: 0;
   content: "";
-  border-left: 2px solid var(--blue-darken);
+  border-left: 2px solid var(--blue-darken-1);
 }
 
 .timeline-heading {
@@ -613,7 +833,27 @@ body {
   }
 }
 
+/* Timeline headings*/
+.timeline-heading {
+  font-size: var(--h6);
+  font-weight: 400;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  display: inline-block;
+  margin-bottom: 0;
+  padding-right: var(--space-1);
+  padding-left: var(--space-1);
+  border-radius: var(--border-radius-base);
+  background-color: var(--blue-darken-1);
+  color: var(--white);
+}
+
 /* Timeline days */
+.timeline-day {
+  position: relative;
+}
+
 .timeline-day:nth-of-type(odd) {
   margin-top: var(--space-3);
   margin-bottom: var(--space-3);
@@ -633,19 +873,34 @@ body {
   margin-left: calc(var(--space-2) + var(--space-1));
 }
 
-.timeline-item {
-  transition: opacity .3s ease;
+.timeline-item-container {
+  position: relative;
 }
 
-.timeline-item a {
+.timeline-item {
+  text-align: left;
+  word-wrap: break-word;
+  position: relative;
+  padding: var(--space-2);
+  border-radius: var(--border-radius-base);
+  background-color: var(--blue);
+  color: var(--white);
+  transition: opacity .5s ease;
+}
+
+.timeline-item .oph-link {
   text-decoration: underline;
   color: var(--white);
 }
 
-.timeline-item a:hover,
-.timeline-item a:focus,
-.timeline-item .button-icon:hover,
-.timeline-item .button-icon:focus {
+.timeline-item .oph-button {
+  color: var(--white);
+}
+
+.timeline-item .oph-link:hover,
+.timeline-item .oph-link:focus,
+.timeline-item .oph-button-icon:hover, .timeline-item .oph-button-ghost:hover,
+.timeline-item .oph-button-icon:focus, .timeline-item .oph-button-ghost:focus {
   color: var(--blue-lighten-2);
 }
 
@@ -683,7 +938,7 @@ body {
 .timeline-item-form {
   margin-top: var(--space-2);
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--gray-lighten-3);
+  border-bottom: 1px solid var(--border-color-base);
 }
 
 .timeline-item-form:first-of-type {
@@ -699,60 +954,30 @@ body {
   min-height: 6rem;
 }
 
-.release-targetinggroup-select {
+.release-targeting-group-select {
   max-height: 20rem;
   overflow-y: auto;
+  border: 1px solid var(--border-color-base);
+  border-radius: var(--border-radius-base);
 }
 
-.release-targetinggroup-button[disabled] {
+.release-targeting-group-button {
+  font-weight: 400;
+  text-align: left;
+}
+
+.release-targeting-group-button[disabled] {
   border-color: transparent;
   background-color: transparent;
   color: var(--muted);
 }
 
-.release-targetinggroup-button:hover,
-.release-targetinggroup-button:focus {
+.release-targeting-group-button:hover,
+.release-targeting-group-button:focus {
   color: var(--blue-lighten-2);
 }
 
 .release-usergroup-button:hover,
 .release-usergroup-button:focus {
   color: var(--white);
-}
-
-
-/* Utils */
-
-.border-widen-1 {
-  border-width: var(--border-widen-1) ;
-}
-
-.invisible {
-  visibility: hidden;
-}
-
-.oph-popup {
-  width: 20rem;
-  animation-duration: .5s;
-}
-
-.oph-popup-arrow {
-  border-width: 12px;
-}
-
-.oph-popup-arrow:after {
-  border-width: 11px;
-}
-
-.oph-is-overlaid {
-  opacity: .3;
-}
-
-.oph-overlay-component {
-  position: absolute;
-  align-items: center;
-}
-
-.oph-overlay-transparent {
-  background-color: transparent;
 }

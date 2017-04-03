@@ -40,14 +40,15 @@ function NotificationsMenu (props) {
 
   return (
     <div className="notifications-menu flex items-stretch">
-      <section className="flex col-12 border-bottom border-gray-lighten-2">
+      <section className="flex col-12 border-bottom">
         {/*Actions*/}
         <div className="flex items-center col-12">
           <div className="center md-left-align lg-flex flex-auto items-center justify-end">
             {/*Create a new release*/}
             <Button
               id="button-open-editor"
-              className="button-link h3 bold px0 lg-mr3"
+              variants={['ghost', 'big']}
+              className="oph-h3 lg-mr3 px0"
               onClick={handleOpenEditorButtonClick}
             >
               +&nbsp;
@@ -59,7 +60,8 @@ function NotificationsMenu (props) {
             {/*Display unpublished notifications*/}
             <Button
               id="button-open-unpublished-notifications"
-              className="button-link regular right-align px0"
+              variants={['ghost']}
+              className="regular px0"
               onClick={handleOpenUnpublishedNotificationsButtonClick}
             >
               {translate('julktiedotteet')}
@@ -70,7 +72,8 @@ function NotificationsMenu (props) {
             {/*Edit draft*/}
             <Button
               id="button-edit-draft"
-              className="button-link regular right-align px0 lg-ml3"
+              variants={['ghost']}
+              className="regular lg-ml3 px0"
               onClick={handleEditDraftButtonClick}
               disabled={!draft}
             >

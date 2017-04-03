@@ -22,13 +22,13 @@ function UserGroupButton (props) {
 
   return (
     <Button
-      className="button-primary release-usergroup-button left-align
-      flex items-center col-12 mb1 border-blue-lighten-3 black bg-blue-lighten-4"
+      variants={['selected']}
       title={translate('poistakayttooikeusryhma')}
+      aria-label={`${translate('poistakayttooikeusryhma')} ${text}`}
       onClick={handleClick}
     >
-      <span className="regular flex-auto pr1">{text}</span>
-      <span className="h3 self-center self-end" aria-hidden>&times;</span>
+      <span className="oph-button-selected-text">{text}</span>
+      <span className="oph-button-selected-icon" aria-hidden>&times;</span>
     </Button>
   )
 }

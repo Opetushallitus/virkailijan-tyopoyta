@@ -8,9 +8,9 @@ import Link from './Link'
 import EditLink from './EditLink'
 import InlineStyleControls from './InlineStyleControls'
 import BlockStyleControls from './BlockStyleControls'
-import LinkButton from './LinkButton'
-import { translate } from '../common/Translations'
 import CloseButton from '../common/buttons/CloseButton'
+import IconButton from '../common/buttons/IconButton'
+import { translate } from '../common/Translations'
 
 import { getEntityAtCursor } from './getEntityAtCursor'
 
@@ -217,21 +217,19 @@ class TextEditor extends React.Component {
     const end = selection.getEndOffset()
     const startKey = selection.getStartKey()
 
-    const selectedText = editorState
+    return editorState
       .getCurrentContent()
       .getBlockForKey(startKey)
       .getText()
       .slice(start, end)
       .trim()
-
-    return selectedText
   }
 
   _getEntityAtCursor () {
     const {editorState} = this.state
     const entity = getEntityAtCursor(editorState)
 
-    return (entity == null) ? null : Entity.get(entity.entityKey)
+    return (entity === null) ? null : Entity.get(entity.entityKey)
   }
 
   render () {
@@ -255,7 +253,7 @@ class TextEditor extends React.Component {
 
     let selection = editorState.getSelection()
     let entity = this._getEntityAtCursor(editorState)
-    let isCursorOnLink = (entity != null && entity.type === 'LINK')
+    let isCursorOnLink = (entity !== null && entity.type === 'LINK')
 
     const selectedText = this.getSelectedText(selection)
     const hasSelectedText = this.getSelectedText(selection).length
@@ -275,18 +273,18 @@ class TextEditor extends React.Component {
             onClick={this.toggleBlockType}
           />
 
-          <LinkButton
-            label={isCursorOnLink ? translate('muokkaalinkki') : translate('lisaalinkki')}
-            icon="link"
+          <IconButton
+            title={isCursorOnLink ? translate('muokkaalinkki') : translate('lisaalinkki')}
             isActive={this.state.showURLInput}
             disabled={!isCursorOnLink && !hasSelectedText}
+            icon="link"
             onClick={this.promptForLink}
           />
 
-          <LinkButton
-            icon="unlink"
-            label={translate('poistalinkki')}
+          <IconButton
+            title={translate('poistalinkki')}
             disabled={!isCursorOnLink}
+            icon="unlink"
             onClick={this.removeLink}
           />
 
@@ -295,11 +293,12 @@ class TextEditor extends React.Component {
           </h3>
 
           {/*Cancel link editing*/}
-          <CloseButton
-            className={`z3 ${this.state.showURLInput ? '' : 'display-none'}`}
-            onClick={this.promptForLink}
-            title={translate('peruuta')}
-          />
+          <div className={`absolute top-0 right-0 z3 ${this.state.showURLInput ? '' : 'display-none'}`}>
+            <CloseButton
+              title={translate('peruuta')}
+              onClick={this.promptForLink}
+            />
+          </div>
 
           {this.state.showURLInput
             ? <EditLink

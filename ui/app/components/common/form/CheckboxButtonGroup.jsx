@@ -5,7 +5,6 @@ import CheckboxButton from './CheckboxButton'
 
 const propTypes = {
   htmlId: PropTypes.string.isRequired,
-  variant: PropTypes.string,
   options: PropTypes.array.isRequired,
   selectedOptions: PropTypes.array.isRequired,
   disabled: PropTypes.bool,
@@ -13,7 +12,6 @@ const propTypes = {
 }
 
 const defaultProps = {
-  variant: 'regular',
   disabled: false
 }
 
@@ -24,7 +22,6 @@ const isChecked = (selectedOptions, id) => {
 function CheckboxButtonGroup (props) {
   const {
     htmlId,
-    variant,
     options,
     selectedOptions,
     disabled,
@@ -39,7 +36,6 @@ function CheckboxButtonGroup (props) {
             key={htmlId + option.id}
             id={option.id}
             htmlId={htmlId}
-            variant={variant}
             label={option.name}
             checked={isChecked(selectedOptions, option.id)}
             disabled={disabled}

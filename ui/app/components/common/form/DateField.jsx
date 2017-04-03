@@ -6,11 +6,7 @@ import Field from './Field'
 import { translate } from '../Translations'
 
 const propTypes = {
-  fieldClassName: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]).isRequired,
+  label: PropTypes.string.isRequired,
   labelIsHidden: PropTypes.bool,
   name: PropTypes.string.isRequired,
   isRequired: PropTypes.bool,
@@ -27,7 +23,6 @@ const propTypes = {
 }
 
 const defaultProps = {
-  fieldClassName: '',
   isRequired: false,
   labelIsHidden: false,
   date: null,
@@ -42,7 +37,6 @@ const defaultProps = {
 
 function DateField (props) {
   const {
-    fieldClassName,
     label,
     labelIsHidden,
     name,
@@ -63,14 +57,13 @@ function DateField (props) {
 
   return (
     <Field
-      className={fieldClassName}
       name={name}
       label={label}
       labelIsHidden={labelIsHidden}
       isRequired={isRequired}
     >
       <DatePicker
-        className="input"
+        className="oph-input"
         minDate={minDate}
         fixedHeight
         dateFormat={dateFormat}

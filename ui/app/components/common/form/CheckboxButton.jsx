@@ -1,11 +1,8 @@
 import React, { PropTypes } from 'react'
 
-import Icon from '../Icon'
-
 const propTypes = {
   id: PropTypes.number.isRequired,
   htmlId: PropTypes.string.isRequired,
-  variant: PropTypes.string,
   label: PropTypes.string.isRequired,
   checked: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -13,29 +10,14 @@ const propTypes = {
 }
 
 const defaultProps = {
-  variant: 'regular',
   checked: false,
   disabled: false
 }
-
-const classList = [
-  'checkbox-button-text',
-  'inline-block',
-  'mb1',
-  'mr1',
-  'border',
-  'border-widen-1',
-  'border-primary',
-  'rounded',
-  'bg-white',
-  'primary'
-]
 
 function CheckboxButton (props) {
   const {
     id,
     htmlId,
-    variant,
     label,
     checked,
     disabled,
@@ -48,23 +30,19 @@ function CheckboxButton (props) {
 
   return (
     <label
-      className="checkbox-button"
+      className="oph-checkbox-button"
       htmlFor={`${htmlId}-${id}`}
     >
       <input
         id={`${htmlId}-${id}`}
-        className="hide"
+        className="oph-checkbox-button-input"
         type="checkbox"
         checked={checked}
         disabled={disabled}
         onChange={handleChange}
       />
 
-      <span className={`${classList.join(' ')} ${variant === 'small' ? 'px1' : 'p1'}`}>
-        <Icon className={`${checked ? 'mr1' : ''}`} name={`${checked ? 'check' : ''}`} />
-
-        {label}
-      </span>
+      <span className="oph-checkbox-button-text">{label}</span>
     </label>
   )
 }

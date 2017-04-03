@@ -25,17 +25,17 @@ function Checkbox (props) {
   } = props
 
   return (
-    <label className="checkbox">
+    <label className="oph-checkable">
       <input
-        className="checkbox-input hide"
+        className="oph-checkable-input hide"
         type="checkbox"
         checked={checked}
         value={value}
         onChange={onChange}
       />
 
-      <span className="checkbox-text">{label}</span>
-      <Icon className="checkbox-icon mr1 primary" name={`${checked ? 'check-' : ''}square-o`} />
+      <span className="oph-checkable-text">{label}</span>
+      <Icon className="oph-checkable-icon" name={`${checked ? 'check-' : ''}square-o`} />
     </label>
   )
 }

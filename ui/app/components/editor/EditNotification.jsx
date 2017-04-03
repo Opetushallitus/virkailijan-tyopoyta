@@ -27,9 +27,7 @@ function EditNotification (props) {
     disruptionNotificationTag
   } = props
 
-  // Handle non-existing language properties in notification.content
-  const contentFi = notification.content.fi || {}
-  const contentSv = notification.content.sv || {}
+  const content = notification.content
 
   // Add 2 hours for first days of months, otherwise the previous months' last days are also selectable
   const minDate = moment().add(2, 'hours')
@@ -75,34 +73,32 @@ function EditNotification (props) {
 
   return (
     <div>
-      <h3 className="hide">
-        {translate('muokkaatiedotteita')}
-      </h3>
+      <h2 className="hide">{translate('tiedote')}</h2>
 
       {/*Title*/}
-      <div className="flex flex-wrap">
-        <div className="col-12 sm-col-6 sm-pr2">
+      <div className="flex flex-wrap mb2">
+        <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">
           <LimitedTextField
             label={translate('otsikko')}
             name="notification-title-fi"
-            value={contentFi.title}
+            value={content.fi.title}
             maxLength={200}
             isRequired
             onChange={controller.updateContent('fi', 'title')}
           />
         </div>
 
-        <div className="col-12 sm-col-6 sm-pl2">
+        <div className="col-12 sm-col-6 sm-pl2 mb2 sm-mb0">
           <LimitedTextField
             label={translate('otsikkoSV')}
             name="notification-title-sv"
-            value={contentSv.title}
+            value={content.sv.title}
             maxLength={200}
             onChange={controller.updateContent('sv', 'title')}
           />
         </div>
 
-        <div className="mb2">
+        <div className="mt2">
           <Checkbox
             label={translate('hairiotiedote')}
             onChange={handleIsDisruptionNotificationCheckboxChange}
@@ -113,15 +109,15 @@ function EditNotification (props) {
       </div>
 
       {/*Description*/}
-      <div className="flex flex-wrap">
-        <div className="col-12 sm-col-6 sm-pr2">
+      <div className="flex flex-wrap mb2">
+        <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">
           <Field
             label={translate('kuvaus')}
             name="notification-description-fi"
             isRequired
           >
             <TextEditor
-              data={contentFi.text}
+              data={content.fi.text}
               controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
               save={controller.updateContent('fi', 'text')}
             />
@@ -134,7 +130,7 @@ function EditNotification (props) {
             name="notification-description-sv"
           >
             <TextEditor
-              data={contentSv.text}
+              data={content.sv.text}
               controls={['unordered-list-item', 'ordered-list-item', 'BOLD', 'ITALIC', 'UNDERLINE']}
               save={controller.updateContent('sv', 'text')}
             />
@@ -144,7 +140,7 @@ function EditNotification (props) {
 
       {/*Publishing period*/}
       <div className="md-flex flex-wrap col-12 sm-col-6">
-        <div className="md-col-6 lg-col-5 md-pr2">
+        <div className="md-col-6 lg-col-5 md-pr2 mb2 md-mb0">
           {/*Publish date*/}
           <DateField
             label={translate('julkaisupvm')}

@@ -1,13 +1,12 @@
 import React, { PropTypes } from 'react'
 
-import Button from '../common/buttons/Button'
-import Icon from '../common/Icon'
+import IconButton from '../common/buttons/IconButton'
 
 const propTypes = {
-  label: PropTypes.string.isRequired,
-  style: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
   isActive: PropTypes.bool,
+  style: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired
 }
 
@@ -17,26 +16,24 @@ const defaultProps = {
 
 function StyleButton (props) {
   const {
-    label,
-    style,
+    title,
     icon,
     isActive,
+    style,
     onClick
   } = props
 
-  const handleOnClick = () => {
+  const handleClick = () => {
     onClick(style)
   }
 
   return (
-    <Button
-      className={`button-icon RichEditor-styleButton ${isActive ? 'button-link-is-active' : 'gray'}`}
-      title={label}
-      onClick={handleOnClick}
-    >
-      <Icon name={icon} />
-      <span className="hide">{label}</span>
-    </Button>
+    <IconButton
+      title={title}
+      icon={icon}
+      isActive={isActive}
+      onClick={handleClick}
+    />
   )
 }
 
