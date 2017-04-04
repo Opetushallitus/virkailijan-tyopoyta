@@ -24,3 +24,4 @@ build
 .swn
 .swo
 .swp
+*.iml
