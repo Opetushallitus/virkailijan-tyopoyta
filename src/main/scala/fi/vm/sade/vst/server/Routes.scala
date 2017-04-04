@@ -1,7 +1,5 @@
 package fi.vm.sade.vst.server
 
-import java.time.YearMonth
-
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.ContentTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
@@ -10,15 +8,15 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.{JsonSupport, Release, User}
+import fi.vm.sade.vst.model.{JsonSupport, Release}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.{UserService, KayttooikeusService}
 import fi.vm.sade.vst.service.EmailService
-import play.api.libs.json.{Json, Writes}
-
+import java.time.YearMonth
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import play.api.libs.json.{Json, Writes}
 
 class Routes(authenticationService: UserService,
              emailService: EmailService,
@@ -75,7 +73,6 @@ class Routes(authenticationService: UserService,
   }
 
   def sendInstantEmails(release: Release) = {
-    // Release.sendEmail seems to have been removed and no replacement is given, rethink this part
     if (release.notification.exists(_.sendEmail)) emailService.sendEmails(Vector(release), emailService.ImmediateEmail)
     release
   }

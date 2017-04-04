@@ -339,6 +339,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     insertReleaseUsergroups(releaseUpdate.id, added)
   }
 
+  def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup] = {
+    val userGroups = withSQL {
+      select.from(ReleaseUserGroupTable as ug).where.eq(ug.releaseId, releaseId)
+    }
+    userGroups.map(ReleaseUserGroupTable(ug)).toList.apply
+  }
+
   private def updateReleaseCategories(releaseUpdate: ReleaseUpdate)(implicit session: DBSession) = {
 
     val existingCategories = withSQL[ReleaseCategory](
