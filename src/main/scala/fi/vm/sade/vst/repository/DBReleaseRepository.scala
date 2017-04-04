@@ -359,8 +359,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     insertReleaseCategories(releaseUpdate.id, added)
   }
 
-  private def deleteNotification(notificationId: Long): Unit = {
-    withSQL(update(NotificationTable as n).set(n.id -> notificationId)).update().apply()
+  override def deleteNotification(notificationId: Long): Int = {
+    withSQL(update(NotificationTable as n).set(n.deleted -> true).where.eq(n.id, notificationId)).update().apply()
   }
 
   private def updateNotification(current: Notification, updated: NotificationUpdate, userId: String): Unit = {
@@ -394,7 +394,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   private def updateTimelineItem(item: TimelineItem)(implicit session: DBSession) = {
     val column = TimelineTable.column
-    withSQL(update(TimelineTable as tl).set(column.date -> item.date)).update().apply()
+    withSQL(update(TimelineTable as tl).set(column.date -> item.date).where.eq(tl.id, item.id)).update().apply()
     withSQL(delete.from(TimelineContentTable as tc).where.eq(tc.timelineId, item.id)).update().apply()
     item.content.values.foreach(insertTimelineContent(item.id, _))
   }
@@ -443,6 +443,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val r = ReleaseTable.column
     DB localTx { implicit session =>
       withSQL{update(ReleaseTable).set(r.deleted -> true)}.update().apply()
+    }
+  }
+
+  override def deleteTimelineItem(id: Long): Int = {
+    DB localTx { implicit session =>
+      withSQL(delete.from(TimelineContentTable as tc).where.eq(tc.timelineId, id)).update().apply()
+      withSQL(delete.from(TimelineTable as tl).where.eq(tl.id, id)).update().apply()
     }
   }
 

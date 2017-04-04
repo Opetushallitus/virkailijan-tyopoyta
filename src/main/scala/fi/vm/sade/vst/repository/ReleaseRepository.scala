@@ -22,4 +22,7 @@ trait ReleaseRepository{
   def generateReleases(amount: Int, month: YearMonth): Seq[Release]
   def emailReleasesForDate(date: LocalDate): Seq[Release]
   def emailLogs: Seq[EmailEvent]
+
+  def deleteNotification(id: Long): Int
+  def deleteTimelineItem(id: Long): Int
 }
