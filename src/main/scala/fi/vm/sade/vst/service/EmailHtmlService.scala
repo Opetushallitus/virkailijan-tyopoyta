@@ -17,29 +17,33 @@ object EmailHtmlService extends Configuration {
   }
 
   def htmlTitle(notifications: Iterable[Notification], language: String) = {
+    val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
+    val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
     val dates = notifications.map(_.publishDate)
     val minDate = dates.min
     val maxDate = dates.max
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val subjectDateString =
       if (minDate == maxDate) s"${minDate.format(formatter)}"
-      else s"väliltä ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
-    <title>Koonti päivän tiedotteista {subjectDateString}</title>
+      else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
+    <title>{contentHeader} {subjectDateString}</title>
   }
 
   def htmlHeader(date: LocalDate, language: String) = {
+    val contentReleases = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentReleases, EmailTranslations.defaultEmailContentReleases)
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
     <div style="padding-left: 2em; padding-right: 2em;">
-      <p class="release-title">{date.format(formatter)} julkaistut tiedotteet:</p>
+      <p class="release-title">{date.format(formatter)} {contentReleases}:</p>
     </div>
   }
 
   def htmlFooter(language: String) = {
+    val loginLink = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailFooterLink, EmailTranslations.defaultEmailFooterLink)
     <div style="background: #FFFFFF; padding: 1em 2em 1em 2em;">
       <table style="width: 100%; height: 100%;">
         <tr>
           <td style="text-align: left">
-            <a href={loginPage}>Kirjaudu virkailijan työpöydälle</a>
+            <a href={loginPage}>{loginLink}</a>
           </td>
           <td style="text-align: right">
             <img src={ophLogoUrl} alt="Opetushallitus"/>
@@ -107,4 +111,43 @@ object EmailHtmlService extends Configuration {
       .toOption
       .toRight(releaseContent)
   }
+}
+
+private object EmailTranslations {
+  /* Note, because emails don't contain a lot of text to be translated, this is currently the fastest way to start supporting
+   * translations. Nothing is stopping from moving these to centralized translation service when the amount of needed
+   * translations starts growing up.
+   */
+  trait TranslationKey
+  case object EmailHeader extends TranslationKey
+  case object EmailContentBetween extends TranslationKey
+  case object EmailContentReleases extends TranslationKey
+  case object EmailFooterLink extends TranslationKey
+
+  val defaultEmailHeader = "Koonti päivän tiedotteista"
+  val defaultEmailContentBetween = "väliltä"
+  val defaultEmailContentReleases = "julkaistut tiedotteet"
+  val defaultEmailFooterLink = "Kirjaudu virkailijan työpöydälle"
+
+  private val finTranslationsMap: Map[TranslationKey, String] = Map(
+    EmailHeader -> defaultEmailHeader,
+    EmailContentBetween -> defaultEmailContentBetween,
+    EmailContentReleases -> defaultEmailContentReleases,
+    EmailFooterLink -> defaultEmailFooterLink
+  )
+
+  private val sweTranslationsMap: Map[TranslationKey, String] = Map(
+    EmailHeader -> "Sammandrag av dagens meddelanden",
+    EmailContentBetween -> "mellan",
+    EmailContentReleases -> "publicerade meddelanden",
+    EmailFooterLink -> "Logga in på administratörens arbetsbord"
+  )
+
+  private val translationMaps: Map[String, Map[TranslationKey, String]] = Map(
+    "fi" -> finTranslationsMap,
+    "swe" -> sweTranslationsMap,
+    "sv" -> sweTranslationsMap
+  )
+
+  def translation(key: String): Map[TranslationKey, String] = translationMaps.getOrElse(key.toLowerCase, Map.empty)
 }
