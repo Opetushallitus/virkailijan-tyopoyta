@@ -1,30 +1,21 @@
 import React, { PropTypes } from 'react'
 
 const propTypes = {
-  className: PropTypes.string,
+  variant: PropTypes.string,
   text: PropTypes.string.isRequired
 }
 
 const defaultProps = {
-  className: ''
+  variant: null
 }
 
 function Tag (props) {
-  const classList = [
-    'h6',
-    'caps',
-    'inline-block',
-    'mr1',
-    'mb1',
-    'px1',
-    'rounded',
-    'white',
-    'bg-gray',
-    props.className
-  ]
+  const {
+    variant
+  } = props
 
   return (
-    <span className={classList.join(' ')}>
+    <span className={`tag ${variant ? `tag-${variant}` : ''}`}>
       {props.text}
     </span>
   )

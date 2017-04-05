@@ -14,6 +14,7 @@ trait ReleaseRepository{
   def notification(id: Long) : Option[Notification]
   def unpublishedNotifications: Seq[Notification]
   def releases: Iterable[Release]
+  def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup]
 
   def deleteRelease(id: Long): Int
   def addRelease(uid: String, release: ReleaseUpdate): Option[Release]
@@ -21,4 +22,7 @@ trait ReleaseRepository{
   def generateReleases(amount: Int, month: YearMonth): Seq[Release]
   def emailReleasesForDate(date: LocalDate): Seq[Release]
   def emailLogs: Seq[EmailEvent]
+
+  def deleteNotification(id: Long): Int
+  def deleteTimelineItem(id: Long): Int
 }

@@ -48,6 +48,7 @@ class Timeline extends React.Component {
         if (scrollBarWidth) {
           body.classList.add('overflow-hidden')
           body.style.marginRight = `${scrollBarWidth}px`
+          document.querySelector('.alert-container').style.right = `100px`
         }
       })
 
@@ -56,6 +57,7 @@ class Timeline extends React.Component {
       .onValue(() => {
         body.classList.remove('overflow-hidden')
         body.style.marginRight = 0
+        document.querySelector('.alert-container').style.right = 0
       })
   }
 

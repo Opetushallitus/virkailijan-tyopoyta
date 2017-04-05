@@ -3,8 +3,7 @@ import moment from 'moment'
 import renderHTML from 'react-render-html'
 
 import Button from '../common/buttons/Button'
-import EditButton from '../common/buttons/EditButton'
-import RemoveButton from '../common/buttons/RemoveButton'
+import IconButton from '../common/buttons/IconButton'
 import Overlay from '../common/Overlay'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
@@ -53,8 +52,8 @@ function TimelineItem (props) {
   // Use default locale's content if the version for user's language is missing
   const content = item.content[user.lang] || item.content[defaultLocale]
 
-  const removeButtonSelector = `.timeline-release${releaseId}-item${id}-remove-button`
-  const removeContainerSelector = `.timeline-release${releaseId}-item${id}-remove-container`
+  const removeButtonSelector = `#timeline-release${releaseId}-item${id}-remove-button`
+  const removeContainerSelector = `#timeline-release${releaseId}-item${id}-remove-container`
   const overlaySelector = `#${htmlId}-overlay`
 
   const handleDisplayNotificationLinkClick = event => {
@@ -80,7 +79,7 @@ function TimelineItem (props) {
   }
 
   const handleEditButtonClick = () => {
-    onEditButtonClick(id)
+    onEditButtonClick(releaseId)
   }
 
   const handleRemoveButtonClick = () => {
@@ -102,7 +101,7 @@ function TimelineItem (props) {
   }
 
   return (
-    <div className="timeline-item-container relative">
+    <div className="timeline-item-container">
       {
         user.isAdmin
           ? <div id={`${htmlId}-overlay`} className="display-none">
@@ -115,32 +114,31 @@ function TimelineItem (props) {
 
       <div
         id={htmlId}
-        className={`timeline-item break-word left-align p2
-        relative rounded white bg-blue ${index > 0 ? 'mt1' : ''}`}
+        className={`timeline-item ${user.isAdmin ? 'timeline-item-with-actions' : ''} ${index > 0 ? 'mt1' : ''}`}
       >
 
         {/*Date*/}
         {
           index === 0
             ? <time className="mb1 block" dateTime={date}>
-              <div className="h1 bold line-height-1 mr1 inline-block">{dayOfMonth}</div>
+              <div className="oph-h1 oph-bold line-height-1 inline-block mr1">{dayOfMonth}</div>
 
               <div className="align-top inline-block pr2">
-                <div className="h5 lowercase bold">{translate(dayOfWeek)}</div>
-                <div className="h6 caps">{translate(month)} {year}</div>
+                <div className="oph-h5 oph-bold lowercase">{translate(dayOfWeek)}</div>
+                <div className="oph-h6 caps">{translate(month)} {year}</div>
               </div>
             </time>
             : null
         }
 
         {/*Text*/}
-        <div className="h5 bold pr2">{renderHTML(content.text)}</div>
+        <div className="oph-h5 bold pr2">{renderHTML(content.text)}</div>
 
         {/*Display related notification*/}
         {
           notificationId
             ? <a
-              className="h5 bold"
+              className="oph-h5 oph-link oph-bold"
               href="#"
               onClick={handleDisplayNotificationLinkClick}
             >
@@ -152,21 +150,28 @@ function TimelineItem (props) {
         {/*Edit button*/}
         {
           user.isAdmin
-            ? <EditButton
-              id={`timeline-release${releaseId}-item${id}-edit-button`}
-              className="absolute top-0 right-0 white"
-              onClick={handleEditButtonClick}
-            />
+            ? <div className="absolute top-0 right-0 oph-white">
+              <IconButton
+                id={`timeline-release${releaseId}-item${id}-edit-button`}
+                icon="pencil"
+                title={translate('muokkaa')}
+                onClick={handleEditButtonClick}
+              />
+            </div>
             : null
         }
 
         {/*Remove button*/}
         {
           user.isAdmin
-            ? <RemoveButton
-              className={`absolute bottom-0 right-0 white ${`timeline-release${releaseId}-item${id}-remove-button`}`}
-              onClick={handleRemoveButtonClick}
-            />
+            ? <div className="absolute bottom-0 right-0">
+              <IconButton
+                id={`timeline-release${releaseId}-item${id}-remove-button`}
+                icon="trash"
+                title={translate('poista')}
+                onClick={handleRemoveButtonClick}
+              />
+            </div>
             : null
         }
 
@@ -174,19 +179,20 @@ function TimelineItem (props) {
         {
           user.isAdmin
             ? <div
-              className={`h5 bold center mt1 pt1 border-top border-blue-lighten-1 display-none
-              ${`timeline-release${releaseId}-item${id}-remove-container`}`}
+              id={`timeline-release${releaseId}-item${id}-remove-container`}
+              className="oph-h5 bold center mt1 pt1 border-top border-blue-lighten-1 display-none"
             >
-              {translate('vahvistatapahtumanpoistaminen')}:
-              <br />
+              {translate('vahvistatapahtumanpoistaminen')}
 
-              <Button className="oph-button-ghost white" onClick={handleConfirmRemoveButtonClick}>
-                {translate('poista')}
-              </Button>
+              <div className="mt1">
+                <Button variants={['confirm']} onClick={handleConfirmRemoveButtonClick}>
+                  {translate('poista')}
+                </Button>
 
-              <Button className="oph-button-ghost white" onClick={handleCancelRemoveButtonClick}>
-                {translate('peruuta')}
-              </Button>
+                <Button variants={['ghost']} onClick={handleCancelRemoveButtonClick}>
+                  {translate('peruuta')}
+                </Button>
+              </div>
             </div>
             : null
         }

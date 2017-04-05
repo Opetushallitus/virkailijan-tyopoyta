@@ -1,10 +1,10 @@
-#Tiedotteet
+# Tiedotteet
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/notifications[/{id} tai ?page={page}&tags={tags}&categories={categories}]
 
-##Parametrit
+## Parametrit
 
 id: *Valinnainen*. Tiedotteen tunniste. Määrittää, mikä yksittäinen tiedote haetaan.
 
@@ -17,7 +17,7 @@ mitä tageja sisältävät tiedotteet palautetaan.
 categories: *Valinnainen.* Pilkuilla erotettu lista kategorioiden id:eistä.
 Määrittää, mihin kategorioihin liittyvät tiedotteet palautetaan.   
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 JSON-objekti, jossa on löydettyjen tiedotteiden kokonaismäärä sekä
@@ -32,7 +32,7 @@ tiedote JSON-muotoisena objektina.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki 
+## Esimerkki 
 
 `/virkailijan-tyopoyta/api/notifications?page=1&tags=1,2&categories=3,4`
 

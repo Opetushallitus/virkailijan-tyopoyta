@@ -141,7 +141,7 @@ class Notifications extends React.Component {
         {/*Notifications list*/}
         {
           hasLoadingFailed
-            ? <div className="h3 center muted mb2">{translate('tiedotteidenhakuepaonnistui')}</div>
+            ? <div className="oph-h3 oph-muted center mb2">{translate('tiedotteidenhakuepaonnistui')}</div>
             : null
         }
 
@@ -155,7 +155,7 @@ class Notifications extends React.Component {
 
         {
           !hasLoadingFailed && !isLoading && count === 0
-            ? <div className="h3 center muted">{translate('eitiedotteita')}</div>
+            ? <div className="oph-h3 oph-muted center">{translate('eitiedotteita')}</div>
             : null
         }
 
@@ -170,7 +170,7 @@ class Notifications extends React.Component {
                   controller={controller}
                   user={user}
                   notification={notification}
-                  categories={getItemsForIDs(notification.categories.sort(), categories)}
+                  categories={getItemsForIDs(notification.categories.sort(), categories.items)}
                   tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('tags', tagGroups.items)))}
                 />
               )}
@@ -181,7 +181,7 @@ class Notifications extends React.Component {
                   : <div>
                     <div
                       ref={placeholderNotification => (this.placeholderNotification = placeholderNotification)}
-                      className="mb3 p3 rounded bg-white box-shadow"
+                      className="oph-bg-white mb3 p3 rounded box-shadow"
                     />
 
                     <div className="center py3">

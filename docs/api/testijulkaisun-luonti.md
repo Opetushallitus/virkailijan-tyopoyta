@@ -1,10 +1,10 @@
-#Testijulkaisun luonti
+# Testijulkaisun luonti
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/generate?amount={amount}&month={month}&year={year}`
 
-##Parametrit
+## Parametrit
 
 amount: *Valinnainen.*  Määrittää, kuinka monta tiedotetta ja tapahtumaa luodaan. 
 Oletusarvo on 1.
@@ -15,14 +15,14 @@ tiedotteiden julkaisupäivämääriin. Oletusarvo on kuluva kuukausi.
 month: *Valinnainen*. Määrittää, minkä vuosi annetaan tapahtumapäivämääriin 
 ja tiedotteiden julkaisupäivämääriin. Oletusarvo on kuluva vuosi.
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on taulukko, joka sisältää
 julkaisut JSON-muodossa.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 `GET /virkailijan-tyopoyta/api/generate?amount=1&month=4&year=2017`
 

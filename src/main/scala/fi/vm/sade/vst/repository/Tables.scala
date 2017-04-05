@@ -115,6 +115,16 @@ object Tables {
       rs.longOpt(c.resultName.categoryId).map(_ => ReleaseCategoryTable(c)(rs))
   }
 
+  object ReleaseUserGroupTable extends SQLSyntaxSupport[ReleaseUserGroup]{
+    override val tableName = "release_usergroup"
+    def apply(g: SyntaxProvider[ReleaseUserGroup])(rs: WrappedResultSet): ReleaseUserGroup = apply(g.resultName)(rs)
+    def apply(g: ResultName[ReleaseUserGroup])(rs: WrappedResultSet): ReleaseUserGroup =
+      ReleaseUserGroup(rs.get(g.releaseId), rs.get(g.usergroupId))
+
+    def opt(g: SyntaxProvider[ReleaseUserGroup])(rs: WrappedResultSet): Option[ReleaseUserGroup] =
+      rs.longOpt(g.resultName.usergroupId).map(_ => ReleaseUserGroupTable(g)(rs))
+  }
+
   object EmailEventTable extends SQLSyntaxSupport[EmailEvent] {
     override val tableName = "email_event"
     def apply(n: SyntaxProvider[EmailEvent])(rs: WrappedResultSet): EmailEvent = apply(n.resultName)(rs)
@@ -125,6 +135,12 @@ object Tables {
         eventType = rs.get(n.eventType)
       )
     }
+  }
+
+  object DraftTable extends SQLSyntaxSupport[Draft]{
+    override val tableName = "draft"
+    def apply(d: SyntaxProvider[Draft])(rs: WrappedResultSet): Draft = apply(d.resultName)(rs)
+    def apply(r: ResultName[Draft])(rs: WrappedResultSet): Draft = Draft(userId = rs.get(r.userId), data = rs.get(r.data))
   }
 
   object UserProfileTable extends SQLSyntaxSupport[UserProfile]{

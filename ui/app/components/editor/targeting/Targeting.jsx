@@ -109,20 +109,18 @@ function Targeting (props) {
 
   return (
     <div>
-      <h2 className="hide">{translate('julkkategoriaryhma')}</h2>
+      <h2 className="hide">{translate('kohdennus')}</h2>
 
       <div className="flex flex-wrap mb3 px3">
         {/*Targeting groups*/}
         {
           user.targetingGroups.length > 0
-            ? <Field
-              className="flex flex-wrap col-12 mb3"
-              name="release-targeting-groups-search"
-              label={translate('tallennettukohdennus')}
-            >
-              <div
-                className="release-targetinggroup-select col-12 lg-col-5 lg-ml3 border rounded border-gray-lighten-3"
-              >
+            ? <div className="flex flex-wrap col-12 mb3">
+              <label className="mb1" htmlFor="release-targeting-groups-search">
+                {translate('tallennettukohdennus')}
+              </label>
+
+              <div className="editor-targeting-group-select col-12 lg-col-5 lg-ml3">
                 {user.targetingGroups.map(targetingGroup =>
                   <div key={`releaseTargetingGroup${targetingGroup.id}`} className="flex flex-wrap">
                     <div className="col-9 my1 sm-pr2">
@@ -136,7 +134,7 @@ function Targeting (props) {
 
                       {
                         targetingGroup.hasLoadingFailed
-                          ? <div className="red px2">{translate('poistaminenepaonnistui')}</div>
+                          ? <div className="oph-error px2">{translate('poistaminenepaonnistui')}</div>
                           : null
                       }
                     </div>
@@ -155,12 +153,12 @@ function Targeting (props) {
                   </div>
                 )}
               </div>
-            </Field>
+            </div>
             : null
         }
 
         {/*Categories*/}
-        <div className="col-12 lg-col-3 sm-pr2">
+        <div className="col-12 lg-col-3 sm-pr2 mb2 lg-mb0">
           <Fieldset legend={translate('julkkategoria')}>
             {categories.map(category =>
               <div key={`releaseCategory${category.id}`} className="mb1">
@@ -176,7 +174,7 @@ function Targeting (props) {
         </div>
 
         {/*User groups*/}
-        <div className="col-12 lg-col-4 lg-px2">
+        <div className="col-12 lg-col-4 lg-px2 mb2 lg-mb0">
           <Field
             name="release-usergroups-search"
             label={translate(getUserGroupsKey(release.categories.length))}
@@ -219,7 +217,7 @@ function Targeting (props) {
       {
         notification.validationState === 'empty'
           ? null
-          : <div className="p3 border-top border-gray-lighten-3">
+          : <div className="p3 border-top">
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
             {tagGroups.map(tagGroup =>
@@ -237,7 +235,7 @@ function Targeting (props) {
           </div>
       }
 
-      <div className="pt3 px3 border-top border-gray-lighten-3">
+      <div className="pt3 px3 border-top">
         <div className="flex items-center justify-center col-12">
           {/*Targeting group name*/}
           <label
@@ -248,7 +246,7 @@ function Targeting (props) {
           </label>
 
           <input
-            className="input md-col-6 lg-col-3"
+            className="oph-input md-col-6 lg-col-3"
             type="text"
             name="targeting-name"
             onChange={handleTargetingGroupNameChange}

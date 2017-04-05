@@ -1,18 +1,16 @@
 package fi.vm.sade.vst.security
 
+import concurrent.duration._
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.AuthenticationConfig
-import fi.vm.sade.vst.model.{User, UserProfile, UserProfileUpdate}
-import java.net.URLEncoder
-
+import fi.vm.sade.vst.model.{Kayttooikeusryhma, User, UserProfile, UserProfileUpdate}
 import fi.vm.sade.vst.repository.UserRepository
-
-import scala.util.{Failure, Success, Try}
-import scalacache._
-import memoization._
-import guava._
-import concurrent.duration._
+import java.net.URLEncoder
 import language.postfixOps
+import scalacache.ScalaCache
+import scalacache.guava.GuavaCache
+import scalacache.memoization._
+import scala.util.{Failure, Success, Try}
 
 class UserService(val casUtils: CasUtils,
                   val ldapClient: LdapClient,
@@ -44,11 +42,13 @@ class UserService(val casUtils: CasUtils,
     }
   }
 
-  def setUserProfile(oid: String, userProfile: UserProfileUpdate) = userRepository.setUserProfile(oid,userProfile)
+  def setUserProfile(oid: String, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(oid,userProfile)
 
-  def userProfile(oid: String) = userRepository.userProfile(oid)
+  def userProfile(oid: String): UserProfile = userRepository.userProfile(oid)
 
-  def serviceUserGroups = kayttooikeusService.appGroups
+  def serviceUserGroups: Seq[Kayttooikeusryhma] = kayttooikeusService.appGroups
+
+  def saveDraft(user: User, draft: String): Unit = userRepository.saveDraft(user, draft)
 
   def authenticate(ticket: String): Option[(String, User)] = {
 

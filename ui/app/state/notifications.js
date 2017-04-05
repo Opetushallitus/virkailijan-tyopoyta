@@ -84,7 +84,7 @@ function onNotificationsReceived (state, response) {
 
 function onFetchNotificationsFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'tiedotteidenhakuepaonnistui',
     textKey: 'paivitasivu'
   })
@@ -99,7 +99,7 @@ function onFetchNotificationsFailed (state) {
 
 function onNotificationRemoved (state, { result, notification, index }) {
   const alert = createAlert({
-    type: 'success',
+    variant: 'success',
     titleKey: 'tiedotepoistettu'
   })
 
@@ -122,7 +122,7 @@ function onNotificationRemoved (state, { result, notification, index }) {
     )(state)
   }
 
-  alert.type = 'error'
+  alert.variant = 'error'
   alert.titleKey = 'tiedotteenpoistoepaonnistui'
 
   view.alertsBus.push(alert)
@@ -140,7 +140,7 @@ function onRemoveNotificationFailed (state, notification, index) {
 
 function onSaveCategoriesFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'kategorioidentallennusepaonnistui',
     textKey: 'valitsekategoriauudestaan'
   })

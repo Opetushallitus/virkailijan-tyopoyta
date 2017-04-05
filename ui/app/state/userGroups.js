@@ -34,7 +34,7 @@ function onReceived (state, userGroups) {
 
 function onFetchFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'kayttajaryhmienhakuepaonnistui',
     textKey: 'paivitasivu'
   })

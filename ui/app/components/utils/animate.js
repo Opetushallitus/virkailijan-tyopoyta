@@ -12,9 +12,9 @@ export default function animate (options) {
 
   const animationCSSClass = `animation-${animation}`
 
-  node.classList.add('animated', 'is-animating', animationCSSClass)
+  node.classList.add('is-animated', 'is-animating', animationCSSClass)
 
   setTimeout(() => {
-    node.classList.remove('animated', 'is-animating', animationCSSClass)
+    node.classList.remove('is-animated', 'is-animating', animationCSSClass)
   }, duration)
 }

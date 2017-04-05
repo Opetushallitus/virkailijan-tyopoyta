@@ -1,0 +1,101 @@
+/* Semantic UI Dropdown */
+
+.semantic-ui.ui.selection.dropdown {
+  padding-right: 1rem;
+  padding-left: 1rem;
+  border-color: var(--border-color-base);
+  border-radius: var(--border-radius-base);
+  box-shadow: inset var(--box-shadow-base);
+  transition-property: border;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
+}
+
+.semantic-ui.ui.selection.active.dropdown:hover,
+.semantic-ui.ui.selection.active.dropdown:focus {
+  box-shadow: inset var(--box-shadow-base);
+}
+
+.semantic-ui.ui.selection.dropdown:hover,
+.semantic-ui.ui.selection.dropdown:focus {
+  border-color: var(--gray-lighten-1)
+}
+
+.semantic-ui .search {
+  font-family: var(--font-family-base);
+  font-size: inherit;
+}
+
+.semantic-ui.ui.multiple.search.dropdown > input.search,
+.semantic-ui.ui.multiple.search.dropdown > .text {
+  margin-right: 0;
+  margin-left: 0;
+  padding-right: var(--space-2);
+}
+
+.semantic-ui.ui.multiple.search.dropdown > .text,
+.semantic-ui.ui.dropdown:not(.button) > .default.text {
+  color: var(--color-muted);
+}
+
+.semantic-ui.ui.multiple.dropdown > .label {
+  margin-right: var(--space-1);
+  background-color: var(--gray);
+  border-radius: var(--border-radius);
+  color: var(--white);
+  box-shadow: 0 0 0;
+  transition-property: background;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
+}
+
+.semantic-ui.ui.multiple.dropdown > .label:hover {
+  background-color: var(--gray-lighten-1);
+  cursor: pointer;
+}
+
+/* Reset content for .label since components/form.css uses the same class */
+.semantic-ui .label:after {
+  content: "";
+}
+
+/* Multiply sign (&times;) for a delete icon */
+.semantic-ui .delete:after {
+  font-style: normal;
+  font-weight: var(--font-weight-bold);
+  margin-left: var(--space-1);
+  content: "\00d7";
+}
+
+.semantic-ui.ui.selection.dropdown .menu,
+.semantic-ui.ui.selection.dropdown:hover .menu,
+.semantic-ui.ui.selection.dropdown:focus .menu {
+  margin-top: 1px;
+  padding: var(--space-1) 0;
+  border-color: var(--border-color-base);
+  z-index: var(--z2);
+}
+
+.semantic-ui.ui.dropdown .menu > .item {
+  font-size: inherit;
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 0;
+  transition-property: background;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-timing-function-base);
+}
+
+.semantic-ui.ui.dropdown .menu > .item > .text {
+  display: block;
+  width: 100%;
+}
+
+.semantic-ui.ui.dropdown .menu > .item:hover {
+  background-color: var(--blue-lighten-4);
+}
+
+.semantic-ui.ui.selection.dropdown .menu > .message {
+  color: var(--color-muted);
+  padding: var(--space-1) var(--space-2);
+}

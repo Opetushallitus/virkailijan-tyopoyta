@@ -1,7 +1,6 @@
 CREATE TABLE release(
   id SERIAL PRIMARY KEY NOT NULL,
-  deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  send_email BOOLEAN
+  deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE notification(
@@ -71,9 +70,9 @@ CREATE TABLE release_category(
   category_id INTEGER NOT NULL REFERENCES category(id)
 );
 
-CREATE TABLE release_rights(
+CREATE TABLE release_usergroup(
   release_id INTEGER NOT NULL REFERENCES release(id),
-  usergroup_id VARCHAR(50) NOT NULL
+  usergroup_id INTEGER NOT NULL
 );
 
 CREATE TABLE user_profile(
@@ -82,8 +81,13 @@ CREATE TABLE user_profile(
 );
 
 CREATE TABLE user_category(
-  user_id VARCHAR(20) NOT NULL REFERENCES user_profile(user_id),
+  user_id VARCHAR(100) NOT NULL REFERENCES user_profile(user_id),
   category_id INTEGER NOT NULL REFERENCES category(id)
+);
+
+CREATE TABLE draft(
+  user_id VARCHAR(100) NOT NULL REFERENCES user_profile(user_id),
+  data TEXT NOT NULL
 );
 
 CREATE TABLE email_event(

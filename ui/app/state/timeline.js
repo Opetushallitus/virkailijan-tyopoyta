@@ -56,7 +56,7 @@ function onReceived (state, response) {
 
 function onFetchFailed (state) {
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'tapahtumienhakuepaonnistui',
     textKey: 'paivitasivu'
   })
@@ -73,7 +73,7 @@ function onFetchFailed (state) {
 
 function onItemRemoved (state, { result, nodeSelector, parentSelector }) {
   const alert = createAlert({
-    type: 'success',
+    variant: 'success',
     titleKey: 'tapahtumapoistettu'
   })
 
@@ -94,7 +94,7 @@ function onItemRemoved (state, { result, nodeSelector, parentSelector }) {
       }
     }, 1000)
   } else {
-    alert.type = 'error'
+    alert.variant = 'error'
     alert.titleKey = 'tapahtumanpoistoepaonnistui'
 
     setTimeout(() => {

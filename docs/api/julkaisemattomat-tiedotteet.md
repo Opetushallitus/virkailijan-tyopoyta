@@ -1,12 +1,12 @@
-#Julkaisemattomat tiedotteet
+# Julkaisemattomat tiedotteet
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/notifications/unpublished`
 
-##Ei parametrejä
+## Ei parametrejä
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 taulukko, joka sisältää julkaisemattomat tiedotteet JSON-muodossa. 
@@ -14,7 +14,7 @@ Tiedotteet on järjestetty laskevasti julkaisupäivämäärän mukaan.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 ```
 [

@@ -1,21 +1,21 @@
-#Julkaisun haku
+# Julkaisun haku
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/release/{id}`
 
-##Parametrit
+## Parametrit
 
 id: *Pakollinen.* Julkaisun tunniste. Määrittää, mikä yksittäinen julkaisu haetaan.
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 julkaisu JSON-objektina.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 `GET /virkailijan-tyopoyta/api/release/1`
 

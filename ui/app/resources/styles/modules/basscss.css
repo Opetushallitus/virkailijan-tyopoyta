@@ -1,0 +1,15 @@
+/* Basscss overrides */
+
+.caps {
+  letter-spacing: .1em;
+}
+
+.border,
+[class*='border-'],
+[class*='-border-'] {
+  border-color: var(--border-color-base);
+}
+
+.border-blue-lighten-1 {
+  border-color: var(--blue-lighten-1);
+}

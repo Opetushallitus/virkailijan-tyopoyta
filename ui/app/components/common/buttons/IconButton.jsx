@@ -7,39 +7,45 @@ import { translate } from '../Translations'
 
 const propTypes = {
   id: PropTypes.string,
-  className: PropTypes.string,
-  title: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  isActive: PropTypes.bool,
+  disabled: PropTypes.bool,
+  icon: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired
 }
 
 const defaultProps = {
   id: '',
-  className: '',
-  title: 'poista'
+  isActive: false,
+  disabled: false
 }
 
-function RemoveButton (props) {
+function IconButton (props) {
   const {
     id,
-    className,
     title,
+    disabled,
+    isActive,
+    icon,
     onClick
   } = props
 
   return (
     <Button
       id={id}
-      className={`button-icon gray ${className}`}
+      variants={['icon']}
+      activeClass={isActive ? 'oph-button-icon-is-active' : ''}
       title={translate(title)}
       aria-label={translate(title)}
+      disabled={disabled}
       onClick={onClick}
     >
-      <Icon name="trash" />
+      <Icon name={icon} />
     </Button>
   )
 }
 
-RemoveButton.propTypes = propTypes
-RemoveButton.defaultProps = defaultProps
+IconButton.propTypes = propTypes
+IconButton.defaultProps = defaultProps
 
-export default RemoveButton
+export default IconButton

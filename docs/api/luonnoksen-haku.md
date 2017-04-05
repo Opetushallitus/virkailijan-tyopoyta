@@ -1,19 +1,19 @@
-#Luonnoksen haku
+# Luonnoksen haku
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/release/draft`
 
-##Ei parametrejä
+## Ei parametrejä
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 luonnos JSON-objektina.
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 ```
 {

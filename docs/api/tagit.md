@@ -1,12 +1,12 @@
-#Tagiryhmät
+# Tagiryhmät
 
-##Endpoint
+## Endpoint
 
 `GET /virkailijan-tyopoyta/api/tags`
 
-##Ei parametrejä
+## Ei parametrejä
 
-##Vastauksen muoto
+## Vastauksen muoto
 
 Palauttaa pyynnön onnistuessa HTTP-statuskoodin 200 OK. Vastauksena on
 taulukko, joka sisältää tagiryhmät JSON-muodossa järjestettynä id:n mukaan nousevasti.
@@ -17,7 +17,7 @@ Tagiryhmän sekä yksittäisen tagin *name*-ominaisuuden arvo on lokalisoitu kä
 
 Epäonnistuessa palauttaa HTTP-statuskoodina virhekoodin.
 
-##Esimerkki
+## Esimerkki
 
 ```
 [

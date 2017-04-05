@@ -44,12 +44,12 @@ function LimitedTextField (props) {
       name={name}
       isRequired={isRequired}
     >
-      <div className="muted md-right mb1 md-mb0">
+      <div className="oph-muted md-right mb1 md-mb0">
         {maxLength - value.length}&nbsp;{translate('merkkiajaljella')}
       </div>
 
       <input
-        className="input"
+        className="oph-input"
         maxLength={maxLength}
         type="text"
         name={name}

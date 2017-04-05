@@ -1,8 +1,11 @@
+bin
 target
 */target
 */*/target
 **/*~
 *~
+npm-debug.log
+.log
 .project
 .settings
 .classpath
@@ -22,3 +25,5 @@ build
 .swn
 .swo
 .swp
+/ui/app/resources/test/reports/
+*.iml

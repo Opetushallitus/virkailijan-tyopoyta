@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 
-import TextEditor from '../texteditor/TextEditor'
-import RemoveButton from '../common/buttons/RemoveButton'
+import TextEditor from './texteditor/TextEditor'
+import IconButton from '../common/buttons/IconButton'
 import Field from '../common/form/Field'
 import DateField from '../common/form/DateField'
 import { translate } from '../common/Translations'
@@ -34,10 +34,10 @@ function EditTimelineItem (props) {
   }
 
   return (
-    <div key={item.id} className="timeline-item-form">
+    <div className="editor-timeline-item-form">
       {/*Info*/}
-      <div className="flex flex-wrap">
-        <div className="col-12 sm-col-6 sm-pr2">
+      <div className="flex flex-wrap mb2">
+        <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">
           <Field
             label={translate('aikajanateksti')}
             name={`timeline-item-${item.id}-text-fi`}
@@ -63,8 +63,8 @@ function EditTimelineItem (props) {
         </div>
       </div>
 
-      <div className="flex flex-wrap">
-        <div className="col-10 sm-col-6 lg-col-3 sm-pr2 mb0">
+      <div className="flex flex-wrap mb2">
+        <div className="col-10 sm-col-6 lg-col-3 sm-pr2">
           {/*Date*/}
           <DateField
             label={translate('tapahtumapvmaikajanaavarten')}
@@ -77,10 +77,11 @@ function EditTimelineItem (props) {
           />
         </div>
 
-        {/*Remove event*/}
-        <div className="h3 flex-auto flex items-end justify-end">
-          <RemoveButton
-            title="poistatapahtuma"
+        {/*Remove item*/}
+        <div className="oph-h3 flex-auto flex items-end justify-end">
+          <IconButton
+            title={translate('poistatapahtuma')}
+            icon="trash"
             onClick={handleRemoveItemClick}
           />
         </div>

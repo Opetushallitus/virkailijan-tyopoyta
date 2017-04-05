@@ -10,6 +10,8 @@ import ValidationMessages from './preview/ValidationMessages'
 import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
+import TabContent from '../common/tabs/TabContent'
+import TabPane from '../common/tabs/TabPane'
 import Alert from '../common/Alert'
 import Popup from '../common/Popup'
 import Delay from '../common/Delay'
@@ -29,7 +31,7 @@ const propTypes = {
 }
 
 // Returns a translation key representing the notification's publication state
-const getNotificationPublicationStateString = (createdAt, dateFormat) => {
+const getNotificationPublishingStateString = (createdAt, dateFormat) => {
   // No createdAt = a draft
   if (!createdAt) {
     return 'luonnos'
@@ -47,15 +49,15 @@ const getNotificationPublicationStateString = (createdAt, dateFormat) => {
 }
 
 const notificationValidationStateKeys = {
-  'empty': 'eisisaltoa',
-  'incomplete': 'kesken',
-  'complete': 'taytetty'
+  empty: 'eisisaltoa',
+  incomplete: 'kesken',
+  complete: 'taytetty'
 }
 
 const releaseValidationStateKeys = {
-  'empty': 'eikohdennettu',
-  'incomplete': 'eikohdennettu',
-  'complete': 'valmis'
+  empty: 'eikohdennettu',
+  incomplete: 'eikohdennettu',
+  complete: 'valmis'
 }
 
 // TODO: Throttle onChange updates
@@ -79,7 +81,6 @@ function Editor (props) {
     isLoadingRelease,
     isSavingRelease,
     hasSaveFailed,
-    hasSaveDraftFailed,
     hasLoadingDependenciesFailed
   } = editor
 
@@ -89,7 +90,7 @@ function Editor (props) {
   const incompleteTimelineItems = getTimelineItems(['incomplete'], timeline)
   const completeTimelineItems = getTimelineItems(['complete'], timeline)
 
-  const notificationPublicationStateString = getNotificationPublicationStateString(notification.createdAt, dateFormat)
+  const notificationPublishingStateString = getNotificationPublishingStateString(notification.createdAt, dateFormat)
 
   const disruptionNotificationTag = R.find(R.propEq('type', 'DISRUPTION'))(tagGroups.specialTags)
 
@@ -105,16 +106,13 @@ function Editor (props) {
 
   return (
     <form noValidate onSubmit={handleSubmit}>
-      {/*Heading for screen readers*/}
-      <h2 className="hide">{translate('muokkaasisaltoa')}</h2>
-
       {/*Alerts*/}
       <div className={`my3 ${alerts.length > 0 ? '' : 'display-none'}`}>
         {alerts.map(alert =>
           <Alert
             key={`editorAlert${alert.id}`}
             id={alert.id}
-            type={alert.type}
+            variant={alert.variant}
             titleKey={alert.titleKey}
             textKey={alert.textKey}
             onCloseButtonClick={controller.removeAlert}
@@ -123,79 +121,70 @@ function Editor (props) {
       </div>
 
       {/*Tabs and release's state*/}
-      <div className="flex flex-wrap px3">
-        <Tabs className="md-col-8 mb0">
-          <TabItem
-            name="edit-notification"
-            selectedTab={selectedTab}
-            onClick={controller.toggleTab}
-          >
-            {translate('tiedote')}
+      <div className="md-flex flex-wrap px3">
+        <div className="flex flex-wrap md-col-8 mb0">
+          <Tabs>
+            <TabItem
+              name="edit-notification"
+              selectedTab={selectedTab}
+              onClick={controller.toggleTab}
+            >
+              {translate('tiedote')}
 
-            {
-              isLoadingRelease
-                ? null
-                : <span className="lowercase">
-                  &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
-                </span>
-            }
-          </TabItem>
+              {
+                isLoadingRelease
+                  ? null
+                  : <span className="lowercase">
+                    &nbsp;({translate(notificationValidationStateKeys[notification.validationState])})
+                  </span>
+              }
+            </TabItem>
 
-          <TabItem
-            name="edit-timeline"
-            selectedTab={selectedTab}
-            onClick={controller.toggleTab}
-          >
-            {translate('aikajana')}
+            <TabItem
+              name="edit-timeline"
+              selectedTab={selectedTab}
+              onClick={controller.toggleTab}
+            >
+              {translate('aikajana')}
 
-            {
-              isLoadingRelease
-                ? null
-                : <span className="lowercase">
-                  &nbsp;({
-                    completeTimelineItems.length
-                      ? completeTimelineItems.length
-                      : translate('eisisaltoa')
-                  })
-                </span>
-            }
-          </TabItem>
+              {
+                isLoadingRelease
+                  ? null
+                  : <span className="lowercase">
+                    &nbsp;({
+                      completeTimelineItems.length
+                        ? completeTimelineItems.length
+                        : translate('eisisaltoa')
+                    })
+                  </span>
+              }
+            </TabItem>
 
-          <TabItem
-            name="targeting"
-            selectedTab={selectedTab}
-            onClick={controller.toggleTab}
-          >
-            {translate('kohdennus')}
+            <TabItem
+              name="targeting"
+              selectedTab={selectedTab}
+              onClick={controller.toggleTab}
+            >
+              {translate('kohdennus')}
 
-            {
-              isLoadingRelease
-                ? null
-                : <span className="lowercase">
-                  &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
-                </span>
-            }
-          </TabItem>
-        </Tabs>
+              {
+                isLoadingRelease
+                  ? null
+                  : <span className="lowercase">
+                    &nbsp;({translate(releaseValidationStateKeys[editedRelease.validationState])})
+                  </span>
+              }
+            </TabItem>
+          </Tabs>
+        </div>
 
-        {/*Publication state*/}
-        <div
-          className="h5 caps md-flex items-center justify-end md-col-4
-          mt2 md-mt0 md-border-bottom border-gray-lighten-3"
-        >
+        {/*Publishing state*/}
+        <div className="oph-h5 caps md-flex items-center justify-end md-col-4 mt2 md-mt0 md-border-bottom">
           {
             isLoadingRelease
               ? null
-              : <div>
-                <div className="md-right-align lg-inline-block muted">
-                  {translate('tila')}:&nbsp;{translate(notificationPublicationStateString)}
-                </div>
-
-                {
-                  hasSaveDraftFailed
-                    ? <div className="lg-inline-block md-ml2 mt1 lg-mt0 red">{translate('tallennusepaonnistui')}</div>
-                    : null
-                }
+              : <div className="oph-muted md-right-align lg-inline-block">
+                {translate('tila')}:&nbsp;{translate(notificationPublishingStateString)}
               </div>
           }
         </div>
@@ -205,49 +194,53 @@ function Editor (props) {
       {
         hasLoadingDependenciesFailed
           ? <div className="py3" />
-          : <div className="tab-content">
+          : <TabContent>
             {/*Notification*/}
-            <section className={`tab-pane px3 ${selectedTab === 'edit-notification' ? 'tab-pane-is-active' : ''}`}>
-              {
-                isLoadingRelease ||
-                categories.isLoadingRelease ||
-                userGroups.isLoadingRelease ||
-                tagGroups.isLoadingRelease
-                  ? <Delay time={1000}>
-                    <Spinner isVisible />
-                  </Delay>
-                  : <EditNotification
-                    locale={user.lang}
-                    dateFormat={dateFormat}
-                    controller={controller.editNotification}
-                    notification={editedRelease.notification}
-                    disruptionNotificationTag={disruptionNotificationTag}
-                  />
-              }
-            </section>
+            <div className="px3">
+              <TabPane isActive={selectedTab === 'edit-notification'}>
+                {
+                  isLoadingRelease ||
+                  categories.isLoadingRelease ||
+                  userGroups.isLoadingRelease ||
+                  tagGroups.isLoadingRelease
+                    ? <Delay time={1000}>
+                      <Spinner isVisible />
+                    </Delay>
+                    : <EditNotification
+                      locale={user.lang}
+                      dateFormat={dateFormat}
+                      controller={controller.editNotification}
+                      notification={editedRelease.notification}
+                      disruptionNotificationTag={disruptionNotificationTag}
+                    />
+                }
+              </TabPane>
+            </div>
 
             {/*Timeline*/}
-            <section className={`tab-pane px3 ${selectedTab === 'edit-timeline' ? 'tab-pane-is-active' : ''}`}>
-              {
-                isLoadingRelease ||
-                categories.isLoadingRelease ||
-                userGroups.isLoadingRelease ||
-                tagGroups.isLoadingRelease
-                  ? <Delay time={1000}>
-                    <Spinner isVisible />
-                  </Delay>
-                  : <EditTimeline
-                    locale={user.lang}
-                    dateFormat={dateFormat}
-                    controller={controller.editTimeline}
-                    releaseId={editedRelease.id}
-                    timeline={editedRelease.timeline}
-                  />
-              }
-            </section>
+            <div className="px3">
+              <TabPane isActive={selectedTab === 'edit-timeline'}>
+                {
+                  isLoadingRelease ||
+                  categories.isLoadingRelease ||
+                  userGroups.isLoadingRelease ||
+                  tagGroups.isLoadingRelease
+                    ? <Delay time={1000}>
+                      <Spinner isVisible />
+                    </Delay>
+                    : <EditTimeline
+                      locale={user.lang}
+                      dateFormat={dateFormat}
+                      controller={controller.editTimeline}
+                      releaseId={editedRelease.id}
+                      timeline={editedRelease.timeline}
+                    />
+                }
+              </TabPane>
+            </div>
 
             {/*Categories and user groups*/}
-            <section className={`tab-pane ${selectedTab === 'targeting' ? 'tab-pane-is-active' : ''}`}>
+            <TabPane isActive={selectedTab === 'targeting'}>
               {
                 isLoadingRelease ||
                 categories.isLoadingRelease ||
@@ -265,14 +258,14 @@ function Editor (props) {
                     release={editedRelease}
                   />
               }
-            </section>
-          </div>
+            </TabPane>
+          </TabContent>
       }
 
       {/*Preview*/}
       {
         isPreviewed
-          ? <section className="py3 px3 border-top border-bottom border-gray-lighten-3">
+          ? <section className="py3 px3 border-top border-bottom">
             <PreviewRelease
               locale={user.lang}
               categories={categories.items}
@@ -285,7 +278,7 @@ function Editor (props) {
       }
 
       {/*Form actions*/}
-      <div className={`center pt3 px3 border-gray-lighten-3 ${isPreviewed ? '' : 'border-top'}`}>
+      <div className={`editor-actions ${isPreviewed ? '' : 'border-top'}`}>
         {/*Validation messages*/}
         {
           isLoadingRelease || hasLoadingDependenciesFailed
@@ -301,7 +294,8 @@ function Editor (props) {
 
         {/*Preview & publish*/}
         <Button
-          className="editor-button-save button button-primary button-lg"
+          id="editor-button-save"
+          variants={['primary', 'big']}
           type="submit"
           disabled={
             isSavingRelease || isLoadingRelease ||
@@ -320,20 +314,20 @@ function Editor (props) {
         >
           {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
         </Button>
-      </div>
 
-      {
-        hasSaveFailed
-          ? <Popup
-            target=".editor-button-save"
-            type="error"
-            position="right"
-            title={translate('julkaisuepaonnistui')}
-            text={translate('kokeileuudestaan')}
-            onOutsideClick={controller.toggleHasSaveFailed}
-          />
-          : null
-      }
+        {
+          hasSaveFailed
+            ? <Popup
+              target="#editor-button-save"
+              variant="error"
+              position="right"
+              title={translate('julkaisuepaonnistui')}
+              text={translate('kokeileuudestaan')}
+              onOutsideClick={controller.toggleHasSaveFailed}
+            />
+            : null
+        }
+      </div>
     </form>
   )
 }

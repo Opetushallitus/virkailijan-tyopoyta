@@ -27,7 +27,7 @@ function ValidationMessages (props) {
       {/*Release isn't targeted to an user group*/}
       {
         release.userGroups.length === 0
-          ? <div className="bold red mb1">
+          ? <div className="oph-error oph-bold mb1">
             &middot;&nbsp;
             {translate('kohdennuspuuttuu')}
             {/*Check if at least one tag is selected if notification is incomplete or complete*/}
@@ -45,7 +45,7 @@ function ValidationMessages (props) {
       {/*Saved targeting group's name isn't unique*/}
       {
         R.contains(release.targetingGroup, targetingGroups)
-          ? <div className="bold red mb1">
+          ? <div className="oph-error oph-bold mb1">
             &middot; {translate('kohdennusonjoolemassa')} {`"${release.targetingGroup}"`}
           </div>
           : null
@@ -54,21 +54,21 @@ function ValidationMessages (props) {
       {/*Notification is empty and all timeline items are empty*/}
       {
         release.notification.validationState === 'empty' && emptyTimelineItems.length === timeline.length
-          ? <div className="muted mb1">&middot; {translate('taytatiedotetaiaikajana')}</div>
+          ? <div className="oph-muted mb1">&middot; {translate('taytatiedotetaiaikajana')}</div>
           : null
       }
 
       {/*Notification is incomplete*/}
       {
         release.notification.validationState === 'incomplete'
-          ? <div className="muted mb1">&middot; {translate('tiedotekesken')}</div>
+          ? <div className="oph-muted mb1">&middot; {translate('tiedotekesken')}</div>
           : null
       }
 
       {/*Timeline items are incomplete*/}
       {
         incompleteTimelineItems.length
-          ? <div className="muted mb1">&middot; {translate('aikajanakesken')}</div>
+          ? <div className="oph-muted mb1">&middot; {translate('aikajanakesken')}</div>
           : null
       }
     </div>

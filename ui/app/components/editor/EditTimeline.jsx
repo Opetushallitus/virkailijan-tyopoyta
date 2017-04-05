@@ -27,11 +27,11 @@ function EditTimeline (props) {
 
   return (
     <div>
-      <h3 className="hide">{translate('muokkaaaikajanantapahtumia')}</h3>
+      <h2 className="hide">{translate('aikajana')}</h2>
 
       {timeline.map((item, index) =>
         <EditTimelineItem
-          key={item.id}
+          key={`editTimelineItem${item.id}`}
           item={item}
           locale={locale}
           dateFormat={dateFormat}
@@ -40,7 +40,11 @@ function EditTimeline (props) {
       )}
 
       {/*Add new event*/}
-      <Button className="button-link regular px0" onClick={handleAddItemClick}>
+      <Button
+        variants={['ghost']}
+        className="regular px0"
+        onClick={handleAddItemClick}
+      >
         <span aria-hidden>+ </span>
         {translate('lisaauusitapahtuma')}
       </Button>

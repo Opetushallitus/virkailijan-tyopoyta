@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 import R from 'ramda'
 
-import { translate } from '../common/Translations'
+import { translate } from '../../common/Translations'
 import StyleButton from './StyleButton'
 
 const propTypes = {
@@ -11,8 +11,8 @@ const propTypes = {
 }
 
 const BLOCK_TYPES = [
-  {label: translate('järjestamatonlista'), style: 'unordered-list-item', icon: 'list-ul'},
-  {label: translate('jarjestettylista'), style: 'ordered-list-item', icon: 'list-ol'}
+  {title: translate('järjestamatonlista'), style: 'unordered-list-item', icon: 'list-ul'},
+  {title: translate('jarjestettylista'), style: 'ordered-list-item', icon: 'list-ol'}
 ]
 
 function BlockStyleControls (props) {
@@ -35,11 +35,11 @@ function BlockStyleControls (props) {
     <span className="RichEditor-controls">
       {types.map((type) =>
         <StyleButton
-          key={type.label}
-          label={type.label}
-          style={type.style}
+          key={`richEditorButton${type.style}`}
+          title={type.title}
           icon={type.icon}
           isActive={type.style === blockType}
+          style={type.style}
           onClick={onClick}
         />
       )}

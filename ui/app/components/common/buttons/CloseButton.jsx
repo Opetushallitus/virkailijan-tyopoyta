@@ -5,21 +5,18 @@ import Button from './Button'
 import { translate } from '../Translations'
 
 const propTypes = {
-  className: PropTypes.string,
   title: PropTypes.string,
   disabled: PropTypes.bool,
   onClick: PropTypes.func.isRequired
 }
 
 const defaultProps = {
-  className: '',
   disabled: false,
   title: 'sulje'
 }
 
 function CloseButton (props) {
   const {
-    className,
     disabled,
     title,
     onClick
@@ -27,8 +24,9 @@ function CloseButton (props) {
 
   return (
     <Button
-      className={`oph-button oph-button-close ${className}`}
+      className="oph-button oph-button-close"
       title={translate(title)}
+      aria-label={translate(title)}
       disabled={disabled}
       onClick={onClick}
     >

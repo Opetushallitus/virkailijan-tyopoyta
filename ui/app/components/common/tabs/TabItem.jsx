@@ -1,28 +1,28 @@
 import React, { PropTypes } from 'react'
 
 const propTypes = {
-  className: PropTypes.string,
   name: PropTypes.string.isRequired,
   selectedTab: PropTypes.string,
+  column: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   children: PropTypes.node.isRequired
 }
 
 const defaultProps = {
-  className: '',
+  column: '',
   selectedTab: ''
 }
 
 function TabItem (props) {
   const {
-    className,
     name,
     selectedTab,
+    column,
     onClick,
     children
   } = props
 
-  const handleOnClick = event => {
+  const handleClick = event => {
     event.preventDefault()
 
     onClick(name)
@@ -30,9 +30,9 @@ function TabItem (props) {
 
   return (
     <a
-      className={`tab-item ${className} ${selectedTab === name ? 'tab-item-is-active' : ''}`}
+      className={`oph-tab-item ${selectedTab === name ? 'oph-tab-item-is-active' : ''} ${column}`}
       href={`#${name}`}
-      onClick={handleOnClick}
+      onClick={handleClick}
     >
       {children}
     </a>

@@ -1,0 +1,19 @@
+/* Tags */
+
+.tag {
+  font-size: var(--h6);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  display: inline-block;
+  margin-right: var(--space-1);
+  margin-bottom: var(--space-1);
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+  border-radius: var(--border-radius-base);
+  background-color: var(--gray);
+  color: var(--white);
+}
+
+.tag-blue {
+  background-color: var(--blue-lighten-2);
+}

@@ -109,19 +109,17 @@ class App extends React.Component {
 
     return (
       <div>
-        {/*Alerts*/}
-        <div className="fixed bottom-0 right-0 mb2 mr2 z2">
-          {state.view.alerts.map(alert =>
-            <Alert
-              key={`viewAlert${alert.id}`}
-              id={alert.id}
-              type={alert.type}
-              titleKey={alert.titleKey}
-              textKey={alert.textKey}
-              onCloseButtonClick={controller.view.removeAlert}
+        {/*Alert for failed login*/}
+        {
+          state.user.hasLoadingFailed
+            ? <Alert
+              id="1"
+              variant="error"
+              titleKey="kayttajatietojenhakuepaonnistui"
+              textKey="paivitasivu"
             />
-          )}
-        </div>
+            : null
+        }
 
         {/*Modals*/}
 
@@ -129,8 +127,8 @@ class App extends React.Component {
         {
           state.editor.isVisible
             ? <Modal
-              title={translate('julkaisueditori')}
               variant="big"
+              title={translate('julkaisueditori')}
               isCloseDisabled={state.editor.isSavingRelease}
               onCloseButtonClick={controller.editor.close}
             >
@@ -151,8 +149,8 @@ class App extends React.Component {
         {
           state.unpublishedNotifications.isVisible
             ? <Modal
-              title={translate('julktiedotteet')}
               variant="big"
+              title={translate('julktiedotteet')}
               onCloseButtonClick={controller.unpublishedNotifications.close}
             >
               <UnpublishedNotifications
@@ -165,7 +163,22 @@ class App extends React.Component {
         }
 
         {/*Content*/}
-        <div className={`container mx-auto ${state.user.hasLoadingFailed ? 'display-none' : ''}`}>
+        <div className={`container ${state.user.hasLoadingFailed ? 'display-none' : ''}`}>
+          {/*Alerts*/}
+          <div className="alert-container col-12 md-col-6 lg-col-4 px2">
+            {state.view.alerts.map(alert =>
+              <div key={`viewAlert${alert.id}`} className="mb2">
+                <Alert
+                  id={alert.id}
+                  variant={alert.variant}
+                  titleKey={alert.titleKey}
+                  textKey={alert.textKey}
+                  onCloseButtonClick={controller.view.removeAlert}
+                />
+              </div>
+            )}
+          </div>
+
           {
             state.user.isLoading
               ? <div className="py3">
@@ -175,30 +188,34 @@ class App extends React.Component {
               </div>
               : null
           }
+
           <div className={`flex flex-wrap col-12 ${state.user.isLoading ? 'display-none' : ''}`}>
             {/*Notification/timeline view selection for small screens*/}
-            <Tabs className="mt3 md-hide lg-hide">
-              <TabItem
-                className="sm-col-6"
-                name="notifications"
-                selectedTab={selectedTab}
-                onClick={controller.view.toggleTab}
-              >
-                {translate('tiedotteet')}
-              </TabItem>
+            <div className="col-12 mt3 md-hide lg-hide">
+              <Tabs>
+                <TabItem
+                  name="notifications"
+                  selectedTab={selectedTab}
+                  column="sm-col-6"
+                  onClick={controller.view.toggleTab}
+                >
+                  {translate('tiedotteet')}
+                </TabItem>
 
-              <TabItem
-                className="sm-col-6"
-                name="timeline"
-                selectedTab={selectedTab}
-                onClick={controller.view.toggleTab}
-              >
-                {translate('aikajana')}
-              </TabItem>
-            </Tabs>
+                <TabItem
+                  name="timeline"
+                  selectedTab={selectedTab}
+                  column="sm-col-6"
+                  onClick={controller.view.toggleTab}
+                >
+                  {translate('aikajana')}
+                </TabItem>
+              </Tabs>
+            </div>
 
             {/*Notifications*/}
             <section
+              ref={notifications => (this.notifications = notifications)}
               className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
               {/*Menu*/}

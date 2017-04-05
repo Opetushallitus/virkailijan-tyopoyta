@@ -1,7 +1,5 @@
 package fi.vm.sade.vst.server
 
-import java.time.YearMonth
-
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.ContentTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
@@ -10,15 +8,15 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.{JsonSupport, Release, User}
+import fi.vm.sade.vst.model.{JsonSupport, Release}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.{UserService, KayttooikeusService}
 import fi.vm.sade.vst.service.EmailService
-import play.api.libs.json.{Json, Writes}
-
+import java.time.YearMonth
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import play.api.libs.json.{Json, Writes}
 
 class Routes(authenticationService: UserService,
              emailService: EmailService,
@@ -75,15 +73,14 @@ class Routes(authenticationService: UserService,
   }
 
   def sendInstantEmails(release: Release) = {
-    // Release.sendEmail seems to have been removed and no replacement is given, rethink this part
     if (release.notification.exists(_.sendEmail)) emailService.sendEmails(Vector(release), emailService.ImmediateEmail)
     release
   }
 
-  val apiRoutes: Route = {
+  val releaseRoutes: Route = {
     requiredSession(oneOff, usingCookies) { uid =>
-      get{
-        path("release"){
+      path("release"){
+        get{
           parameters("id".as[Long]) { id =>
             val release = Future(releaseRepository.release(id))
             onComplete(release) {
@@ -97,12 +94,37 @@ class Routes(authenticationService: UserService,
             }
           }
         } ~
-        pathPrefix("notifications"){
-          pathEnd {
-            parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
-              (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page)))
+        post {
+          entity(as[String]) { json =>
+            val release = parseReleaseUpdate(json)
+            release match {
+              case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
+              case None => complete(StatusCodes.BadRequest)
             }
-          } ~
+          }
+        } ~
+        put {
+          entity(as[String]) { json =>
+            val release = parseReleaseUpdate(json)
+            release match {
+              case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
+              case None => complete(StatusCodes.BadRequest)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  val notificationRoutes: Route = {
+    requiredSession(oneOff, usingCookies) { uid =>
+      pathPrefix("notifications"){
+        pathEnd {
+          parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
+            (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page)))
+          }
+        } ~
+        get{
           path(IntNumber) { id =>
             sendResponse(Future(releaseRepository.notification(id)))
           } ~
@@ -110,20 +132,79 @@ class Routes(authenticationService: UserService,
             sendResponse(Future(releaseRepository.unpublishedNotifications))
           }
         } ~
-        path("categories"){
-          userService.findUser(uid) match {
-            case Success(u) => sendResponse(Future(releaseRepository.categories(u)))
-            case Failure(e) => complete(StatusCodes.InternalServerError)
-          }
-        } ~
-        path("timeline"){
+        delete{
+          path(IntNumber){ id => sendResponse(Future(releaseRepository.deleteNotification(id)))}
+        }
+      }
+    }
+  }
+
+  val timelineRoutes: Route = requiredSession(oneOff, usingCookies) { uid =>
+    pathPrefix("timeline"){
+      get{
+        pathEnd {
           parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
             (categories, year, month) => sendResponse(Future(releaseRepository.timeline(categories, parseMonth(year, month))))
           }
+        }
+      } ~
+      delete {
+        path(IntNumber){ id => sendResponse(Future(releaseRepository.deleteTimelineItem(id)))}
+      }
+    }
+  }
+
+  val userRoutes: Route = requiredSession(oneOff, usingCookies) { uid =>
+    pathPrefix("user"){
+      get{
+        pathEnd{
+          sendResponse(Future(userService.userProfile(uid)))
+        }
+      } ~
+      post{
+        pathEnd{
+          entity(as[String]) { json =>
+            val updateProfile = parseUserProfileUpdate(json)
+            updateProfile match {
+              case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
+              case None => complete(StatusCodes.Unauthorized)
+            }
+          }
         } ~
-        path("tags"){sendResponse(Future(releaseRepository.tags))} ~
-        path("emailLogs"){sendResponse(Future(releaseRepository.emailLogs))} ~
-        path("releasesForDate"){
+        path("draft") {
+          entity(as[String]) { json =>
+            userService.findUser(uid) match {
+              case Success(u) => onComplete(Future(userService.saveDraft(u, json))){
+                case Success(_) => complete(StatusCodes.OK)
+                case Failure(_) => complete(StatusCodes.InternalServerError)
+              }
+              case Failure(e) => complete(StatusCodes.InternalServerError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  val serviceRoutes: Route = requiredSession(oneOff, usingCookies) {uid =>
+    get{
+      path("categories"){
+        userService.findUser(uid) match {
+          case Success(u) => sendResponse(Future(releaseRepository.categories(u)))
+          case Failure(e) => complete(StatusCodes.InternalServerError)
+        }
+      } ~
+      path("tags"){sendResponse(Future(releaseRepository.tags))} ~
+      path("usergroups"){sendResponse(Future(userService.serviceUserGroups))}
+    }
+  }
+
+  val emailRoutes: Route = requiredSession(oneOff, usingCookies) {uid =>
+    get {
+      path("emailLogs") {
+        sendResponse(Future(releaseRepository.emailLogs))
+      } ~
+        path("releasesForDate") {
           parameters("year".as[Int], "month".as[Int], "day".as[Int]) {
             (year, month, day) => {
               val date = java.time.LocalDate.of(year, month, day)
@@ -132,7 +213,7 @@ class Routes(authenticationService: UserService,
             }
           }
         } ~
-        path("emailhtml"){
+        path("emailhtml") {
           parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
             (year, month, day) => {
               sendHtml(Future {
@@ -147,68 +228,21 @@ class Routes(authenticationService: UserService,
               })
             }
           }
-        } ~
-        path("generate"){
-          parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
-            (amount, year, month) => {
-              sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
-            }
-          }
-        } ~
-        path("user") {
-          sendResponse(Future(userService.userProfile(uid)))
-        } ~
-        path("usergroups") {
-          sendResponse(Future(userService.serviceUserGroups))
         }
-      } ~
-      put {
-        path("release") {
-          entity(as[String]) { json =>
-            val release = parseReleaseUpdate(json)
-            release match {
-              case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
-              case None => complete(StatusCodes.BadRequest)
-            }
-          }
-        }
-      } ~
-      post {
-        path("release") {
-          entity(as[String]) { json =>
-            val release = parseReleaseUpdate(json)
-            release match {
-              case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
-              case None => complete(StatusCodes.BadRequest)
-            }
-          }
-        } ~
-          path("user") {
+    }
+  }
 
-            extractRequest { request =>
-              entity(as[String]) { json =>
-                val updateProfile = parseUserProfileUpdate(json)
-                val ticket = request.uri.query().get("ticket")
-                ticket match {
-                  case Some(t) => {
-                    updateProfile match {
-                      case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
-                      case None => complete(StatusCodes.Unauthorized)
-                    }
-                  }
-                  case None => complete(StatusCodes.Unauthorized)
-                }
-              }
-            }
-          }
-      } ~
-      delete {
-        path("releases"){
-          entity(as[String]) { id => sendResponse(Future(releaseRepository.deleteRelease(id.toLong))) }
+  val devRoutes: Route = {
+    path("generate"){
+      parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
+        (amount, year, month) => {
+          sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
         }
       }
     }
   }
+
+  val apiRoutes: Route = releaseRoutes ~ notificationRoutes ~ timelineRoutes ~ userRoutes ~ serviceRoutes ~ emailRoutes
 
   val routes: Route = {
     pathPrefix("virkailijan-tyopoyta") {

@@ -25,7 +25,7 @@ class Overlay extends React.Component {
       <div
         ref={overlay => (this.overlay = overlay)}
         className={`oph-overlay oph-overlay-is-visible
-        ${variants.map(variant => { return `oph-overlay-${variant}` }).join(' ')}`}
+        ${variants.map(variant => `oph-overlay-${variant}`).join(' ')}`}
       >
         {children}
       </div>

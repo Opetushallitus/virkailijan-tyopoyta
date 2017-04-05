@@ -1,7 +1,8 @@
 import React, { PropTypes } from 'react'
 
-import Button from '../common/buttons/Button'
-import { translate } from '../common/Translations'
+import Button from '../../common/buttons/Button'
+import Field from '../../common/form/Field'
+import { translate } from '../../common/Translations'
 
 const propTypes = {
   url: PropTypes.string,
@@ -50,18 +51,18 @@ class EditLink extends React.Component {
     } = this.props
 
     return (
-      <div className="absolute top-0 right-0 bottom-0 left-0 z2 m2 bg-white">
-        <div className="field">
+      <div className="oph-bg-white absolute top-0 right-0 bottom-0 left-0 z2 m2">
+        <div className="oph-field">
           <div className="mb1">{translate('linkkiteksti')}</div>
-
-          <div className="muted">{selectedLinkText || selectedText}</div>
+          <div className="oph-muted">{selectedLinkText || selectedText}</div>
         </div>
 
-        <div className="field">
-          <label className="block mb1" htmlFor="notification-url">{translate('linkkiosoite')}</label>
-
+        <Field
+          label={translate('linkkiosoite')}
+          name="notification-url"
+        >
           <input
-            className="input"
+            className="oph-input"
             type="url"
             name="notification-url"
             autoFocus
@@ -70,15 +71,17 @@ class EditLink extends React.Component {
             onChange={this.onURLChange}
             onKeyDown={this.onLinkInputKeyDown}
           />
-        </div>
+        </Field>
 
-        <Button
-          className="button-primary"
-          disabled={!this.state.url}
-          onClick={this.handleOnClick}
-        >
-          {translate('tallenna')}
-        </Button>
+        <div className="mt2">
+          <Button
+            variants={['primary']}
+            disabled={!this.state.url}
+            onClick={this.handleOnClick}
+          >
+            {translate('tallenna')}
+          </Button>
+        </div>
       </div>
     )
   }

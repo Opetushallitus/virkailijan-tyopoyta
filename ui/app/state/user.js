@@ -2,7 +2,6 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 import moment from 'moment'
 
-import view from './view'
 import categories from './categories'
 import userGroups from './userGroups'
 import tagGroups from './tagGroups'
@@ -12,7 +11,6 @@ import timeline from './timeline'
 // TODO: Remove test data
 
 import getData from '../utils/getData'
-import createAlert from '../utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 import * as testData from '../resources/test/testData.json'
 
@@ -63,14 +61,6 @@ function onReceived (state, response) {
 }
 
 function onFetchFailed (state) {
-  const alert = createAlert({
-    type: 'error',
-    titleKey: 'kayttajatietojenhakuepaonnistui',
-    textKey: 'paivitasivu'
-  })
-
-  view.alertsBus.push(alert)
-
   return R.compose(
     R.assocPath(['user', 'isLoading'], false),
     R.assocPath(['user', 'hasLoadingFailed'], true)

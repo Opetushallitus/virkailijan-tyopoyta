@@ -1,7 +1,7 @@
 # virkailijan-tyopoyta
 Opintopolun virkailijan työpöytä, jossa mm. tiedotteet ja aikajana.
 
-##Codestyle
+## Codestyle
 
 JS-koodi validoidaan [ESLint](http://eslint.org/)-työkalulla.
 

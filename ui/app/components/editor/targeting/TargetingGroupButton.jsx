@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react'
 
-import Button from '../../common/buttons/Button'
 import { translate } from '../../common/Translations'
 
 const propTypes = {
@@ -29,9 +28,10 @@ function TargetingGroupButton (props) {
   }
 
   return (
-    <Button
-      className={`release-targetinggroup-button regular left-align ${isActive ? 'blue-lighten-2' : 'black'}`}
+    <button
+      className={`oph-button editor-targeting-group-button ${isActive ? 'oph-blue-lighten-2' : 'oph-black'}`}
       disabled={disabled}
+      type="button"
       onClick={handleClick}
     >
       {/*Checkmark in active item*/}
@@ -41,7 +41,7 @@ function TargetingGroupButton (props) {
 
       {/*Visually hidden text for active item*/}
       <span className={isActive ? 'hide' : 'display-none'}>{translate('valittu')}</span>
-    </Button>
+    </button>
   )
 }
 
