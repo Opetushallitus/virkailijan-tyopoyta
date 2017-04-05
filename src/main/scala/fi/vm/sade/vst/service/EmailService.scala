@@ -4,12 +4,18 @@ import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.{EmailEvent, Release}
 import fi.vm.sade.vst.repository.RepositoryModule
-import fi.vm.sade.vst.security.{RequestMethod, CasUtils}
+import fi.vm.sade.vst.security.{KayttooikeusService, RequestMethod, CasUtils}
 import java.time.LocalDate
 import org.joda.time.DateTime
 import scala.util.{Failure, Success, Try}
 
-class EmailService(casUtils: CasUtils) extends RepositoryModule with GroupEmailComponent with Configuration with JsonFormats {
+class EmailService(casUtils: CasUtils,
+                   val accessService: KayttooikeusService)
+  extends RepositoryModule
+  with GroupEmailComponent
+  with Configuration
+  with JsonFormats {
+
   sealed trait EmailEventType { val description: String }
   case object ImmediateEmail extends EmailEventType { val description = "Immediately sent email" }
   case object TimedEmail extends EmailEventType { val description = "Normally timed email" }
@@ -71,7 +77,12 @@ class EmailService(casUtils: CasUtils) extends RepositoryModule with GroupEmailC
   }
 
   def releaseEventExists(release: Release): Boolean = emailRepository.existsForRelease(release.id)
-  def userGroupsForRelease(release: Release): Seq[String] = Seq("Sekakäyttäjä_1375093141812", "Koodiston ylläpitäjä_1378978106619")
+
+  def userGroupsForRelease(release: Release): Seq[String] = {
+    val userGroups = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
+    accessService.appGroups.filter(appGroup => userGroups.contains(appGroup.id)).map(_.name)
+  }
+
   def emailsForUserGroup(userGroups: Seq[String]): Seq[String] = {
     val userGroupsValues = userGroups.map(group => s""""$group"""").mkString(",")
     val json = s"""{

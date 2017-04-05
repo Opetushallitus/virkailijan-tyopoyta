@@ -26,3 +26,4 @@ build
 .swo
 .swp
 /ui/app/resources/test/reports/
+*.iml
