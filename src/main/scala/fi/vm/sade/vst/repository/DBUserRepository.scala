@@ -18,7 +18,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
       .where.eq(u.userId, userId)
   }.one(UserProfileTable(u))
     .toMany(
-      us => UserCategoryTable.opt(uc)(us)
+      rs => UserCategoryTable.opt(uc)(rs)
     ).map((userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
     .single.apply()
 
@@ -30,11 +30,12 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
           uc.userId -> userId,
           uc.sendEmail -> userProfileUpdate.sendEmail)
       }.update().apply()
+      userProfileUpdate.categories.foreach(insertUserCategory(userId, _))
     }
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail, firstLogin = true)
   }
 
-  private def insertUserCategory(userId: String, categoryId: Long) = {
+  private def insertUserCategory(userId: String, categoryId: Long)(implicit session: DBSession) = {
     val uc = UserCategoryTable.column
     DB localTx { implicit session =>
       withSQL {
@@ -45,23 +46,32 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }
   }
 
+  private def updateUserCategories(userId: String, categories: Seq[Long]) = {
+    val existingCategories = withSQL(select.from(UserCategoryTable as uc).where.eq(uc.userId, userId))
+      .map(UserCategoryTable(uc)).list.apply().map(_.categoryId)
+
+    val deleted = existingCategories.diff(categories)
+    val added = categories.diff(existingCategories)
+
+    withSQL {
+      delete.from(UserCategoryTable as uc).where.eq(uc.userId, userId).and.in(uc.categoryId, deleted)
+    }.update().apply()
+    added.foreach(insertUserCategory(userId, _))
+  }
+
   private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate) = {
     DB localTx { implicit session =>
-      withSQL {
-        update(UserProfileTable).set(u.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId)
-      }.update().apply()
-      withSQL {
-        delete.from(UserCategoryTable).where.eq(uc.userId, userId)
-      }.update().apply()
-      userProfileUpdate.categories.foreach(id => insertUserCategory(userId, id))
+      val sql = withSQL(update(UserProfileTable as u).set(UserProfileTable.column.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId))
+      sql.update().apply()
+      updateUserCategories(userId, userProfileUpdate.categories)
     }
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
-  override def setUserProfile(userId: String, userProfileData: UserProfileUpdate): UserProfile ={
-    fetchUserProfile(userId) match {
-      case Some(_) => updateUserProfile(userId, userProfileData)
-      case None => insertUserProfile(userId, userProfileData)
+  override def setUserProfile(user: User, userProfileData: UserProfileUpdate): UserProfile ={
+    fetchUserProfile(user.userId) match {
+      case Some(_) => updateUserProfile(user.userId, userProfileData)
+      case None => insertUserProfile(user.userId, userProfileData)
     }
   }
 
@@ -72,8 +82,6 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }
   }
 
-  override def categoriesForUser(oid: String): Seq[Long] = ???
-
   override def fetchDraft(userId: String): Option[Draft] = {
     withSQL[Draft] {
       select.from(DraftTable as d).where.eq(d.userId, userId)
@@ -82,7 +90,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   private def updateDraft(userId: String, data: String) = {
     withSQL{
-      update(DraftTable).set(d.data -> data).where.eq(d.userId, userId)
+      update(DraftTable as d).set(DraftTable.column.data -> data).where.eq(d.userId, userId)
     }.update().apply()
   }
 

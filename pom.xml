@@ -175,7 +175,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run build</arguments>
+                            <arguments>run dist</arguments>
                         </configuration>
                     </execution>
                 </executions>

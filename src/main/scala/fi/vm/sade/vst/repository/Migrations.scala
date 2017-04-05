@@ -7,6 +7,9 @@ class Migrations(dBConfig: DBConfig) {
   private val commonLocation: String = "classpath:/migration/common"
   private val h2Location: String = "classpath:/migration/h2"
   private val flyway = new Flyway()
+
+  println("DB config " + dBConfig )
+
   flyway.setDataSource(dBConfig.url, dBConfig.username, dBConfig.password)
 
   def run(): Unit = {

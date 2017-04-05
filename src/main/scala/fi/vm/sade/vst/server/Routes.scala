@@ -10,9 +10,12 @@ import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
 import fi.vm.sade.vst.model.{JsonSupport, Release}
 import fi.vm.sade.vst.repository.ReleaseRepository
-import fi.vm.sade.vst.security.{UserService, KayttooikeusService}
+import fi.vm.sade.vst.security.{KayttooikeusService, UserService}
 import fi.vm.sade.vst.service.EmailService
 import java.time.YearMonth
+
+import fi.vm.sade.vst.ServerConfig
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -22,11 +25,12 @@ class Routes(authenticationService: UserService,
              emailService: EmailService,
              kayttooikeusService: KayttooikeusService,
              releaseRepository: ReleaseRepository,
-             userService: UserService)
+             userService: UserService,
+             config: ServerConfig)
   extends Directives
   with JsonSupport {
 
-  val sessionConfig: SessionConfig = SessionConfig.default("some_very_long_secret_and_random_string_some_very_long_secret_and_random_string")
+  val sessionConfig: SessionConfig = SessionConfig.default(config.sessionSecret)
   implicit val sessionManager = new SessionManager[String](sessionConfig)
 
 
@@ -119,14 +123,20 @@ class Routes(authenticationService: UserService,
   val notificationRoutes: Route = {
     requiredSession(oneOff, usingCookies) { uid =>
       pathPrefix("notifications"){
-        pathEnd {
-          parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
-            (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page)))
-          }
-        } ~
         get{
+          pathEnd {
+            parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
+              userService.findUser(uid) match {
+                case Success(u) => (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page, u)))
+                case Failure(_) => (categories, tags, page) => complete(StatusCodes.Unauthorized)
+              }
+            }
+          } ~
           path(IntNumber) { id =>
-            sendResponse(Future(releaseRepository.notification(id)))
+            userService.findUser(uid) match {
+              case Success(u) => sendResponse(Future(releaseRepository.notification(id, u)))
+              case Failure(_) => complete(StatusCodes.Unauthorized)
+            }
           } ~
           path("unpublished") {
             sendResponse(Future(releaseRepository.unpublishedNotifications))
@@ -144,7 +154,11 @@ class Routes(authenticationService: UserService,
       get{
         pathEnd {
           parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
-            (categories, year, month) => sendResponse(Future(releaseRepository.timeline(categories, parseMonth(year, month))))
+            userService.findUser(uid) match {
+              case Success(u) => (categories, year, month) => sendResponse(Future(releaseRepository.timeline(categories, parseMonth(year, month), u)))
+              case Failure(_) => (categories, year, month) => complete(StatusCodes.Unauthorized)
+            }
+
           }
         }
       } ~
@@ -165,8 +179,9 @@ class Routes(authenticationService: UserService,
         pathEnd{
           entity(as[String]) { json =>
             val updateProfile = parseUserProfileUpdate(json)
+            val user = userService.findUser(uid)
             updateProfile match {
-              case Some(u) => sendResponse(Future(userService.setUserProfile(uid,u)))
+              case Some(u) => sendResponse(Future(user.map(user => userService.setUserProfile(user,u)).toOption))
               case None => complete(StatusCodes.Unauthorized)
             }
           }

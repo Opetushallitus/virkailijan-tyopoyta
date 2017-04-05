@@ -7,7 +7,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import fi.vm.sade.security.ldap.LdapConfig
 
 case class AuthenticationConfig(casUrl: String, serviceId: String, casUsername: String, casPassword: String, kayttooikeusUri: String,  memoizeDuration: Int)
-case class ServerConfig(port: Int)
+case class ServerConfig(port: Int, sessionSecret: String)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
 case class CasConfig(casUrl: String, casUsername: String, casPassword: String)
@@ -35,7 +35,9 @@ trait Configuration {
   lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("cas.username"), config.getString("cas.password"))
   lazy val emailConfig = EmailConfig(config.getString("osoitepalvelu.service"), defaultCasConfig)
 
-  lazy val serverConfig = ServerConfig(config.getInt("server.port"))
+  lazy val serverConfig = ServerConfig(
+    config.getInt("server.port"),
+    config.getString("virkailijan-tyopoyta.session.secret"))
   lazy val loginPage = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl = config.getString("oph.logo.url")
 

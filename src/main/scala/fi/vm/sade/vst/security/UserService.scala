@@ -4,19 +4,21 @@ import concurrent.duration._
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.AuthenticationConfig
 import fi.vm.sade.vst.model.{Kayttooikeusryhma, User, UserProfile, UserProfileUpdate}
-import fi.vm.sade.vst.repository.UserRepository
+import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
 import java.net.URLEncoder
+
 import language.postfixOps
 import scalacache.ScalaCache
 import scalacache.guava.GuavaCache
 import scalacache.memoization._
 import scala.util.{Failure, Success, Try}
 
-class UserService(val casUtils: CasUtils,
-                  val ldapClient: LdapClient,
-                  val kayttooikeusService: KayttooikeusService,
-                  val userRepository: UserRepository,
-                  val config: AuthenticationConfig) {
+class UserService(casUtils: CasUtils,
+                  ldapClient: LdapClient,
+                  kayttooikeusService: KayttooikeusService,
+                  userRepository: UserRepository,
+                  releaseRepository: ReleaseRepository,
+                  config: AuthenticationConfig) {
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 
@@ -27,22 +29,27 @@ class UserService(val casUtils: CasUtils,
   val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
 
   private def createUser(ldapUser: LdapUser): User = {
-    val groups = kayttooikeusService.userGroupsForUser(ldapUser.roles)
-    //TODO: Do not memoize userprofile (firstLogin)
-    val profile = userRepository.userProfile(ldapUser.oid)
     val lang = ldapUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
     val isAdmin = ldapUser.roles.contains(adminRole)
-    User(ldapUser.oid, ldapUser.lastName, "", lang.getOrElse("fi"), isAdmin, groups, ldapUser.roles, profile)
+    val groups = kayttooikeusService.userGroupsForUser(ldapUser.oid, isAdmin)
+
+    val user = User(ldapUser.oid, ldapUser.lastName, ldapUser.givenNames, lang.getOrElse("fi"), isAdmin, groups, ldapUser.roles)
+    user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
   }
 
-  def findUser(uid: String ): Try[User] = memoizeSync(10 minutes) {
+  private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(10 minutes) {
     ldapClient.findUser(uid) match {
       case Some(ldapUser) => Success(createUser(ldapUser))
       case None => Failure(new IllegalStateException(s"User $uid not found in LDAP"))
     }
   }
 
-  def setUserProfile(oid: String, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(oid,userProfile)
+  def findUser(uid: String ): Try[User] = {
+    val user = fetchCacheableUserData(uid)
+    user.map(u => u.copy(profile = Some(userRepository.userProfile(u.userId))))
+  }
+
+  def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(user, userProfile)
 
   def userProfile(oid: String): UserProfile = userRepository.userProfile(oid)
 

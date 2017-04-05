@@ -21,7 +21,8 @@ case class User(userId: String,
                 isAdmin: Boolean,
                 groups: Seq[Kayttooikeusryhma],
                 roles: Seq[String],
-                profile: UserProfile)
+                allowedCategories: Seq[Long] = Seq.empty,
+                profile: Option[UserProfile] = None)
 
 case class UserProfile(userId: String,
                        categories: Seq[Long] = Seq.empty,
@@ -67,6 +68,7 @@ case class Notification(id: Long,
                         content: Map[String, NotificationContent] = Map.empty,
                         tags: Seq[Long] = List.empty,
                         categories: Seq[Long] = List.empty,
+                        usergroups: Seq[Long] = List.empty,
                         createdBy: String,
                         createdAt: LocalDate,
                         modifiedBy: Option[String] = None,

@@ -4,19 +4,30 @@ virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}}
 
 #CAS
 cas.url={{cas_url}}
-virkailijan-tyopoyta.cas.service={{host_virkailija}}/virkailijan-tyopoyta
+virkailijan-tyopoyta.cas.service=https://{{host_virkailija}}/virkailijan-tyopoyta
 virkailijan-tyopoyta.cas.user={{virkailijan_tyopoyta_cas_user}}
 virkailijan-tyopoyta.cas.password={{virkailijan_tyopoyta_cas_password}}
 
 #Käyttöoikeuspalvelu
-kayttooikeus.url={{host_virkailija}}/kayttooikeus-service
+kayttooikeus.url=https://{{host_virkailija}}/kayttooikeus-service
 
 # LDAP
-ldap.server.host={{host_ldap}}
+ldap.server.host=https://{{host_ldap}}
 ldap.user.dn={{ldap_manager_userdn}}
 ldap.user.password={{ldap_manager_password}}
 
 #DB
-db.uri={{virkailijan_tyopoyta_db_uri}}
-db.username={{virkailijan_tyopoyta_db_username}}
-db.password={{virkailijan_tyopoyta_db_password}}
+db.type=postgresql
+db.postgresql.uri={{virkailijan_tyopoyta_db_uri}}
+db.postgresql.username={{virkailijan_tyopoyta_db_username}}
+db.postgresql.password={{virkailijan_tyopoyta_db_password}}
+
+
+#Ryhmäsähköposti
+ryhmasahkoposti.cas.service = https://{{host_virkailija}}/ryhmasahkoposti-service
+ryhmasahkoposti.service = https://{{host_virkailija}}/ryhmasahkoposti-service/email
+
+osoitepalvelu.service = https://{{host_virkailija}}/osoitekoostepalvelu
+
+oph.logo.url = "http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif"
+kayttooikeus.url = "https://itest-virkailija.oph.ware.fi/kayttooikeus-service"

@@ -31,9 +31,15 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) exte
   private def filterUserGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] =
     groups.map(g => g.copy(roles = rightsForGroup(g))).filter(_.roles.nonEmpty)
 
+  def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
 
-  def userGroupsForUser(roles: Seq[String]): Seq[Kayttooikeusryhma] = {
-    appGroups.filter(_.roles.intersect(roles).nonEmpty)
+    if(isAdmin) appGroups else {
+      val groupsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/henkilo/$oid", RequestMethod.GET)
+
+      val userRights = parseResponse(groupsResponse, forUser = true)
+
+      appGroups.toSet.intersect(userRights.toSet).toList
+    }
   }
 
   def fetchServiceUsergroups: Seq[Kayttooikeusryhma] = {
