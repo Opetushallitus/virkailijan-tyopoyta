@@ -223,7 +223,8 @@ class Routes(authenticationService: UserService,
                   d <- day
                 } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
                 val releases = releaseRepository.emailReleasesForDate(date)
-                emailService.sendEmails(releases, emailService.TimedEmail)
+                val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
+                emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
               })
             }
           }
