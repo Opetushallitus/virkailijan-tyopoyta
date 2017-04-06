@@ -8,6 +8,14 @@ function getItemId (timeline) {
   return R.inc(R.prop('id', R.last(timeline)))
 }
 
+function emptyContent (id, language) {
+  return {
+    timelineId: id,
+    language,
+    text: ''
+  }
+}
+
 function newItem (releaseId, timeline) {
   const id = timeline.length
     ? getItemId(timeline)
@@ -19,8 +27,8 @@ function newItem (releaseId, timeline) {
     initialDate: null,
     date: null,
     content: {
-      fi: {timelineId: id, language: 'fi', text: ''},
-      sv: {timelineId: id, language: 'sv', text: ''}
+      fi: emptyContent(id, 'fi'),
+      sv: emptyContent(id, 'sv')
     },
     validationState: 'empty'
   }
@@ -88,6 +96,7 @@ const events = {
 
 const editTimeline = {
   events,
+  emptyContent,
   newItem,
   updateItem,
   updateContent,

@@ -10,24 +10,25 @@ function update (state, { prop, value }) {
 }
 
 function onAlertsReceived (state, alert) {
-  const alerts = state.view.alerts
+  const newAlerts = setNewAlerts(alert, state.view.alerts)
+
+  return update(state, { prop: 'alerts', value: newAlerts })
+}
+
+function setNewAlerts (alert, alerts) {
   const maxCount = 5
 
   // Remove last alert if view has max count of alerts
   if (R.equals(maxCount, R.length(alerts))) {
-    return update(state, { prop: 'alerts', value: R.prepend(alert, R.dropLast(1, state.view.alerts)) })
+    return R.prepend(alert, R.dropLast(1, alerts))
   }
 
   // Remove previous alert if it has the same title
   if (R.length(alerts) > 0 && R.equals(alert.titleKey, R.prop('titleKey', R.head(alerts)))) {
-    return update(state, { prop: 'alerts', value: R.prepend(alert, R.drop(1, state.view.alerts)) })
+    return R.prepend(alert, R.drop(1, alerts))
   }
 
-  return update(state, { prop: 'alerts', value: R.prepend(alert, state.view.alerts) })
-}
-
-function toggleTab (state, selectedTab) {
-  return update(state, { prop: 'selectedTab', value: selectedTab })
+  return R.prepend(alert, alerts)
 }
 
 function removeAlert (state, id) {
@@ -36,6 +37,10 @@ function removeAlert (state, id) {
   const newAlerts = R.reject(alert => alert.id === id, state.view.alerts)
 
   return update(state, { prop: 'alerts', value: newAlerts })
+}
+
+function toggleTab (state, selectedTab) {
+  return update(state, { prop: 'selectedTab', value: selectedTab })
 }
 
 function emptyView () {
@@ -57,10 +62,11 @@ const view = {
   alertsBus,
   events,
   initialState,
+  emptyView,
   onAlertsReceived,
-  toggleTab,
+  setNewAlerts,
   removeAlert,
-  emptyView
+  toggleTab
 }
 
 export default view
