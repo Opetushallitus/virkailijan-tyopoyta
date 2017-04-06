@@ -187,7 +187,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
 
-  def tags: Seq[TagGroup] = {
+  private def tagGroupShownToUser(tagGroup: TagGroup, user: User): Boolean =
+    tagGroup.categories.isEmpty || tagGroup.categories.intersect(user.allowedCategories).nonEmpty
+
+
+  def tags(user: User): Seq[TagGroup] = {
     val sql = withSQL[TagGroup]{
       select
         .from(TagGroupTable as tg)
@@ -200,7 +204,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => TagGroupCategoryTable.opt(tgc)(rs))
       .map{
         (tagGroup, tags, categories) => tagGroup.copy(tags = tags, categories = categories.map(_.categoryId))
-      }.list.apply()
+      }.list.apply().filter(tagGroupShownToUser(_, user))
   }
 
   def categories(user: User): Seq[Category] = {

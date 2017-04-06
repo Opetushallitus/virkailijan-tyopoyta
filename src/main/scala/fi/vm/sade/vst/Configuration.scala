@@ -3,11 +3,12 @@ package fi.vm.sade.vst
 import java.io.File
 import java.nio.file.Paths
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.softwaremill.session.SessionConfig
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import fi.vm.sade.security.ldap.LdapConfig
 
 case class AuthenticationConfig(casUrl: String, serviceId: String, casUsername: String, casPassword: String, kayttooikeusUri: String,  memoizeDuration: Int)
-case class ServerConfig(port: Int, sessionSecret: String)
+case class ServerConfig(port: Int)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
 case class CasConfig(casUrl: String, casUsername: String, casPassword: String)
@@ -36,8 +37,7 @@ trait Configuration {
   lazy val emailConfig = EmailConfig(config.getString("osoitepalvelu.service"), defaultCasConfig)
 
   lazy val serverConfig = ServerConfig(
-    config.getInt("server.port"),
-    config.getString("virkailijan-tyopoyta.session.secret"))
+    config.getInt("server.port"))
   lazy val loginPage = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl = config.getString("oph.logo.url")
 
@@ -61,4 +61,11 @@ trait Configuration {
     config.getString(s"db.pool.poolValidationQuery"))
 
   lazy val dbType: String = config.getString("db.type")
+
+  private lazy val sessionSecret = config.getString("virkailijan-tyopoyta.session.secret")
+
+  private lazy val sessionConf = ConfigFactory.parseResources("conf/session.conf")
+    .withValue("akka.http.session.server-secret", ConfigValueFactory.fromAnyRef(sessionSecret))
+
+  lazy val sessionConfig: SessionConfig = SessionConfig.fromConfig(sessionConf)
 }
