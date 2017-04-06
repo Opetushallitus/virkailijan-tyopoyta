@@ -7,6 +7,7 @@ import fi.vm.sade.vst.repository.RepositoryModule
 import fi.vm.sade.vst.security.{KayttooikeusService, RequestMethod, CasUtils}
 import java.time.LocalDate
 import scala.util.{Failure, Success, Try}
+import play.api.libs.json._
 
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService)
@@ -18,43 +19,70 @@ class EmailService(casUtils: CasUtils,
   sealed trait EmailEventType { val description: String }
   case object ImmediateEmail extends EmailEventType { val description = "Immediately sent email" }
   case object TimedEmail extends EmailEventType { val description = "Normally timed email" }
+  sealed case class UserOidEmail(userOid: String, email: String)
+  sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
 
   lazy val emailConfiguration = new GroupEmailerSettings(config)
   lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
 //  lazy val groupEmailService: GroupEmailService = new FakeGroupEmailService
   private def casClient = casUtils.serviceClient(emailConfig.serviceAddress)
+  private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
-  private def parseEmailFromResponse(response: String): Seq[String] = {
+  private def parseLanguagesFromResponse(response: String): Map[String, Seq[String]] = {
+    val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
+    val oidWithLanguages = json.map { value =>
+      val oid = (value \ "oidHenkilo").as[String]
+      val languages = (value \\ "kieliKoodi").map(_.as[String])
+      (oid, languages)
+    }
+    oidWithLanguages.toMap
+  }
+
+  private def parseOidAndEmailFromResponse(response: String): Seq[UserOidEmail] = {
     Try(scala.xml.XML.loadString(response)) match {
       case Success(s) =>
-        val parsedXml = s \\ "henkiloEmail"
-        parsedXml.map(_.text)
+        val rows = s \\ "rows"
+        rows.map { row =>
+          val oid = (row \ "henkiloOid").text
+          val email = (row \ "henkiloEmail").text
+          UserOidEmail(oid, email)
+        }
       case Failure(f) =>
         Seq.empty
     }
   }
 
-  private def parseResponse(resp: Try[String]): Seq[String] = {
+  private def parseResponse(resp: Try[String]): Seq[UserOidEmail] = {
     resp match {
       case Success(s) =>
-        parseEmailFromResponse(s)
+        parseOidAndEmailFromResponse(s).filter(oidAndEmail => oidAndEmail.userOid.nonEmpty && oidAndEmail.email.nonEmpty)
       case Failure(f) =>
         Seq.empty
+    }
+  }
+
+  private def parseUserLanguageInformation(resp: Try[String]): Map[String, Seq[String]] = {
+    resp match {
+      case Success(s) =>
+        parseLanguagesFromResponse(s)
+      case Failure(f) =>
+        Map.empty
     }
   }
 
   def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
-    val emailsToReleases = releases.flatMap { release =>
-      val emails = emailsForUserGroup(userGroupsForRelease(release))
-      emails.map(_ -> release)
+    val userInfoToReleases = releases.flatMap { release =>
+      val oidsAndEmails = oidsAndEmailsForUserGroup(userGroupsForRelease(release))
+      val userInfo = userInformation(oidsAndEmails)
+      userInfo.map(_ -> release)
     }
-    val emailsToReleasesMap = emailsToReleases.groupBy(_._1).mapValues(_.map(_._2))
-    val result = emailsToReleasesMap.flatMap {
-      case (emailAddress, releases) =>
-        val recipients = List(formRecipient(emailAddress))
-        val email = formEmail(releases)
+    val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
+    val result = userInfoToReleasesMap.flatMap {
+      case (userInfo, releases) =>
+        val recipients = List(formRecipient(userInfo.email))
+        val email = formEmail(userInfo, releases)
         groupEmailService.sendMailWithoutTemplate(EmailData(email, recipients))
     }
 
@@ -69,7 +97,8 @@ class EmailService(casUtils: CasUtils,
     sendEmails(releases ++ previousDateReleases, TimedEmail)
   }
 
-  def formEmail(releases: Iterable[Release]): EmailMessage = {
+  def formEmail(userInfo: BasicUserInformation, releases: Iterable[Release]): EmailMessage = {
+    val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
     val dates = releases.flatMap(_.notification.map(_.publishDate))
     val minDate = dates.min
     val maxDate = dates.max
@@ -78,7 +107,7 @@ class EmailService(casUtils: CasUtils,
       if (minDate == maxDate) s"${minDate.format(formatter)}"
       else s"väliltä ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
     val subject = s"Koonti päivän tiedotteista $subjectDateString"
-    EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, "fi"), html = true)
+    EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, language), html = true)
   }
 
   def formRecipient(email: String): EmailRecipient = {
@@ -92,7 +121,7 @@ class EmailService(casUtils: CasUtils,
     accessService.appGroups.filter(appGroup => userGroups.contains(appGroup.id)).map(_.name)
   }
 
-  def emailsForUserGroup(userGroups: Seq[String]): Seq[String] = {
+  def oidsAndEmailsForUserGroup(userGroups: Seq[String]): Seq[UserOidEmail] = {
     val userGroupsValues = userGroups.map(group => s""""$group"""").mkString(",")
     val json = s"""{
                  |  "searchTerms": {
@@ -111,6 +140,24 @@ class EmailService(casUtils: CasUtils,
     val response = casClient.authenticatedRequest(s"${emailConfig.serviceAddress}/api/search/list.json?lang=fi", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
     parseResponse(response)
   }
+
+  private def userInformation(userOidAndEmail: Seq[UserOidEmail]): Seq[BasicUserInformation] = {
+    val formattedOids = userOidAndEmail.map { oidAndEmail => s""""${oidAndEmail.userOid}""""}
+    val json = s"""[${formattedOids.mkString(",")}]"""
+    val body = Option(json)
+    val response = oppijanumeroRekisteri.authenticatedRequest(s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
+    val languages = parseUserLanguageInformation(response)
+    basicUserInformation(userOidAndEmail, languages)
+  }
+
+  private def basicUserInformation(userOidAndEmail: Seq[UserOidEmail], userLanguages: Map[String, Seq[String]]): Seq[BasicUserInformation] = {
+    userOidAndEmail.map { userInformation =>
+      val languages = userLanguages.getOrElse(userInformation.userOid, Seq.empty)
+      BasicUserInformation(userInformation.userOid, userInformation.email, languages)
+    }
+  }
+
   private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
+
   private def addEmailEvents(emailEvents: Iterable[EmailEvent]): Iterable[EmailEvent] = emailEvents.flatMap(emailRepository.addEvent)
 }

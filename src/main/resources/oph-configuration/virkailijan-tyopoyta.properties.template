@@ -31,3 +31,6 @@ osoitepalvelu.service = https://{{host_virkailija}}/osoitekoostepalvelu
 
 oph.logo.url = "http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif"
 kayttooikeus.url = "https://itest-virkailija.oph.ware.fi/kayttooikeus-service"
+
+# Oppijanumerorekisteri
+oppijanumerorekisteri.service = "https://itest-virkailija.oph.ware.fi/oppijanumerorekisteri-service"
