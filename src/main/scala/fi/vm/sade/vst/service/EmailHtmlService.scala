@@ -54,7 +54,9 @@ object EmailHtmlService extends Configuration {
   }
 
   def htmlReleaseBlock(release: Release, language: String) = {
-    val releaseContent = release.notification.flatMap(_.content.get(language))
+    val notificationContent = release.notification.map(_.content)
+    // This defaults to Finnish content if no content is found on given language
+    val releaseContent = notificationContent.flatMap(_.get(language)).orElse(notificationContent.flatMap(_.get("fi")))
     val title = releaseContent.map(_.title).getOrElse("No title")
     val mainContent = mainReleaseContent(releaseContent.map(_.text).getOrElse(""))
 

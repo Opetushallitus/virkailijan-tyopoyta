@@ -30,3 +30,6 @@ ryhmasahkoposti.service = https://{{host_virkailija}}/ryhmasahkoposti-service/em
 osoitepalvelu.service = https://{{host_virkailija}}/osoitekoostepalvelu
 
 oph.logo.url = "http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif"
+
+# Oppijanumerorekisteri
+oppijanumerorekisteri.service = "https://{{host_virkailija}}/oppijanumerorekisteri-service"
