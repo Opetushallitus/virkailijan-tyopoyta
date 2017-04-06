@@ -89,9 +89,6 @@ function onSaveComplete (state) {
     titleKey: 'julkaisuonnistui'
   })
 
-  const month = moment().format('M')
-  const year = moment().format('YYYY')
-
   const newViewAlerts = R.append(alert, state.view.alerts)
   const newState = R.compose(
     R.assocPath(['view', 'alerts'], newViewAlerts),
@@ -103,11 +100,6 @@ function onSaveComplete (state) {
   )(state)
 
   window.localStorage.removeItem(state.draftKey)
-
-  timeline.fetch({
-    month,
-    year
-  })
 
   return close(newState)
 }
