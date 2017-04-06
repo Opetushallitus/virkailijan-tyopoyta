@@ -57,6 +57,16 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
 //      import scodec.bits.ByteVector
 //      import scalaz.stream.{Process => ScalazProcess}
 //      val requestBody = body.map(content => ScalazProcess.emit(content).map(s => ByteVector(s.getBytes))).getOrElse(EmptyBody)
+      val uriOption = Uri.fromString(uri).toOption
+
+      uriOption match {
+        case Some(u) => u
+        case None => {
+          println(s"Failed parsing uri: $uri")
+          None
+        }
+      }
+
       val request = Request(method = http4sMethod, uri = Uri.fromString(uri).toOption.get, headers = headers) //, body = requestBody)
 
       val send = body.map({ body =>

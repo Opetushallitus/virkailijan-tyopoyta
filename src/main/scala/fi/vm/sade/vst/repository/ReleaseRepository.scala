@@ -16,7 +16,7 @@ trait ReleaseRepository{
   def deleteTimelineItem(id: Long): Int
 
 
-  def tags: Seq[TagGroup]
+  def tags(user: User): Seq[TagGroup]
   def categories(user: User): Seq[Category]
 
   //TODO: add user

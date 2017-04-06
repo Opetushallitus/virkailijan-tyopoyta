@@ -14,8 +14,6 @@ import fi.vm.sade.vst.security.{KayttooikeusService, UserService}
 import fi.vm.sade.vst.service.EmailService
 import java.time.YearMonth
 
-import fi.vm.sade.vst.ServerConfig
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -26,13 +24,11 @@ class Routes(authenticationService: UserService,
              kayttooikeusService: KayttooikeusService,
              releaseRepository: ReleaseRepository,
              userService: UserService,
-             config: ServerConfig)
+             sessionConfig: SessionConfig)
   extends Directives
   with JsonSupport {
 
-  val sessionConfig: SessionConfig = SessionConfig.default(config.sessionSecret)
   implicit val sessionManager = new SessionManager[String](sessionConfig)
-
 
   def authenticateUser(ticket: String): Route = {
     userService.authenticate(ticket) match {
@@ -213,7 +209,12 @@ class Routes(authenticationService: UserService,
           case Failure(e) => complete(StatusCodes.InternalServerError)
         }
       } ~
-      path("tags"){sendResponse(Future(releaseRepository.tags))} ~
+      path("tags") {
+        userService.findUser(uid) match {
+          case Success(u) => sendResponse(Future(releaseRepository.tags(u)))
+          case Failure(e) => complete(StatusCodes.InternalServerError)
+        }
+      } ~
       path("usergroups"){sendResponse(Future(userService.serviceUserGroups))}
     }
   }
