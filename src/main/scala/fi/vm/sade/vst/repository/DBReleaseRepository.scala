@@ -139,7 +139,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .where.not.gt(n.publishDate, LocalDate.now())
         .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
-        .and.in(rc.categoryId, cats)
+        .and.withRoundBracket(_.in(rc.categoryId, cats).or.isNull(rc.categoryId))
         .and(sqls.toAndConditionOpt(
           tags.map(t => sqls.in(nt.tagId, t))
         ))
