@@ -10,13 +10,13 @@ trait ReleaseRepository{
   def notification(id: Long, user: User) : Option[Notification]
   def deleteNotification(id: Long): Int
 
-  def unpublishedNotifications: Seq[Notification]
+  def unpublishedNotifications(user: User): Seq[Notification]
 
   def timeline(categories: RowIds, month: YearMonth, user: User): Timeline
   def deleteTimelineItem(id: Long): Int
 
 
-  def tags: Seq[TagGroup]
+  def tags(user: User): Seq[TagGroup]
   def categories(user: User): Seq[Category]
 
   //TODO: add user
@@ -29,10 +29,10 @@ trait ReleaseRepository{
   def emailLogs: Seq[EmailEvent]
 
   def deleteRelease(id: Long): Int
-  def addRelease(uid: String, release: ReleaseUpdate): Option[Release]
-  def updateRelease(uid: String, release: ReleaseUpdate): Option[Release]
+  def addRelease(user: User, release: ReleaseUpdate): Option[Release]
+  def updateRelease(user: User, release: ReleaseUpdate): Option[Release]
 
-  def generateReleases(amount: Int, month: YearMonth): Seq[Release]
+  def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release]
 
 
 

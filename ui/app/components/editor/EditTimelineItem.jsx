@@ -56,7 +56,7 @@ function EditTimelineItem (props) {
             name={`timeline-item-${item.id}-text-sv`}
           >
             <TextEditor
-              data={item.content.fi.text}
+              data={item.content.sv.text}
               save={controller.updateContent(item.id, 'sv', 'text')}
             />
           </Field>
@@ -80,6 +80,7 @@ function EditTimelineItem (props) {
         {/*Remove item*/}
         <div className="oph-h3 flex-auto flex items-end justify-end">
           <IconButton
+            id={`timeline-item-${item.id}-remove-button`}
             title={translate('poistatapahtuma')}
             icon="trash"
             onClick={handleRemoveItemClick}

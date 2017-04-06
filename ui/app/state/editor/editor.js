@@ -23,11 +23,8 @@ const autoSaveBus = new Bacon.Bus()
 
 function getRelease (id) {
   getData({
-    // TODO: Change URL
-    // url: `${urls.release}/${id}`,
-    url: urls.release,
+    url: `${urls.release}/${id}`,
     method: 'GET',
-    searchParams: { id },
     onSuccess: release => fetchReleaseBus.push(release, id),
     onError: error => fetchReleaseFailedBus.push(error)
   })
@@ -36,12 +33,14 @@ function getRelease (id) {
 function onReleaseReceived (state, response) {
   console.log('Received release')
 
-  // TODO: Remove from production
-  response.userGroups = response.userGroups || []
+  // Add content.sv if absent to all timeline items
+  R.forEach(item => (item.content.sv = item.content.sv || editTimeline.emptyContent(item.id, 'sv')), response.timeline)
 
   const release = R.compose(
-    R.assocPath(['notification', 'content', 'sv'], response.notification.content.sv ||
-      editNotification.emptyContent(-1, 'sv')),
+    R.assocPath(
+      ['notification', 'content', 'sv'],
+      R.path(['notification', 'content', 'sv'], response) || editNotification.emptyContent(-1, 'sv')
+    ),
     R.assocPath(['notification', 'validationState'], response.notification ? 'complete' : 'empty'),
     R.assoc('notification', response.notification || editNotification.emptyNotification()),
     R.assoc('validationState', 'complete')
@@ -49,7 +48,7 @@ function onReleaseReceived (state, response) {
 
   /*
     Check if the requested release is the same as received,
-    as multiple requests for releases may be running at the same time
+    as multiple requests for releases may be pending at the same time
   */
   if (response.id === state.editor.requestedReleaseId) {
     return R.compose(
@@ -65,23 +64,22 @@ function onFetchReleaseFailed (state, response) {
   console.log('Fetching release failed')
 
   const alert = createAlert({
-    type: 'error',
+    variant: 'error',
     titleKey: 'julkaisunhakuepaonnistui',
     textKey: 'suljejaavaaeditori'
   })
 
-  onAlertsReceived(state, alert)
-
   return R.compose(
+    R.assocPath(['editor', 'alerts'], R.append(alert, state.editor.alerts)),
     R.assocPath(['editor', 'isLoadingRelease'], false),
     R.assocPath(['editor', 'editedRelease'], emptyRelease())
   )(state)
 }
 
 function onAlertsReceived (state, alert) {
-  const newViewAlerts = R.append(alert, state.editor.alerts)
+  const newEditorAlerts = R.append(alert, state.editor.alerts)
 
-  return R.assocPath(['editor', 'alerts'], newViewAlerts, state)
+  return R.assocPath(['editor', 'alerts'], newEditorAlerts, state)
 }
 
 function onSaveComplete (state) {
@@ -92,10 +90,8 @@ function onSaveComplete (state) {
     titleKey: 'julkaisuonnistui'
   })
 
-  const month = moment().format('M')
-  const year = moment().format('YYYY')
+  const newViewAlerts = view.setNewAlerts(alert, state.view.alerts)
 
-  const newViewAlerts = R.append(alert, state.view.alerts)
   const newState = R.compose(
     R.assocPath(['view', 'alerts'], newViewAlerts),
     R.assoc('view', view.emptyView()),
@@ -106,11 +102,6 @@ function onSaveComplete (state) {
   )(state)
 
   window.localStorage.removeItem(state.draftKey)
-
-  timeline.fetch({
-    month,
-    year
-  })
 
   return close(newState)
 }
