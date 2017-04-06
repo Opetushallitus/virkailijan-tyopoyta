@@ -139,7 +139,11 @@ class Routes(authenticationService: UserService,
             }
           } ~
           path("unpublished") {
-            sendResponse(Future(releaseRepository.unpublishedNotifications))
+            userService.findUser(uid) match {
+              case Success(u) => sendResponse(Future(releaseRepository.unpublishedNotifications(u)))
+              case Failure(_) => complete(StatusCodes.Unauthorized)
+            }
+
           }
         } ~
         delete{

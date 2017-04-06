@@ -10,7 +10,7 @@ trait ReleaseRepository{
   def notification(id: Long, user: User) : Option[Notification]
   def deleteNotification(id: Long): Int
 
-  def unpublishedNotifications: Seq[Notification]
+  def unpublishedNotifications(user: User): Seq[Notification]
 
   def timeline(categories: RowIds, month: YearMonth, user: User): Timeline
   def deleteTimelineItem(id: Long): Int
