@@ -259,14 +259,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     releaseId
   }
 
-  private def insertNotification(releaseId: Long, uid: String, notification: NotificationUpdate)(implicit session: DBSession): Long = {
+  private def insertNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
     val n = NotificationTable.column
     withSQL {
       insert.into(NotificationTable).namedValues(
         n.releaseId -> releaseId,
         n.publishDate -> notification.publishDate,
         n.expiryDate -> notification.expiryDate,
-        n.createdBy -> uid,
+        n.createdBy -> s"${user.givenNames.head}${user.lastName.head}",
         n.createdAt -> LocalDate.now()
       )
     }.updateAndReturnGeneratedKey().apply()
@@ -294,8 +294,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
-  private def addNotification(releaseId: Long, uid: String, notification: NotificationUpdate)(implicit session: DBSession): Long = {
-      val notificationId: Long = insertNotification(releaseId, uid, notification)
+  private def addNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
+      val notificationId: Long = insertNotification(releaseId, user, notification)
       notification.content.values.foreach(insertNotificationContent(notificationId, _))
       notification.tags.foreach(t => insertNotificationTags(notificationId, t))
       notificationId
@@ -397,13 +397,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     withSQL(update(NotificationTable as n).set(NotificationTable.column.deleted -> true).where.eq(n.id, notificationId)).update().apply()
   }
 
-  private def updateNotification(current: Notification, updated: NotificationUpdate, userId: String): Unit = {
+  private def updateNotification(current: Notification, updated: NotificationUpdate, user: User): Unit = {
     val column = NotificationTable.column
     withSQL{
       update(NotificationTable as n).set(column.publishDate -> updated.publishDate,
         column.expiryDate -> updated.expiryDate,
         column.sendEmail -> updated.sendEmail,
-        column.modifiedBy -> userId,
+        column.modifiedBy -> s"${user.givenNames.head}${user.lastName.head}",
         column.modifiedAt -> LocalDate.now()).where.eq(n.id, updated.id)
     }.update().apply()
 
@@ -411,13 +411,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     updated.content.values.foreach(insertNotificationContent(current.id, _))
   }
 
-  private def insertOrUpdateNotification(releaseUpdate: ReleaseUpdate, userId: String)(implicit session: DBSession) = {
+  private def insertOrUpdateNotification(releaseUpdate: ReleaseUpdate, user: User)(implicit session: DBSession) = {
     val currentNotification: Option[Notification] = notificationForRelease(releaseUpdate.id)
 
     (currentNotification, releaseUpdate.notification) match {
-      case (None, Some(n)) => addNotification(releaseUpdate.id, userId, n)
+      case (None, Some(n)) => addNotification(releaseUpdate.id, user, n)
       case (Some(n), None) => deleteNotification(n.id)
-      case (Some(current), Some(updated)) => updateNotification(current, updated, userId)
+      case (Some(current), Some(updated)) => updateNotification(current, updated, user)
       case _ => ()
     }
   }
@@ -434,7 +434,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     item.content.values.foreach(insertTimelineContent(item.id, _))
   }
 
-  private def updateReleaseTimeline(releaseUpdate: ReleaseUpdate, userId: String) = {
+  private def updateReleaseTimeline(releaseUpdate: ReleaseUpdate) = {
     val currentTimeline: Seq[TimelineItem] = timelineForRelease(releaseUpdate.id)
 
     //check for new items to be inserted
@@ -453,22 +453,22 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
 
-  override def updateRelease(userId: String, releaseUpdate: ReleaseUpdate): Option[Release] = {
+  override def updateRelease(user: User, releaseUpdate: ReleaseUpdate): Option[Release] = {
     DB localTx { implicit session =>
 
       updateReleaseCategories(releaseUpdate)
       updateReleaseUsergroups(releaseUpdate)
-      insertOrUpdateNotification(releaseUpdate, userId)
-      updateReleaseTimeline(releaseUpdate, userId)
+      insertOrUpdateNotification(releaseUpdate, user)
+      updateReleaseTimeline(releaseUpdate)
 
       findRelease(releaseUpdate.id)
     }
   }
 
-  override def addRelease(uid: String, releaseUpdate: ReleaseUpdate): Option[Release] = {
+  override def addRelease(user: User, releaseUpdate: ReleaseUpdate): Option[Release] = {
     val id = DB localTx { implicit session =>
       val releaseId = insertRelease(releaseUpdate)
-      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, uid, _))
+      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, user, _))
       releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
       releaseId
     }
@@ -489,8 +489,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
-  override def generateReleases(amount: Int, month: YearMonth): Seq[Release] = {
-    val releases = for(_ <- 1 to amount) yield generateRelease("testi", month)
+  override def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release] = {
+    val releases = for(_ <- 1 to amount) yield generateRelease(user: User, month)
     releases.flatten
   }
 
@@ -518,14 +518,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
   }
   private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty)
-  private def generateRelease(uid: String, month: YearMonth): Option[Release] = {
+  private def generateRelease(user: User, month: YearMonth): Option[Release] = {
     val releaseId = addNewRelease(emptyRelease)
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
     val startDate = month.atDay(startDay)
     val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
     val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
     val notification = NotificationUpdate(releaseId, releaseId, startDate, Option(endDate),  Map("fi" -> notificationContent), List.empty)
-    addNotification(releaseId, uid, notification)
+    addNotification(releaseId, user, notification)
     generateTimeLine(releaseId, startDate, endDate)
     release(releaseId)
   }

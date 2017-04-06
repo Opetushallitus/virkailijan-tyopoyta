@@ -8,7 +8,7 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
-import fi.vm.sade.vst.model.{JsonSupport, Release}
+import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate, User}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.{KayttooikeusService, UserService}
 import fi.vm.sade.vst.service.EmailService
@@ -77,42 +77,44 @@ class Routes(authenticationService: UserService,
     release
   }
 
-  val releaseRoutes: Route = {
-    requiredSession(oneOff, usingCookies) { uid =>
-      pathPrefix("release"){
-        get{
-          path(IntNumber) { id =>
-            val release = Future(releaseRepository.release(id))
-            onComplete(release) {
-              case Success(result) ⇒
-                result match {
-                  case Some(r) => sendResponse(release)
-                  case None => complete(StatusCodes.NoContent)
-                }
-              case Failure(e) ⇒
-                complete(StatusCodes.InternalServerError, e.getMessage)
+  val releaseRoutes: Route = requiredSession(oneOff, usingCookies) { uid =>
+    pathPrefix("release"){
+      get{
+        path(IntNumber) { id =>
+          val release = Future(releaseRepository.release(id))
+          onComplete(release) {
+            case Success(result) ⇒
+              result match {
+                case Some(r) => sendResponse(release)
+                case None => complete(StatusCodes.NoContent)
+              }
+            case Failure(e) ⇒
+              complete(StatusCodes.InternalServerError, e.getMessage)
+          }
+        }
+      } ~
+      post {
+        pathEnd{
+          entity(as[String]) { json =>
+            val release = parseReleaseUpdate(json)
+            val user = userService.findUser(uid)
+            (release, user.toOption) match {
+              case (Some(r: ReleaseUpdate), Some(u: User)) => sendResponse(Future(releaseRepository.addRelease(u, r).map(sendInstantEmails)))
+              case (None, _) => complete(StatusCodes.BadRequest)
+              case (_, None) => complete(StatusCodes.Unauthorized)
             }
           }
-        } ~
-        post {
-          pathEnd{
-            entity(as[String]) { json =>
-              val release = parseReleaseUpdate(json)
-              release match {
-                case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
-                case None => complete(StatusCodes.BadRequest)
-              }
-            }
-          }
-        } ~
-        put {
-          pathEnd{
-            entity(as[String]) { json =>
-              val release = parseReleaseUpdate(json)
-              release match {
-                case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
-                case None => complete(StatusCodes.BadRequest)
-              }
+        }
+      } ~
+      put {
+        pathEnd{
+          entity(as[String]) { json =>
+            val release = parseReleaseUpdate(json)
+            val user = userService.findUser(uid)
+            (release, user.toOption) match {
+              case (Some(r: ReleaseUpdate), Some(u: User)) => sendResponse(Future(releaseRepository.updateRelease(u, r).map(sendInstantEmails)))
+              case (None, _) => complete(StatusCodes.BadRequest)
+              case (_, None) => complete(StatusCodes.Unauthorized)
             }
           }
         }
@@ -256,15 +258,15 @@ class Routes(authenticationService: UserService,
     }
   }
 
-  val devRoutes: Route = {
-    path("generate"){
-      parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
-        (amount, year, month) => {
-          sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
-        }
-      }
-    }
-  }
+//  val devRoutes: Route = {
+//    path("generate"){
+//      parameters("amount" ? 1, "year".as[Int].?, "month".as[Int].?) {
+//        (amount, year, month) => {
+//          sendResponse(Future(releaseRepository.generateReleases(amount, parseMonth(year, month))))
+//        }
+//      }
+//    }
+//  }
 
   val apiRoutes: Route = releaseRoutes ~ notificationRoutes ~ timelineRoutes ~ userRoutes ~ serviceRoutes ~ emailRoutes
 

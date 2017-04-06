@@ -29,10 +29,10 @@ trait ReleaseRepository{
   def emailLogs: Seq[EmailEvent]
 
   def deleteRelease(id: Long): Int
-  def addRelease(uid: String, release: ReleaseUpdate): Option[Release]
-  def updateRelease(uid: String, release: ReleaseUpdate): Option[Release]
+  def addRelease(user: User, release: ReleaseUpdate): Option[Release]
+  def updateRelease(user: User, release: ReleaseUpdate): Option[Release]
 
-  def generateReleases(amount: Int, month: YearMonth): Seq[Release]
+  def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release]
 
 
 
