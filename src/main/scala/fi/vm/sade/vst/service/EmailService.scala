@@ -99,14 +99,16 @@ class EmailService(casUtils: CasUtils,
 
   def formEmail(userInfo: BasicUserInformation, releases: Iterable[Release]): EmailMessage = {
     val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
+    val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
+    val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
     val dates = releases.flatMap(_.notification.map(_.publishDate))
     val minDate = dates.min
     val maxDate = dates.max
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val subjectDateString =
       if (minDate == maxDate) s"${minDate.format(formatter)}"
-      else s"väliltä ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
-    val subject = s"Koonti päivän tiedotteista $subjectDateString"
+      else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
+    val subject = s"$contentHeader $subjectDateString"
     EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, language), html = true)
   }
 
