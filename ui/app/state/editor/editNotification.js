@@ -72,6 +72,7 @@ const events = {
 const editNotification = {
   events,
   emptyNotification,
+  emptyContent,
   update,
   updateContent,
   setAsDisruptionNotification

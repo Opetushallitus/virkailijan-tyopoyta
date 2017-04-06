@@ -40,7 +40,8 @@ function onReleaseReceived (state, response) {
   response.userGroups = response.userGroups || []
 
   const release = R.compose(
-    R.assocPath(['notification', 'content', 'sv'], response.notification.content.sv || {}),
+    R.assocPath(['notification', 'content', 'sv'], response.notification.content.sv ||
+      editNotification.emptyContent(-1, 'sv')),
     R.assocPath(['notification', 'validationState'], response.notification ? 'complete' : 'empty'),
     R.assoc('notification', response.notification || editNotification.emptyNotification()),
     R.assoc('validationState', 'complete')
