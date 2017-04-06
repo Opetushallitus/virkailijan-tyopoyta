@@ -83,9 +83,9 @@ class Routes(authenticationService: UserService,
 
   val releaseRoutes: Route = {
     requiredSession(oneOff, usingCookies) { uid =>
-      path("release"){
+      pathPrefix("release"){
         get{
-          parameters("id".as[Long]) { id =>
+          path(IntNumber) { id =>
             val release = Future(releaseRepository.release(id))
             onComplete(release) {
               case Success(result) ⇒
@@ -99,20 +99,24 @@ class Routes(authenticationService: UserService,
           }
         } ~
         post {
-          entity(as[String]) { json =>
-            val release = parseReleaseUpdate(json)
-            release match {
-              case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
-              case None => complete(StatusCodes.BadRequest)
+          pathEnd{
+            entity(as[String]) { json =>
+              val release = parseReleaseUpdate(json)
+              release match {
+                case Some(r) => sendResponse(Future(releaseRepository.addRelease(uid, r).map(sendInstantEmails)))
+                case None => complete(StatusCodes.BadRequest)
+              }
             }
           }
         } ~
         put {
-          entity(as[String]) { json =>
-            val release = parseReleaseUpdate(json)
-            release match {
-              case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
-              case None => complete(StatusCodes.BadRequest)
+          pathEnd{
+            entity(as[String]) { json =>
+              val release = parseReleaseUpdate(json)
+              release match {
+                case Some(r) => sendResponse(Future(releaseRepository.updateRelease(uid, r).map(sendInstantEmails)))
+                case None => complete(StatusCodes.BadRequest)
+              }
             }
           }
         }
