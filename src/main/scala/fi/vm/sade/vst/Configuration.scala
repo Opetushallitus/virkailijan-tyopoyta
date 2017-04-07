@@ -13,6 +13,7 @@ case class DBConfig(url: String, driver: String, username: String, password: Str
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
 case class CasConfig(casUrl: String, casUsername: String, casPassword: String)
 case class EmailConfig(serviceAddress: String, casConfig: CasConfig)
+case class OppijanumeroRekisteriConfig(serviceAddress: String)
 
 trait Configuration {
 
@@ -35,6 +36,7 @@ trait Configuration {
 
   lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("cas.username"), config.getString("cas.password"))
   lazy val emailConfig = EmailConfig(config.getString("osoitepalvelu.service"), defaultCasConfig)
+  lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(config.getString("oppijanumerorekisteri.service"))
 
   lazy val serverConfig = ServerConfig(
     config.getInt("server.port"))

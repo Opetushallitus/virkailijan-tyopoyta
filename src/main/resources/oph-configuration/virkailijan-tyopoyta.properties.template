@@ -12,7 +12,7 @@ virkailijan-tyopoyta.cas.password={{virkailijan_tyopoyta_cas_password}}
 kayttooikeus.url=https://{{host_virkailija}}/kayttooikeus-service
 
 # LDAP
-ldap.server.host=https://{{host_ldap}}
+ldap.server.host={{host_ldap}}
 ldap.user.dn={{ldap_manager_userdn}}
 ldap.user.password={{ldap_manager_password}}
 
@@ -30,3 +30,6 @@ ryhmasahkoposti.service = https://{{host_virkailija}}/ryhmasahkoposti-service/em
 osoitepalvelu.service = https://{{host_virkailija}}/osoitekoostepalvelu
 
 oph.logo.url = "http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif"
+
+# Oppijanumerorekisteri
+oppijanumerorekisteri.service = "https://{{host_virkailija}}/oppijanumerorekisteri-service"
