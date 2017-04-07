@@ -53,6 +53,8 @@ class UserService(casUtils: CasUtils,
 
   def userProfile(oid: String): UserProfile = userRepository.userProfile(oid)
 
+  def userProfiles(oids: Seq[String]): List[UserProfile] = userRepository.userProfiles(oids)
+
   def serviceUserGroups: Seq[Kayttooikeusryhma] = kayttooikeusService.appGroups
 
   def saveDraft(user: User, draft: String): Unit = userRepository.saveDraft(user, draft)

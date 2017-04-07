@@ -4,13 +4,14 @@ import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.{EmailEvent, Release}
 import fi.vm.sade.vst.repository.RepositoryModule
-import fi.vm.sade.vst.security.{KayttooikeusService, RequestMethod, CasUtils}
+import fi.vm.sade.vst.security.{UserService, KayttooikeusService, RequestMethod, CasUtils}
 import java.time.LocalDate
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
 
 class EmailService(casUtils: CasUtils,
-                   val accessService: KayttooikeusService)
+                   val accessService: KayttooikeusService,
+                   val userService: UserService)
   extends RepositoryModule
   with GroupEmailComponent
   with Configuration
@@ -72,10 +73,19 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
+  private def filterUserInformation(userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
+    val userProfiles = userService.userProfiles(userInformation.map(_.userOid)).groupBy(_.userId)
+
+    userInformation.filter { user =>
+      val profiles = userProfiles.getOrElse(user.userOid, Seq.empty)
+      !profiles.exists(!_.sendEmail)
+    }
+  }
+
   def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
     val userInfoToReleases = releases.flatMap { release =>
       val oidsAndEmails = oidsAndEmailsForUserGroup(userGroupsForRelease(release))
-      val userInfo = userInformation(oidsAndEmails)
+      val userInfo = filterUserInformation(userInformation(oidsAndEmails))
       userInfo.map(_ -> release)
     }
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))

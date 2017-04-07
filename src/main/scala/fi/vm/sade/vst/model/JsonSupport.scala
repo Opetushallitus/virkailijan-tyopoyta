@@ -96,7 +96,7 @@ trait JsonSupport {
       (JsPath \ "endDate").readNullable[LocalDate](dateReads) and
       (JsPath \ "content").read[Map[String, NotificationContent]] and
       (JsPath \ "tags").read[Seq[Long]] and
-      Reads.pure(false)
+      (JsPath \ "sendEmail").read[Boolean]
     )(NotificationUpdate.apply _)
 
   implicit val notificationWrites: Writes[Notification] = Writes { notification =>
@@ -109,7 +109,8 @@ trait JsonSupport {
       "createdAt" -> notification.createdAt,
       "content" -> notification.content,
       "tags" -> notification.tags,
-      "categories" -> notification.categories
+      "categories" -> notification.categories,
+      "sendEmail" -> notification.sendEmail
     )
   }
 
