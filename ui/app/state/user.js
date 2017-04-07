@@ -8,11 +8,8 @@ import tagGroups from './tagGroups'
 import notifications from './notifications'
 import timeline from './timeline'
 
-// TODO: Remove test data
-
 import getData from '../utils/getData'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
-import * as testData from '../resources/test/testData.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -54,7 +51,7 @@ function onReceived (state, response) {
     R.assoc('draft', JSON.parse(window.localStorage.getItem(draftKey)) || response.profile.draft),
     R.assoc('draftKey', draftKey),
     R.assocPath(['notifications', 'categories'], response.profile.categories),
-    R.assocPath(['user', 'targetingGroups'], testData.targetingGroups),
+    R.assocPath(['user', 'targetingGroups'], response.profile.targetingGroups || []),
     R.assocPath(['user', 'isLoading'], false),
     R.assoc('user', response)
   )(state)
