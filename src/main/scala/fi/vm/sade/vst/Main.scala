@@ -11,6 +11,7 @@ object Main extends App with ServerModule with Configuration {
   migrations.run()
   println("Fetching service user groups")
   val groups = userService.serviceUserGroups
+  println(s"Found ${groups.length} groups")
   server.start()
   quartzScheduler.init()
 }

@@ -15,7 +15,7 @@ object Tables {
       Notification(id = rs.get(n.id),
         releaseId = rs.get(n.releaseId),
         publishDate = rs.localDate(n.publishDate),
-        expiryDate = None,
+        expiryDate = rs.localDateOpt(n.expiryDate),
         createdBy = rs.get(n.createdBy),
         createdAt = rs.get(n.createdAt),
         modifiedBy = rs.get(n.createdBy),

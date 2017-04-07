@@ -90,7 +90,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     .leftJoin(NotificationTable as n)
     .on(sqls.eq(r.id, n.releaseId)
       .and(sqls.le(n.publishDate, LocalDate.now()))
-      .and(sqls.gt(n.expiryDate, LocalDate.now())))
+      .and(sqls.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)))
     .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
 
 
@@ -187,7 +187,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         (_, categories, userGroups, timeline, content, notification) =>
           if(releaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)){
             timeline.map(tl =>
-              tl.copy(content = content.filter(_.timelineId == tl.id).groupBy(_.language).transform((_, v) => v.head),
+              tl.copy(
+                content = content.filter(_.timelineId == tl.id).groupBy(_.language).transform((_, v) => v.head),
                 notificationId = notification.headOption.map(_.id)))
           } else Seq.empty
     }.list.apply().flatten
