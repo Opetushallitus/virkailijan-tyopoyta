@@ -8,7 +8,7 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import fi.vm.sade.security.ldap.LdapConfig
 
 case class AuthenticationConfig(casUrl: String, serviceId: String, casUsername: String, casPassword: String, kayttooikeusUri: String,  memoizeDuration: Int)
-case class ServerConfig(port: Int)
+case class ServerConfig(port: Int, actorSystemConfig: Config)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
 case class CasConfig(casUrl: String, casUsername: String, casPassword: String)
@@ -38,8 +38,10 @@ trait Configuration {
   lazy val emailConfig = EmailConfig(config.getString("osoitepalvelu.service"), defaultCasConfig)
   lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(config.getString("oppijanumerorekisteri.service"))
 
-  lazy val serverConfig = ServerConfig(
-    config.getInt("server.port"))
+  lazy val actorSystemConfig: Config = ConfigFactory.parseResources("conf/akka.conf")
+
+  lazy val serverConfig = ServerConfig(config.getInt("server.port"), actorSystemConfig)
+
   lazy val loginPage = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl = config.getString("oph.logo.url")
 
@@ -70,4 +72,6 @@ trait Configuration {
     .withValue("akka.http.session.server-secret", ConfigValueFactory.fromAnyRef(sessionSecret))
 
   lazy val sessionConfig: SessionConfig = SessionConfig.fromConfig(sessionConf)
+
+
 }

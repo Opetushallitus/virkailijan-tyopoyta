@@ -1,18 +1,19 @@
 package fi.vm.sade.vst.server
 
 import akka.actor.ActorSystem
+import akka.dispatch.MessageDispatcher
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import fi.vm.sade.vst.ServerConfig
 
 class Server(routes: Routes, config: ServerConfig) {
 
-  implicit val system = ActorSystem("vst-actorsystem")
+  implicit val system = ActorSystem("vst-actorsystem", config.actorSystemConfig)
   implicit val materializer = ActorMaterializer()
 
-  implicit val executionContext = system.dispatcher
+  implicit val blockingDispatcher: MessageDispatcher = system.dispatchers.lookup("blocking-dispatcher")
 
-  lazy val port = config.port
+  private lazy val port = config.port
 
   def start(): Unit = {
     val handler = Http().bindAndHandle(routes.routes, "::0", port)
