@@ -261,6 +261,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   private def insertNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
+    // TODO: There seems to be bug here regarding the sendEmail boolean save
     val n = NotificationTable.column
     withSQL {
       insert.into(NotificationTable).namedValues(
@@ -268,7 +269,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         n.publishDate -> notification.publishDate,
         n.expiryDate -> notification.expiryDate,
         n.createdBy -> s"${user.givenNames.head}${user.lastName.head}",
-        n.createdAt -> LocalDate.now()
+        n.createdAt -> LocalDate.now(),
+        n.sendEmail -> notification.sendEmail
       )
     }.updateAndReturnGeneratedKey().apply()
   }
@@ -473,7 +475,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
       releaseId
     }
-    findRelease(id)
+    release(id)
   }
 
   override def deleteRelease(id: Long): Int = {

@@ -82,6 +82,13 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }
   }
 
+  override def userProfiles(userIds: Seq[String]): List[UserProfile] = {
+    val result = withSQL[UserProfile] {
+      select.from(UserProfileTable as u).where.in(u.userId, userIds)
+    }
+    result.map(UserProfileTable(u)).toList.apply()
+  }
+
   override def fetchDraft(userId: String): Option[Draft] = {
     withSQL[Draft] {
       select.from(DraftTable as d).where.eq(d.userId, userId)
