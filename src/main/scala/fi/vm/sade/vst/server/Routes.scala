@@ -72,8 +72,8 @@ class Routes(authenticationService: UserService,
     }
   }
 
-  def sendInstantEmails(release: Release) = {
-    if (release.notification.exists(_.sendEmail)) emailService.sendEmails(Vector(release), emailService.ImmediateEmail)
+  def sendInstantEmails(release: Release, releaseUpdate: ReleaseUpdate) = {
+    if (releaseUpdate.notification.exists(_.sendEmail)) emailService.sendEmails(Vector(release), emailService.ImmediateEmail)
     release
   }
 
@@ -99,7 +99,8 @@ class Routes(authenticationService: UserService,
             val release = parseReleaseUpdate(json)
             val user = userService.findUser(uid)
             (release, user.toOption) match {
-              case (Some(r: ReleaseUpdate), Some(u: User)) => sendResponse(Future(releaseRepository.addRelease(u, r).map(sendInstantEmails)))
+              case (Some(releaseUpdate: ReleaseUpdate), Some(user: User)) =>
+                sendResponse(Future(releaseRepository.addRelease(user, releaseUpdate).map(release => sendInstantEmails(release, releaseUpdate))))
               case (None, _) => complete(StatusCodes.BadRequest)
               case (_, None) => complete(StatusCodes.Unauthorized)
             }
@@ -112,7 +113,8 @@ class Routes(authenticationService: UserService,
             val release = parseReleaseUpdate(json)
             val user = userService.findUser(uid)
             (release, user.toOption) match {
-              case (Some(r: ReleaseUpdate), Some(u: User)) => sendResponse(Future(releaseRepository.updateRelease(u, r).map(sendInstantEmails)))
+              case (Some(releaseUpdate: ReleaseUpdate), Some(user: User)) =>
+                sendResponse(Future(releaseRepository.updateRelease(user, releaseUpdate).map(release => sendInstantEmails(release, releaseUpdate))))
               case (None, _) => complete(StatusCodes.BadRequest)
               case (_, None) => complete(StatusCodes.Unauthorized)
             }
