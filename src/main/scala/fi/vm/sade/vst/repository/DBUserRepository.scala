@@ -111,13 +111,15 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }.update().apply()
   }
 
-  override def saveDraft(user: User, data: String): Unit = {
+  override def deleteDraft(user: User): Int = {
+    withSQL(delete.from(DraftTable as d).where.eq(d.userId, user.userId)).update().apply()
+  }
+  
+  override def saveDraft(user: User, data: String): Int = {
     val currentDraft = fetchDraft(user.userId)
-    Try{
       currentDraft match {
         case Some(_) => updateDraft(user.userId, data)
         case None => insertDraft(user.userId, data)
-      }
     }
   }
 }

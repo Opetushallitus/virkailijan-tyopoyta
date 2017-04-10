@@ -19,10 +19,7 @@ trait ReleaseRepository{
   def tags(user: User): Seq[TagGroup]
   def categories(user: User): Seq[Category]
 
-  //TODO: add user
-  def release(id: Long): Option[Release]
-  //TODO: is this actually used?
-  def releases: Iterable[Release]
+  def release(id: Long, user: User): Option[Release]
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup]
   def emailReleasesForDate(date: LocalDate): Seq[Release]

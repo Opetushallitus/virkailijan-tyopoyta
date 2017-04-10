@@ -57,7 +57,9 @@ class UserService(casUtils: CasUtils,
 
   def serviceUserGroups: Seq[Kayttooikeusryhma] = kayttooikeusService.appGroups
 
-  def saveDraft(user: User, draft: String): Unit = userRepository.saveDraft(user, draft)
+  def saveDraft(user: User, draft: String): Int = userRepository.saveDraft(user, draft)
+
+  def deleteDraft(user: User): Int = userRepository.deleteDraft(user)
 
   def authenticate(ticket: String): Option[(String, User)] = {
 

@@ -8,5 +8,6 @@ trait UserRepository {
   def userProfiles(userIds: Seq[String]): List[UserProfile]
 
   def fetchDraft(userId: String): Option[Draft]
-  def saveDraft(user: User, draft: String)
+  def saveDraft(user: User, draft: String): Int
+  def deleteDraft(user: User): Int
 }

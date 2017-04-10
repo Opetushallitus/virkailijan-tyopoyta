@@ -163,8 +163,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     notificationsFromRS(sql, user).headOption
   }
 
-
-
   private def listTimeline(selectedCategories: RowIds, month: YearMonth, user: User): Seq[TimelineItem] = {
 
     val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories.get else user.allowedCategories
@@ -237,15 +235,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     Timeline(month.getMonthValue, month.getYear, dayEvents)
   }
 
-  def release(id: Long): Option[Release] = {
+  private def release(id: Long): Option[Release] = {
     val release = findRelease(id)
     release.map(r => r.copy(
       notification = notificationForRelease(r.id),
       timeline = timelineForRelease(r.id)))
   }
 
-  def releases: Iterable[Release] = {
-    withSQL(select.from(ReleaseTable as r)).map(ReleaseTable(r)).list.apply
+  override def release(id: Long, user: User): Option[Release] = {
+    release(id).filter(r => releaseTargetedForUser(r.categories, r.usergroups, user))
   }
 
   private def insertRelease(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): Long = {
@@ -475,7 +473,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
       releaseId
     }
-    release(id)
+    release(id, user)
   }
 
   override def deleteRelease(id: Long): Int = {
