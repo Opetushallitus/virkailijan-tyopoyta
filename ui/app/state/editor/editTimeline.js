@@ -23,7 +23,7 @@ function newItem (releaseId, timeline) {
 
   return {
     id: id,
-    releaseId: releaseId,
+    releaseId,
     initialDate: null,
     date: null,
     content: {

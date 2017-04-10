@@ -89,7 +89,7 @@ export function initController (dispatcher, events) {
       updateContent: (id, language, prop) => value =>
         dispatcher.push(events.editor.editTimeline.updateContent, { id, language, prop, value }),
 
-      add: (releaseId, timeline) => dispatcher.push(events.editor.editTimeline.add, { id: releaseId, timeline }),
+      add: (releaseId, timeline) => dispatcher.push(events.editor.editTimeline.add, { releaseId, timeline }),
 
       remove: id => dispatcher.push(events.editor.editTimeline.remove, id)
     },
