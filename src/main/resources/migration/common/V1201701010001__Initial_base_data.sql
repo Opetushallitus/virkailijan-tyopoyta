@@ -12,15 +12,15 @@ INSERT INTO category (
   'APP_VIRKAILIJANTYOPOYTA_2ASTE'
 ), (
   3,
-  'Yhteishaut (lukiot)',
+  'yhteihautlukiot',
   'APP_VIRKAILIJANTYOPOYTA_2ASTE'
 ), (
   4,
-  'Ammatillinen koulutus',
+  'Ammatillinenkoulutus',
   'APP_VIRKAILIJANTYOPOYTA_2ASTE'
 ), (
   5,
-  'Yhteishaut (amm.)',
+  'yhteishautamm',
   'APP_VIRKAILIJANTYOPOYTA_2ASTE'
 ), (
   6,
@@ -28,7 +28,7 @@ INSERT INTO category (
   'APP_VIRKAILIJANTYOPOYTA_2ASTE'
 ), (
   7,
-  'Erityisopetuksena järjestettävän ammatillisen koulutuksen haku',
+  'erityisopetus',
   'APP_VIRKAILIJANTYOPOYTA_2ASTE'
 ), (
   8,
@@ -36,7 +36,7 @@ INSERT INTO category (
   'APP_VIRKAILIJANTYOPOYTA_KK'
 ), (
   9,
-  'Vapaan sivistystyön koulutus',
+  'vapaasivistys',
   'APP_VIRKAILIJANTYOPOYTA_MUUT'
 );
 
@@ -45,13 +45,13 @@ INSERT INTO tag_group(
   name
 ) VALUES (
   1,
-  'Perusopetus ja toinen aste'
+  'perus'
 ), (
   2,
   'Korkeakoulutus'
 ), (
   3,
-  'Vapaa sivistystyö'
+  'vapaasivistystyö'
 ), (
   4,
   'SPECIAL'
@@ -137,7 +137,7 @@ INSERT INTO tag (
   1
 ), (
   9,
-  'Pääsy- ja soveltuvuuskoe',
+  'paasyjasoveltuvuus',
   NULL,
   1
 ), (
