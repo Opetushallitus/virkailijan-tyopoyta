@@ -144,6 +144,9 @@ class Routes(authenticationService: UserService,
             } ~
             path(IntNumber) { id =>
               sendResponse(Future(releaseRepository.notification(id, user)))
+            } ~
+            path("special") {
+              sendResponse(Future(releaseRepository.specialNotifications(user)))
             }
           }
         } ~

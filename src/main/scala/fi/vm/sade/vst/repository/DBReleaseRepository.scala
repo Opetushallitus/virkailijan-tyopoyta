@@ -122,7 +122,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     notificationsFromRS(sql, user)
   }
 
-
   private def categoriesMatchUser(categories: Seq[Long], user: User): Boolean = categories.isEmpty ||
     user.allowedCategories.intersect(categories).nonEmpty
 
@@ -132,7 +131,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def releaseTargetedForUser(categories: Seq[Long], userGroups: Seq[Long], user: User) =
     categoriesMatchUser(categories, user) && userGroupsMatchUser(userGroups, user)
 
-  private def listNotifications(selectedCategories: RowIds, tags: RowIds, page: Int, user: User): NotificationList = {
+  private def listNotifications(selectedCategories: RowIds, tags: RowIds, page: Int, user: User): Seq[Notification] = {
 
     val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories.get else user.allowedCategories
 
@@ -147,8 +146,19 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         ))
         .orderBy(n.publishDate).desc
     }
-    val notifications = notificationsFromRS(sql, user)
+
+    notificationsFromRS(sql, user)
+  }
+
+  override def notifications(categories: RowIds, tags: RowIds, page: Int, user: User): NotificationList = {
+    //filter out special tags
+    val notifications = listNotifications(categories, tags, page, user).filter(n => n.tags.intersect(specialTags).nonEmpty)
     NotificationList(notifications.size, notifications.slice(offset(page), offset(page) + pageLength))
+  }
+
+  override def specialNotifications(user: User): Seq[Notification] = {
+    val tagIds = specialTags.map(_.id)
+    listNotifications(None, Some(tagIds), 1, user)
   }
 
   override def notification(id: Long, user: User): Option[Notification] = {
@@ -196,6 +206,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def tagGroupShownToUser(tagGroup: TagGroup, user: User): Boolean =
     tagGroup.categories.isEmpty || tagGroup.categories.intersect(user.allowedCategories).nonEmpty
 
+  private def specialTags: Seq[Tag] = {
+    withSQL(select.from(TagTable as t).where.isNotNull(t.tagType)).map(TagTable(t)).toList().apply()
+  }
 
   def tags(user: User): Seq[TagGroup] = {
     val sql = withSQL[TagGroup]{
@@ -219,11 +232,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     } else{
       withSQL(select.from(CategoryTable as cat).where.in(cat.role, user.roles)).map(CategoryTable(cat)).list.apply
     }
-  }
-
-  override def notifications(categories: RowIds, tags: RowIds, page: Int, user: User): NotificationList = {
-
-    listNotifications(categories, tags, page, user)
   }
 
   override def unpublishedNotifications(user: User): Seq[Notification] = listUnpublishedNotifications(user)
