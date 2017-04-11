@@ -210,7 +210,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     withSQL(select.from(TagTable as t).where.isNotNull(t.tagType)).map(TagTable(t)).toList().apply()
   }
 
-  def tags(user: User): Seq[TagGroup] = {
+  override def tags(user: User): Seq[TagGroup] = {
     val sql = withSQL[TagGroup]{
       select
         .from(TagGroupTable as tg)
@@ -226,7 +226,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       }.list.apply().filter(tagGroupShownToUser(_, user))
   }
 
-  def categories(user: User): Seq[Category] = {
+  override def categories(user: User): Seq[Category] = {
     if(user.isAdmin){
       withSQL(select.from(CategoryTable as cat)).map(CategoryTable(cat)).list.apply
     } else{
@@ -267,7 +267,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   private def insertNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
-    // TODO: There seems to be bug here regarding the sendEmail boolean save
     val n = NotificationTable.column
     withSQL {
       insert.into(NotificationTable).namedValues(
@@ -401,7 +400,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   override def deleteNotification(notificationId: Long): Int = {
-
     withSQL(update(NotificationTable as n).set(NotificationTable.column.deleted -> true).where.eq(n.id, notificationId)).update().apply()
   }
 
@@ -429,7 +427,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
-  private def deleteTimelineItems(deletedItems: Seq[TimelineItem]) = {
+  private def deleteTimelineItems(deletedItems: Seq[TimelineItem])(implicit session: DBSession) = {
     withSQL(delete.from(TimelineContentTable as tc).where.in(tc.timelineId, deletedItems.map(_.id))).update().apply()
     withSQL(delete.from(TimelineTable as tl).where.in(tl.id, deletedItems.map(_.id))).update().apply()
   }
@@ -441,10 +439,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     item.content.values.foreach(insertTimelineContent(item.id, _))
   }
 
-  private def updateReleaseTimeline(releaseUpdate: ReleaseUpdate) = {
+  private def updateReleaseTimeline(releaseUpdate: ReleaseUpdate)(implicit session: DBSession) = {
     val currentTimeline: Seq[TimelineItem] = timelineForRelease(releaseUpdate.id)
-
-    //check for new items to be inserted
 
     val newItems = releaseUpdate.timeline.filter(_.id < 0)
 

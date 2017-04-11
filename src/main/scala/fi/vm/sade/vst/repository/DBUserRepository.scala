@@ -121,7 +121,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }
   }
 
-  def findTargetingGroups(user: User): Seq[TargetingGroup] = {
+  override def findTargetingGroups(user: User): Seq[TargetingGroup] = {
     withSQL[TargetingGroup]{
       select.from(TargetingGroupTable as tg).where.eq(tg.userId, user.userId)
     }.map(TargetingGroupTable(tg)).toList().apply()
@@ -143,7 +143,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     targetingGroup(id)
   }
 
-  def deleteTargetingGroup(user: User, id: Long): Int = {
+  override def deleteTargetingGroup(user: User, id: Long): Int = {
     withSQL{
       delete.from(TargetingGroupTable as tg).where.eq(tg.userId, user.userId).and.eq(tg.id, id)
     }.update().apply()
