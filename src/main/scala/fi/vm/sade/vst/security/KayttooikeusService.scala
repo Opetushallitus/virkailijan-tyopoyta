@@ -2,13 +2,14 @@ package fi.vm.sade.vst.security
 
 import fi.vm.sade.vst.AuthenticationConfig
 import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
+import java.util.concurrent.atomic.AtomicReference
 import scala.util.{Failure, Success, Try}
 
 class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) extends JsonSupport{
-
+  private lazy val groups: AtomicReference[Seq[Kayttooikeusryhma]] = new AtomicReference[Seq[Kayttooikeusryhma]](sortedUserGroups)
   private val kayttooikeusClient = casUtils.serviceClient(config.kayttooikeusUri)
 
-  lazy val appGroups: Seq[Kayttooikeusryhma] = fetchServiceUsergroups.sortBy(_.id)
+  def appGroups: Seq[Kayttooikeusryhma] = groups.get
 
   private def parseResponse(resp: Try[String], forUser: Boolean): Seq[Kayttooikeusryhma] = {
     resp match {
@@ -43,7 +44,14 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) exte
   }
 
   def fetchServiceUsergroups: Seq[Kayttooikeusryhma] = {
+    println(s"fetchServiceUsergroups called")
     val koResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/", RequestMethod.GET)
     filterUserGroups(parseResponse(koResponse, forUser = false))
+  }
+
+  def sortedUserGroups: Seq[Kayttooikeusryhma] = fetchServiceUsergroups.sortBy(_.id)
+
+  def updateApplicationGroups(): Unit = {
+    groups.set(sortedUserGroups)
   }
 }
