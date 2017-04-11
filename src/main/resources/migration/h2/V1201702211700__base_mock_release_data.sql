@@ -15,7 +15,6 @@ INSERT INTO notification (
   created_at,
   modified_by,
   modified_at,
-  send_email,
   deleted
 ) VALUES (
   1,
@@ -26,7 +25,6 @@ INSERT INTO notification (
   CAST('2018-12-29 13:27:000' AS TIMESTAMP),
   NULL,
   NULL,
-  FALSE,
   FALSE
 );
 
@@ -81,7 +79,6 @@ INSERT INTO notification (
   created_at,
   modified_by,
   modified_at,
-  send_email,
   deleted
 ) VALUES (
   2,
@@ -92,7 +89,6 @@ INSERT INTO notification (
   CAST('2016-12-29 13:27:000' AS TIMESTAMP),
   NULL,
   NULL,
-  FALSE,
   FALSE
 );
 
@@ -127,7 +123,6 @@ INSERT INTO notification (
   created_at,
   modified_by,
   modified_at,
-  send_email,
   deleted
 ) VALUES (
   3,
@@ -138,7 +133,6 @@ INSERT INTO notification (
   CAST('2016-12-29 13:27:000' AS TIMESTAMP),
   NULL,
   NULL,
-  FALSE,
   FALSE
 );
 
@@ -193,7 +187,6 @@ INSERT INTO notification (
   created_at,
   modified_by,
   modified_at,
-  send_email,
   deleted
 ) VALUES (
   4,
@@ -204,7 +197,6 @@ INSERT INTO notification (
   CAST('2016-12-29 13:27:000' AS TIMESTAMP),
   NULL,
   NULL,
-  FALSE,
   FALSE
 );
 
@@ -239,7 +231,6 @@ INSERT INTO notification (
   created_at,
   modified_by,
   modified_at,
-  send_email,
   deleted
 ) VALUES (
   5,
@@ -250,7 +241,6 @@ INSERT INTO notification (
   CAST('2016-12-29 13:27:000' AS TIMESTAMP),
   NULL,
   NULL,
-  FALSE,
   FALSE
 );
 
