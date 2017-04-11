@@ -1,15 +1,13 @@
 package fi.vm.sade.vst.repository
 
 import fi.vm.sade.vst.DBConfig
-import fi.vm.sade.vst.model.{Draft, User, UserProfile, UserProfileUpdate}
-import fi.vm.sade.vst.repository.Tables.{DraftTable, UserCategoryTable, UserProfileTable}
+import fi.vm.sade.vst.model._
+import fi.vm.sade.vst.repository.Tables.{DraftTable, TargetingGroupTable, UserCategoryTable, UserProfileTable}
 import scalikejdbc._
-
-import scala.util.Try
 
 class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo {
 
-  val (u, uc, d) = (UserProfileTable.syntax, UserCategoryTable.syntax, DraftTable.syntax)
+  val (u, uc, d, tg) = (UserProfileTable.syntax, UserCategoryTable.syntax, DraftTable.syntax, TargetingGroupTable.syntax)
 
   private def fetchUserProfile(userId: String) = withSQL[UserProfile] {
     select
@@ -114,7 +112,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   override def deleteDraft(user: User): Int = {
     withSQL(delete.from(DraftTable as d).where.eq(d.userId, user.userId)).update().apply()
   }
-  
+
   override def saveDraft(user: User, data: String): Int = {
     val currentDraft = fetchDraft(user.userId)
       currentDraft match {
@@ -122,4 +120,32 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
         case None => insertDraft(user.userId, data)
     }
   }
+
+  def findTargetingGroups(user: User): Seq[TargetingGroup] = {
+    withSQL[TargetingGroup]{
+      select.from(TargetingGroupTable as tg).where.eq(tg.userId, user.userId)
+    }.map(TargetingGroupTable(tg)).toList().apply()
+  }
+
+  def saveTargetingGroup(user: User, name: String, data: String): Int = {
+    val column = TargetingGroupTable.column
+    withSQL{
+      insert.into(TargetingGroupTable).namedValues(
+        column.userId -> user.userId,
+        column.name -> name,
+        column.data -> data)
+    }.update().apply()
+  }
+
+  def deleteTargetingGroup(user: User, name: String, data: String): Int = {
+    val column = TargetingGroupTable.column
+    withSQL{
+      insert.into(TargetingGroupTable).namedValues(
+        column.userId -> user.userId,
+        column.name -> name,
+        column.data -> data)
+    }.update().apply()
+  }
 }
+
+

@@ -110,7 +110,7 @@ trait JsonSupport {
       "content" -> notification.content,
       "tags" -> notification.tags,
       "categories" -> notification.categories,
-      "sendEmail" -> notification.sendEmail
+      "sendEmail" -> false
     )
   }
 
@@ -174,7 +174,8 @@ trait JsonSupport {
       "userId" -> user.userId,
       "isAdmin" -> user.isAdmin,
       "groups" -> user.groups,
-      "profile" -> user.profile
+      "profile" -> user.profile,
+      "draft" -> user.draft.map(_.data)
     )
   }
 

@@ -46,7 +46,7 @@ class UserService(casUtils: CasUtils,
 
   def findUser(uid: String ): Try[User] = {
     val user = fetchCacheableUserData(uid)
-    user.map(u => u.copy(profile = Some(userRepository.userProfile(u.userId))))
+    user.map(u => u.copy(profile = Some(userRepository.userProfile(u.userId)), draft = userRepository.fetchDraft(u.userId)))
   }
 
   def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(user, userProfile)

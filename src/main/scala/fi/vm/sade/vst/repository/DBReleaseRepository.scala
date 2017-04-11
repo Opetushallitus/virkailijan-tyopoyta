@@ -267,8 +267,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         n.publishDate -> notification.publishDate,
         n.expiryDate -> notification.expiryDate,
         n.createdBy -> s"${user.givenNames.head}${user.lastName.head}",
-        n.createdAt -> LocalDate.now(),
-        n.sendEmail -> notification.sendEmail
+        n.createdAt -> LocalDate.now()
       )
     }.updateAndReturnGeneratedKey().apply()
   }
@@ -403,7 +402,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     withSQL{
       update(NotificationTable as n).set(column.publishDate -> updated.publishDate,
         column.expiryDate -> updated.expiryDate,
-        column.sendEmail -> updated.sendEmail,
         column.modifiedBy -> s"${user.givenNames.head}${user.lastName.head}",
         column.modifiedAt -> LocalDate.now()).where.eq(n.id, updated.id)
     }.update().apply()

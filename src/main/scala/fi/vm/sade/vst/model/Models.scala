@@ -22,7 +22,8 @@ case class User(userId: String,
                 groups: Seq[Kayttooikeusryhma],
                 roles: Seq[String],
                 allowedCategories: Seq[Long] = Seq.empty,
-                profile: Option[UserProfile] = None)
+                profile: Option[UserProfile] = None,
+                draft: Option[Draft] = None)
 
 case class UserProfile(userId: String,
                        categories: Seq[Long] = Seq.empty,
@@ -73,7 +74,6 @@ case class Notification(id: Long,
                         createdAt: LocalDate,
                         modifiedBy: Option[String] = None,
                         modifiedAt: Option[LocalDate] = None,
-                        sendEmail: Boolean = false,
                         deleted: Boolean = false)
 
 
@@ -103,3 +103,5 @@ case class Kayttooikeus(palveluName: String, role: String)
 case class KayttoikeusDescription(text: Option[String], lang: String)
 
 case class Draft(userId: String, data: String)
+
+case class TargetingGroup(userId: String, name: String, data: String)

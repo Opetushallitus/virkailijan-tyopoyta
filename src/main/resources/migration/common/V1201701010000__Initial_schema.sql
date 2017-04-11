@@ -8,7 +8,6 @@ CREATE TABLE notification(
   release_id INTEGER NOT NULL REFERENCES release(id),
   publish_date DATE NOT NULL,
   expiry_date DATE,
-  send_email BOOLEAN NOT NULL DEFAULT FALSE,
   created_by VARCHAR(24) NOT NULL,
   created_at TIMESTAMP NOT NULL,
   modified_by VARCHAR(24),
@@ -95,9 +94,13 @@ CREATE TABLE email_event(
   created_at TIMESTAMP NOT NULL,
   release_id INTEGER NOT NULL REFERENCES release(id),
   event_type VARCHAR(50) NOT NULL
-)
+);
 
-
+-- CREATE TABLE targeting_group(
+--   user_id VARCHAR(100) NOT NULL REFERENCES user_profile(user_id),
+--   name VARCHAR(100) NOT NULL,
+--   data TEXT NOT NULL
+-- );
 
 
 
