@@ -209,6 +209,18 @@ trait JsonSupport {
       (JsPath \ "email").read[Boolean]
     )(UserProfileUpdate.apply _)
 
+  implicit val targetingGroupReads: Reads[TargetingGroupUpdate] = (
+    (JsPath \ "name").read[String] and
+    (JsPath \ "data").read[String]
+    )(TargetingGroupUpdate.apply _)
+
+  implicit val targetingGroupWrites: Writes[TargetingGroup] = Writes { group =>
+    Json.obj(
+      "name" -> group.name,
+      "data" -> group.data
+    )
+  }
+
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseUpdateReads)
@@ -229,6 +241,11 @@ trait JsonSupport {
   def parseKayttooikedet(jsString: String): Option[List[Kayttooikeus]] = {
     val jsonVal = Json.parse(jsString)
     Json.fromJson(jsonVal)(readKayttooikeudet).asOpt
+  }
+
+  def parseTargetingGroup(jsString: String): Option[TargetingGroupUpdate] = {
+    val jsonVal = Json.parse(jsString)
+    Json.fromJson(jsonVal)(targetingGroupReads).asOpt
   }
 
   def serialize[T](obj: T)(implicit tjs: Writes[T]): String ={

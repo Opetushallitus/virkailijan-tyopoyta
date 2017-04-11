@@ -104,4 +104,5 @@ case class KayttoikeusDescription(text: Option[String], lang: String)
 
 case class Draft(userId: String, data: String)
 
-case class TargetingGroup(userId: String, name: String, data: String)
+case class TargetingGroup(id: Long, userId: String, name: String, data: String)
+case class TargetingGroupUpdate(name: String, data: String)

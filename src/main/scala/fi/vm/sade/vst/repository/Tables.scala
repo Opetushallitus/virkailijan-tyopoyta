@@ -147,7 +147,7 @@ object Tables {
     override val tableName = "targeting_group"
     def apply(tg: SyntaxProvider[TargetingGroup])(rs: WrappedResultSet): TargetingGroup = apply(tg.resultName)(rs)
     def apply(r: ResultName[TargetingGroup])(rs: WrappedResultSet): TargetingGroup  =
-      TargetingGroup(userId = rs.get(r.userId), name = rs.get(r.name), data = rs.get(r.data))
+      TargetingGroup(id = rs.get(r.id), userId = rs.get(r.userId), name = rs.get(r.name), data = rs.get(r.data))
   }
 
   object UserProfileTable extends SQLSyntaxSupport[UserProfile]{

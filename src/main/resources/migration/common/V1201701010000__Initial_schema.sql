@@ -96,11 +96,12 @@ CREATE TABLE email_event(
   event_type VARCHAR(50) NOT NULL
 );
 
--- CREATE TABLE targeting_group(
---   user_id VARCHAR(100) NOT NULL REFERENCES user_profile(user_id),
---   name VARCHAR(100) NOT NULL,
---   data TEXT NOT NULL
--- );
+CREATE TABLE targeting_group(
+  id SERIAL PRIMARY KEY NOT NULL,
+  user_id VARCHAR(100) NOT NULL REFERENCES user_profile(user_id),
+  name VARCHAR(100) NOT NULL,
+  data TEXT NOT NULL
+);
 
 
 

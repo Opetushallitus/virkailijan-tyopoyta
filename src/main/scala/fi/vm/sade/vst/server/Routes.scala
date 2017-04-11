@@ -205,7 +205,27 @@ class Routes(authenticationService: UserService,
           }
         }
       } ~
-      delete{path("draft"){sendResponse(Future(userService.deleteDraft(user)))}
+      delete{
+        path("draft"){sendResponse(Future(userService.deleteDraft(user)))}
+    }}
+  }
+
+  val targetingGroupRoutes: Route = withUser { user =>
+    pathPrefix("targetingGroups") {
+      get{
+        sendResponse(Future(userService.targetingGroups(user)))
+      } ~
+      post{
+        entity(as[String]) { json =>
+          val targetingGroup = parseTargetingGroup(json)
+          targetingGroup match {
+            case Some(g) => sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
+            case None => complete(StatusCodes.BadRequest)
+          }
+        }
+      } ~
+      delete{
+        path(IntNumber){ id => sendResponse(Future(userService.deleteTargetingGroup(user, id)))}
       }
     }
   }
@@ -265,7 +285,7 @@ class Routes(authenticationService: UserService,
 //    }
 //  }
 
-  val apiRoutes: Route = releaseRoutes ~ notificationRoutes ~ timelineRoutes ~ userRoutes ~ serviceRoutes ~ emailRoutes
+  val apiRoutes: Route = releaseRoutes ~ notificationRoutes ~ timelineRoutes ~ userRoutes ~ serviceRoutes ~ emailRoutes ~ targetingGroupRoutes
 
   val routes: Route = {
     pathPrefix("virkailijan-tyopoyta") {

@@ -3,7 +3,7 @@ package fi.vm.sade.vst.security
 import concurrent.duration._
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.AuthenticationConfig
-import fi.vm.sade.vst.model.{Kayttooikeusryhma, User, UserProfile, UserProfileUpdate}
+import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
 import java.net.URLEncoder
 
@@ -58,6 +58,12 @@ class UserService(casUtils: CasUtils,
   def serviceUserGroups: Seq[Kayttooikeusryhma] = kayttooikeusService.appGroups
 
   def saveDraft(user: User, draft: String): Int = userRepository.saveDraft(user, draft)
+
+  def targetingGroups(user: User) = userRepository.findTargetingGroups(user)
+
+  def saveTargetingGroup(user: User, name: String, data: String): Option[TargetingGroup] = userRepository.saveTargetingGroup(user, name, data)
+
+  def deleteTargetingGroup(user: User, id: Long) = userRepository.deleteTargetingGroup(user, id)
 
   def deleteDraft(user: User): Int = userRepository.deleteDraft(user)
 

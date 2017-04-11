@@ -127,23 +127,25 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }.map(TargetingGroupTable(tg)).toList().apply()
   }
 
-  def saveTargetingGroup(user: User, name: String, data: String): Int = {
-    val column = TargetingGroupTable.column
-    withSQL{
-      insert.into(TargetingGroupTable).namedValues(
-        column.userId -> user.userId,
-        column.name -> name,
-        column.data -> data)
-    }.update().apply()
+  private def targetingGroup(id: Long): Option[TargetingGroup] = {
+    withSQL(select.from(TargetingGroupTable as tg).where.eq(tg.id, id)).map(TargetingGroupTable(tg)).single().apply()
   }
 
-  def deleteTargetingGroup(user: User, name: String, data: String): Int = {
+  override def saveTargetingGroup(user: User, name: String, data: String): Option[TargetingGroup] = {
     val column = TargetingGroupTable.column
-    withSQL{
+    val id = withSQL{
       insert.into(TargetingGroupTable).namedValues(
         column.userId -> user.userId,
         column.name -> name,
         column.data -> data)
+    }.updateAndReturnGeneratedKey().apply()
+
+    targetingGroup(id)
+  }
+
+  def deleteTargetingGroup(user: User, id: Long): Int = {
+    withSQL{
+      delete.from(TargetingGroupTable as tg).where.eq(tg.userId, user.userId).and.eq(tg.id, id)
     }.update().apply()
   }
 }
