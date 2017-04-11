@@ -39,7 +39,7 @@ export function initController (dispatcher, events) {
 
     getPreviousMonth: () => dispatcher.push(events.timeline.getPreviousMonth),
 
-    getRelatedNotification: id => dispatcher.push(events.timeline.getRelatedNotification, id),
+    getRelatedNotification: notificationId => dispatcher.push(events.timeline.getRelatedNotification, notificationId),
 
     edit: releaseId => dispatcher.push(events.timeline.edit, releaseId),
 

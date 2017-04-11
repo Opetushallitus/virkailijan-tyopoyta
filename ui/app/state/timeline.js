@@ -272,8 +272,8 @@ function getPreviousMonth (state) {
   return R.assocPath(['timeline', 'isLoadingPrevious'], true, state)
 }
 
-function getRelatedNotification (state, id) {
-  return notifications.getNotificationById(state, id)
+function getRelatedNotification (state, notificationId) {
+  return notifications.getNotificationById(state, notificationId)
 }
 
 function edit (state, releaseId) {

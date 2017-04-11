@@ -74,7 +74,7 @@ function TimelineItem (props) {
       })
     } else {
       // Else get related notification
-      onDisplayRelatedNotificationLinkClick(item.releaseId)
+      onDisplayRelatedNotificationLinkClick(notificationId)
     }
   }
 
@@ -120,7 +120,7 @@ function TimelineItem (props) {
         {/*Date*/}
         {
           index === 0
-            ? <time className="mb1 block" dateTime={date}>
+            ? <time className="mb1 block" dateTime={date} data-selenium-id="timeline-item-date">
               <div className="oph-h1 oph-bold line-height-1 inline-block mr1">{dayOfMonth}</div>
 
               <div className="align-top inline-block pr2">
@@ -132,7 +132,7 @@ function TimelineItem (props) {
         }
 
         {/*Text*/}
-        <div className="oph-h5 bold pr2">{renderHTML(content.text)}</div>
+        <div className="oph-h5 bold pr2" data-selenium-id="timeline-item-text">{renderHTML(content.text)}</div>
 
         {/*Display related notification*/}
         {
@@ -141,6 +141,7 @@ function TimelineItem (props) {
               className="oph-h5 oph-link oph-bold"
               href="#"
               onClick={handleDisplayNotificationLinkClick}
+              data-selenium-id="display-related-notification-link"
             >
               {translate('naytatapahtumantiedote')}
             </a>
