@@ -1,7 +1,7 @@
 package fi.vm.sade.vst.security
 
 import fi.vm.sade.vst.AuthenticationConfig
-import fi.vm.sade.vst.model.{Category, JsonSupport, Kayttooikeusryhma}
+import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
 import java.util.concurrent.atomic.AtomicReference
 
 import fi.vm.sade.vst.repository.ReleaseRepository
@@ -55,7 +55,6 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
   }
 
   def fetchServiceUsergroups: Seq[Kayttooikeusryhma] = {
-    println(s"fetchServiceUsergroups called")
     val koResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/", RequestMethod.GET)
     filterUserGroups(parseResponse(koResponse, forUser = false))
   }
