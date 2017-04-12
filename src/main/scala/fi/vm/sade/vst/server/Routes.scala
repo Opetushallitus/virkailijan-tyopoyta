@@ -139,7 +139,8 @@ class Routes(authenticationService: UserService,
           get{
             pathEnd {
               parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
-                (categories, tags, page) => sendResponse(Future(releaseRepository.notifications(categories, tags, page, user)))
+                (categories, tags, page) => sendResponse(Future(
+                  releaseRepository.notifications(categories.getOrElse(Seq.empty), tags.getOrElse(Seq.empty), page, user)))
               }
             } ~
             path(IntNumber) { id =>

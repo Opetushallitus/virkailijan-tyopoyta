@@ -6,7 +6,7 @@ import java.time.{LocalDate, YearMonth}
 trait ReleaseRepository{
   type RowIds = Option[Seq[Long]]
 
-  def notifications(categories: RowIds, tags: RowIds, page: Int, user: User): NotificationList
+  def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
   def notification(id: Long, user: User) : Option[Notification]
   def specialNotifications(user: User) : Seq[Notification]
   def deleteNotification(id: Long): Int

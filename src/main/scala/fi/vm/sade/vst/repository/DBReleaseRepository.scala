@@ -133,22 +133,22 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def releaseTargetedForUser(categories: Seq[Long], userGroups: Seq[Long], user: User) =
     categoriesMatchUser(categories, user) && userGroupsMatchUser(userGroups, user)
 
-  private def listNotifications(selectedCategories: RowIds, tags: RowIds, page: Int, user: User): Seq[Notification] = {
+  private def listNotifications(selectedCategories: Seq[Long], tags: Seq[Long], page: Int, user: User): Seq[Notification] = {
 
-    val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories.get else user.allowedCategories
+    val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories else user.allowedCategories
 
     val sql: SQL[Release, NoExtractor] = withSQL[Release] {
       notificationJoins
         .where.not.gt(n.publishDate, LocalDate.now())
         .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
-        .and.withRoundBracket(_.in(rc.categoryId, cats).or.isNull(rc.categoryId))
         .orderBy(n.publishDate).desc
     }
-    notificationsFromRS(sql, user).filter(n => tags.isEmpty || n.tags.intersect(tags.getOrElse(Seq.empty)).nonEmpty)
+    notificationsFromRS(sql, user).filter(n =>
+      (tags.isEmpty || n.tags.intersect(tags).nonEmpty) &&  n.categories.intersect(cats).nonEmpty)
   }
 
-  override def notifications(categories: RowIds, tags: RowIds, page: Int, user: User): NotificationList = {
+  override def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList = {
     //filter out notifications with special tags
     val res = listNotifications(categories, tags, page, user)
     val notifications = res.filter(n => n.tags.intersect(specialTags.map(_.id)).isEmpty)
@@ -157,7 +157,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   override def specialNotifications(user: User): Seq[Notification] = {
     val tagIds = specialTags.map(_.id)
-    listNotifications(None, Some(tagIds), 1, user)
+    listNotifications(Seq.empty, tagIds, 1, user)
   }
 
   override def notification(id: Long, user: User): Option[Notification] = {
