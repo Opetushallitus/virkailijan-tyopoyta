@@ -3,10 +3,11 @@ package fi.vm.sade.vst.security
 import fi.vm.sade.security.ldap.LdapClient
 import fi.vm.sade.utils.cas._
 import fi.vm.sade.vst.Configuration
+import fi.vm.sade.vst.repository.RepositoryModule
 import fi.vm.sade.vst.service.EmailService
 import org.http4s.client
 
-trait AuthenticationModule extends Configuration {
+trait AuthenticationModule extends Configuration with RepositoryModule{
 
   import com.softwaremill.macwire._
 

@@ -226,9 +226,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       }.list.apply().filter(tagGroupShownToUser(_, user))
   }
 
+  override def serviceCategories: Seq[Category] = withSQL(select.from(CategoryTable as cat)).map(CategoryTable(cat)).list.apply()
+
   override def categories(user: User): Seq[Category] = {
     if(user.isAdmin){
-      withSQL(select.from(CategoryTable as cat)).map(CategoryTable(cat)).list.apply
+      serviceCategories
     } else{
       withSQL(select.from(CategoryTable as cat).where.in(cat.role, user.roles)).map(CategoryTable(cat)).list.apply
     }

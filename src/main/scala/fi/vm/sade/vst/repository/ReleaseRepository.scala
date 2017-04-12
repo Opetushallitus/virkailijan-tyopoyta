@@ -19,6 +19,7 @@ trait ReleaseRepository{
 
   def tags(user: User): Seq[TagGroup]
   def categories(user: User): Seq[Category]
+  def serviceCategories: Seq[Category]
 
   def release(id: Long, user: User): Option[Release]
 

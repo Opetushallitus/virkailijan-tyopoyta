@@ -145,6 +145,7 @@ trait JsonSupport {
     (JsPath \ "id").read[Long] and
     (JsPath \ "name").read[String] and
     (JsPath \ "description" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    Reads.pure(Seq.empty) and
     Reads.pure(Seq.empty)
   )(Kayttooikeusryhma.apply _)
 
@@ -152,6 +153,7 @@ trait JsonSupport {
     (JsPath \ "ryhmaId").read[Long] and
     (JsPath \ "name").read[String] and
     (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    Reads.pure(Seq.empty) and
     Reads.pure(Seq.empty)
     )(Kayttooikeusryhma.apply _)
 
@@ -159,7 +161,7 @@ trait JsonSupport {
     Json.obj(
       "id" -> group.id,
       "description" -> group.description,
-      "roles" -> group.roles
+      "categories" -> group.categories
     )
   }
 

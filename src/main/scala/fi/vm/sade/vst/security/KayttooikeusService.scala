@@ -1,11 +1,14 @@
 package fi.vm.sade.vst.security
 
 import fi.vm.sade.vst.AuthenticationConfig
-import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
+import fi.vm.sade.vst.model.{Category, JsonSupport, Kayttooikeusryhma}
 import java.util.concurrent.atomic.AtomicReference
+
+import fi.vm.sade.vst.repository.ReleaseRepository
+
 import scala.util.{Failure, Success, Try}
 
-class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) extends JsonSupport{
+class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository) extends JsonSupport{
   private lazy val groups: AtomicReference[Seq[Kayttooikeusryhma]] = new AtomicReference[Seq[Kayttooikeusryhma]](sortedUserGroups)
   private val kayttooikeusClient = casUtils.serviceClient(config.kayttooikeusUri)
 
@@ -29,8 +32,16 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig) exte
     rights.filter(r => r.palveluName == "VIRKAILIJANTYOPOYTA").map(r => s"APP_${r.palveluName}_${r.role}")
   }
 
-  private def filterUserGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] =
-    groups.map(g => g.copy(roles = rightsForGroup(g))).filter(_.roles.nonEmpty)
+  private def filterUserGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] = {
+    val categories = releaseRepository.serviceCategories
+    groups.map(g => {
+      val rights = rightsForGroup(g)
+
+      g.copy(
+        roles = rights,
+        categories = categories.filter(c => rights.contains(c.role)).map(_.id))
+    }).filter(_.roles.nonEmpty)
+  }
 
   def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
 
