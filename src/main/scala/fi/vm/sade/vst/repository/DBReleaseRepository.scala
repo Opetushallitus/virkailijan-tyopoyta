@@ -47,6 +47,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
         .leftJoin(NotificationTagTable as nt).on(n.id, nt.notificationId)
         .where.eq(n.releaseId, releaseId)
+        .and.eq(n.deleted, false)
     }
       .one(NotificationTable(n))
       .toManies(
@@ -91,7 +92,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     .on(sqls.eq(r.id, n.releaseId)
       .and(sqls.le(n.publishDate, LocalDate.now()))
       .and(sqls.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate))
-      )
+      .and(sqls.eq(n.deleted, false)))
     .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
 
 
@@ -142,18 +143,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
         .and.withRoundBracket(_.in(rc.categoryId, cats).or.isNull(rc.categoryId))
-        .and(sqls.toAndConditionOpt(
-          tags.map(t => sqls.in(nt.tagId, t))
-        ))
         .orderBy(n.publishDate).desc
     }
-
-    notificationsFromRS(sql, user)
+    notificationsFromRS(sql, user).filter(n => tags.isEmpty || n.tags.intersect(tags.getOrElse(Seq.empty)).nonEmpty)
   }
 
   override def notifications(categories: RowIds, tags: RowIds, page: Int, user: User): NotificationList = {
-    //filter out special tags
-    val notifications = listNotifications(categories, tags, page, user).filter(n => n.tags.intersect(specialTags).isEmpty)
+    //filter out notifications with special tags
+    val res = listNotifications(categories, tags, page, user)
+    val notifications = res.filter(n => n.tags.intersect(specialTags.map(_.id)).isEmpty)
     NotificationList(notifications.size, notifications.slice(offset(page), offset(page) + pageLength))
   }
 

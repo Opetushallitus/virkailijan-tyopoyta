@@ -33,7 +33,4 @@ trait ReleaseRepository{
 
   def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release]
 
-
-
-
 }
