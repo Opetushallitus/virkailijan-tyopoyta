@@ -90,7 +90,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     .leftJoin(NotificationTable as n)
     .on(sqls.eq(r.id, n.releaseId)
       .and(sqls.le(n.publishDate, LocalDate.now()))
-      .and(sqls.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)))
+      .and(sqls.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate))
+      )
     .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
 
 
@@ -152,7 +153,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   override def notifications(categories: RowIds, tags: RowIds, page: Int, user: User): NotificationList = {
     //filter out special tags
-    val notifications = listNotifications(categories, tags, page, user).filter(n => n.tags.intersect(specialTags).nonEmpty)
+    val notifications = listNotifications(categories, tags, page, user).filter(n => n.tags.intersect(specialTags).isEmpty)
     NotificationList(notifications.size, notifications.slice(offset(page), offset(page) + pageLength))
   }
 
