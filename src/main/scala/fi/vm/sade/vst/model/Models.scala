@@ -17,6 +17,7 @@ case class NotificationContent(notificationId: Long, language: String, title: St
 case class User(userId: String,
                 lastName: String,
                 givenNames: String,
+                initials: Option[String],
                 language: String,
                 isAdmin: Boolean,
                 groups: Seq[Kayttooikeusryhma],
