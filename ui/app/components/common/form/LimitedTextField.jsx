@@ -54,6 +54,7 @@ function LimitedTextField (props) {
         type="text"
         name={name}
         value={value}
+        data-selenium-id={name}
         onChange={handleChange}
         onBlur={onBlur}
       />

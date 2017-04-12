@@ -110,7 +110,7 @@ function EditNotification (props) {
 
       {/*Description*/}
       <div className="flex flex-wrap mb2">
-        <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">
+        <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0" data-selenium-id="notification-description-fi">
           <Field
             label={translate('kuvaus')}
             name="notification-description-fi"
@@ -124,7 +124,7 @@ function EditNotification (props) {
           </Field>
         </div>
 
-        <div className="col-12 sm-col-6 sm-pl2">
+        <div className="col-12 sm-col-6 sm-pl2" data-selenium-id="notification-description-sv">
           <Field
             label={translate('kuvausSV')}
             name="notification-description-sv"

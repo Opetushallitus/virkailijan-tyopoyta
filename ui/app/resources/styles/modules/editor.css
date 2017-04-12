@@ -46,6 +46,16 @@
   color: var(--blue-lighten-2);
 }
 
+.editor-preview-notification a {
+  text-decoration: none;
+  color: var(--link-color);
+}
+
+.editor-preview-notification a:hover,
+.editor-preview-notification a:focus {
+  color: var(--link-color-hover);
+}
+
 .editor-actions {
   text-align: center;
   padding-top: var(--space-3);

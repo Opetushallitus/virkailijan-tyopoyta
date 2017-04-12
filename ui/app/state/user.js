@@ -48,7 +48,7 @@ function onReceived (state, response) {
   const draftKey = `virkailijanTyopoyta${response.userId}`
 
   return R.compose(
-    R.assoc('draft', JSON.parse(window.localStorage.getItem(draftKey)) || response.profile.draft),
+    R.assoc('draft', JSON.parse(window.localStorage.getItem(draftKey)) || response.draft),
     R.assoc('draftKey', draftKey),
     R.assocPath(['notifications', 'categories'], response.profile.categories),
     R.assocPath(['user', 'targetingGroups'], response.profile.targetingGroups || []),

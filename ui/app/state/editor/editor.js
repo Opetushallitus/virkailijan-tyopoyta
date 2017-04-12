@@ -1,6 +1,5 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
-import moment from 'moment'
 
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'

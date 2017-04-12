@@ -42,6 +42,18 @@ function ValidationMessages (props) {
           : null
       }
 
+      {/*Release is targeted but tags are missing*/}
+      {
+        release.userGroups.length > 0 &&
+        (notification.validationState === 'incomplete' ||
+        notification.validationState === 'complete') &&
+        notification.tags.length === 0
+          ? <div className="oph-error oph-bold mb1">
+          &middot;&nbsp; {translate('kohdennuspuuttuu')} {translate('avainsanapuuttuu')}
+          </div>
+          : null
+      }
+
       {/*Saved targeting group's name isn't unique*/}
       {
         R.contains(release.targetingGroup, targetingGroups)

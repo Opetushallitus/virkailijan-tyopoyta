@@ -60,7 +60,7 @@ function PreviewRelease (props) {
               {
                 notification.validationState === 'empty'
                   ? <div>{translate('eitiedote')}</div>
-                  : <div>
+                  : <div className="editor-preview-notification">
                     <div className="mb2">
                       <span className="italic">{translate('otsikko')}: </span>
                       {notification.content[locale].title || translate('tyhja')}

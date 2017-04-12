@@ -44,6 +44,7 @@ function EditTimeline (props) {
         variants={['ghost']}
         className="regular px0"
         onClick={handleAddItemClick}
+        data-selenium-id="add-timeline-item-button"
       >
         <span aria-hidden>+ </span>
         {translate('lisaauusitapahtuma')}

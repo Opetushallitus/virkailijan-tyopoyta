@@ -1,7 +1,6 @@
 server.port={{palvelu_portti}}
 virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}}
 
-
 #CAS
 cas.url={{cas_url}}
 virkailijan-tyopoyta.cas.service=https://{{host_virkailija}}/virkailijan-tyopoyta

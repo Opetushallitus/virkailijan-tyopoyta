@@ -49,7 +49,10 @@ function NotificationCategoryCheckboxes (props) {
         hasLoadingFailed
           ? <div className="oph-error center col-12">{translate('kategorioidenhakuepaonnistui')}</div>
           : items.map(category =>
-            <div key={`notificationCategory${category.id}`} className="col-12 sm-col-6 lg-col-4 sm-pr1">
+            <div
+              key={`notificationCategory${category.id}`}
+              className="col-12 sm-col-6 lg-col-4 sm-pr1"
+            >
               <Checkbox
                 label={category.name}
                 checked={isCategoryChecked(category.id, selectedCategories)}

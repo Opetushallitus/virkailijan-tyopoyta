@@ -8,6 +8,7 @@ const variants = ['big']
 const propTypes = {
   variant: PropTypes.oneOf(variants),
   title: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
   isCloseDisabled: PropTypes.bool,
   children: PropTypes.node.isRequired,
   onCloseButtonClick: PropTypes.func.isRequired
@@ -68,6 +69,7 @@ class Modal extends React.Component {
     const {
       title,
       variant,
+      name,
       isCloseDisabled,
       onCloseButtonClick,
       children
@@ -79,7 +81,8 @@ class Modal extends React.Component {
         className="oph-overlay oph-overlay-is-visible"
         role="dialog"
         tabIndex="-1"
-        aria-labelledby={`#modal-${title}`}
+        aria-labelledby={`#modal-${name}`}
+        data-selenium-id={`modal-${name}`}
         onClick={this.handleOverlayClick}
       >
         <div
@@ -87,7 +90,7 @@ class Modal extends React.Component {
           className={`oph-modal ${variant === '' ? '' : `oph-modal-${variant}`}`}
           role="document"
         >
-          <h1 id={`#modal-${title}`} className="hide">{title}</h1>
+          <h1 id={`modal-${name}`} className="hide">{title}</h1>
 
           <CloseButton
             disabled={isCloseDisabled}

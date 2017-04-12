@@ -112,12 +112,14 @@ class App extends React.Component {
         {/*Alert for failed login*/}
         {
           state.user.hasLoadingFailed
-            ? <Alert
-              id="1"
-              variant="error"
-              titleKey="kayttajatietojenhakuepaonnistui"
-              textKey="paivitasivu"
-            />
+            ? <div data-selenium-id="login-alert">
+              <Alert
+                id={1}
+                variant="error"
+                titleKey="kayttajatietojenhakuepaonnistui"
+                textKey="paivitasivu"
+              />
+            </div>
             : null
         }
 
@@ -129,6 +131,7 @@ class App extends React.Component {
             ? <Modal
               variant="big"
               title={translate('julkaisueditori')}
+              name="editor"
               isCloseDisabled={state.editor.isSavingRelease}
               onCloseButtonClick={controller.editor.close}
             >
@@ -151,6 +154,7 @@ class App extends React.Component {
             ? <Modal
               variant="big"
               title={translate('julktiedotteet')}
+              name="unpublished-notifications"
               onCloseButtonClick={controller.unpublishedNotifications.close}
             >
               <UnpublishedNotifications
@@ -163,9 +167,9 @@ class App extends React.Component {
         }
 
         {/*Content*/}
-        <div className={`container ${state.user.hasLoadingFailed ? 'display-none' : ''}`}>
+        <div className={`container ${state.user.hasLoadingFailed ? 'display-none' : ''}`} data-selenium-id="container">
           {/*Alerts*/}
-          <div className="alert-container col-12 md-col-6 lg-col-4 px2">
+          <div className="alert-container col-12 md-col-6 lg-col-4 px2" data-selenium-id="alert-container">
             {state.view.alerts.map(alert =>
               <div key={`viewAlert${alert.id}`} className="mb2">
                 <Alert

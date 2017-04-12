@@ -33,6 +33,7 @@ function TabItem (props) {
       className={`oph-tab-item ${selectedTab === name ? 'oph-tab-item-is-active' : ''} ${column}`}
       href={`#${name}`}
       onClick={handleClick}
+      data-selenium-id={`tab-item-${name}`}
     >
       {children}
     </a>

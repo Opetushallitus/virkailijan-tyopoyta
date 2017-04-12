@@ -176,11 +176,13 @@ class Notification extends React.Component {
               className="absolute bottom-0 right-0 z2"
             >
               <IconButton
+                id={`notification${notification.id}-edit-button`}
                 icon="pencil"
                 title={translate('muokkaa')}
                 onClick={this.handleEditButtonClick}
               />
               <IconButton
+                id={`notification${notification.id}-remove-button`}
                 icon="trash"
                 title={translate('poista')}
                 onClick={this.handleRemoveButtonClick}
@@ -225,7 +227,9 @@ class Notification extends React.Component {
 
           {/*Content*/}
           <div className="col-12">
-            <div className={`mb2 ${isExpandable ? 'notification-content' : ''}`}>{renderHTML(content.text)}</div>
+            <div className={`mb2 ${isExpandable ? 'notification-content-expandable' : 'notification-content'}`}>
+              {renderHTML(content.text)}
+            </div>
           </div>
 
           {/*Create date and creator's initials*/}
@@ -239,7 +243,7 @@ class Notification extends React.Component {
             {categories.map(category =>
               <Tag
                 key={`notificationTag${category.id}`}
-                variant="blue"
+                variant="category"
                 text={category.name}
               />
             )}

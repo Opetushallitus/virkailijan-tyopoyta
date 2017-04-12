@@ -1,7 +1,5 @@
 module.exports = {
-  luokka: {
-    url: 'https://itest-virkailija.oph.ware.fi/cas/login',
-    username: 'robotti',
-    password: 'Testaaja!'
-  }
+  luokka: require('./environments').luokka,
+  dateFormat: 'D.M.YYYY',
+  id: name => `[data-selenium-id="${name}"]`
 }

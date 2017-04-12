@@ -36,8 +36,8 @@ function UnpublishedNotifications (props) {
             key={alert.id}
             id={alert.id}
             variant={alert.variant}
-            title={alert.title}
-            text={alert.text}
+            titleKey={alert.titleKey}
+            textKey={alert.textKey}
             onCloseButtonClick={controller.removeAlert}
           />
         )}

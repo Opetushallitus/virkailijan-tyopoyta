@@ -139,7 +139,7 @@ class Timeline extends React.Component {
     const currentDate = moment().format(dateFormat)
 
     return (
-      <div>
+      <div data-selenium-id="timeline">
         <div
           ref={timelineViewport => (this.timelineViewport = timelineViewport)}
           className="timeline-viewport timeline-line"

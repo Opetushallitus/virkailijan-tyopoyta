@@ -102,18 +102,28 @@
   transition-timing-function: var(--transition-timing-function-base);
 }
 
-.notification-content {
+.notification-content-expandable {
   position: relative;
   height: var(--line-height-base)rem;
   overflow: hidden;
 }
 
-.notification-is-expanded .notification-content {
+.notification-is-expanded .notification-content-expandable {
   height: auto;
 }
 
+.notification a {
+  text-decoration: none;
+  color: var(--link-color);
+}
+
+.notification a:hover,
+.notification a:focus {
+  color: var(--link-color-hover);
+}
+
 /* Add a fading effect to non-expanded notifications' content */
-.notification:not(.notification-is-expanded) .notification-content:before {
+.notification-container:not(.notification-is-expanded) .notification-content-expandable:before {
   content: '';
   width: 100%;
   height: 100%;

@@ -139,10 +139,7 @@ function Targeting (props) {
                       }
                     </div>
 
-                    <div
-                      id={`targetingGroup${targetingGroup.id}`}
-                      className="flex flex-auto items-center justify-end my1 pr2"
-                    >
+                    <div className="flex flex-auto items-center justify-end my1 pr2">
                       <RemoveTargetingGroupButton
                         id={targetingGroup.id}
                         disabled={targetingGroup.isLoading}
@@ -158,7 +155,7 @@ function Targeting (props) {
         }
 
         {/*Categories*/}
-        <div className="col-12 lg-col-3 sm-pr2 mb2 lg-mb0">
+        <div className="col-12 lg-col-3 sm-pr2 mb2 lg-mb0" data-selenium-id="release-category">
           <Fieldset legend={translate('julkkategoria')}>
             {categories.map(category =>
               <div key={`releaseCategory${category.id}`} className="mb1">
@@ -196,7 +193,7 @@ function Targeting (props) {
           </Field>
         </div>
 
-        <div className="col-12 lg-col-4 lg-pl2">
+        <div className="col-12 lg-col-4 lg-pl2" data-selenium-id="release-selected-user-groups">
           <div className="invisible xs-hide sm-hide md-hide mb1">{translate('valitutryhmat')}</div>
 
           {
@@ -217,14 +214,14 @@ function Targeting (props) {
       {
         notification.validationState === 'empty'
           ? null
-          : <div className="p3 border-top">
+          : <div className="p3 border-top" data-selenium-id="notification-tag-groups">
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
             {tagGroups.map(tagGroup =>
               <Fieldset key={`notificationTagGroup${tagGroup.id}`} legend={tagGroup.name}>
                 <CheckboxButtonGroup
                   groupId={tagGroup.id}
-                  htmlId="notification-tags"
+                  htmlId="notification-tag"
                   options={tagGroup.tags}
                   selectedOptions={notification.tags}
                   disabled={isTagGroupDisabled(tagGroup, release.categories)}
@@ -249,6 +246,7 @@ function Targeting (props) {
             className="oph-input md-col-6 lg-col-3"
             type="text"
             name="targeting-name"
+            data-selenium-id="targeting-name"
             onChange={handleTargetingGroupNameChange}
           />
         </div>

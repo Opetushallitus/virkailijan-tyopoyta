@@ -197,7 +197,7 @@ function Editor (props) {
           : <TabContent>
             {/*Notification*/}
             <div className="px3">
-              <TabPane isActive={selectedTab === 'edit-notification'}>
+              <TabPane name="edit-notification" isActive={selectedTab === 'edit-notification'}>
                 {
                   isLoadingRelease ||
                   categories.isLoadingRelease ||
@@ -219,7 +219,7 @@ function Editor (props) {
 
             {/*Timeline*/}
             <div className="px3">
-              <TabPane isActive={selectedTab === 'edit-timeline'}>
+              <TabPane name="edit-timeline" isActive={selectedTab === 'edit-timeline'}>
                 {
                   isLoadingRelease ||
                   categories.isLoadingRelease ||
@@ -240,7 +240,7 @@ function Editor (props) {
             </div>
 
             {/*Categories and user groups*/}
-            <TabPane isActive={selectedTab === 'targeting'}>
+            <TabPane name="targeting" isActive={selectedTab === 'targeting'}>
               {
                 isLoadingRelease ||
                 categories.isLoadingRelease ||
@@ -265,7 +265,7 @@ function Editor (props) {
       {/*Preview*/}
       {
         isPreviewed
-          ? <section className="py3 px3 border-top border-bottom">
+          ? <section className="py3 px3 border-top border-bottom" data-selenium-id="editor-preview">
             <PreviewRelease
               locale={user.lang}
               categories={categories.items}

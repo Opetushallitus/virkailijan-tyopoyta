@@ -25,5 +25,6 @@ build
 .swn
 .swo
 .swp
-/ui/app/resources/test/reports/
+ui/app/resources/test/nightwatch/reports/
+ui/app/resources/test/nightwatch/environments.js
 *.iml

@@ -109,11 +109,11 @@ class Notifications extends React.Component {
     }
 
     return (
-      <div>
+      <div data-selenium-id="notifications">
         <h2 className="hide">{translate('tiedotteet')}</h2>
 
         {/*Filter notifications by tags*/}
-        <div className="mb1">
+        <div className="mb1" data-selenium-id="notification-tag-groups">
           <NotificationTagSelect
             tagGroups={tagGroups}
             selectedTags={notifications.tags}
@@ -123,20 +123,22 @@ class Notifications extends React.Component {
         </div>
 
         {/*Filter notifications by categories*/}
-        <Collapse
-          id="collapseNotificationCategories"
-          title={
-            `${translate('rajoitanakyviatiedotteita')}
-            (${getNotificationSelectedCategoriesString(notifications.categories.length)})`
-          }
-          isVisible={R.path(['profile', 'firstLogin'], user)}
-        >
-          <NotificationCategoryCheckboxes
-            controller={controller}
-            categories={categories}
-            selectedCategories={notifications.categories}
-          />
-        </Collapse>
+        <div data-selenium-id="notification-categories">
+          <Collapse
+            id="notification-categories-collapse"
+            title={
+              `${translate('rajoitanakyviatiedotteita')}
+              (${getNotificationSelectedCategoriesString(notifications.categories.length)})`
+            }
+            isVisible={R.path(['profile', 'firstLogin'], user)}
+          >
+            <NotificationCategoryCheckboxes
+              controller={controller}
+              categories={categories}
+              selectedCategories={notifications.categories}
+            />
+          </Collapse>
+        </div>
 
         {/*Notifications list*/}
         {

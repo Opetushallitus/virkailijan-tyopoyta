@@ -35,6 +35,7 @@ function Field (props) {
     <div
       className={`oph-field ${isRequired ? 'oph-field-is-required' : ''}`}
       aria-required={isRequired}
+      data-selenium-id={name}
     >
       <label
         className={`oph-label ${labelIsHidden ? 'display-none' : ''}`}

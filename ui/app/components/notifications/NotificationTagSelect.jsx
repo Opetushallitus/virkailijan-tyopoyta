@@ -112,7 +112,7 @@ class NotificationTagSelect extends React.Component {
     })
 
     return (
-      <div>
+      <div data-selenium-id="notification-tag-select">
         <label className="hide" htmlFor="notification-tag-select-search">{translate('suodatatiedotteita')}</label>
 
         <Dropdown

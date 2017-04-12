@@ -39,17 +39,18 @@ function NotificationsMenu (props) {
   }
 
   return (
-    <div className="notifications-menu flex items-stretch">
+    <div className="notifications-menu flex items-stretch" data-selenium-id="notifications-menu">
       <section className="flex col-12 border-bottom">
         {/*Actions*/}
         <div className="flex items-center col-12">
           <div className="center md-left-align lg-flex flex-auto items-center justify-end">
             {/*Create a new release*/}
             <Button
-              id="button-open-editor"
+              id="open-editor-button"
               variants={['ghost', 'big']}
               className="oph-h3 lg-mr3 px0"
               onClick={handleOpenEditorButtonClick}
+              data-selenium-id="open-editor-button"
             >
               +&nbsp;
               {translate('lisaauusi')}
@@ -59,10 +60,11 @@ function NotificationsMenu (props) {
 
             {/*Display unpublished notifications*/}
             <Button
-              id="button-open-unpublished-notifications"
+              id="open-unpublished-notifications-button"
               variants={['ghost']}
               className="regular px0"
               onClick={handleOpenUnpublishedNotificationsButtonClick}
+              data-selenium-id="open-unpublished-notifications-button"
             >
               {translate('julktiedotteet')}
             </Button>
@@ -71,11 +73,12 @@ function NotificationsMenu (props) {
 
             {/*Edit draft*/}
             <Button
-              id="button-edit-draft"
+              id="edit-draft-button"
               variants={['ghost']}
               className="regular lg-ml3 px0"
               onClick={handleEditDraftButtonClick}
               disabled={!draft}
+              data-selenium-id="edit-draft-button"
             >
               {translate(draft ? 'jatkaluonnosta' : 'eiluonnosta')}
             </Button>

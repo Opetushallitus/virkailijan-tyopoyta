@@ -46,8 +46,9 @@ class Collapse extends React.Component {
           onClick={this.handleToggleButtonClick}
           aria-controls={id}
           aria-expanded={this.state.isVisible}
+          data-selenium-id={`${id}-button`}
         >
-          {title}
+          <span data-selenium-id={`${id}-title`}>{title}</span>
 
           <div className="inline-block ml1">
             <Icon name={this.state.isVisible ? 'chevron-up' : 'chevron-down'} />
@@ -59,6 +60,7 @@ class Collapse extends React.Component {
           className={this.state.isVisible
             ? 'border-top border-bottom p2'
             : 'display-none'}
+          data-selenium-id={id}
         >
           {children}
         </div>

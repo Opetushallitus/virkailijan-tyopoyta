@@ -51,7 +51,10 @@ class EditLink extends React.Component {
     } = this.props
 
     return (
-      <div className="oph-bg-white absolute top-0 right-0 bottom-0 left-0 z2 m2">
+      <div
+        className="oph-bg-white absolute top-0 right-0 bottom-0 left-0 z2 m2"
+        data-selenium-id="edit-link"
+      >
         <div className="oph-field">
           <div className="mb1">{translate('linkkiteksti')}</div>
           <div className="oph-muted">{selectedLinkText || selectedText}</div>
@@ -78,6 +81,7 @@ class EditLink extends React.Component {
             variants={['primary']}
             disabled={!this.state.url}
             onClick={this.handleOnClick}
+            data-selenium-id="save-link-button"
           >
             {translate('tallenna')}
           </Button>

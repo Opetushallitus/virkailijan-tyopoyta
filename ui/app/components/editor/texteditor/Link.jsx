@@ -7,10 +7,10 @@ const propTypes = {
 }
 
 function Link (props) {
-  const url = Entity.get(props.entityKey).getData()
+  const link = Entity.get(props.entityKey).getData()
 
   return (
-    <a href={url} title={url}>
+    <a className="oph-link" href={link.url} title={link.url}>
       {props.children}
     </a>
   )

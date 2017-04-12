@@ -39,6 +39,7 @@ function IconButton (props) {
       aria-label={translate(title)}
       disabled={disabled}
       onClick={onClick}
+      data-selenium-id={id}
     >
       <Icon name={icon} />
     </Button>

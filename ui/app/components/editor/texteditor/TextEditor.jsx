@@ -208,6 +208,8 @@ class TextEditor extends React.Component {
     this.setState({
       editorState: RichUtils.toggleLink(editorState, selection, null),
       showURLInput: false
+    }, () => {
+      setTimeout(() => this.editor.focus(), 0)
     })
   }
 
@@ -274,6 +276,7 @@ class TextEditor extends React.Component {
           />
 
           <IconButton
+            id="RichEditor-edit-link-button"
             title={isCursorOnLink ? translate('muokkaalinkki') : translate('lisaalinkki')}
             isActive={this.state.showURLInput}
             disabled={!isCursorOnLink && !hasSelectedText}
@@ -282,6 +285,7 @@ class TextEditor extends React.Component {
           />
 
           <IconButton
+            id="RichEditor-remove-link-button"
             title={translate('poistalinkki')}
             disabled={!isCursorOnLink}
             icon="unlink"
