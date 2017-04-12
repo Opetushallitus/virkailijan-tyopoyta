@@ -38,4 +38,4 @@ oppijanumerorekisteri.service = "https://{{host_virkailija}}/oppijanumerorekiste
 akka.quartz.schedules.AutomatedReleasesEmail.description = "Daily check to see if new automated release emails should be sent"
 akka.quartz.schedules.AutomatedReleasesEmail.expression = "0 0 2 1/1 * ? *"
 akka.quartz.schedules.ApplicationGroupsUpdate.description = "Update current application groups for the software, checks hourly"
-akka.quartz.schedules.ApplicationGroupsUpdate.expression = "0 0 0/1 * * *"
+akka.quartz.schedules.ApplicationGroupsUpdate.expression = "0 0 0/1 * * ? *"
