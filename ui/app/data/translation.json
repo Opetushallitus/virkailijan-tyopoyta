@@ -1460,5 +1460,10 @@
     "locale": "fi",
     "key": "hairiotiedotteidenhakuepaonnistui",
     "value": "Häiriötiedotteiden haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kohderyhmavalinnantallennusepaonnistui",
+    "value": "Kohderyhmävalinnan tallennus epäonnistui"
   }
 ]

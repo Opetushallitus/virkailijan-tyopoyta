@@ -114,6 +114,7 @@ export function setInitialState () {
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
     [editor.autoSaveBus], editor.onAutoSave,
+    [editor.saveTargetingGroupBus], editor.onSaveTargetingGroupComplete,
     [editor.fetchReleaseBus], editor.onReleaseReceived,
     [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
     [editor.alertsBus], editor.onAlertsReceived,

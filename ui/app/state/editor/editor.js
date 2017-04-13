@@ -16,6 +16,7 @@ import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 const saveBus = new Bacon.Bus()
 const saveFailedBus = new Bacon.Bus()
+const saveTargetingGroupBus = new Bacon.Bus()
 const fetchReleaseBus = new Bacon.Bus()
 const fetchReleaseFailedBus = new Bacon.Bus()
 const alertsBus = new Bacon.Bus()
@@ -106,6 +107,11 @@ function onSaveComplete (state, release) {
     window.localStorage.removeItem(state.draftKey)
   }
 
+  // Save targeting group
+  if (release.targetingGroup) {
+    saveTargetingGroup(release)
+  }
+
   return close(newState)
 }
 
@@ -120,6 +126,21 @@ function onSaveFailed (state) {
 
 function onAutoSave (state) {
   return saveDraft(state)
+}
+
+function onSaveTargetingGroupComplete (state, { result }) {
+  if (!result) {
+    console.log('Saving targeting group failed')
+
+    const alert = createAlert({
+      variant: 'error',
+      titleKey: 'kohderyhmavalinnantallennusepaonnistui'
+    })
+
+    return R.assocPath(['view', 'alerts'], view.setNewAlerts(alert, state.view.alerts), state)
+  }
+
+  return state
 }
 
 function toggleValue (value, values) {
@@ -367,6 +388,30 @@ function saveDraft (state) {
   return R.assoc('draft', editedRelease, state)
 }
 
+function saveTargetingGroup (release) {
+  const targetingGroup = {
+    name: release.targetingGroup,
+    data: {
+      categories: release.categories,
+      userGroups: release.userGroups,
+      tags: release.notification.tags
+    }
+  }
+
+  getData({
+    url: urls['targeting.groups'],
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(targetingGroup)
+    },
+    onError: () => saveTargetingGroupBus.push({ result: false })
+  })
+}
+
 // Events for appState
 const events = {
   open,
@@ -388,6 +433,7 @@ const initialState = emptyEditor()
 const editor = {
   saveBus,
   saveFailedBus,
+  saveTargetingGroupBus,
   autoSaveBus,
   fetchReleaseBus,
   fetchReleaseFailedBus,
@@ -397,6 +443,7 @@ const editor = {
   onSaveComplete,
   onSaveFailed,
   onAutoSave,
+  onSaveTargetingGroupComplete,
   onReleaseReceived,
   onFetchReleaseFailed,
   onAlertsReceived,
