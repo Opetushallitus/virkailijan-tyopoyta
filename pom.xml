@@ -115,6 +115,11 @@
             <artifactId>akka-quartz-scheduler_2.11</artifactId>
             <version>1.4.0-akka-2.3.x</version>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.10.2</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

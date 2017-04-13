@@ -145,7 +145,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .orderBy(n.publishDate).desc
     }
     notificationsFromRS(sql, user).filter(n =>
-      (tags.isEmpty || n.tags.intersect(tags).nonEmpty) &&  n.categories.intersect(cats).nonEmpty)
+      (tags.isEmpty || n.tags.intersect(tags).nonEmpty) &&
+      (n.categories.isEmpty || n.categories.intersect(cats).nonEmpty))
   }
 
   override def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList = {

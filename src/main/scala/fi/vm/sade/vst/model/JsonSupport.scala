@@ -218,6 +218,7 @@ trait JsonSupport {
 
   implicit val targetingGroupWrites: Writes[TargetingGroup] = Writes { group =>
     Json.obj(
+      "id" -> group.id,
       "name" -> group.name,
       "data" -> group.data
     )

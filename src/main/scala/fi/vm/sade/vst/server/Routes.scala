@@ -1,9 +1,11 @@
 package fi.vm.sade.vst.server
 
+import java.time.YearMonth
+
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.ContentTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
-import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive1, Directives, Route}
+import akka.http.scaladsl.server.{Directive1, Directives, Route}
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
@@ -12,12 +14,14 @@ import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate, User}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.{KayttooikeusService, UserService}
 import fi.vm.sade.vst.service.EmailService
-import java.time.YearMonth
+import org.jsoup.Jsoup
+import org.jsoup.safety.Whitelist
+import play.api.libs.json.{Json, Writes}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import play.api.libs.json.{Json, Writes}
+
 
 class Routes(authenticationService: UserService,
              emailService: EmailService,
@@ -90,6 +94,15 @@ class Routes(authenticationService: UserService,
     case _ => complete(StatusCodes.Unauthorized)
   }
 
+  def validateRelease(release: ReleaseUpdate): Boolean = {
+    val notificationValid: Boolean= release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
+    val timelineValid: Boolean = release.timeline.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
+
+    if(!notificationValid || !timelineValid) println("Invalid html content!")
+
+    notificationValid && timelineValid
+  }
+
   val releaseRoutes: Route = {
     pathPrefix("release"){
       withAdminUser { user =>
@@ -112,7 +125,11 @@ class Routes(authenticationService: UserService,
             entity(as[String]) { json =>
               val release = parseReleaseUpdate(json)
               release match {
-                case Some(r: ReleaseUpdate) => sendResponse(Future(releaseRepository.addRelease(user, r).map(release => sendInstantEmails(release, r))))
+                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.addRelease(user, r).map(
+                  release => {
+                    sendInstantEmails(release, r)
+                    userService.deleteDraft(user)
+                  })))
                 case None => complete(StatusCodes.BadRequest)
               }
             }
@@ -123,7 +140,7 @@ class Routes(authenticationService: UserService,
             entity(as[String]) { json =>
               val release = parseReleaseUpdate(json)
               release match {
-                case Some(r: ReleaseUpdate) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(release => sendInstantEmails(release, r))))
+                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(release => sendInstantEmails(release, r))))
                 case None => complete(StatusCodes.BadRequest)
               }
             }
