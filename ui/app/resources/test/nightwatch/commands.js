@@ -27,7 +27,7 @@ module.exports = {
       browser.expect.element(container).to.be.visible.after(5000)
     }
   },
-  releaseEditor: {
+  editorCommands: {
     toggleTab: (browser, tab = 'edit-timeline') => {
       const editor = browser.page.pageObjects().section.editor
       const tabItem = browser.globals.id(`tab-item-${tab}`)
@@ -38,7 +38,7 @@ module.exports = {
     },
 
     createNotification: (browser, { language, title, description, startDate, endDate }) => {
-      const editor = browser.page.pageObjects().releaseEditor
+      const editor = browser.page.pageObjects().editorCommands
       const editNotification = require('./componentTests/editor/editNotification')
       const targeting = require('./componentTests/editor/targeting')
 
@@ -53,10 +53,12 @@ module.exports = {
       editor.toggleTab(browser, 'targeting')
 
       targeting['select tag'](browser)
+
+      editor.toggleTab(browser, 'edit-notification')
     },
 
     createTimelineItem: (browser, { text, date }) => {
-      const editor = browser.page.pageObjects().releaseEditor
+      const editor = browser.page.pageObjects().editorCommands
       const editTimeline = require('./componentTests/editor/editTimeline')
 
       editor.toggleTab(browser, 'edit-timeline')
@@ -67,7 +69,7 @@ module.exports = {
     },
 
     targeting: browser => {
-      const editor = browser.page.pageObjects().releaseEditor
+      const editor = browser.page.pageObjects().editorCommands
       const targeting = require('./componentTests//editor/targeting')
 
       editor.toggleTab(browser, 'targeting')

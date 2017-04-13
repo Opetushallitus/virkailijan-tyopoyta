@@ -1450,5 +1450,15 @@
     "locale": "fi",
     "key": "tapahtumapoistettu",
     "value": "Tapahtuma poistettu"
+  },
+  {
+    "locale": "fi",
+    "key": "eitiedotteitahakuehdoilla",
+    "value": "Ei tiedotteita hakuehdoilla"
+  },
+  {
+    "locale": "fi",
+    "key": "hairiotiedotteidenhakuepaonnistui",
+    "value": "Häiriötiedotteiden haku epäonnistui"
   }
 ]

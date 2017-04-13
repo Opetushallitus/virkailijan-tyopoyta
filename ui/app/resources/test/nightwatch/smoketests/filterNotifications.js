@@ -11,7 +11,7 @@ module.exports = {
   'open editor': (browser, name) => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().releaseEditor
+    const editor = browser.page.pageObjects().editorCommands
 
     editor.createNotification(browser, { language: 'fi' })
     editor.targeting(browser)

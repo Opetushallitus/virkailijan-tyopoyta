@@ -5,7 +5,8 @@ import moment from 'moment'
 import categories from './categories'
 import userGroups from './userGroups'
 import tagGroups from './tagGroups'
-import notifications from './notifications'
+import notifications from './notifications/notifications'
+import specialNotifications from './notifications/specialNotifications'
 import timeline from './timeline'
 
 import getData from '../utils/getData'
@@ -35,6 +36,8 @@ function onReceived (state, response) {
   userGroups.fetch()
   tagGroups.fetch()
 
+  specialNotifications.fetch()
+
   notifications.fetch({
     page: 1,
     categories: response.profile.categories
@@ -45,10 +48,11 @@ function onReceived (state, response) {
     year
   })
 
-  const draftKey = `virkailijanTyopoyta${response.userId}`
+  const draftKey = `${state.draftKey}${response.userId}`
+  const draft = window.localStorage.getItem(draftKey) || response.draft
 
   return R.compose(
-    R.assoc('draft', JSON.parse(window.localStorage.getItem(draftKey)) || response.draft),
+    R.assoc('draft', JSON.parse(draft)),
     R.assoc('draftKey', draftKey),
     R.assocPath(['notifications', 'categories'], response.profile.categories),
     R.assocPath(['user', 'targetingGroups'], response.profile.targetingGroups || []),

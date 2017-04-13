@@ -13,14 +13,21 @@ import { translate } from '../common/Translations'
 
 import animate from '../utils/animate'
 
+const variants = ['disruption']
+
 const propTypes = {
   index: PropTypes.number.isRequired,
+  variant: PropTypes.oneOf(variants),
   controller: PropTypes.object.isRequired,
   defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
   categories: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired
+}
+
+const defaultProps = {
+  variant: null
 }
 
 class Notification extends React.Component {
@@ -86,6 +93,7 @@ class Notification extends React.Component {
 
   render () {
     const {
+      variant,
       defaultLocale,
       user,
       notification,
@@ -100,7 +108,6 @@ class Notification extends React.Component {
     } = notification
 
     const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
-    const isDisruptionNotification = tags.indexOf(translate('hairiotiedote')) > -1
 
     // Use default locale's content if the version for user's language is missing
     const content = notification.content[user.lang] || notification.content[defaultLocale]
@@ -215,8 +222,8 @@ class Notification extends React.Component {
         <div
           className={`
             notification
+            ${variant ? `notification-${variant}` : ''}
             ${isExpandable ? 'notification-is-expandable' : ''}
-            ${isDisruptionNotification ? 'notification-disruption' : ''}
           `}
           onClick={isExpandable ? this.handleNotificationClick : null}
         >
@@ -262,5 +269,6 @@ class Notification extends React.Component {
 }
 
 Notification.propTypes = propTypes
+Notification.defaultProps = defaultProps
 
 export default Notification

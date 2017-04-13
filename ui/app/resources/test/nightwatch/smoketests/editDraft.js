@@ -12,7 +12,7 @@ module.exports = {
   'open editor': (browser, name) => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().releaseEditor
+    const editor = browser.page.pageObjects().editorCommands
 
     editor.createNotification(browser, { language: 'fi', title })
     editor.targeting(browser)
@@ -37,9 +37,9 @@ module.exports = {
     editNotification.expect.element('@title').value.to.equal(title).after(5000)
   },
 
-  'preview': browser => browser.page.pageObjects().releaseEditor.preview(browser),
+  'preview': browser => browser.page.pageObjects().editorCommands.preview(browser),
 
-  'save': browser => browser.page.pageObjects().releaseEditor.save(browser),
+  'save': browser => browser.page.pageObjects().editorCommands.save(browser),
 
   'draft is removed': browser => {
     const menu = browser.page.pageObjects().section.menu

@@ -9,7 +9,7 @@ module.exports = {
 
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
-  'toggle timeline tab': browser => browser.page.pageObjects().releaseEditor.toggleTab(browser, 'edit-timeline'),
+  'toggle timeline tab': browser => browser.page.pageObjects().editorCommands.toggleTab(browser, 'edit-timeline'),
 
   'set text': (browser, text = require('crypto').randomBytes(4).toString('hex')) => {
     const editor = browser.page.pageObjects().section.editor

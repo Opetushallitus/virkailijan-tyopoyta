@@ -13,7 +13,7 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create timeline item': browser => {
-    const editor = browser.page.pageObjects().releaseEditor
+    const editor = browser.page.pageObjects().editorCommands
 
     editor.createTimelineItem(browser, { text })
     editor.targeting(browser)
@@ -40,9 +40,9 @@ module.exports = {
 
   'edit finnish text': browser => require('../componentTests/editor/editTimeline')['set text'](browser, editedText),
 
-  'preview edit': browser => browser.page.pageObjects().releaseEditor.preview(browser),
+  'preview edit': browser => browser.page.pageObjects().editorCommands.preview(browser),
 
-  'save edit': browser => browser.page.pageObjects().releaseEditor.save(browser),
+  'save edit': browser => browser.page.pageObjects().editorCommands.save(browser),
 
   'timeline item was edited': browser => {
     const timelineItem = browser.page.pageObjects().section.timeline.section.timelineItem

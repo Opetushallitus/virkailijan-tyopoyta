@@ -5,8 +5,9 @@ import editNotification from './editNotification'
 import editTimeline from './editTimeline'
 import targeting from './targeting'
 import view from '../view'
-import unpublishedNotifications from '../unpublishedNotifications'
-import notifications from '../notifications'
+import unpublishedNotifications from '../notifications/unpublishedNotifications'
+import specialNotifications from '../notifications/specialNotifications'
+import notifications from '../notifications/notifications'
 import timeline from '../timeline'
 import getData from '../../utils/getData'
 import createAlert from '../../utils/createAlert'
@@ -81,7 +82,7 @@ function onAlertsReceived (state, alert) {
   return R.assocPath(['editor', 'alerts'], newEditorAlerts, state)
 }
 
-function onSaveComplete (state) {
+function onSaveComplete (state, release) {
   console.log('Release saved')
 
   const alert = createAlert({
@@ -95,12 +96,15 @@ function onSaveComplete (state) {
     R.assocPath(['view', 'alerts'], newViewAlerts),
     R.assoc('view', view.emptyView()),
     R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
+    R.assoc('specialNotifications', specialNotifications.reset()),
     R.assoc('notifications', notifications.reset(1)),
     R.assoc('timeline', timeline.emptyTimeline()),
-    R.assoc('draft', null)
+    release.id === -1 ? R.assoc('draft', null) : R.assoc('draft', state.draft)
   )(state)
 
-  window.localStorage.removeItem(state.draftKey)
+  if (release.id === -1) {
+    window.localStorage.removeItem(state.draftKey)
+  }
 
   return close(newState)
 }
@@ -320,7 +324,7 @@ function save (state, id) {
         editReleaseProperties
       )
     },
-    onSuccess: response => saveBus.push(response),
+    onSuccess: () => saveBus.push(savedRelease),
     onError: error => saveFailedBus.push(error)
   })
 

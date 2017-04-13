@@ -1,10 +1,10 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-import editor from './editor/editor'
-import getData from '../utils/getData'
-import createAlert from '../utils/createAlert'
-import urls from '../data/virkailijan-tyopoyta-urls.json'
+import editor from '../editor/editor'
+import getData from '../../utils/getData'
+import createAlert from '../../utils/createAlert'
+import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()

@@ -21,6 +21,15 @@ module.exports = {
     editNotification.expect.element(selector).to.have.value.that.equals(title)
   },
 
+  'set as disruption notification': browser => {
+    const editor = browser.page.pageObjects().section.editor
+    const editNotification = editor.section.editNotification
+
+    editNotification.click('@disruptionNotificationLabel')
+
+    editNotification.expect.element('@disruptionNotificationCheckbox').to.be.selected
+  },
+
   'set description': (browser, description = 'Kuvaus') => {
     const editor = browser.page.pageObjects().section.editor
     const editNotification = editor.section.editNotification

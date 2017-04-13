@@ -8,6 +8,7 @@
   "draft": "/virkailijan-tyopoyta/api/user/draft",
   "release": "/virkailijan-tyopoyta/api/release",
   "notifications": "/virkailijan-tyopoyta/api/notifications",
+  "special.notifications": "/virkailijan-tyopoyta/api/notifications/special",
   "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",
   "categories": "/virkailijan-tyopoyta/api/categories",
   "tags": "/virkailijan-tyopoyta/api/tags",

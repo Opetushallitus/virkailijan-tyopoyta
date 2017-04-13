@@ -20,6 +20,8 @@ module.exports = {
           selector: id('tab-edit-notification'),
           elements: {
             title: `${id('notification-title-fi')} .oph-input`,
+            disruptionNotificationLabel: `${id('disruption-notification-checkbox')} .oph-checkable`,
+            disruptionNotificationCheckbox: `${id('disruption-notification-checkbox')} .oph-checkable-input`,
             descriptionTextEditor: `${id(`notification-description-fi`)} .RichEditor-editor`,
             descriptionText: `${id(`notification-description-fi`)} .RichEditor-editor [data-text]`,
             descriptionLink: `${id(`notification-description-fi`)} .public-DraftStyleDefault-block a`,
@@ -106,6 +108,7 @@ module.exports = {
             closeButton: '.oph-button-close',
             confirmRemovePopup: '.oph-popup',
             confirmRemoveButton: '.oph-button-confirm',
+            disruptionNotification: '.notification-disruption',
             heading: '.notification-heading',
             content: '.notification-content',
             category: '.tag-category',

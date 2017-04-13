@@ -9,7 +9,7 @@ module.exports = {
 
   'set title': browser => require('./editNotification')['set title'](browser),
 
-  'toggle targeting tab': browser => browser.page.pageObjects().releaseEditor.toggleTab(browser, 'targeting'),
+  'toggle targeting tab': browser => browser.page.pageObjects().editorCommands.toggleTab(browser, 'targeting'),
 
   'select category': browser => {
     const editor = browser.page.pageObjects().section.editor

@@ -235,6 +235,7 @@ class App extends React.Component {
                   defaultLocale={state.defaultLocale}
                   user={state.user}
                   notifications={state.notifications}
+                  specialNotifications={state.specialNotifications}
                   categories={state.categories}
                   tagGroups={state.tagGroups}
                 />

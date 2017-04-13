@@ -18,6 +18,7 @@ const propTypes = {
   defaultLocale: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notifications: PropTypes.object.isRequired,
+  specialNotifications: PropTypes.object.isRequired,
   tagGroups: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired
 }
@@ -91,16 +92,10 @@ class Notifications extends React.Component {
       defaultLocale,
       user,
       notifications,
+      specialNotifications,
       tagGroups,
       categories
     } = this.props
-
-    const {
-      items,
-      count,
-      isLoading,
-      hasLoadingFailed
-    } = notifications
 
     const getNotificationSelectedCategoriesString = categoriesAmount => {
       return categoriesAmount === 0
@@ -142,29 +137,69 @@ class Notifications extends React.Component {
 
         {/*Notifications list*/}
         {
-          hasLoadingFailed
-            ? <div className="oph-h3 oph-muted center mb2">{translate('tiedotteidenhakuepaonnistui')}</div>
-            : null
-        }
-
-        {
-          isLoading && count === 0
-            ? <Delay time={1000}>
-              <Spinner isVisible />
-            </Delay>
-            : null
-        }
-
-        {
-          !hasLoadingFailed && !isLoading && count === 0
+          !notifications.hasLoadingFailed &&
+          !notifications.isLoading &&
+          notifications.count === 0 &&
+          specialNotifications.items.length === 0
             ? <div className="oph-h3 oph-muted center">{translate('eitiedotteita')}</div>
             : null
         }
 
         {
-          count > 0
+          (notifications.isLoading && notifications.count === 0) ||
+           specialNotifications.isLoading
+            ? <div className="mb3">
+              <Delay time={1000}>
+                <Spinner isVisible />
+              </Delay>
+            </div>
+            : null
+        }
+
+        {/*Special notifications, e.g. disruption notifications*/}
+        {
+          specialNotifications.hasLoadingFailed
+            ? <div className="oph-h3 oph-muted center mb2">{translate('hairiotiedotteidenhakuepaonnistui')}</div>
+            : null
+        }
+
+        {
+          specialNotifications.items.length > 0
+            ? specialNotifications.items.map((notification, index) =>
+              <Notification
+                key={`specialNotification${notification.id}`}
+                index={index}
+                variant={'disruption'}
+                defaultLocale={defaultLocale}
+                controller={controller}
+                user={user}
+                notification={notification}
+                categories={getItemsForIDs(notification.categories.sort(), categories.items)}
+                tags={getItemsForIDs(notification.tags.sort(), R.flatten(R.pluck('tags', tagGroups.items)))}
+              />
+            )
+            : null
+        }
+
+        {/*Regular notifications*/}
+        {
+          notifications.hasLoadingFailed
+            ? <div className="oph-h3 oph-muted center mb2">{translate('tiedotteidenhakuepaonnistui')}</div>
+            : null
+        }
+
+        {
+          notifications.count === 0 &&
+          (notifications.tags.length > 0 ||
+          notifications.categories.length > 0)
+            ? <div className="oph-h3 oph-muted center">{translate('eitiedotteitahakuehdoilla')}</div>
+            : null
+        }
+
+        {
+          notifications.count > 0
             ? <div>
-              {items.map((notification, index) =>
+              {notifications.items.map((notification, index) =>
                 <Notification
                   key={`notification${notification.id}`}
                   index={index}

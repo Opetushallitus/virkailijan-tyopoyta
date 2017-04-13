@@ -14,7 +14,7 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().releaseEditor
+    const editor = browser.page.pageObjects().editorCommands
 
     editor.createNotification(browser, { language: 'fi', title, description })
     editor.targeting(browser)
@@ -51,9 +51,9 @@ module.exports = {
     require('../componentTests/editor/editNotification')['set title'](browser, 'fi', `${title}${editedTitle}`)
   },
 
-  'preview edit': browser => browser.page.pageObjects().releaseEditor.preview(browser),
+  'preview edit': browser => browser.page.pageObjects().editorCommands.preview(browser),
 
-  'save edit': browser => browser.page.pageObjects().releaseEditor.save(browser),
+  'save edit': browser => browser.page.pageObjects().editorCommands.save(browser),
 
   'notification was edited': browser => {
     const notification = browser.page.pageObjects().section.notifications.section.notification

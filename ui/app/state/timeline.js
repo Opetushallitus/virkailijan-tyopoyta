@@ -3,7 +3,7 @@ import Bacon from 'baconjs'
 import moment from 'moment'
 
 import view from './view'
-import notifications from './notifications'
+import notifications from './notifications/notifications'
 import editor from './editor/editor'
 import getData from '../utils/getData'
 import createAlert from '../utils/createAlert'

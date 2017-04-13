@@ -5,8 +5,9 @@ import categories from './state/categories'
 import userGroups from './state/userGroups'
 import tagGroups from './state/tagGroups'
 import view from './state/view'
-import unpublishedNotifications from './state/unpublishedNotifications'
-import notifications from './state/notifications'
+import unpublishedNotifications from './state/notifications/unpublishedNotifications'
+import specialNotifications from './state/notifications/specialNotifications'
+import notifications from './state/notifications/notifications'
 import timeline from './state/timeline'
 import editor from './state/editor/editor'
 
@@ -26,6 +27,7 @@ const events = {
 const initialState = {
   defaultLocale: 'fi',
   dateFormat: 'D.M.YYYY',
+  draftKey: 'virkailijanTyopoytaDraft',
   draft: null,
   user: user.initialState,
   userGroups: userGroups.initialState,
@@ -33,6 +35,7 @@ const initialState = {
   tagGroups: tagGroups.initialState,
   view: view.initialState,
   unpublishedNotifications: unpublishedNotifications.initialState,
+  specialNotifications: specialNotifications.initialState,
   notifications: notifications.initialState,
   timeline: timeline.initialState,
   editor: editor.initialState
@@ -79,9 +82,13 @@ export function setInitialState () {
     [dispatcher.stream(events.unpublishedNotifications.edit)], unpublishedNotifications.edit,
     [dispatcher.stream(events.unpublishedNotifications.removeAlert)], unpublishedNotifications.removeAlert,
 
+    // Special notifications
+    [specialNotifications.fetchBus], specialNotifications.onReceived,
+    [specialNotifications.fetchFailedBus], specialNotifications.onFetchFailed,
+
     // Notifications
-    [notifications.fetchBus], notifications.onNotificationsReceived,
-    [notifications.fetchFailedBus], notifications.onFetchNotificationsFailed,
+    [notifications.fetchBus], notifications.onReceived,
+    [notifications.fetchFailedBus], notifications.onFetchFailed,
     [notifications.removeNotificationBus], notifications.onNotificationRemoved,
     [notifications.saveCategoriesFailedBus], notifications.onSaveCategoriesFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,

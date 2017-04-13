@@ -1,11 +1,11 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
 
-import view from './view'
-import editor from './editor/editor'
-import getData from '../utils/getData'
-import createAlert from '../utils/createAlert'
-import urls from '../data/virkailijan-tyopoyta-urls.json'
+import view from '../view'
+import editor from '../editor/editor'
+import getData from '../../utils/getData'
+import createAlert from '../../utils/createAlert'
+import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
@@ -57,7 +57,7 @@ function saveCategories (options) {
   })
 }
 
-function onNotificationsReceived (state, response) {
+function onReceived (state, response) {
   console.log('Received notifications')
 
   /*
@@ -82,7 +82,7 @@ function onNotificationsReceived (state, response) {
   )(state)
 }
 
-function onFetchNotificationsFailed (state) {
+function onFetchFailed (state) {
   const alert = createAlert({
     variant: 'error',
     titleKey: 'tiedotteidenhakuepaonnistui',
@@ -103,11 +103,19 @@ function onNotificationRemoved (state, { result, notification, index }) {
     titleKey: 'tiedotepoistettu'
   })
 
+  const prop = notification.variant ? 'notifications' : `${notification.variant}Notifications`
+  const path = notification.variant
+    ? [`${notification.variant}Notifications`, 'items']
+    : ['notifications', 'items']
+  const newCount = notification.variant
+    ? R.path(['notifications', 'count'], state)
+    : R.dec(R.path(['notifications', 'count'], state))
+
   if (result && notification.isRelatedToTimelineItem) {
     fetch({ page: 1 })
     view.alertsBus.push(alert)
 
-    return R.assoc('notifications', emptyNotifications(), state)
+    return R.assoc(prop, emptyNotifications(), state)
   }
 
   if (result) {
@@ -115,10 +123,10 @@ function onNotificationRemoved (state, { result, notification, index }) {
 
     return R.compose(
       R.assocPath(
-        ['notifications', 'items'],
-        R.update(index, R.assoc('isRemoved', true, notification), state.notifications.items),
+        path,
+        R.update(index, R.assoc('isRemoved', true, notification), R.path(path, state)),
       ),
-      R.assocPath(['notifications', 'count'], R.dec(state.notifications.count))
+      R.assocPath(['notifications', 'count'], newCount)
     )(state)
   }
 
@@ -131,9 +139,13 @@ function onNotificationRemoved (state, { result, notification, index }) {
 }
 
 function onRemoveNotificationFailed (state, notification, index) {
+  const path = notification.variant
+    ? [`${notification.variant}Notifications`, 'items']
+    : ['notifications', 'items']
+
   return R.assocPath(
-    ['notifications', 'items'],
-    R.update(index, R.assoc('isRemoving', false, notification), state.notifications.items),
+    path,
+    R.update(index, R.assoc('isRemoving', false, notification), R.path(path, state)),
     state
   )
 }
@@ -248,15 +260,23 @@ function edit (state, releaseId) {
 }
 
 function remove (state, { notification, index, value }) {
+  const path = notification.variant
+    ? [`${notification.variant}Notifications`, 'items']
+    : ['notifications', 'items']
+
   return R.assocPath(
-    ['notifications', 'items'],
-    R.update(index, R.assoc('confirmRemove', value, notification), state.notifications.items),
+    path,
+    R.update(index, R.assoc('confirmRemove', value, notification), R.path(path, state)),
     state
   )
 }
 
 function confirmRemove (state, { notification, index }) {
   console.log('Removing notification with id', notification.id)
+
+  const path = notification.variant
+    ? [`${notification.variant}Notifications`, 'items']
+    : ['notifications', 'items']
 
   const newNotification = R.compose(
     R.assoc('isRemoving', true),
@@ -281,8 +301,8 @@ function confirmRemove (state, { notification, index }) {
   })
 
   return R.assocPath(
-    ['notifications', 'items'],
-    R.update(index, newNotification, state.notifications.items),
+    path,
+    R.update(index, newNotification, R.path(path, state)),
     state
   )
 }
@@ -320,8 +340,8 @@ const notifications = {
   initialState,
   fetch,
   reset,
-  onNotificationsReceived,
-  onFetchNotificationsFailed,
+  onReceived,
+  onFetchFailed,
   onNotificationRemoved,
   onSaveCategoriesFailed,
   toggleTag,

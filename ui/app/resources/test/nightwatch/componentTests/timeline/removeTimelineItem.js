@@ -8,7 +8,7 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create timeline item': browser => {
-    const editor = browser.page.pageObjects().releaseEditor
+    const editor = browser.page.pageObjects().editorCommands
 
     editor.createTimelineItem(browser, { text })
     editor.targeting(browser)

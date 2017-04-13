@@ -98,7 +98,7 @@ function EditNotification (props) {
           />
         </div>
 
-        <div className="mt2">
+        <div className="mt2" data-selenium-id="disruption-notification-checkbox">
           <Checkbox
             label={translate('hairiotiedote')}
             onChange={handleIsDisruptionNotificationCheckboxChange}
