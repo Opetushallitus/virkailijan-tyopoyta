@@ -162,7 +162,7 @@ class Timeline extends React.Component {
 
             <div
               ref={months => (this.months = months)}
-              className="sm-center md-left-align lg-center relative"
+              className="timeline-line sm-center md-left-align lg-center relative"
             >
               {/*Months*/}
               {items.map(month =>
