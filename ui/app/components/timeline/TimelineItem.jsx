@@ -132,7 +132,7 @@ function TimelineItem (props) {
         }
 
         {/*Text*/}
-        <div className="oph-h5 bold pr2" data-selenium-id="timeline-item-text">{renderHTML(content.text)}</div>
+        <div className="oph-h5 oph-bold pr2" data-selenium-id="timeline-item-text">{renderHTML(content.text)}</div>
 
         {/*Display related notification*/}
         {
