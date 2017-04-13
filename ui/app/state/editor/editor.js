@@ -44,6 +44,7 @@ function onReleaseReceived (state, response) {
     ),
     R.assocPath(['notification', 'validationState'], response.notification ? 'complete' : 'empty'),
     R.assoc('notification', response.notification || editNotification.emptyNotification()),
+    response.userGroups.length === 0 ? R.assoc('userGroups', [-1]) : R.assoc('userGroups', response.userGroups),
     R.assoc('validationState', 'complete')
   )(response)
 
