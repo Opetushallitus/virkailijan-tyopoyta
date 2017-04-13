@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsPath, Json, Reads, Writes}
+import play.api.libs.json._
 
 trait JsonSupport {
 
@@ -191,7 +191,7 @@ trait JsonSupport {
   }
 
   def readKayttooikeusryhmat(user: Boolean): Reads[List[Kayttooikeusryhma]] = {
-    implicit  val reads = if(user) userKayttooikeusryhmaReads else  kayttooikeusryhmaReads
+    implicit val reads = if(user) userKayttooikeusryhmaReads else  kayttooikeusryhmaReads
 
     JsPath.read[List[Kayttooikeusryhma]]
   }
@@ -246,8 +246,13 @@ trait JsonSupport {
   }
 
   def parseTargetingGroup(jsString: String): Option[TargetingGroupUpdate] = {
-    val jsonVal = Json.parse(jsString)
-    Json.fromJson(jsonVal)(targetingGroupReads).asOpt
+    val jsonVal: JsValue = Json.parse(jsString)
+    val name = (jsonVal \ "name").asOpt[String]
+    val data = jsonVal \ "data"
+    (name, data) match {
+      case (Some(n), JsDefined(d)) => Some(TargetingGroupUpdate(n, d.toString()))
+      case _ => None
+    }
   }
 
   def serialize[T](obj: T)(implicit tjs: Writes[T]): String ={
