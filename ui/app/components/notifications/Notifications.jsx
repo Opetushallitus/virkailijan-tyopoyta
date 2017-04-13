@@ -140,7 +140,9 @@ class Notifications extends React.Component {
           !notifications.hasLoadingFailed &&
           !notifications.isLoading &&
           notifications.count === 0 &&
-          specialNotifications.items.length === 0
+          specialNotifications.items.length === 0 &&
+          notifications.tags.length === 0 &&
+          notifications.categories.length === 0
             ? <div className="oph-h3 oph-muted center">{translate('eitiedotteita')}</div>
             : null
         }
@@ -189,6 +191,8 @@ class Notifications extends React.Component {
         }
 
         {
+          !notifications.hasLoadingFailed &&
+          !notifications.isLoading &&
           notifications.count === 0 &&
           (notifications.tags.length > 0 ||
           notifications.categories.length > 0)
