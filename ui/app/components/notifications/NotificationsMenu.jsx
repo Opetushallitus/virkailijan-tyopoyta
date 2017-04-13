@@ -43,7 +43,7 @@ function NotificationsMenu (props) {
       <section className="flex col-12 border-bottom">
         {/*Actions*/}
         <div className="flex items-center col-12">
-          <div className="center md-left-align lg-flex flex-auto items-center justify-end">
+          <div className="center md-left-align lg-flex flex-auto items-center">
             {/*Create a new release*/}
             <Button
               id="open-editor-button"
