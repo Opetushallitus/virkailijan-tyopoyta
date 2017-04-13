@@ -142,7 +142,7 @@ class Timeline extends React.Component {
       <div data-selenium-id="timeline">
         <div
           ref={timelineViewport => (this.timelineViewport = timelineViewport)}
-          className="timeline-viewport timeline-line"
+          className="timeline-viewport"
         >
           <h2 className="hide">{translate('tapahtumatalkaen')} {currentDate}</h2>
 
@@ -155,14 +155,14 @@ class Timeline extends React.Component {
             {translate('naytaedellinenkuukausi')}
           </button>
 
-          <div ref={timeline => (this.timeline = timeline)} className="timeline timeline-line relative">
-            <div className="my3">
+          <div ref={timeline => (this.timeline = timeline)} className="timeline relative">
+            <div className="timeline-line sm-center md-left-align lg-center my3">
               <Spinner isVisible={!hasLoadingFailed} />
             </div>
 
             <div
               ref={months => (this.months = months)}
-              className="timeline-line sm-center md-left-align lg-center relative"
+              className="sm-center md-left-align lg-center relative"
             >
               {/*Months*/}
               {items.map(month =>
