@@ -5,6 +5,7 @@ import moment from 'moment'
 import categories from './categories'
 import userGroups from './userGroups'
 import tagGroups from './tagGroups'
+import targetingGroups from './targetingGroups'
 import notifications from './notifications/notifications'
 import specialNotifications from './notifications/specialNotifications'
 import timeline from './timeline'
@@ -35,6 +36,7 @@ function onReceived (state, response) {
   categories.fetch()
   userGroups.fetch()
   tagGroups.fetch()
+  targetingGroups.fetch()
 
   specialNotifications.fetch()
 
@@ -55,7 +57,6 @@ function onReceived (state, response) {
     R.assoc('draft', JSON.parse(draft)),
     R.assoc('draftKey', draftKey),
     R.assocPath(['notifications', 'categories'], response.profile.categories),
-    R.assocPath(['user', 'targetingGroups'], response.profile.targetingGroups || []),
     R.assocPath(['user', 'isLoading'], false),
     R.assoc('user', response)
   )(state)

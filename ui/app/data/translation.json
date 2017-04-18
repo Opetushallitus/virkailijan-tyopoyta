@@ -1465,5 +1465,10 @@
     "locale": "fi",
     "key": "kohderyhmavalinnantallennusepaonnistui",
     "value": "Kohderyhmävalinnan tallennus epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "kohderyhmavalintojenhakuepaonnistui",
+    "value": "Kohderyhmävalintojen haku epäonnistui"
   }
 ]

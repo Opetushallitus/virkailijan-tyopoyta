@@ -11,7 +11,7 @@ export function rules (state) {
       targetingGroup: value => {
         // Check if user.targetingGroups contains the new targeting group's name, the name must be unique
         return value
-          ? !R.contains(value, R.pluck('name', state.user.targetingGroups))
+          ? !R.contains(value, R.pluck('name', state.targetingGroups.items))
           : null
       },
       userGroups: isNotEmpty,

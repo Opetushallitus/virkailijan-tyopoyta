@@ -4,6 +4,7 @@ import Bacon from 'baconjs'
 import editNotification from './editNotification'
 import editTimeline from './editTimeline'
 import targeting from './targeting'
+import targetingGroups from '../targetingGroups'
 import view from '../view'
 import unpublishedNotifications from '../notifications/unpublishedNotifications'
 import specialNotifications from '../notifications/specialNotifications'
@@ -110,7 +111,12 @@ function onSaveComplete (state, release) {
 
   // Save targeting group
   if (release.targetingGroup) {
-    saveTargetingGroup(release)
+    targetingGroups.save({
+      name: release.targetingGroup,
+      categories: release.categories,
+      userGroups: release.userGroups,
+      tags: release.notification.tags
+    })
   }
 
   return close(newState)
@@ -127,21 +133,6 @@ function onSaveFailed (state) {
 
 function onAutoSave (state) {
   return saveDraft(state)
-}
-
-function onSaveTargetingGroupComplete (state, { result }) {
-  if (!result) {
-    console.log('Saving targeting group failed')
-
-    const alert = createAlert({
-      variant: 'error',
-      titleKey: 'kohderyhmavalinnantallennusepaonnistui'
-    })
-
-    return R.assocPath(['view', 'alerts'], view.setNewAlerts(alert, state.view.alerts), state)
-  }
-
-  return state
 }
 
 function toggleValue (value, values) {
@@ -288,35 +279,6 @@ function toggleHasSaveFailed (state, hasSaveFailed) {
   return R.assocPath(['editor', 'hasSaveFailed'], !state.editor.hasSaveFailed, state)
 }
 
-function emptyRelease () {
-  return {
-    id: -1,
-    notification: editNotification.emptyNotification(),
-    timeline: [editTimeline.newItem(-1, [])],
-    categories: [],
-    userGroups: [],
-    targetingGroup: null,
-    selectedTargetingGroup: null,
-    validationState: 'empty'
-  }
-}
-
-function emptyEditor () {
-  return {
-    requestedReleaseId: null,
-    alerts: [],
-    editedRelease: emptyRelease(),
-    selectedTab: 'edit-notification',
-    eventTargetId: '',
-    autoSave: null,
-    isVisible: false,
-    isPreviewed: false,
-    isLoadingRelease: false,
-    isSavingRelease: false,
-    hasSaveFailed: false
-  }
-}
-
 function save (state, id) {
   console.log('Saving release')
 
@@ -389,28 +351,33 @@ function saveDraft (state) {
   return R.assoc('draft', editedRelease, state)
 }
 
-function saveTargetingGroup (release) {
-  const targetingGroup = {
-    name: release.targetingGroup,
-    data: {
-      categories: release.categories,
-      userGroups: release.userGroups,
-      tags: release.notification.tags
-    }
+function emptyRelease () {
+  return {
+    id: -1,
+    notification: editNotification.emptyNotification(),
+    timeline: [editTimeline.newItem(-1, [])],
+    categories: [],
+    userGroups: [],
+    targetingGroup: null,
+    selectedTargetingGroup: null,
+    validationState: 'empty'
   }
+}
 
-  getData({
-    url: urls['targeting.groups'],
-    requestOptions: {
-      method: 'POST',
-      dataType: 'json',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify(targetingGroup)
-    },
-    onError: () => saveTargetingGroupBus.push({ result: false })
-  })
+function emptyEditor () {
+  return {
+    requestedReleaseId: null,
+    alerts: [],
+    editedRelease: emptyRelease(),
+    selectedTab: 'edit-notification',
+    eventTargetId: '',
+    autoSave: null,
+    isVisible: false,
+    isPreviewed: false,
+    isLoadingRelease: false,
+    isSavingRelease: false,
+    hasSaveFailed: false
+  }
 }
 
 // Events for appState
@@ -444,7 +411,6 @@ const editor = {
   onSaveComplete,
   onSaveFailed,
   onAutoSave,
-  onSaveTargetingGroupComplete,
   onReleaseReceived,
   onFetchReleaseFailed,
   onAlertsReceived,

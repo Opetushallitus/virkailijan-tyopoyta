@@ -4,6 +4,7 @@ import user from './state/user'
 import categories from './state/categories'
 import userGroups from './state/userGroups'
 import tagGroups from './state/tagGroups'
+import targetingGroups from './state/targetingGroups'
 import view from './state/view'
 import unpublishedNotifications from './state/notifications/unpublishedNotifications'
 import specialNotifications from './state/notifications/specialNotifications'
@@ -27,12 +28,14 @@ const events = {
 const initialState = {
   defaultLocale: 'fi',
   dateFormat: 'D.M.YYYY',
+  translations: null,
   draftKey: 'virkailijanTyopoytaDraft',
   draft: null,
   user: user.initialState,
   userGroups: userGroups.initialState,
   categories: categories.initialState,
   tagGroups: tagGroups.initialState,
+  targetingGroups: targetingGroups.initialState,
   view: view.initialState,
   unpublishedNotifications: unpublishedNotifications.initialState,
   specialNotifications: specialNotifications.initialState,
@@ -68,6 +71,13 @@ export function setInitialState () {
     // Tags
     [tagGroups.fetchBus], tagGroups.onReceived,
     [tagGroups.fetchFailedBus], tagGroups.onFetchFailed,
+
+    // Targeting groups
+    [targetingGroups.fetchBus], targetingGroups.onReceived,
+    [targetingGroups.fetchFailedBus], targetingGroups.onFetchFailed,
+    [targetingGroups.saveBus], targetingGroups.onSaveComplete,
+    [targetingGroups.removeBus], targetingGroups.onRemoveComplete,
+    [targetingGroups.removeFailedBus], targetingGroups.onRemoveFailed,
 
     // View
     [view.alertsBus], view.onAlertsReceived,
@@ -114,7 +124,6 @@ export function setInitialState () {
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
     [editor.autoSaveBus], editor.onAutoSave,
-    [editor.saveTargetingGroupBus], editor.onSaveTargetingGroupComplete,
     [editor.fetchReleaseBus], editor.onReleaseReceived,
     [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
     [editor.alertsBus], editor.onAlertsReceived,
@@ -138,15 +147,13 @@ export function setInitialState () {
     [dispatcher.stream(events.editor.editTimeline.add)], editor.editTimeline.add,
     [dispatcher.stream(events.editor.editTimeline.remove)], editor.editTimeline.remove,
 
-    [editor.targeting.removeTargetingGroupBus], editor.targeting.onTargetingGroupRemoved,
-    [editor.targeting.removeTargetingGroupFailedBus], editor.targeting.onRemoveTargetingGroupFailed,
     [dispatcher.stream(events.editor.targeting.update)], editor.targeting.update,
     [dispatcher.stream(events.editor.targeting.toggleTargetingGroup)], editor.targeting.toggleTargetingGroup,
     [dispatcher.stream(events.editor.targeting.removeTargetingGroup)], editor.targeting.removeTargetingGroup,
     [dispatcher.stream(events.editor.targeting.toggleCategory)], editor.targeting.toggleCategory,
     [dispatcher.stream(events.editor.targeting.toggleUserGroup)], editor.targeting.toggleUserGroup,
     [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag,
-    [dispatcher.stream(events.editor.targeting.toggleSendEmail)], editor.targeting.toggleSendEmail,
+    [dispatcher.stream(events.editor.targeting.toggleSendEmail)], editor.targeting.toggleSendEmail
   )
 }
 

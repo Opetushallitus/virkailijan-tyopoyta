@@ -1,28 +1,10 @@
 import R from 'ramda'
-import Bacon from 'baconjs'
 
 import editor from './editor'
+import targetingGroups from '../targetingGroups'
 import { validate, rules } from './validation'
 import getData from '../../utils/getData'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
-
-const removeTargetingGroupBus = new Bacon.Bus()
-const removeTargetingGroupFailedBus = new Bacon.Bus()
-
-function onTargetingGroupRemoved (state, id) {
-  const newTargetingGroups = R.reject(targetingGroup => targetingGroup.id === id, state.user.targetingGroups)
-
-  return R.assocPath(['user', 'targetingGroups'], newTargetingGroups, state)
-}
-
-function onRemoveTargetingGroupFailed (state, id) {
-  const newTargetingGroups = updateTargetingGroups(id, state.user.targetingGroups, {
-    isLoading: false,
-    hasLoadingFailed: true
-  })
-
-  return R.assocPath(['user', 'targetingGroups'], newTargetingGroups, state)
-}
 
 function update (state, { prop, value }) {
   console.log('Updating release', prop, value)
@@ -43,39 +25,23 @@ function update (state, { prop, value }) {
   return editor.saveDraft(R.assocPath(path, validatedRelease, state))
 }
 
-function updateTargetingGroups (id, targetingGroups, options) {
-  const targetingGroup = R.find(R.propEq('id', id))(targetingGroups)
-  const index = R.findIndex(R.propEq('id', id))(targetingGroups)
-
-  const newTargetingGroup = R.compose(
-    R.assoc('isLoading', options.isLoading),
-    R.assoc('hasLoadingFailed', options.hasLoadingFailed)
-  )(targetingGroup)
-
-  return [
-    ...targetingGroups.slice(0, index),
-    newTargetingGroup,
-    ...targetingGroups.slice(index + 1)
-  ]
-}
-
 function toggleTargetingGroup (state, id) {
   const newId = state.editor.editedRelease.selectedTargetingGroup === id
     ? null
     : id
 
-  const targetingGroup = R.find(R.propEq('id', id))(state.user.targetingGroups)
+  const targetingGroup = R.find(R.propEq('id', id))(state.targetingGroups.items)
 
   // Select all targeting group's tags and tags in special tags' group
   const newTags = R.filter(
     tag => R.contains(tag, R.pluck('id', state.tagGroups.specialTags)),
     state.editor.editedRelease.notification.tags
-  ).concat(targetingGroup.tags)
+  ).concat(targetingGroup.data.tags)
 
   const newState = newId
     ? R.compose(
-      R.assocPath(['editor', 'editedRelease', 'categories'], targetingGroup.categories),
-      R.assocPath(['editor', 'editedRelease', 'userGroups'], targetingGroup.userGroups),
+      R.assocPath(['editor', 'editedRelease', 'categories'], targetingGroup.data.categories),
+      R.assocPath(['editor', 'editedRelease', 'userGroups'], targetingGroup.data.userGroups),
       R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newTags)
     )(state)
     : state
@@ -86,9 +52,9 @@ function toggleTargetingGroup (state, id) {
 function removeTargetingGroup (state, id) {
   console.log('Removing targeting group with id', id)
 
-  const newTargetingGroups = updateTargetingGroups(id, state.user.targetingGroups, {
-    isLoading: true,
-    hasLoadingFailed: false
+  const newTargetingGroups = targetingGroups.update(id, state.targetingGroups.items, {
+    isRemoving: true,
+    hasRemoveFailed: false
   })
 
   getData({
@@ -96,11 +62,11 @@ function removeTargetingGroup (state, id) {
     requestOptions: {
       method: 'DELETE'
     },
-    onSuccess: () => removeTargetingGroupBus.push(id),
-    onError: () => removeTargetingGroupFailedBus.push(id)
+    onSuccess: () => targetingGroups.removeBus.push(id),
+    onError: () => targetingGroups.removeFailedBus.push(id)
   })
 
-  return R.assocPath(['user', 'targetingGroups'], newTargetingGroups, state)
+  return R.assocPath(['targetingGroups', 'items'], newTargetingGroups, state)
 }
 
 function toggleCategory (state, category) {
@@ -192,10 +158,6 @@ const events = {
 }
 
 const editRelease = {
-  removeTargetingGroupBus,
-  removeTargetingGroupFailedBus,
-  onTargetingGroupRemoved,
-  onRemoveTargetingGroupFailed,
   events,
   update,
   toggleTargetingGroup,

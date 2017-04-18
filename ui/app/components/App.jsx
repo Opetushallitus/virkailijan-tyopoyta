@@ -143,6 +143,7 @@ class App extends React.Component {
                 userGroups={state.userGroups}
                 categories={state.categories}
                 tagGroups={state.tagGroups}
+                targetingGroups={state.targetingGroups}
               />
             </Modal>
             : null

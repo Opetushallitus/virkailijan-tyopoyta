@@ -27,7 +27,8 @@ const propTypes = {
   editor: PropTypes.object.isRequired,
   userGroups: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
-  tagGroups: PropTypes.object.isRequired
+  tagGroups: PropTypes.object.isRequired,
+  targetingGroups: PropTypes.object.isRequired
 }
 
 // Returns a translation key representing the notification's publication state
@@ -70,7 +71,8 @@ function Editor (props) {
     editor,
     userGroups,
     categories,
-    tagGroups
+    tagGroups,
+    targetingGroups
   } = props
 
   const {
@@ -200,9 +202,9 @@ function Editor (props) {
               <TabPane name="edit-notification" isActive={selectedTab === 'edit-notification'}>
                 {
                   isLoadingRelease ||
-                  categories.isLoadingRelease ||
-                  userGroups.isLoadingRelease ||
-                  tagGroups.isLoadingRelease
+                  categories.isLoading ||
+                  userGroups.isLoading ||
+                  tagGroups.isLoading
                     ? <Delay time={1000}>
                       <Spinner isVisible />
                     </Delay>
@@ -222,9 +224,9 @@ function Editor (props) {
               <TabPane name="edit-timeline" isActive={selectedTab === 'edit-timeline'}>
                 {
                   isLoadingRelease ||
-                  categories.isLoadingRelease ||
-                  userGroups.isLoadingRelease ||
-                  tagGroups.isLoadingRelease
+                  categories.isLoading ||
+                  userGroups.isLoading ||
+                  tagGroups.isLoading
                     ? <Delay time={1000}>
                       <Spinner isVisible />
                     </Delay>
@@ -243,9 +245,9 @@ function Editor (props) {
             <TabPane name="targeting" isActive={selectedTab === 'targeting'}>
               {
                 isLoadingRelease ||
-                categories.isLoadingRelease ||
-                userGroups.isLoadingRelease ||
-                tagGroups.isLoadingRelease
+                categories.isLoading ||
+                userGroups.isLoading ||
+                tagGroups.isLoading
                   ? <Delay time={1000}>
                     <Spinner isVisible />
                   </Delay>
@@ -255,6 +257,7 @@ function Editor (props) {
                     userGroups={userGroups.items}
                     categories={categories.items}
                     tagGroups={tagGroups.items}
+                    targetingGroups={targetingGroups}
                     release={editedRelease}
                   />
               }
@@ -288,7 +291,7 @@ function Editor (props) {
               timeline={timeline}
               emptyTimelineItems={emptyTimelineItems}
               incompleteTimelineItems={incompleteTimelineItems}
-              targetingGroups={R.pluck('name', user.targetingGroups)}
+              targetingGroups={R.pluck('name', targetingGroups.items)}
             />
         }
 

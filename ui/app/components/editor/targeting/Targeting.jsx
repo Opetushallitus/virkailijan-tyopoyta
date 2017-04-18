@@ -19,6 +19,7 @@ const propTypes = {
   userGroups: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
   tagGroups: PropTypes.array.isRequired,
+  targetingGroups: PropTypes.object.isRequired,
   release: PropTypes.object.isRequired
 }
 
@@ -29,6 +30,7 @@ function Targeting (props) {
     userGroups,
     categories,
     tagGroups,
+    targetingGroups,
     release
   } = props
 
@@ -112,28 +114,28 @@ function Targeting (props) {
       <h2 className="hide">{translate('kohdennus')}</h2>
 
       <div className="flex flex-wrap mb3 px3">
-        {/*Targeting groups*/}
+        {/*Saved targeting groups*/}
         {
-          user.targetingGroups.length > 0
+          targetingGroups.items.length > 0
             ? <div className="flex flex-wrap col-12 mb3">
               <label className="mb1" htmlFor="release-targeting-groups-search">
                 {translate('tallennettukohdennus')}
               </label>
 
               <div className="editor-targeting-group-select col-12 lg-col-5 lg-ml3">
-                {user.targetingGroups.map(targetingGroup =>
+                {targetingGroups.items.map(targetingGroup =>
                   <div key={`releaseTargetingGroup${targetingGroup.id}`} className="flex flex-wrap">
                     <div className="col-9 my1 sm-pr2">
                       <TargetingGroupButton
                         id={targetingGroup.id}
                         text={targetingGroup.name}
-                        disabled={targetingGroup.isLoading}
+                        disabled={targetingGroup.isRemoving}
                         onClick={controller.toggleTargetingGroup}
                         isActive={release.selectedTargetingGroup === targetingGroup.id}
                       />
 
                       {
-                        targetingGroup.hasLoadingFailed
+                        targetingGroup.hasRemoveFailed
                           ? <div className="oph-error px2">{translate('poistaminenepaonnistui')}</div>
                           : null
                       }
@@ -142,9 +144,9 @@ function Targeting (props) {
                     <div className="flex flex-auto items-center justify-end my1 pr2">
                       <RemoveTargetingGroupButton
                         id={targetingGroup.id}
-                        disabled={targetingGroup.isLoading}
+                        disabled={targetingGroup.isRemoving}
                         onClick={controller.removeTargetingGroup}
-                        isLoading={targetingGroup.isLoading}
+                        isLoading={targetingGroup.isRemoving}
                       />
                     </div>
                   </div>
@@ -193,6 +195,7 @@ function Targeting (props) {
           </Field>
         </div>
 
+        {/*Selected user groups*/}
         <div className="col-12 lg-col-4 lg-pl2" data-selenium-id="release-selected-user-groups">
           <div className="invisible xs-hide sm-hide md-hide mb1">{translate('valitutryhmat')}</div>
 
@@ -211,6 +214,7 @@ function Targeting (props) {
         </div>
       </div>
 
+      {/*Tags*/}
       {
         notification.validationState === 'empty'
           ? null
@@ -233,8 +237,8 @@ function Targeting (props) {
       }
 
       <div className="pt3 px3 border-top">
+        {/*Save targeting selections*/}
         <div className="flex items-center justify-center col-12">
-          {/*Targeting group name*/}
           <label
             className="block md-inline-block mb1 md-mb0 mr2"
             htmlFor="targeting-name"
@@ -251,6 +255,7 @@ function Targeting (props) {
           />
         </div>
 
+        {/*Send email to user groups*/}
         {
           notification.validationState === 'empty'
             ? null
