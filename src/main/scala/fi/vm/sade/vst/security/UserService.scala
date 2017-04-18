@@ -76,7 +76,6 @@ class UserService(casUtils: CasUtils,
 
     user match{
       case Success(u) => {
-        println(s"Created user: $u")
         Success(u.copy(
           profile = Some(userRepository.userProfile(u.userId)),
           draft = userRepository.fetchDraft(u.userId)))
