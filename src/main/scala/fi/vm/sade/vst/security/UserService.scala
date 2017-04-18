@@ -93,13 +93,16 @@ class UserService(casUtils: CasUtils,
   def authenticate(ticket: String): Option[(String, User)] = {
 
     val uid = casUtils.validateTicket(ticket)
-
     val user = uid.flatMap(findUser)
 
     (uid, user) match {
       case (Success(id), Success(u)) => Some(id, u)
+      case (Failure(e), _) => {
+        println(s"Failed to authenticate ticket: ${e.getMessage}")
+        None
+      }
       case (_, Failure(t)) =>
-        println(t.getMessage)
+        println(s"Failed to find user ${t.getMessage}")
         None
       case _ => None
     }
