@@ -32,6 +32,11 @@ const defaultProps = {
   controls: []
 }
 
+function startsWith (url, searchString, position) {
+  position = position || 0
+  return this.substr(position, searchString.length) === searchString
+}
+
 function findLinkEntities (contentBlock, callback) {
   contentBlock.findEntityRanges(
     character => {
@@ -175,7 +180,7 @@ class TextEditor extends React.Component {
   }
 
   _confirmLink (url, text) {
-    const urlWithHttp = url.startsWith('http://') || url.startsWith('https://')
+    const urlWithHttp = startsWith(url, 'http://') || startsWith(url, 'https://')
       ? url
       : `http://${url.replace('http://', '')}`
 
