@@ -1,6 +1,13 @@
 import React, { PropTypes } from 'react'
 import R from 'ramda'
-import { Editor, EditorState, RichUtils, CompositeDecorator, SelectionState, Entity } from 'draft-js'
+import {
+  Editor,
+  EditorState,
+  RichUtils,
+  CompositeDecorator,
+  SelectionState,
+  Entity
+} from 'draft-js'
 import { convertToHTML, convertFromHTML } from 'draft-convert'
 
 // Components
@@ -27,8 +34,9 @@ const defaultProps = {
 
 function findLinkEntities (contentBlock, callback) {
   contentBlock.findEntityRanges(
-    (character) => {
+    character => {
       const entityKey = character.getEntity()
+
       return (
         entityKey !== null &&
         Entity.get(entityKey).getType() === 'LINK'
@@ -36,6 +44,16 @@ function findLinkEntities (contentBlock, callback) {
     },
     callback
   )
+}
+
+function htmlToEntity (nodeName, node) {
+  if (nodeName === 'a') {
+    return Entity.create(
+      'LINK',
+      'MUTABLE',
+      { url: node.href }
+    )
+  }
 }
 
 class TextEditor extends React.Component {
@@ -50,7 +68,7 @@ class TextEditor extends React.Component {
     ])
 
     this.state = {
-      editorState: EditorState.createWithContent(convertFromHTML(this.props.data), decorator),
+      editorState: EditorState.createWithContent(convertFromHTML({ htmlToEntity })(this.props.data), decorator),
       showURLInput: false
     }
 
@@ -157,7 +175,11 @@ class TextEditor extends React.Component {
   }
 
   _confirmLink (url, text) {
-    console.log('Confirming link ' + url + ' for text ' + text)
+    const urlWithHttp = url.startsWith('http://') || url.startsWith('https://')
+      ? url
+      : `http://${url.replace('http://', '')}`
+
+    console.log('Confirming link ' + urlWithHttp + ' for text ' + text)
 
     const {
       editorState
@@ -176,7 +198,7 @@ class TextEditor extends React.Component {
       })
     }
 
-    const entityKey = Entity.create('LINK', 'MUTABLE', { url: url, text: text })
+    const entityKey = Entity.create('LINK', 'MUTABLE', { url: urlWithHttp, text: text })
 
     this.setState({
       editorState: RichUtils.toggleLink(

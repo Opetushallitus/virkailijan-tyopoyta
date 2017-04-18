@@ -30,10 +30,8 @@ class EditLink extends React.Component {
     this.handleOnClick = this._handleOnClick.bind(this)
   }
 
-  _handleOnClick (url, text) {
-    const urlWithHttp = url.indexOf(')`http://${this.state.url.replace('http://')}`
-
-    this.props.confirmLink(urlWithHttp, this.props.selectedText)
+  _handleOnClick () {
+    this.props.confirmLink(this.state.url, this.props.selectedText)
   }
 
   _onLinkInputKeyDown (event) {
