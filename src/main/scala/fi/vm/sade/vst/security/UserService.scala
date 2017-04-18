@@ -69,7 +69,16 @@ class UserService(casUtils: CasUtils,
 
   def findUser(uid: String ): Try[User] = {
     val user = fetchCacheableUserData(uid)
-    user.map(u => u.copy(profile = Some(userRepository.userProfile(u.userId)), draft = userRepository.fetchDraft(u.userId)))
+
+    user match{
+      case Success(u) => Success(u.copy(
+        profile = Some(userRepository.userProfile(u.userId)),
+        draft = userRepository.fetchDraft(u.userId)))
+      case Failure(e) => {
+        println(s"LDAP call failed for uid $uid : ${e.getMessage}")
+        user
+      }
+    }
   }
 
   def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(user, userProfile)
