@@ -101,8 +101,8 @@ class UserService(casUtils: CasUtils,
         println(s"Failed to authenticate ticket: ${e.getMessage}")
         None
       }
-      case (_, Failure(t)) =>
-        println(s"Failed to find user ${t.getMessage}")
+      case (Success(u), Failure(t)) =>
+        println(s"Failed to find user $u : ${t.getMessage}")
         None
       case _ => None
     }
