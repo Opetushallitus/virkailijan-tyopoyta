@@ -167,7 +167,7 @@ class App extends React.Component {
             : null
         }
 
-        {/*Content*/}
+        {/*Content, hidden if login has failed*/}
         <div className={`container ${state.user.hasLoadingFailed ? 'display-none' : ''}`} data-selenium-id="container">
           {/*Alerts*/}
           <div className="alert-container col-12 md-col-6 lg-col-4 px2" data-selenium-id="alert-container">
@@ -184,6 +184,7 @@ class App extends React.Component {
             )}
           </div>
 
+          {/*Spinner to display while login is in process*/}
           {
             state.user.isLoading
               ? <div className="py3">
@@ -194,6 +195,7 @@ class App extends React.Component {
               : null
           }
 
+          {/*Hidden while login is in process*/}
           <div className={`flex flex-wrap col-12 ${state.user.isLoading ? 'display-none' : ''}`}>
             {/*Notification/timeline view selection for small screens*/}
             <div className="col-12 mt3 md-hide lg-hide">
@@ -223,7 +225,7 @@ class App extends React.Component {
               ref={notifications => (this.notifications = notifications)}
               className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
-              {/*Menu*/}
+              {/*Menu, displayed only for admin users*/}
               {
                 state.user.isAdmin
                   ? <NotificationsMenu controller={controller} draft={state.draft} />

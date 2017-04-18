@@ -213,7 +213,11 @@ function toggleTag (state, id) {
 function setSelectedTags (state, selected) {
   console.log('Updating selected tags', selected)
 
-  fetch({ page: 1, tags: selected })
+  fetch({
+    page: 1,
+    tags: selected,
+    categories: state.notifications.categories
+  })
 
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),

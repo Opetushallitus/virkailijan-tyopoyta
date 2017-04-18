@@ -24,11 +24,11 @@ class NotificationTagSelect extends React.Component {
 
   // Filter selected tags if available tags are changed (i.e. when user selects categories)
   componentWillUpdate (nextProps) {
-    if (this.props.tagGroups.length !== nextProps.tagGroups.length &&
+    if (this.props.selectedCategories.length !== nextProps.selectedCategories.length &&
       this.props.selectedTags.length > 0) {
       const selectedTags = this.props.selectedTags
       const allowedtags = R.pluck('id',
-        R.flatten(R.pluck('tags', nextProps.tagGroups)))
+        R.flatten(R.pluck('tags', this.filterTagGroupsByCategories(nextProps.selectedCategories))))
 
       const filteredSelectedTags = R.filter(tag => R.contains(tag, allowedtags), selectedTags)
 
@@ -36,6 +36,7 @@ class NotificationTagSelect extends React.Component {
     }
   }
 
+  // Translation key for Dropdown input placeholder text
   getPlaceholderKey () {
     const {
       isLoading,
@@ -51,10 +52,12 @@ class NotificationTagSelect extends React.Component {
     }
   }
 
+  // Set selected tags on change
   handleChange (event, { value }) {
     this.props.controller.setSelectedTags(value)
   }
 
+  // Remove tag on clicking a label
   handleLabelClick (event, { value }) {
     this.props.controller.toggleTag(value)
   }
@@ -73,7 +76,7 @@ class NotificationTagSelect extends React.Component {
     Returns tags sorted by text
   */
   mapDropdownOptions () {
-    const options = this.props.tagGroups.items.map(option =>
+    const options = this.filterTagGroupsByCategories(this.props.selectedCategories).map(option =>
       option.tags.map(item => {
         return {
           value: item.id,
@@ -87,13 +90,12 @@ class NotificationTagSelect extends React.Component {
   }
 
   // Return tag groups linked to selected categories or all tag groups if no categories are selected
-  filterTagGroupsByCategories () {
+  filterTagGroupsByCategories (categories) {
     const tagGroups = this.props.tagGroups.items
-    const selectedCategories = this.props.selectedCategories
 
-    return selectedCategories.length === 0
+    return categories.length === 0
       ? tagGroups
-      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, selectedCategories)), tagGroups)
+      : R.filter(tagGroup => R.length(R.intersection(tagGroup.categories, categories)), tagGroups)
   }
 
   render () {
