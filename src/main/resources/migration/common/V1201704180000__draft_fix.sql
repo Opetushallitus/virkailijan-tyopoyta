@@ -1,0 +1,1 @@
+ALTER TABLE draft ADD PRIMARY KEY (user_id);

@@ -54,7 +54,8 @@ class UserService(casUtils: CasUtils,
     val lang = ldapUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
     val isAdmin = ldapUser.roles.contains(adminRole)
     val groups = kayttooikeusService.userGroupsForUser(ldapUser.oid, isAdmin)
-    val initials = if (isAdmin) userInitials(ldapUser.oid) else None
+//    val initials = if (isAdmin) userInitials(ldapUser.oid) else None
+    val initials = None
 
     val user = User(ldapUser.oid, ldapUser.lastName, ldapUser.givenNames, initials, lang.getOrElse("fi"), isAdmin, groups, ldapUser.roles)
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
@@ -62,14 +63,28 @@ class UserService(casUtils: CasUtils,
 
   private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(10 minutes) {
     ldapClient.findUser(uid) match {
-      case Some(ldapUser) => Success(createUser(ldapUser))
+      case Some(ldapUser) => {
+        println("Found user from LDAP")
+        Success(createUser(ldapUser))
+      }
       case None => Failure(new IllegalStateException(s"User $uid not found in LDAP"))
     }
   }
 
   def findUser(uid: String ): Try[User] = {
     val user = fetchCacheableUserData(uid)
-    user.map(u => u.copy(profile = Some(userRepository.userProfile(u.userId)), draft = userRepository.fetchDraft(u.userId)))
+
+    user match{
+      case Success(u) => {
+        Success(u.copy(
+          profile = Some(userRepository.userProfile(u.userId)),
+          draft = userRepository.fetchDraft(u.userId)))
+      }
+      case Failure(e) => {
+        println(s"LDAP call failed for uid $uid : ${e.getMessage}")
+        user
+      }
+    }
   }
 
   def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(user, userProfile)
@@ -101,8 +116,8 @@ class UserService(casUtils: CasUtils,
         println(s"Failed to authenticate ticket: ${e.getMessage}")
         None
       }
-      case (_, Failure(t)) =>
-        println(s"Failed to find user ${t.getMessage}")
+      case (Success(u), Failure(t)) =>
+        println(s"Failed to find user $u : ${t.getMessage}")
         None
       case _ => None
     }

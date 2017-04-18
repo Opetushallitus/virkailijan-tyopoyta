@@ -20,7 +20,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
 
   def validateTicket(serviceTicket: ServiceTicket) : Try[Username] = {
     Try(validateTicketTask(serviceTicket).unsafePerformSync).recoverWith({
-      case t => Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected", t))
+      case t => Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
     })
   }
 
