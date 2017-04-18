@@ -13,13 +13,14 @@ const saveBus = new Bacon.Bus()
 const removeBus = new Bacon.Bus()
 const removeFailedBus = new Bacon.Bus()
 
-const emptyTargetingGroup = ({ name, categories, userGroups, tags }) => {
+const newTargetingGroup = ({ name, categories, userGroups, tags }, specialTags) => {
   return {
     name,
     data: {
       categories,
       userGroups,
-      tags
+      // Filter out special tags
+      tags: R.reject(tag => R.contains(tag, R.pluck('id', specialTags)), tags)
     },
     isRemoving: false
   }
@@ -112,7 +113,7 @@ function update (id, targetingGroups, options) {
   return R.update(index, newTargetingGroup, targetingGroups)
 }
 
-function save (targetingGroup) {
+function save (state, targetingGroup) {
   console.log('Saving targeting group')
 
   getData({
@@ -123,7 +124,7 @@ function save (targetingGroup) {
       headers: {
         'Content-type': 'application/json'
       },
-      body: JSON.stringify(emptyTargetingGroup(targetingGroup))
+      body: JSON.stringify(newTargetingGroup(targetingGroup, state.tagGroups.specialTags))
     },
     onSuccess: () => saveBus.push({ result: true }),
     onError: () => saveBus.push({ result: false })

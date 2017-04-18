@@ -152,6 +152,15 @@
   color: var(--white);
 }
 
+.timeline-item a {
+  color: var(--white);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-duration-base);
+}
+
+.timeline-item a:hover,
+.timeline-item a:focus,
 .timeline-item .oph-link:hover,
 .timeline-item .oph-link:focus,
 .timeline-item .oph-button-icon:hover, .timeline-item .oph-button-ghost:hover,

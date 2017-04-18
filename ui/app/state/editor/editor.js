@@ -111,7 +111,7 @@ function onSaveComplete (state, release) {
 
   // Save targeting group
   if (release.targetingGroup) {
-    targetingGroups.save({
+    targetingGroups.save(state, {
       name: release.targetingGroup,
       categories: release.categories,
       userGroups: release.userGroups,
