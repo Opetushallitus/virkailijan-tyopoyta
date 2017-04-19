@@ -160,6 +160,7 @@ class App extends React.Component {
             >
               <UnpublishedNotifications
                 controller={controller.unpublishedNotifications}
+                defaultLocale={state.defaultLocale}
                 locale={state.user.lang}
                 notifications={state.unpublishedNotifications}
               />
