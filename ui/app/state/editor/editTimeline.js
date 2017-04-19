@@ -3,9 +3,9 @@ import R from 'ramda'
 import editor from './editor'
 import { validate, rules } from './validation'
 
-// Returns last timeline item's ID + 1
+// Returns last timeline item's id - 1
 function getItemId (timeline) {
-  return R.inc(R.prop('id', R.last(timeline)))
+  return R.dec(R.prop('id', R.last(timeline)))
 }
 
 function emptyContent (id, language) {
@@ -17,12 +17,13 @@ function emptyContent (id, language) {
 }
 
 function newItem (releaseId, timeline) {
-  const id = timeline.length
+  // id must be a negative int on new items
+  const id = R.length(R.filter(item => item.id < 0, timeline))
     ? getItemId(timeline)
-    : 1
+    : -1
 
   return {
-    id: id,
+    id,
     releaseId,
     initialDate: null,
     date: null,
