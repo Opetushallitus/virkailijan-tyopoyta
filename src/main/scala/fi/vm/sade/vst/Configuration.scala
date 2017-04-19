@@ -34,7 +34,7 @@ trait Configuration {
     config.getString("kayttooikeus.url"),
     10)
 
-  lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("cas.username"), config.getString("cas.password"))
+  lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("virkailijan-tyopoyta.cas.user"), config.getString("virkailijan-tyopoyta.cas.password"))
   lazy val emailConfig = EmailConfig(config.getString("osoitepalvelu.service"), defaultCasConfig)
   lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(config.getString("oppijanumerorekisteri.service"))
 
@@ -47,7 +47,7 @@ trait Configuration {
 
   private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
 
-  lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
+  lazy val config: Config = ConfigFactory.parseFile(confFile)
 
   lazy val dBConfig: DBConfig = DBConfig(
     config.getString(s"db.$dbType.uri"),

@@ -24,7 +24,9 @@ db.postgresql.password={{virkailijan_tyopoyta_db_password}}
 
 #Ryhmäsähköposti
 ryhmasahkoposti.cas.service = https://{{host_virkailija}}/ryhmasahkoposti-service
-ryhmasahkoposti.service = https://{{host_virkailija}}/ryhmasahkoposti-service/email
+ryhmasahkoposti.service.email.url = https://{{host_virkailija}}/ryhmasahkoposti-service/email
+ryhmasahkoposti.service.batch.size = 500
+ryhmasahkoposti.rest.url=https://{{host_virkailija}}/ryhmasahkoposti-service/email
 
 osoitepalvelu.service = https://{{host_virkailija}}/osoitekoostepalvelu
 
