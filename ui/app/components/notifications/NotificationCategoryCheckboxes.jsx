@@ -11,7 +11,11 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
   selectedCategories: PropTypes.array.isRequired,
-  isVisible: PropTypes.bool.isRequired
+  isVisible: PropTypes.bool
+}
+
+const defaultProps = {
+  isVisible: false
 }
 
 function NotificationCategoryCheckboxes (props) {
@@ -87,5 +91,6 @@ function NotificationCategoryCheckboxes (props) {
 }
 
 NotificationCategoryCheckboxes.propTypes = propTypes
+NotificationCategoryCheckboxes.defaultProps = defaultProps
 
 export default NotificationCategoryCheckboxes
