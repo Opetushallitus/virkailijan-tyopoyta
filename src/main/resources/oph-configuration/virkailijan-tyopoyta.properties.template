@@ -22,6 +22,7 @@ db.postgresql.uri={{virkailijan_tyopoyta_db_uri}}
 db.postgresql.username={{virkailijan_tyopoyta_db_username}}
 db.postgresql.password={{virkailijan_tyopoyta_db_password}}
 
+db.page.length=50
 
 #Ryhmäsähköposti
 ryhmasahkoposti.cas.service = https://{{host_virkailija}}/ryhmasahkoposti-service
