@@ -17,6 +17,7 @@ ldap.user.password={{ldap_manager_password}}
 
 #DB
 db.type=postgresql
+db.postgresql.driver=org.postgresql.Driver
 db.postgresql.uri={{virkailijan_tyopoyta_db_uri}}
 db.postgresql.username={{virkailijan_tyopoyta_db_username}}
 db.postgresql.password={{virkailijan_tyopoyta_db_password}}
