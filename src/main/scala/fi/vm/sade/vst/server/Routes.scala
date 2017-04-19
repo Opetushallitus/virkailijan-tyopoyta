@@ -144,7 +144,11 @@ class Routes(authenticationService: UserService,
             entity(as[String]) { json =>
               val release = parseReleaseUpdate(json)
               release match {
-                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(release => sendInstantEmails(release, r))))
+                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(
+                  release => {
+                    sendInstantEmails(release, r)
+                    userService.deleteDraft(user)
+                  })))
                 case None => complete(StatusCodes.BadRequest)
               }
             }

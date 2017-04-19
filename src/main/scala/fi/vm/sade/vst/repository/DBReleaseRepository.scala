@@ -303,6 +303,27 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
+  private def deleteNotificationTags(notificationId: Long, tags: Seq[Long])(implicit session: DBSession) = {
+    withSQL{
+      delete.from(NotificationTagTable as nt)
+        .where.eq(nt.notificationId, notificationId)
+        .and.in(nt.tagId, tags)
+    }.update().apply()
+  }
+
+  private def updateNotificationTags(notificationUpdate: NotificationUpdate)(implicit session: DBSession) = {
+
+    val currentTags = withSQL(
+      select.from(NotificationTagTable as nt).where.eq(nt.notificationId, notificationUpdate.id))
+      .map(NotificationTagTable(nt)).toList().apply().map(_.tagId)
+
+    val removed = currentTags.diff(notificationUpdate.tags)
+    val added = notificationUpdate.tags.diff(currentTags)
+
+    deleteNotificationTags(notificationUpdate.id, removed)
+    added.foreach(insertNotificationTags(notificationUpdate.id, _))
+  }
+
   private def addNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
       val notificationId: Long = insertNotification(releaseId, user, notification)
       notification.content.values.foreach(insertNotificationContent(notificationId, _))
@@ -416,6 +437,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     withSQL(delete.from(NotificationContentTable as c).where.eq(c.notificationId, current.id)).update().apply()
     updated.content.values.foreach(insertNotificationContent(current.id, _))
+    updateNotificationTags(updated)
   }
 
   private def insertOrUpdateNotification(releaseUpdate: ReleaseUpdate, user: User)(implicit session: DBSession) = {
@@ -446,7 +468,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     val newItems = releaseUpdate.timeline.filter(_.id < 0)
 
-    newItems.foreach(insertTimelineItem(releaseUpdate.id, _))
+    newItems.foreach{ item =>
+      val itemId =  insertTimelineItem(releaseUpdate.id, item)
+      item.content.values.foreach(insertTimelineContent(itemId, _))
+
+    }
 
     val deletedItems = currentTimeline.filter(item => !releaseUpdate.timeline.map(_.id).contains(item.id))
 
