@@ -54,8 +54,7 @@ class UserService(casUtils: CasUtils,
     val lang = ldapUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
     val isAdmin = ldapUser.roles.contains(adminRole)
     val groups = kayttooikeusService.userGroupsForUser(ldapUser.oid, isAdmin)
-//    val initials = if (isAdmin) userInitials(ldapUser.oid) else None
-    val initials = None
+    val initials = if (isAdmin) userInitials(ldapUser.oid) else None
 
     val user = User(ldapUser.oid, ldapUser.lastName, ldapUser.givenNames, initials, lang.getOrElse("fi"), isAdmin, groups, ldapUser.roles)
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
