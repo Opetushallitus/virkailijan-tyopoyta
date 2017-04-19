@@ -9,11 +9,16 @@ const propTypes = {
 }
 
 function TimelineHeading (props) {
-  const month = moment(props.month, 'M').format('MMMM')
+  const {
+    month,
+    year
+  } = props
+
+  const monthName = moment(month, 'M').format('MMMM')
 
   return (
     <h2 className="timeline-heading">
-      {translate(month)} {props.year}
+      {translate(monthName)} {year}
     </h2>
   )
 }
