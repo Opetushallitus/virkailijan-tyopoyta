@@ -151,7 +151,7 @@ trait JsonSupport {
 
    val userKayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
     (JsPath \ "ryhmaId").read[Long] and
-    (JsPath \ "name").read[String] and
+    (JsPath \ "tehtavanimike").read[String] and
     (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
     Reads.pure(Seq.empty) and
     Reads.pure(Seq.empty)

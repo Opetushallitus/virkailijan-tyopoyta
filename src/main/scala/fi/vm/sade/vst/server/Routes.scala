@@ -34,10 +34,14 @@ class Routes(authenticationService: UserService,
 
   implicit val sessionManager = new SessionManager[String](sessionConfig)
 
+  implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[String] {
+    override def log(msg: String): Unit = println(msg)
+  }
+
   def authenticateUser(ticket: String): Route = {
     userService.authenticate(ticket) match {
     case Some((uid, user)) =>
-      setSession(oneOff, usingCookies, uid) {
+      setSession(refreshable, usingCookies, uid) {
         ctx => ctx.complete(serialize(user))
       }
     case None => complete(StatusCodes.Unauthorized)
@@ -81,7 +85,7 @@ class Routes(authenticationService: UserService,
     release
   }
 
-  def withUser: Directive1[User] = requiredSession(oneOff, usingCookies).flatMap {
+  def withUser: Directive1[User] = requiredSession(refreshable, usingCookies).flatMap {
     uid =>
       userService.findUser(uid) match {
         case Success(user) => provide(user)
@@ -260,7 +264,7 @@ class Routes(authenticationService: UserService,
     }
   }
 
-  val emailRoutes: Route = requiredSession(oneOff, usingCookies) {uid =>
+  val emailRoutes: Route = withUser {user =>
     get {
       path("emailLogs") {
         sendResponse(Future(releaseRepository.emailLogs))
@@ -309,13 +313,10 @@ class Routes(authenticationService: UserService,
     pathPrefix("virkailijan-tyopoyta") {
       get {
         path("login") {
-          optionalSession(oneOff, usingCookies) {
-            case Some(uid) => sendResponse(
-              Future(userService.findUser(uid)).flatMap{
-                case Success(u) => Future.successful(u)
-                case Failure(e) => Future.failed(e)
-              }
-            )
+          optionalSession(refreshable, usingCookies) {
+            case Some(uid) =>
+              invalidateSession(refreshable, usingCookies)
+              redirect(userService.loginUrl, StatusCodes.Found)
             case None => redirect(userService.loginUrl, StatusCodes.Found)
           }
         } ~
