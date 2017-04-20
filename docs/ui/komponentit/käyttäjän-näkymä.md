@@ -6,7 +6,7 @@ Käyttäjän näkymä koostuu useasta komponentista:
 - ilmoitus epäonnistuneesta kirjautumisesta
 - [editori](editori/editori.md)
 - [julkaisemattomat tiedotteet](julkaisemattomat-tiedotteet.md)
-- [tiedotteet](tiedotteet): valikko, avainsanarajaus, kategoriarajaus, lista
+- [tiedotteet](tiedotteet)
 - [aikajana](aikajana)
 - ilmoitukset
 

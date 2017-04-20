@@ -8,12 +8,12 @@ Editori koostuu useasta komponentista:
 - ilmoitukset
 - välilehden valinta
 - tiedotteen tila
-- tiedote-välilehti
-- aikajana-välilehti
-- kohdennus-välilehti
-- esikatselu
-- validaatioviestit
-- esikatsele/julkaise-painike
+- [tiedote-välilehti](tiedotteen-muokkaus.md)
+- [aikajana-välilehti](aikajanan-muokkaus.md)
+- [kohdennus-välilehti](kohdennus.md)
+- [esikatselu](validaatioviestit-esikatselu-julkaiseminen.md)
+- [validaatioviestit](validaatioviestit-esikatselu-julkaiseminen.md)
+- [esikatsele/julkaise-painike](validaatioviestit-esikatselu-julkaiseminen.md)
 
 Välilehtien valinnassa esitetään otsikon lisäksi kyseisen välilehden
 validaatioon liittyvä teksti.

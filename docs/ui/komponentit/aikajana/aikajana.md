@@ -1,8 +1,6 @@
 # Aikajana
 
 `/ui/app/components/timeline/Timeline.jsx`
-`/ui/app/components/timeline/TimelineHeading.jsx`
-`/ui/app/components/timeline/TimelineDay.jsx`
 
 Peruskäyttäjä voi katsella tapahtumia aikajanalta. Ylläpitokäyttäjä voi avata 
 muokattavaksi ja poistaa tapahtumia.
@@ -13,7 +11,11 @@ käyttöoikeusryhmiensä perusteella.
 
 Aikajana koostuu:
 - jokaista kuukautta kohden näytettävästä otsikosta, jossa on kuukauden nimi ja vuosi
-- tapahtumista
+`/ui/app/components/timeline/TimelineHeading.jsx`
+
+- [tapahtumista](aikajanan-tapahtuma.md)
+`/ui/app/components/timeline/TimelineDay.jsx`
+`/ui/app/components/timeline/TimelineItem.jsx`
 
 Aikajanalle haetaan automaattisesti uusia kuukausia niin kauan, kunnes tapahtumat tai 
 otsikot täyttävät koko komponentin korkeuden.
