@@ -35,7 +35,7 @@ function getRelease (id) {
 function onReleaseReceived (state, response) {
   console.log('Received release')
 
-  // Add content.sv if absent to all timeline items
+  // Add content.sv to all timeline items if missing
   R.forEach(item => (item.content.sv = item.content.sv || editTimeline.emptyContent(item.id, 'sv')), response.timeline)
 
   const release = R.compose(
@@ -95,15 +95,10 @@ function onSaveComplete (state, release) {
 
   const newViewAlerts = view.setNewAlerts(alert, state.view.alerts)
 
-  const newState = R.compose(
-    R.assocPath(['view', 'alerts'], newViewAlerts),
-    R.assoc('view', view.emptyView()),
-    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
-    R.assoc('specialNotifications', specialNotifications.reset()),
-    R.assoc('notifications', notifications.reset(1)),
-    R.assoc('timeline', timeline.emptyTimeline()),
-    release.id === -1 ? R.assoc('draft', null) : R.assoc('draft', state.draft)
-  )(state)
+  // Display page scrollbar
+  document.body.classList.remove('overflow-hidden')
+
+  clearInterval(state.editor.autoSave)
 
   if (release.id === -1) {
     window.localStorage.removeItem(state.draftKey)
@@ -119,7 +114,16 @@ function onSaveComplete (state, release) {
     })
   }
 
-  return close(newState)
+  return R.compose(
+    R.assocPath(['view', 'alerts'], newViewAlerts),
+    R.assoc('view', view.emptyView()),
+    R.assoc('unpublishedNotifications', unpublishedNotifications.reset()),
+    R.assoc('specialNotifications', specialNotifications.reset()),
+    R.assoc('notifications', notifications.reset(1)),
+    R.assoc('timeline', timeline.emptyTimeline()),
+    R.assoc('editor', emptyEditor()),
+    release.id === -1 ? R.assoc('draft', null) : R.assoc('draft', state.draft)
+  )(state)
 }
 
 function onSaveFailed (state) {
@@ -132,7 +136,7 @@ function onSaveFailed (state) {
 }
 
 function onAutoSave (state) {
-  return saveDraft(state)
+  return R.assoc('draft', saveDraft(state), state)
 }
 
 function toggleValue (value, values) {
@@ -227,7 +231,12 @@ function close (state) {
     document.querySelector(state.editor.eventTargetId).focus()
   }
 
-  return R.assoc('editor', emptyEditor(), state)
+  clearInterval(state.editor.autoSave)
+
+  return R.compose(
+    R.assoc('editor', emptyEditor()),
+    R.assoc('draft', saveDraft(state))
+  )(state)
 }
 
 function editDraft (state, eventTargetId) {
@@ -251,6 +260,7 @@ function createAutosaveInterval () {
   const interval = 60000 * 5
 
   return setInterval(() => {
+    console.log('Autosaving draft')
     autoSaveBus.push('saved')
   }, interval)
 }
@@ -326,11 +336,11 @@ function saveDraft (state) {
     editedRelease.validationState === 'empty' &&
     emptyTimelineItemsCount === editedRelease.timeline.length)
   ) {
-    return state
+    return state.draft
   }
 
   // Save draft to localStorage and database
-  console.log('Saving draft', editedRelease)
+  console.log('Saving draft to localStorage and database', editedRelease)
 
   const draft = JSON.stringify(editedRelease)
 
@@ -348,7 +358,7 @@ function saveDraft (state) {
     }
   })
 
-  return R.assoc('draft', editedRelease, state)
+  return editedRelease
 }
 
 function emptyRelease () {
@@ -358,7 +368,7 @@ function emptyRelease () {
     timeline: [editTimeline.newItem(-1, [])],
     categories: [],
     userGroups: [],
-    targetingGroup: null,
+    targetingGroup: '',
     selectedTargetingGroup: null,
     validationState: 'empty'
   }

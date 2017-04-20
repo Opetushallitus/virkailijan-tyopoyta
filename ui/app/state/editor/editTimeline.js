@@ -1,6 +1,5 @@
 import R from 'ramda'
 
-import editor from './editor'
 import { validate, rules } from './validation'
 
 // Returns last timeline item's id - 1
@@ -36,9 +35,7 @@ function newItem (releaseId, timeline) {
 }
 
 function update (state, timeline) {
-  const newState = R.assocPath(['editor', 'editedRelease', 'timeline'], timeline, state)
-
-  return editor.saveDraft(newState)
+  return R.assocPath(['editor', 'editedRelease', 'timeline'], timeline, state)
 }
 
 function updateItem (state, { id, prop, value }) {

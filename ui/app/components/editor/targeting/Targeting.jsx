@@ -253,9 +253,10 @@ function Targeting (props) {
 
           <input
             className="oph-input md-col-6 lg-col-3"
+            data-selenium-id="targeting-name"
             type="text"
             name="targeting-name"
-            data-selenium-id="targeting-name"
+            value={release.targetingGroup}
             onChange={handleTargetingGroupNameChange}
           />
         </div>

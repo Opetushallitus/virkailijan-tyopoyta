@@ -36,7 +36,8 @@ Julkaisu voidaan kohdentaa yhteen tai useampaan kategoriaan.
 
 ## Käyttöoikeusryhmä
 
-
+Käyttäjä kuuluu yhteen tai useampaan käyttöoikeusryhmään. Käyttöoikeusryhmät
+määrittävät mitä sisältöä käyttäjä näkee työpöydällä.
 
 ## Avainsana
 

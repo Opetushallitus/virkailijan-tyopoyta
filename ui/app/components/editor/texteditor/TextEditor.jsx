@@ -35,7 +35,7 @@ const defaultProps = {
 // Polyfill for String.startsWith
 function startsWith (url, searchString, position) {
   position = position || 0
-  return this.substr(position, searchString.length) === searchString
+  return url.substr(position, searchString.length) === searchString
 }
 
 function findLinkEntities (contentBlock, callback) {
@@ -74,21 +74,24 @@ class TextEditor extends React.Component {
     ])
 
     this.state = {
-      editorState: EditorState.createWithContent(convertFromHTML({ htmlToEntity })(this.props.data), decorator),
+      editorState: EditorState.createWithContent(
+        convertFromHTML({ htmlToEntity })(this.props.data),
+        decorator
+      ),
       showURLInput: false
     }
 
     this.focus = () => this.editor.focus()
 
-    this.onChange = (editorState) => {
-      this.setState({editorState})
+    this.onChange = editorState => {
+      this.setState({ editorState })
     }
 
-    this.handleKeyCommand = (command) => this._handleKeyCommand(command)
-    this.onTab = (e) => this._onTab(e)
-    this.toggleBlockType = (type) => this._toggleBlockType(type)
-    this.toggleInlineStyle = (style) => this._toggleInlineStyle(style)
-    this.onURLChange = (e) => this.setState({urlValue: e.target.value})
+    this.handleKeyCommand = command => this._handleKeyCommand(command)
+    this.onTab = e => this._onTab(e)
+    this.toggleBlockType = type => this._toggleBlockType(type)
+    this.toggleInlineStyle = style => this._toggleInlineStyle(style)
+    this.onURLChange = e => this.setState({ urlValue: e.target.value })
 
     this.promptForLink = this._promptForLink.bind(this)
     this.confirmLink = this._confirmLink.bind(this)
@@ -97,7 +100,7 @@ class TextEditor extends React.Component {
     this.getSelectedText = this._getSelectedText.bind(this)
   }
 
-  _save () {
+  _save (editorState) {
     const content = this.state.editorState.getCurrentContent()
 
     const plainText = content.getPlainText()
@@ -122,10 +125,12 @@ class TextEditor extends React.Component {
   _handleKeyCommand (command) {
     const {editorState} = this.state
     const newState = RichUtils.handleKeyCommand(editorState, command)
+
     if (newState) {
       this.onChange(newState)
       return true
     }
+
     return false
   }
 
@@ -141,6 +146,11 @@ class TextEditor extends React.Component {
         blockType
       )
     )
+
+    // Save after timeout, otherwise updating the content's styling won't work properly
+    setTimeout(() => {
+      this.save()
+    }, 0)
   }
 
   _toggleInlineStyle (inlineStyle) {
@@ -150,6 +160,11 @@ class TextEditor extends React.Component {
         inlineStyle
       )
     )
+
+    // Save after timeout, otherwise updating the content's styling won't work properly
+    setTimeout(() => {
+      this.save()
+    }, 0)
   }
 
   _promptForLink (e) {
@@ -318,6 +333,7 @@ class TextEditor extends React.Component {
           />
 
           {/*Remove link*/}
+          {/*Disabled if cursor is not on a link*/}
           <IconButton
             id="RichEditor-remove-link-button"
             title={translate('poistalinkki')}
