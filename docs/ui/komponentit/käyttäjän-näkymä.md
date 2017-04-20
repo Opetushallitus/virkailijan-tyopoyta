@@ -7,7 +7,7 @@ Käyttäjän näkymä koostuu useasta komponentista:
 - [editori](editori/editori.md)
 - [julkaisemattomat tiedotteet](julkaisemattomat-tiedotteet.md)
 - [tiedotteet](tiedotteet)
-- [aikajana](aikajana)
+- [aikajana](aikajana/aikajana.md)
 - ilmoitukset
 
 Kirjautuminen tehdään AJAX-kutsulla, ennen kuin näkymässä näytetään mitään.
