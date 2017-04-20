@@ -4,10 +4,10 @@
 
 Käyttäjän näkymä koostuu useasta komponentista:
 - ilmoitus epäonnistuneesta kirjautumisesta
-- editori
-- julkaisemattomat tiedotteet
-- tiedotteet: valikko, avainsanarajaus, kategoriarajaus, lista
-- aikajana
+- [editori](editori/editori.md)
+- [julkaisemattomat tiedotteet](julkaisemattomat-tiedotteet.md)
+- [tiedotteet](tiedotteet): valikko, avainsanarajaus, kategoriarajaus, lista
+- [aikajana](aikajana)
 - ilmoitukset
 
 Kirjautuminen tehdään AJAX-kutsulla, ennen kuin näkymässä näytetään mitään.
