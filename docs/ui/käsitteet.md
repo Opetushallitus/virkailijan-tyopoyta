@@ -8,35 +8,55 @@ Yhden tiedotteen ja/tai vähintään yhden aikajanan tapahtuman sisältävä sis
 
 Modaalinen ikkuna, jossa luodaan ja muokataan julkaisuja.
 
+## Julkaiseminen 
+
+Julkaisun tallentaminen tietokantaan editorista.
+
 ## Luonnos
 
-Tiedote, jota käyttäjä ei ole julkaissut (ei ole tallennettu tietokantaan). 
+Tiedote, jota käyttäjä ei ole julkaissut.
 
 ## Julkaisematon tiedote
 
-Tiedote, jonka käyttäjä on julkaissut mutta julkaisupäivämäärä on tulevaisuudessa.
+Käyttäjän julkaisema tiedote, jonka julkaisupäivämäärä on tulevaisuudessa.
  
 ## Julkaistu tiedote
 
-Tiedote, jonka käyttäjä on julkaissut ja jonka julkaisupäivämäärä on kuluva päivä tai 
+Käyttäjän julkaisema tiedote, jonka julkaisupäivämäärä on kuluva päivä tai 
 menneisyydessä.
 
 ## Tallennettu luonnos
 
-Käyttäjäkohtainen yksittäinen julkaisu, jonka luomisen hän on jättänyt kesken. 
-Luonnos pysyy tallennettuna niin kauan kunnes käyttäjä julkaisee sen.
+Käyttäjäkohtainen yksittäinen julkaisu, jonka luominen on jätetty kesken. 
+Luonnos pysyy tallennettuna siihen asti kunnes käyttäjä julkaisee sen.
 
 ## Kategoria
 
+Julkaisu voidaan kohdentaa yhteen tai useampaan kategoriaan.
+
+## Käyttöoikeusryhmä
+
+
+
 ## Avainsana
 
+Tiedotteelle annetaan yksi tai useampi avainsana.
+
 ## Avainsanaryhmä
+
+Jokainen avainsana kuuluu yhteen avainsanaryhmään.
+
+## Kohderyhmävalinta / tallennettu kohdennus
+
+Julkaisulle valitut kategoriat ja käyttöoikeusryhmät sekä tiedotteen avainsanat, 
+joille käyttäjä on antanut nimen.
 
 ## Peruskäyttäjä
 
 Peruskäyttäjiä on kaikki kentän virkailijat, jotka näkevät tiedotteita riippuen 
 a) siitä, mitä käyttöoikeuksia heillä on ja
-b) mitä he ovat ruksineet omiksi kiinnostuksenkohteikseen.
+b) mihin kategorioihin kuuluvat tiedotteet he ovat valinneet omiksi 
+kiinnostuksen kohteiksiin.
 
 Peruskäyttäjä voi katsella tiedotteita ja aikajanan tapahtumia
 
@@ -44,4 +64,4 @@ Peruskäyttäjä voi katsella tiedotteita ja aikajanan tapahtumia
 
 Ylläpitokäyttäjiä ovat OPH:n työntekijät.
 
-Ylläpitokäyttäjä voi katsella, luoda ja muokata tiedotteita sekä aikajanan tapahtumia.
+Ylläpitokäyttäjä voi katsella tiedotteita ja tapahtumia sekä luoda ja muokata julkaisuja.
