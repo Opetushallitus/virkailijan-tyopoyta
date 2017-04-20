@@ -35,6 +35,8 @@ kun sen tarvitsemat tiedot on haettu. Komponenteilla on omat tilansa.
 
 Jos kirjautuminen epäonnistuu, näkymässä näytetään virheilmoitus.
 
+Jos sessio on vanhentunut, käyttäjä uudelleenohjataan kirjautumissivulle.
+
 ## Ideaalitila
 
 Komponentit ovat näkyvissä ja niiden sisältö on haettu onnistuneesti.

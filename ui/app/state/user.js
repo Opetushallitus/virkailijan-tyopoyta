@@ -17,6 +17,8 @@ const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
+  console.log('Fetching user info')
+
   getData({
     url: urls.login,
     requestOptions: {
@@ -62,7 +64,16 @@ function onReceived (state, response) {
   )(state)
 }
 
-function onFetchFailed (state) {
+function onFetchFailed (state, error) {
+  console.log('Fetching user info failed')
+
+  // Redirect to login page if response is not JSON
+  if (error.toString().indexOf('SyntaxError') >= 0) {
+    window.location.replace(urls.login)
+
+    return state
+  }
+
   return R.compose(
     R.assocPath(['user', 'isLoading'], false),
     R.assocPath(['user', 'hasLoadingFailed'], true)
