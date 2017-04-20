@@ -1,14 +1,7 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
-import moment from 'moment'
 
-import categories from './categories'
-import userGroups from './userGroups'
-import tagGroups from './tagGroups'
-import targetingGroups from './targetingGroups'
-import notifications from './notifications/notifications'
-import specialNotifications from './notifications/specialNotifications'
-import timeline from './timeline'
+import translations from './translations'
 
 import getData from '../utils/getData'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
@@ -32,25 +25,7 @@ function fetch () {
 function onReceived (state, response) {
   console.log('Received user', response)
 
-  const month = moment().format('M')
-  const year = moment().format('YYYY')
-
-  categories.fetch()
-  userGroups.fetch()
-  tagGroups.fetch()
-  targetingGroups.fetch()
-
-  specialNotifications.fetch()
-
-  notifications.fetch({
-    page: 1,
-    categories: response.profile.categories
-  })
-
-  timeline.fetch({
-    month,
-    year
-  })
+  translations.fetch(response.lang || state.defaultLocale)
 
   const draftKey = `${state.draftKey}${response.userId}`
   const draft = window.localStorage.getItem(draftKey) || response.draft

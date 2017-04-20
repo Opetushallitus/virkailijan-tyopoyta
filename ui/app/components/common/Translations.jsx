@@ -2,21 +2,24 @@ import React, { PropTypes } from 'react'
 
 let translations = []
 
-export function setTranslations (list) {
-  translations = list
+const propTypes = {
+  key: PropTypes.string.isRequired
+}
+
+export function setTranslations (data) {
+  translations = data
 }
 
 export function translate (keyValue) {
-  let trans = translations.find(({key}) => key === keyValue)
-  return trans ? trans.value : keyValue
+  const translation = translations.find(({ key }) => key === keyValue)
+
+  return translation ? translation.value : keyValue
 }
 
-const propTypes = {
-  trans: PropTypes.string.isRequired
-}
-
-export default function Translation (props) {
-  return <span>{translate(props.trans)}</span>
+function Translation (props) {
+  return <span>{translate(props.key)}</span>
 }
 
 Translation.propTypes = propTypes
+
+export default Translation

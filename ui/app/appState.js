@@ -1,6 +1,8 @@
 import Bacon from 'baconjs'
+import moment from 'moment'
 
 import user from './state/user'
+import translations from './state/translations'
 import categories from './state/categories'
 import userGroups from './state/userGroups'
 import tagGroups from './state/tagGroups'
@@ -28,10 +30,10 @@ const events = {
 const initialState = {
   defaultLocale: 'fi',
   dateFormat: 'D.M.YYYY',
-  translations: null,
   draftKey: 'virkailijanTyopoytaDraft',
   draft: null,
   user: user.initialState,
+  translations: translations.initialState,
   userGroups: userGroups.initialState,
   categories: categories.initialState,
   tagGroups: tagGroups.initialState,
@@ -59,6 +61,10 @@ export function setInitialState () {
     // User
     [user.fetchBus], user.onReceived,
     [user.fetchFailedBus], user.onFetchFailed,
+
+    // Translations
+    [translations.fetchBus], translations.onReceived,
+    [translations.fetchFailedBus], translations.onFetchFailed,
 
     // Categories
     [categories.fetchBus], categories.onReceived,
@@ -155,6 +161,28 @@ export function setInitialState () {
     [dispatcher.stream(events.editor.targeting.toggleTag)], editor.targeting.toggleTag,
     [dispatcher.stream(events.editor.targeting.toggleSendEmail)], editor.targeting.toggleSendEmail
   )
+}
+
+export function getStateData (state) {
+  const month = moment().format('M')
+  const year = moment().format('YYYY')
+
+  categories.fetch()
+  userGroups.fetch()
+  tagGroups.fetch()
+  targetingGroups.fetch()
+
+  specialNotifications.fetch()
+
+  notifications.fetch({
+    page: 1,
+    categories: state.user.profile.categories
+  })
+
+  timeline.fetch({
+    month,
+    year
+  })
 }
 
 export function initAppState () {
