@@ -46,6 +46,7 @@ class Popup extends React.Component {
   }
 
   handleResize (event) {
+    // Recalculate position on window resize
     this.forceUpdate()
   }
 

@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import getVariantsString from '../utils/getVariantsString'
 
 const propTypes = {
   variants: PropTypes.array,
@@ -22,11 +23,7 @@ class Overlay extends React.Component {
     } = this.props
 
     return (
-      <div
-        ref={overlay => (this.overlay = overlay)}
-        className={`oph-overlay oph-overlay-is-visible
-        ${variants.map(variant => `oph-overlay-${variant}`).join(' ')}`}
-      >
+      <div className={`oph-overlay oph-overlay-is-visible ${getVariantsString('overlay', variants)}`}>
         {children}
       </div>
     )

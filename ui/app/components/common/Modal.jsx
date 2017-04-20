@@ -42,7 +42,7 @@ class Modal extends React.Component {
     this.overlay.removeEventListener('keyup', this.handleEscKeyUp)
   }
 
-  // Close modal on esc key press
+  // Close modal on Esc key press
   handleEscKeyUp (event) {
     const isEscKey = event.which === 27
 
@@ -79,10 +79,10 @@ class Modal extends React.Component {
       <div
         ref={overlay => (this.overlay = overlay)}
         className="oph-overlay oph-overlay-is-visible"
+        data-selenium-id={`modal-${name}`}
         role="dialog"
         tabIndex="-1"
         aria-labelledby={`#modal-${name}`}
-        data-selenium-id={`modal-${name}`}
         onClick={this.handleOverlayClick}
       >
         <div

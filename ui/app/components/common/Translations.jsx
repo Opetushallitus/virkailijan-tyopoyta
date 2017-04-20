@@ -10,6 +10,7 @@ export function setTranslations (data) {
   translations = data
 }
 
+// Returns a translation object's value or the keyValue, if no object has a matching key
 export function translate (keyValue) {
   const translation = translations.find(({ key }) => key === keyValue)
 
