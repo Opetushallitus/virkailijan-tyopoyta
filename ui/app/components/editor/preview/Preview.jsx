@@ -16,7 +16,7 @@ const propTypes = {
   release: PropTypes.object.isRequired
 }
 
-function PreviewRelease (props) {
+function Preview (props) {
   const {
     locale,
     categories,
@@ -43,7 +43,7 @@ function PreviewRelease (props) {
 
   return (
     <div>
-      <h2 className="oph-h3 center mb3">
+      <h2 className="oph-h3 oph-bold center mb3">
         {translate('oletjulkaisemassa')}
       </h2>
 
@@ -53,7 +53,7 @@ function PreviewRelease (props) {
           {/*Notification*/}
           <div className="flex flex-1 col-12 md-col-6 md-pr2 mb3">
             <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
-              <h3 className="oph-h4">
+              <h3 className="oph-h4 oph-bold">
                 {translate('tiedote')}
               </h3>
 
@@ -86,7 +86,7 @@ function PreviewRelease (props) {
           {/*Timeline*/}
           <div className="flex flex-1 col-12 md-col-6 md-pl2 mb3">
             <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
-              <h3 className="oph-h4">{translate('aikajanatapahtuma')}</h3>
+              <h3 className="oph-h4 oph-bold">{translate('aikajanatapahtuma')}</h3>
 
               {previewedTimelineItems.length
                 ? <div>
@@ -107,7 +107,7 @@ function PreviewRelease (props) {
 
         {/*Targeting*/}
         <div className="oph-bg-gray-lighten-5 col-12 p2 border rounded">
-          <h3 className="oph-h4 md-center">{translate('kohdennus')}</h3>
+          <h3 className="oph-h4 oph-bold md-center">{translate('kohdennus')}</h3>
 
           <div className="flex flex-wrap">
             {/*Categories*/}
@@ -153,6 +153,6 @@ function PreviewRelease (props) {
   )
 }
 
-PreviewRelease.propTypes = propTypes
+Preview.propTypes = propTypes
 
-export default PreviewRelease
+export default Preview

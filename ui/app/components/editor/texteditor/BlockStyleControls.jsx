@@ -10,6 +10,7 @@ const propTypes = {
   onClick: PropTypes.func.isRequired
 }
 
+// Available button types
 const BLOCK_TYPES = [
   {title: translate('järjestamatonlista'), style: 'unordered-list-item', icon: 'list-ul'},
   {title: translate('jarjestettylista'), style: 'ordered-list-item', icon: 'list-ol'}
@@ -28,7 +29,7 @@ function BlockStyleControls (props) {
     .getBlockForKey(selection.getStartKey())
     .getType()
 
-  // Get types from BLOCK_TYPES whose style is defined in props.controls
+  // Render buttons based on types passed in props.controls
   const types = R.filter(type => R.contains(type.style, controls), BLOCK_TYPES)
 
   return (

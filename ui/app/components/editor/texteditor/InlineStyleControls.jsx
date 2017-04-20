@@ -10,6 +10,7 @@ const propTypes = {
   onClick: PropTypes.func.isRequired
 }
 
+// Available button types
 const INLINE_STYLES = [
   {title: translate('lihavoi'), style: 'BOLD', icon: 'bold'},
   {title: translate('kursivoi'), style: 'ITALIC', icon: 'italic'},
@@ -23,7 +24,7 @@ function InlineStyleControls (props) {
     onClick
   } = props
 
-  // Get styles from INLINE_STYLES whose style is defined in props.controls
+  // Render buttons based on types passed in props.controls
   const styles = R.filter(type => R.contains(type.style, controls), INLINE_STYLES)
 
   return (

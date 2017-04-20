@@ -55,18 +55,19 @@ function Targeting (props) {
     controller.update('targetingGroup', event.target.value)
   }
 
+  const isCategoryChecked = (id, categories) => {
+    return R.contains(id, categories)
+  }
+
+  // Check if selected item (user group or tag) is linked to a selected category
   const itemHasCategory = (item, selectedCategories) => {
-    // "Target all user groups" item has id -1, display it always
+    // "Target all user groups" item has id -1, always display it
     return item.id === -1
       ? true
       : R.length(R.intersection(item.categories, selectedCategories))
   }
 
-  const isCategoryChecked = (id, categories) => {
-    return R.contains(id, categories)
-  }
-
-  // Returns a translation key representing if user has selected categories
+  // Returns a translation key representing whether user has selected categories
   const getUserGroupsKey = hasSelectedCategories => {
     return hasSelectedCategories
       ? 'valittujenkategorioidenryhmat'
@@ -92,6 +93,10 @@ function Targeting (props) {
       : userGroups
   }
 
+  const getUserGroupName = (id, groups) => {
+    return R.find(R.propEq('id', id))(groups).description[user.lang.toUpperCase()]
+  }
+
   const unselectedUserGroups = release.userGroups
     ? R.reject(
       userGroup => R.contains(userGroup.id, release.userGroups),
@@ -99,10 +104,10 @@ function Targeting (props) {
     )
     : []
 
-  const getUserGroupName = (id, groups) => {
-    return R.find(R.propEq('id', id))(groups).description[user.lang.toUpperCase()]
-  }
-
+  /*
+    Tag group is disabled if at least one category is selected and it isn't linked to any of the selected
+    categories
+  */
   const isTagGroupDisabled = (tagGroup, selectedCategories) => {
     return selectedCategories.length
       ? !itemHasCategory(tagGroup, release.categories)
@@ -214,7 +219,7 @@ function Targeting (props) {
         </div>
       </div>
 
-      {/*Tags*/}
+      {/*Tag groups*/}
       {
         notification.validationState === 'empty'
           ? null

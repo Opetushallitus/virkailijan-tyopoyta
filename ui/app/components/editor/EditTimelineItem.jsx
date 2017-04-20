@@ -35,7 +35,7 @@ function EditTimelineItem (props) {
 
   return (
     <div className="editor-timeline-item-form">
-      {/*Info*/}
+      {/*Text*/}
       <div className="flex flex-wrap mb2">
         <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">
           <Field
@@ -64,8 +64,8 @@ function EditTimelineItem (props) {
       </div>
 
       <div className="flex flex-wrap mb2">
+        {/*Date*/}
         <div className="col-10 sm-col-6 lg-col-3 sm-pr2">
-          {/*Date*/}
           <DateField
             label={translate('tapahtumapvmaikajanaavarten')}
             locale={locale}

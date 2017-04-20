@@ -16,7 +16,7 @@ const defaultProps = {
   hasLoadingFailed: false
 }
 
-function TargetingGroupButton (props) {
+function RemoveTargetingGroupButton (props) {
   const {
     id,
     disabled,
@@ -40,7 +40,7 @@ function TargetingGroupButton (props) {
   )
 }
 
-TargetingGroupButton.propTypes = propTypes
-TargetingGroupButton.defaultProps = defaultProps
+RemoveTargetingGroupButton.propTypes = propTypes
+RemoveTargetingGroupButton.defaultProps = defaultProps
 
-export default TargetingGroupButton
+export default RemoveTargetingGroupButton

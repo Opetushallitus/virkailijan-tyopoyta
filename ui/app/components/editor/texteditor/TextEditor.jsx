@@ -32,6 +32,7 @@ const defaultProps = {
   controls: []
 }
 
+// Polyfill for String.startsWith
 function startsWith (url, searchString, position) {
   position = position || 0
   return this.substr(position, searchString.length) === searchString
@@ -180,6 +181,7 @@ class TextEditor extends React.Component {
   }
 
   _confirmLink (url, text) {
+    // Enforce http:// prefix for link URLs
     const urlWithHttp = startsWith(url, 'http://') || startsWith(url, 'https://')
       ? url
       : `http://${url.replace('http://', '')}`
@@ -270,10 +272,9 @@ class TextEditor extends React.Component {
       editorState
     } = this.state
 
-    // If the user changes block type before entering any text, we can
-    // either style the placeholder or hide it. Let's just hide it now.
     let className = 'RichEditor-editor'
     let contentState = editorState.getCurrentContent()
+
     if (!contentState.hasText()) {
       if (contentState.getBlockMap().first().getType() !== 'unstyled') {
         className += ' RichEditor-hidePlaceholder'
@@ -282,6 +283,8 @@ class TextEditor extends React.Component {
 
     let selection = editorState.getSelection()
     let entity = this._getEntityAtCursor(editorState)
+
+    // Link can be edited if cursor is on one
     let isCursorOnLink = (entity !== null && entity.type === 'LINK')
 
     const selectedText = this.getSelectedText(selection)
@@ -290,6 +293,7 @@ class TextEditor extends React.Component {
     return (
       <div className={`RichEditor-root ${this.state.showURLInput ? 'editor-has-link-form' : ''}`}>
         <div className="RichEditor-controls-container">
+          {/*Button for styling the content*/}
           <InlineStyleControls
             controls={controls}
             currentStyle={editorState.getCurrentInlineStyle()}
@@ -302,6 +306,8 @@ class TextEditor extends React.Component {
             onClick={this.toggleBlockType}
           />
 
+          {/*Edit link*/}
+          {/*Disabled if cursor is not on a link or no text is selected*/}
           <IconButton
             id="RichEditor-edit-link-button"
             title={isCursorOnLink ? translate('muokkaalinkki') : translate('lisaalinkki')}
@@ -311,6 +317,7 @@ class TextEditor extends React.Component {
             onClick={this.promptForLink}
           />
 
+          {/*Remove link*/}
           <IconButton
             id="RichEditor-remove-link-button"
             title={translate('poistalinkki')}
@@ -331,6 +338,7 @@ class TextEditor extends React.Component {
             />
           </div>
 
+          {/*Form for editing the link*/}
           {this.state.showURLInput
             ? <EditLink
               url={R.pathOr('', ['data', 'url'], entity)}
