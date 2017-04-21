@@ -22,7 +22,6 @@
   bottom: 0;
   content: "";
   border-left: 2px solid var(--blue-darken-1);
-  transform: translateX(50%);
 }
 
 .timeline-heading {
@@ -37,6 +36,10 @@
 @media (--sm-and-lg) {
   .timeline-heading {
     margin-left: 0;
+  }
+
+  .timeline-line:after {
+    left: 50%;
   }
 }
 
@@ -70,7 +73,7 @@
   left: 0;
   width: 10px;
   height: 10px;
-  transform: translateX(-5px);
+  transform: translateX(-4px);
   content: "";
   border-radius: 50%;
   background: var(--blue-darken-1);
@@ -80,7 +83,7 @@
   .timeline-day:nth-of-type(odd):after {
     left: auto;
     right: 0;
-    transform: translateX(7px);
+    transform: translateX(6px);
   }
 }
 
