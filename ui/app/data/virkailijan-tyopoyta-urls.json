@@ -7,6 +7,7 @@
   "targeting.groups": "/virkailijan-tyopoyta/api/targetingGroups",
   "draft": "/virkailijan-tyopoyta/api/user/draft",
   "release": "/virkailijan-tyopoyta/api/release",
+  "email": "/virkailijan-tyopoyta/api/email",
   "notifications": "/virkailijan-tyopoyta/api/notifications",
   "special.notifications": "/virkailijan-tyopoyta/api/notifications/special",
   "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",

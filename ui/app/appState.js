@@ -129,6 +129,8 @@ export function appState () {
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
     [editor.autoSaveBus], editor.onAutoSave,
+    [editor.sendEmailBus], editor.onEmailSent,
+    [editor.sendEmailFailedBus], editor.onSendEmailFailed,
     [editor.fetchReleaseBus], editor.onReleaseReceived,
     [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
     [editor.alertsBus], editor.onAlertsReceived,

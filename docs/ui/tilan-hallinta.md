@@ -1,10 +1,15 @@
 # Tilan hallinta
 
-Sovelluksen tila on yhdessä objektissa, joka annetaan App-komponentille 
-(`ui/app/components/App.jsx`) propseissa. Kun tila muuttuu, Reactin virtuaali-DOM hoitaa 
-komponenttien muutokset.
+Sovelluksen tilaa hallitaan [Bacon.js](https://baconjs.github.io/):n event streamina.
+Se palauttaa objektin, joka annetaan App-komponentille (`ui/app/components/App.jsx`) 
+`props`eissa. 
+
+Kun tila muuttuu, Reactin virtuaali-DOM hoitaa 
+komponenttien päivittämisen. Komponenttien omaa `state`a käytetään harvoissa tapauksissa.
 
 ## appState, controller ja dispatcher
+
+
 
 ## Sovelluksen alustus
 
@@ -20,4 +25,4 @@ tai lokaalista käännöstiedostosta (`data/translations.json`):
 - kun käännökset on haettu, haetaan kaikki muu tarvittava sisältö erillisillä kutsuilla
 `state/appState.js: getStateData`
 
-4. sisältöä renderöidään sitä mukaa kun kutsut onnistuvat
+4. komponentteja päivitetään sitä mukaa kun kutsut onnistuvat
