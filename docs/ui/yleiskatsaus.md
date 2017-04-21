@@ -24,6 +24,7 @@ Tyylit
 Testaus
 
 - Nightwatch
+- vaatii lokaalisti IE:llä babel-polyfillin ja whatwg-fetchin, ne ovat vain raameissa 
 
 Build
 
