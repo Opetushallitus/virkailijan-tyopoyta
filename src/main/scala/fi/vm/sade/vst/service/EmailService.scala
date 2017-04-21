@@ -3,7 +3,7 @@ package fi.vm.sade.vst.service
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.{EmailEvent, Release}
-import fi.vm.sade.vst.repository.RepositoryModule
+import fi.vm.sade.vst.module.RepositoryModule
 import fi.vm.sade.vst.security.{UserService, KayttooikeusService, RequestMethod, CasUtils}
 import java.time.LocalDate
 import scala.util.{Failure, Success, Try}

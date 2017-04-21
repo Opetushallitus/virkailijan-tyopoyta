@@ -1,6 +1,7 @@
 package fi.vm.sade.vst
 
-import fi.vm.sade.vst.server.{ServerModule, Server}
+import fi.vm.sade.vst.module.ServerModule
+import fi.vm.sade.vst.server.Server
 
 object Main extends App with ServerModule with Configuration {
 

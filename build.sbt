@@ -55,3 +55,10 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.4.0-akka-2.3.x"
 )
+
+// Test libraries
+libraryDependencies ++= Seq(
+  "junit" % "junit" % "4.11" % "test",
+  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
+  "org.specs2" %% "specs2-core" % "3.8.9" % "test"
+)
