@@ -9,13 +9,12 @@ trait ReleaseRepository{
   def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
   def notification(id: Long, user: User) : Option[Notification]
   def specialNotifications(user: User) : Seq[Notification]
-  def deleteNotification(id: Long): Int
+  def deleteNotification(user: User, id: Long): Int
 
   def unpublishedNotifications(user: User): Seq[Notification]
 
   def timeline(categories: RowIds, month: YearMonth, user: User): Timeline
   def deleteTimelineItem(id: Long): Int
-
 
   def tags(user: User): Seq[TagGroup]
   def categories(user: User): Seq[Category]
@@ -27,7 +26,7 @@ trait ReleaseRepository{
   def emailReleasesForDate(date: LocalDate): Seq[Release]
   def emailLogs: Seq[EmailEvent]
 
-  def deleteRelease(id: Long): Int
+  def deleteRelease(user: User, id: Long): Int
   def addRelease(user: User, release: ReleaseUpdate): Option[Release]
   def updateRelease(user: User, release: ReleaseUpdate): Option[Release]
 

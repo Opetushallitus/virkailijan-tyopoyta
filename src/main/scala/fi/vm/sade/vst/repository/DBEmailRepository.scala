@@ -1,13 +1,13 @@
 package fi.vm.sade.vst.repository
 
-import fi.vm.sade.vst.DBConfig
+import fi.vm.sade.vst.{DBConfig, Logging}
 import fi.vm.sade.vst.model.EmailEvent
 import scalikejdbc._
 import Tables._
 
-class DBEmailRepository(val config: DBConfig) extends EmailRepository with SessionInfo {
-  val email = EmailEventTable.syntax
-  val emailCol = EmailEventTable.column
+class DBEmailRepository(val config: DBConfig) extends EmailRepository with SessionInfo with Logging {
+  private val email = EmailEventTable.syntax
+  private val emailCol = EmailEventTable.column
 
   def emailEvent(id: Long): Option[EmailEvent] = {
     withSQL[EmailEvent] {
@@ -33,6 +33,7 @@ class DBEmailRepository(val config: DBConfig) extends EmailRepository with Sessi
         emailCol.eventType -> event.eventType
       )
     }.updateAndReturnGeneratedKey.apply()
+    AuditLog.auditSendEmail(event.releaseId, event.eventType)
     emailEvent(id)
   }
 }

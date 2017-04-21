@@ -52,9 +52,8 @@ export function getController () {
   return controller
 }
 
-// TODO: Combine buses?
-
-export function setInitialState () {
+// Application state stream
+export function appState () {
   return Bacon.update(
     initialState,
 
@@ -130,6 +129,8 @@ export function setInitialState () {
     [editor.saveBus], editor.onSaveComplete,
     [editor.saveFailedBus], editor.onSaveFailed,
     [editor.autoSaveBus], editor.onAutoSave,
+    [editor.sendEmailBus], editor.onEmailSent,
+    [editor.sendEmailFailedBus], editor.onSendEmailFailed,
     [editor.fetchReleaseBus], editor.onReleaseReceived,
     [editor.fetchReleaseFailedBus], editor.onFetchReleaseFailed,
     [editor.alertsBus], editor.onAlertsReceived,
@@ -163,6 +164,7 @@ export function setInitialState () {
   )
 }
 
+// Fetch all necessary initial data for state
 export function getStateData (state) {
   const month = moment().format('M')
   const year = moment().format('YYYY')
@@ -188,5 +190,5 @@ export function getStateData (state) {
 export function initAppState () {
   user.fetch()
 
-  return setInitialState()
+  return appState()
 }

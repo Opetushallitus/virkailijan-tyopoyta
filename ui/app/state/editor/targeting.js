@@ -3,7 +3,7 @@ import R from 'ramda'
 import editor from './editor'
 import targetingGroups from '../targetingGroups'
 import { validate, rules } from './validation'
-import getData from '../../utils/getData'
+import getData from '../utils/getData'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 function update (state, { prop, value }) {

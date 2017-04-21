@@ -32,20 +32,25 @@ Luonnos pysyy tallennettuna siihen asti kunnes käyttäjä julkaisee sen.
 
 ## Kategoria
 
-Julkaisu voidaan kohdentaa yhteen tai useampaan kategoriaan.
+Julkaisu voidaan kohdentaa yhteen tai useampaan kategoriaan (esim. Perusopetus, 
+Lukiokoulutus tai Ammatillinen koulutus). Käyttäjä voi rajata näkyviä tiedotteita 
+kategorioiden perusteella.
 
 ## Käyttöoikeusryhmä
 
 Käyttäjä kuuluu yhteen tai useampaan käyttöoikeusryhmään. Käyttöoikeusryhmät
-määrittävät mitä sisältöä käyttäjä näkee työpöydällä.
+määrittävät mitä sisältöä käyttäjä näkee työpöydällä. Ryhmiä ovat esim.
+Opinto-ohjaaja ja Korkeakouluvirkailija.
 
 ## Avainsana
 
-Tiedotteelle annetaan yksi tai useampi avainsana.
+Tiedotteelle annetaan yksi tai useampi avainsana, esim. Aikataulut, Kielikoe tai Koski.
+Käyttäjä voi rajata näkyviä tiedotteita avainsanojen perusteella.
 
 ## Avainsanaryhmä
 
-Jokainen avainsana kuuluu yhteen avainsanaryhmään.
+Jokainen avainsana kuuluu yhteen avainsanaryhmään. Avainsanaryhmiä ovat Perusopetus,
+Korkeakoulutus ja Vapaa sivistystyö.
 
 ## Kohderyhmävalinta / tallennettu kohdennus
 
@@ -59,7 +64,7 @@ a) siitä, mitä käyttöoikeuksia heillä on ja
 b) mihin kategorioihin kuuluvat tiedotteet he ovat valinneet omiksi 
 kiinnostuksen kohteiksiin.
 
-Peruskäyttäjä voi katsella tiedotteita ja aikajanan tapahtumia
+Peruskäyttäjä voi katsella myös aikajanan tapahtumia.
 
 ## Ylläpitokäyttäjä
 

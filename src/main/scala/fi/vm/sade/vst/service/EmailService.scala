@@ -30,7 +30,7 @@ class EmailService(casUtils: CasUtils,
 
   lazy val emailConfiguration = new GroupEmailerSettings(config)
   lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
-//  lazy val groupEmailService: GroupEmailService = new FakeGroupEmailService
+
   private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
   private def userAccessService = casUtils.serviceClient(authenticationConfig.kayttooikeusUri)
 

@@ -70,10 +70,10 @@
 .semantic-ui.ui.selection.dropdown .menu,
 .semantic-ui.ui.selection.dropdown:hover .menu,
 .semantic-ui.ui.selection.dropdown:focus .menu {
+  z-index: var(--z2);
   margin-top: 1px;
   padding: var(--space-1) 0;
   border-color: var(--border-color-base);
-  z-index: var(--z2);
 }
 
 .semantic-ui.ui.dropdown .menu > .item {

@@ -10,25 +10,113 @@ import unpublishedNotifications from '../notifications/unpublishedNotifications'
 import specialNotifications from '../notifications/specialNotifications'
 import notifications from '../notifications/notifications'
 import timeline from '../timeline'
-import getData from '../../utils/getData'
-import createAlert from '../../utils/createAlert'
+import getData from '../utils/getData'
+import createAlert from '../utils/createAlert'
 
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
-const saveBus = new Bacon.Bus()
-const saveFailedBus = new Bacon.Bus()
-const saveTargetingGroupBus = new Bacon.Bus()
 const fetchReleaseBus = new Bacon.Bus()
 const fetchReleaseFailedBus = new Bacon.Bus()
+const saveBus = new Bacon.Bus()
+const saveFailedBus = new Bacon.Bus()
+const sendEmailBus = new Bacon.Bus()
+const sendEmailFailedBus = new Bacon.Bus()
+const saveTargetingGroupBus = new Bacon.Bus()
 const alertsBus = new Bacon.Bus()
 const autoSaveBus = new Bacon.Bus()
 
 function getRelease (id) {
+  console.log('Fetching release')
+
   getData({
     url: `${urls.release}/${id}`,
-    method: 'GET',
     onSuccess: release => fetchReleaseBus.push(release, id),
     onError: error => fetchReleaseFailedBus.push(error)
+  })
+}
+
+function save (state, id) {
+  console.log('Saving release')
+
+  // POST for new releases, PUT for updating
+  const method = id === -1
+    ? 'POST'
+    : 'PUT'
+
+  // Remove all tags and set sendEmail as false if notification is empty
+  const savedRelease = state.editor.editedRelease.notification.validationState === 'empty'
+    ? R.compose(
+      R.assocPath(['notification', 'tags'], []),
+      R.assoc('sendEmail', false)
+    )(state.editor.editedRelease)
+    : state.editor.editedRelease
+
+  getData({
+    url: urls.release,
+    requestOptions: {
+      method: method,
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(
+        cleanUpRelease(savedRelease),
+        editReleaseProperties
+      )
+    },
+    onSuccess: releaseId => saveBus.push({ releaseId, savedRelease }),
+    onError: error => saveFailedBus.push(error)
+  })
+
+  return R.assocPath(['editor', 'isSavingRelease'], true, state)
+}
+
+function saveDraft (state) {
+  const editedRelease = state.editor.editedRelease
+  const emptyTimelineItemsCount = R.length(R.filter(item => item.validationState === 'empty', editedRelease.timeline))
+
+  // Only save if the edited release is new (has id of -1) and has content
+  if (editedRelease.id > -1 ||
+    (editedRelease.id === -1 &&
+    editedRelease.notification.validationState === 'empty' &&
+    editedRelease.validationState === 'empty' &&
+    emptyTimelineItemsCount === editedRelease.timeline.length)
+  ) {
+    return state.draft
+  }
+
+  // Save draft to localStorage and database
+  console.log('Saving draft to localStorage and database', editedRelease)
+
+  const draft = JSON.stringify(editedRelease)
+
+  window.localStorage.setItem(state.draftKey, draft)
+
+  getData({
+    url: urls.draft,
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: draft
+    }
+  })
+
+  return editedRelease
+}
+
+function sendEmail (state, releaseId) {
+  console.log('Sending email with release id', releaseId)
+
+  getData({
+    url: `${urls.email}/${releaseId}`,
+    requestOptions: {
+      method: 'POST'
+    },
+    onSuccess: () => sendEmailBus.push('sent'),
+    onError: error => sendEmailFailedBus.push(error)
   })
 }
 
@@ -63,7 +151,7 @@ function onReleaseReceived (state, response) {
   }
 }
 
-function onFetchReleaseFailed (state, response) {
+function onFetchReleaseFailed (state) {
   console.log('Fetching release failed')
 
   const alert = createAlert({
@@ -85,8 +173,9 @@ function onAlertsReceived (state, alert) {
   return R.assocPath(['editor', 'alerts'], newEditorAlerts, state)
 }
 
-function onSaveComplete (state, release) {
+function onSaveComplete (state, { releaseId, savedRelease }) {
   console.log('Release saved')
+  console.log(releaseId, savedRelease)
 
   const alert = createAlert({
     variant: 'success',
@@ -100,20 +189,26 @@ function onSaveComplete (state, release) {
 
   clearInterval(state.editor.autoSave)
 
-  if (release.id === -1) {
+  if (savedRelease.id === -1) {
     window.localStorage.removeItem(state.draftKey)
   }
 
   // Save targeting group
-  if (release.targetingGroup) {
+  if (savedRelease.targetingGroup) {
     targetingGroups.save(state, {
-      name: release.targetingGroup,
-      categories: release.categories,
-      userGroups: release.userGroups,
-      tags: release.notification.tags
+      name: savedRelease.targetingGroup,
+      categories: savedRelease.categories,
+      userGroups: savedRelease.userGroups,
+      tags: savedRelease.notification.tags
     })
   }
 
+  // Send email
+  if (savedRelease.notification.sendEmail) {
+    sendEmail(state, releaseId)
+  }
+
+  // Close editor, reset view and remove draft if saved release was new
   return R.compose(
     R.assocPath(['view', 'alerts'], newViewAlerts),
     R.assoc('view', view.emptyView()),
@@ -122,7 +217,7 @@ function onSaveComplete (state, release) {
     R.assoc('notifications', notifications.reset(1)),
     R.assoc('timeline', timeline.emptyTimeline()),
     R.assoc('editor', emptyEditor()),
-    release.id === -1 ? R.assoc('draft', null) : R.assoc('draft', state.draft)
+    savedRelease.id === -1 ? R.assoc('draft', null) : R.assoc('draft', state.draft)
   )(state)
 }
 
@@ -137,6 +232,28 @@ function onSaveFailed (state) {
 
 function onAutoSave (state) {
   return R.assoc('draft', saveDraft(state), state)
+}
+
+function onEmailSent (state) {
+  console.log('Email sent')
+
+  const alert = createAlert({
+    variant: 'success',
+    titleKey: 'sahkopostilahetetty'
+  })
+
+  return R.assocPath(['view', 'alerts'], view.setNewAlerts(alert, state.view.alerts), state)
+}
+
+function onSendEmailFailed (state) {
+  console.log('Sending email failed')
+
+  const alert = createAlert({
+    variant: 'error',
+    titleKey: 'sahkopostinlahetysepaonnistui'
+  })
+
+  return R.assocPath(['view', 'alerts'], view.setNewAlerts(alert, state.view.alerts), state)
 }
 
 function toggleValue (value, values) {
@@ -289,78 +406,6 @@ function toggleHasSaveFailed (state, hasSaveFailed) {
   return R.assocPath(['editor', 'hasSaveFailed'], !state.editor.hasSaveFailed, state)
 }
 
-function save (state, id) {
-  console.log('Saving release')
-
-  // POST for new releases, PUT for updating
-  const method = id === -1
-    ? 'POST'
-    : 'PUT'
-
-  // Remove all tags and set sendEmail as false if notification is empty
-  const savedRelease = state.editor.editedRelease.notification.validationState === 'empty'
-    ? R.compose(
-      R.assocPath(['notification', 'tags'], []),
-      R.assoc('sendEmail', false)
-    )(state.editor.editedRelease)
-    : state.editor.editedRelease
-
-  getData({
-    url: urls.release,
-    requestOptions: {
-      method: method,
-      dataType: 'json',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify(
-        cleanUpRelease(savedRelease),
-        editReleaseProperties
-      )
-    },
-    onSuccess: () => saveBus.push(savedRelease),
-    onError: error => saveFailedBus.push(error)
-  })
-
-  return R.assocPath(['editor', 'isSavingRelease'], true, state)
-}
-
-function saveDraft (state) {
-  const editedRelease = state.editor.editedRelease
-  const emptyTimelineItemsCount = R.length(R.filter(item => item.validationState === 'empty', editedRelease.timeline))
-
-  // Only save if the edited release is new (has id of -1) and has content
-  if (editedRelease.id > -1 ||
-    (editedRelease.id === -1 &&
-    editedRelease.notification.validationState === 'empty' &&
-    editedRelease.validationState === 'empty' &&
-    emptyTimelineItemsCount === editedRelease.timeline.length)
-  ) {
-    return state.draft
-  }
-
-  // Save draft to localStorage and database
-  console.log('Saving draft to localStorage and database', editedRelease)
-
-  const draft = JSON.stringify(editedRelease)
-
-  window.localStorage.setItem(state.draftKey, draft)
-
-  getData({
-    url: urls.draft,
-    requestOptions: {
-      method: 'POST',
-      dataType: 'json',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: draft
-    }
-  })
-
-  return editedRelease
-}
-
 function emptyRelease () {
   return {
     id: -1,
@@ -415,6 +460,8 @@ const editor = {
   autoSaveBus,
   fetchReleaseBus,
   fetchReleaseFailedBus,
+  sendEmailBus,
+  sendEmailFailedBus,
   alertsBus,
   events,
   initialState,
@@ -423,6 +470,8 @@ const editor = {
   onAutoSave,
   onReleaseReceived,
   onFetchReleaseFailed,
+  onEmailSent,
+  onSendEmailFailed,
   onAlertsReceived,
   open,
   close,

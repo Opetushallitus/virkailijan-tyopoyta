@@ -2,7 +2,7 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import { getStateData } from '../appState'
-import getData from '../utils/getData'
+import getData from './utils/getData'
 import localTranslations from '../data/translation.json'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 

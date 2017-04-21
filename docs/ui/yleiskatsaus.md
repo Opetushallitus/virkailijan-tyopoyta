@@ -1,17 +1,13 @@
-Tiedostorakenne
+Tiedostorakenne x
 
-Codestyle
-
-- Standard.xml
-- ESLint
+Codestyle x
 
 Tärkeimmät riippuvuudet
 
 - React, Bacon.js, Ramda, Babel jne.
+- React Devtools
 
-Käsitteet
-
-- mikä on julkaisu, tallennettu luonnos jne.
+Käsitteet x
 
 Tilan hallinta
 
@@ -24,12 +20,10 @@ Tyylit
 Testaus
 
 - Nightwatch
+- vaatii lokaalisti IE:llä babel-polyfillin ja whatwg-fetchin, ne ovat vain raameissa 
 
 Build
 
 - Webpack + npm
 
-Komponentit
-
-- Tilat
-- Käyttötapaukset
+Komponentit x

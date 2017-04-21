@@ -1,24 +1,26 @@
 package fi.vm.sade.vst.security
 
-import concurrent.duration._
+import java.net.URLEncoder
+
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
-import fi.vm.sade.vst.Configuration
+import fi.vm.sade.vst.{Configuration, Logging}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
-import java.net.URLEncoder
-import language.postfixOps
+import play.api.libs.json._
+
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
+import scalacache.ScalaCache
 import scalacache.guava.GuavaCache
 import scalacache.memoization._
-import scalacache.ScalaCache
-import scala.util.{Failure, Success, Try}
-import play.api.libs.json._
 
 class UserService(casUtils: CasUtils,
                   ldapClient: LdapClient,
                   kayttooikeusService: KayttooikeusService,
                   userRepository: UserRepository,
                   releaseRepository: ReleaseRepository)
-  extends Configuration {
+  extends Configuration with Logging {
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 
@@ -63,7 +65,6 @@ class UserService(casUtils: CasUtils,
   private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(10 minutes) {
     ldapClient.findUser(uid) match {
       case Some(ldapUser) => {
-        println("Found user from LDAP")
         Success(createUser(ldapUser))
       }
       case None => Failure(new IllegalStateException(s"User $uid not found in LDAP"))
@@ -80,7 +81,7 @@ class UserService(casUtils: CasUtils,
           draft = userRepository.fetchDraft(u.userId)))
       }
       case Failure(e) => {
-        println(s"LDAP call failed for uid $uid : ${e.getMessage}")
+        logger.debug(s"LDAP call failed for uid $uid : ${e.getMessage}")
         user
       }
     }
@@ -112,11 +113,11 @@ class UserService(casUtils: CasUtils,
     (uid, user) match {
       case (Success(id), Success(u)) => Some(id, u)
       case (Failure(e), _) => {
-        println(s"Failed to authenticate ticket: ${e.getMessage}")
+        logger.error(s"Failed to authenticate ticket: ${e.getMessage}")
         None
       }
       case (Success(u), Failure(t)) =>
-        println(s"Failed to find user $u : ${t.getMessage}")
+        logger.error(s"Failed to find user $u : ${t.getMessage}")
         None
       case _ => None
     }
