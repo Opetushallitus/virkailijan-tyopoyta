@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react'
-import getVariantsString from 'utils/getVariantsString'
+import getVariantsString from '../utils/getVariantsString'
 
 const propTypes = {
   variants: PropTypes.array,
