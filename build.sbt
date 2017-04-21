@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
   "com.github.cb372" %% "scalacache-guava" % "0.9.3",
   "org.json4s" %% "json4s-native" % "3.5.0",
   "org.jsoup" % "jsoup" % "1.10.2",
-  "ch.qos.logback" % "logback-classic" % "1.1.7"
+  "ch.qos.logback" % "logback-classic" % "1.2.3"
 )
 
 // DB dependencies
