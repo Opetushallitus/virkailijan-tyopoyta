@@ -1,6 +1,6 @@
 {
   "cas.myroles": "/cas/myroles",
-  "cas.login": "/cas/login?service=",
+  "cas.login": "/cas/login",
   "lokalisointi.localisation":"/lokalisointi/cxf/rest/v1/localisation?category=virkailijan-tyopoyta&locale=",
   "login": "/virkailijan-tyopoyta/login",
   "user": "/virkailijan-tyopoyta/api/user",
