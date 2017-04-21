@@ -5,10 +5,10 @@
   top: 0;
   width: 100%;
   height: 85vh;
-  overflow-y: scroll;
   transition: top, height;
   transition-duration: .3s;
   transition-timing-function: ease;
+  overflow-y: scroll;
 }
 
 .timeline {
@@ -46,7 +46,6 @@
 /* Pointers for timeline days */
 .timeline-day .timeline-item-container:first-of-type .timeline-item:before {
   position: absolute;
-  content: "";
   top: calc(var(--space-3) - 5px);
   left: -11px;
   width: 0;
@@ -55,6 +54,7 @@
   border-width: 10px 12px 10px 0;
   border-color: transparent var(--blue) transparent transparent;
   transition: opacity .3s ease;
+  content: "";
 }
 
 @media (--sm-and-lg) {
@@ -74,9 +74,9 @@
   width: 10px;
   height: 10px;
   transform: translateX(-4px);
-  content: "";
   border-radius: 50%;
   background: var(--blue-darken-1);
+  content: "";
 }
 
 @media (--sm-and-lg) {

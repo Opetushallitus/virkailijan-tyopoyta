@@ -15,8 +15,8 @@
 }
 
 .editor-timeline-item-form:last-of-type {
-  border-bottom: 0;
   padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .editor-timeline-item-form .DraftEditor-editorContainer {
@@ -25,9 +25,9 @@
 
 .editor-targeting-group-select {
   max-height: 20rem;
-  overflow-y: auto;
   border: 1px solid var(--border-color-base);
   border-radius: var(--border-radius-base);
+  overflow-y: auto;
 }
 
 .editor-targeting-group-button {
