@@ -44,7 +44,7 @@ function onFetchFailed (state, error) {
 
   // Redirect to login page if response is not JSON
   if (error.toString().indexOf('SyntaxError') >= 0) {
-    window.location.replace(urls.login)
+    window.location.replace(urls['cas.login'])
 
     return state
   }
