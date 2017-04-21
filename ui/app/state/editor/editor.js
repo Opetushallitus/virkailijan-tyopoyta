@@ -10,8 +10,8 @@ import unpublishedNotifications from '../notifications/unpublishedNotifications'
 import specialNotifications from '../notifications/specialNotifications'
 import notifications from '../notifications/notifications'
 import timeline from '../timeline'
-import getData from '../../utils/getData'
-import createAlert from '../../utils/createAlert'
+import getData from '../utils/getData'
+import createAlert from '../utils/createAlert'
 
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 

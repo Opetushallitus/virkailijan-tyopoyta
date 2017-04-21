@@ -1,17 +1,13 @@
-Tiedostorakenne
+Tiedostorakenne x
 
-Codestyle
-
-- Standard.xml
-- ESLint
+Codestyle x
 
 Tärkeimmät riippuvuudet
 
 - React, Bacon.js, Ramda, Babel jne.
+- React Devtools
 
-Käsitteet
-
-- mikä on julkaisu, tallennettu luonnos jne.
+Käsitteet x
 
 Tilan hallinta
 
@@ -30,7 +26,4 @@ Build
 
 - Webpack + npm
 
-Komponentit
-
-- Tilat
-- Käyttötapaukset
+Komponentit x

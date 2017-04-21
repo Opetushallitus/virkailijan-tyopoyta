@@ -5,8 +5,8 @@ import moment from 'moment'
 import view from './view'
 import notifications from './notifications/notifications'
 import editor from './editor/editor'
-import getData from '../utils/getData'
-import createAlert from '../utils/createAlert'
+import getData from './utils/getData'
+import createAlert from './utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()

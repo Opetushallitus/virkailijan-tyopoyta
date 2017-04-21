@@ -3,7 +3,7 @@ import Bacon from 'baconjs'
 
 import translations from './translations'
 
-import getData from '../utils/getData'
+import getData from './utils/getData'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
