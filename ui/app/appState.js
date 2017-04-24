@@ -53,7 +53,9 @@ export function getController () {
 }
 
 /*
-  Application state stream. User actions are merged to the initial state.
+  Application state stream.
+  User actions are merged to the state by dispatcher.stream and events defined in the controller.
+  When values are pushed to
  */
 export function appState () {
   return Bacon.update(

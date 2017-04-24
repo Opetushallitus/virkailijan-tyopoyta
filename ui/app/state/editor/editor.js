@@ -209,11 +209,11 @@ function onSaveComplete (state, { releaseId, savedRelease }) {
 
   return R.compose(
     R.assocPath(['view', 'alerts'], newViewAlerts),
-    R.assoc('view', view.emptyView()),
+    R.assoc('view', view.initialState),
     R.assoc('unpublishedNotifications', unpublishedNotifications.initialState),
     R.assoc('specialNotifications', specialNotifications.initialState),
     R.assoc('notifications', notifications.initialState),
-    R.assoc('timeline', timeline.emptyTimeline()),
+    R.assoc('timeline', timeline.initialState),
     R.assoc('editor', emptyEditor()),
     savedRelease.id === -1 ? R.assoc('draft', null) : R.assoc('draft', state.draft)
   )(state)

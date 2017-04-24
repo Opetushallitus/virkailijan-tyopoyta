@@ -52,6 +52,11 @@ Käyttäjä voi rajata näkyviä tiedotteita avainsanojen perusteella.
 Jokainen avainsana kuuluu yhteen avainsanaryhmään. Avainsanaryhmiä ovat Perusopetus,
 Korkeakoulutus ja Vapaa sivistystyö.
 
+## Erikoisavainsana
+
+Esimerkiksi tiedotteen merkkaaminen häiriötiedotteeksi tehdään erikoisavainsanalla, jota 
+käsitellään backendissä ja käyttöliittymässä omalla tavallaan.
+
 ## Kohderyhmävalinta / tallennettu kohdennus
 
 Julkaisulle valitut kategoriat ja käyttöoikeusryhmät sekä tiedotteen avainsanat, 

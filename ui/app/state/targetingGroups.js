@@ -74,6 +74,8 @@ function save (state, targetingGroup) {
 function onSaveComplete (state) {
   console.log('Targeting group saved')
 
+  fetch()
+
   return R.assoc('targetingGroups', initialState, state)
 }
 

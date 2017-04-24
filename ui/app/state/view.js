@@ -62,7 +62,6 @@ const view = {
   alertsBus,
   events,
   initialState,
-  emptyView,
   onAlertsReceived,
   setNewAlerts,
   removeAlert,

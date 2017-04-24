@@ -361,8 +361,7 @@ const timeline = {
   getNextMonth,
   getRelatedNotification,
   edit,
-  confirmRemove,
-  emptyTimeline
+  confirmRemove
 }
 
 export default timeline
