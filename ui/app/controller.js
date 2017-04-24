@@ -39,6 +39,8 @@ export function initController (dispatcher, events) {
 
     getPreviousMonth: () => dispatcher.push(events.timeline.getPreviousMonth),
 
+    autoFetchNextMonth: () => dispatcher.push(events.timeline.autoFetchNextMonth),
+
     getRelatedNotification: notificationId => dispatcher.push(events.timeline.getRelatedNotification, notificationId),
 
     edit: releaseId => dispatcher.push(events.timeline.edit, releaseId),
@@ -131,6 +133,7 @@ export function initController (dispatcher, events) {
       getPreloadedMonth: timeline.getPreloadedMonth,
       getNextMonth: timeline.getNextMonth,
       getPreviousMonth: timeline.getPreviousMonth,
+      autoFetchNextMonth: timeline.autoFetchNextMonth,
       getRelatedNotification: timeline.getRelatedNotification,
       edit: timeline.edit,
       confirmRemove: timeline.confirmRemove

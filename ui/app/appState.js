@@ -52,11 +52,7 @@ export function getController () {
   return controller
 }
 
-/*
-  Application state stream.
-  User actions are merged to the state by dispatcher.stream and events defined in the controller.
-  When values are pushed to
- */
+// Application state stream
 export function appState () {
   return Bacon.update(
     initialState,
@@ -91,7 +87,7 @@ export function appState () {
 
     // View
     [view.alertsBus], view.onAlertsReceived,
-    [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
+    [dispatcher.stream(view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
 
     // Unpublished notifications
@@ -128,6 +124,7 @@ export function appState () {
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
+    [dispatcher.stream(events.timeline.autoFetchNextMonth)], timeline.autoFetchNextMonth,
     [dispatcher.stream(events.timeline.getRelatedNotification)], timeline.getRelatedNotification,
     [dispatcher.stream(events.timeline.edit)], timeline.edit,
     [dispatcher.stream(events.timeline.confirmRemove)], timeline.confirmRemove,

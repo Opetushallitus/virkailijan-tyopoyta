@@ -210,15 +210,24 @@ function getCurrentMonth (state) {
   return R.assocPath(['timeline', 'isLoadingNext'], true, state)
 }
 
-function autoFetchNextMonth (state, timelineViewport, spinner) {
+// Fetches the next month if the spinner is visible in '.timeline-viewport'
+function autoFetchNextMonth (state) {
+  // Add sanity check
+  const hasMaxCount = state.timeline.items.length > 50
+
+  const timelineViewport = document.querySelector('.timeline-viewport')
+  const nextMonthSpinner = document.querySelector('.timeline-next-month-spinner')
+
   // Check if spinner is visible in the viewport
-  const offset = spinner.getBoundingClientRect()
+  const offset = nextMonthSpinner.getBoundingClientRect()
 
   const isSpinnerVisible = offset.bottom > 0 && offset.top < timelineViewport.clientHeight
 
-  if (isSpinnerVisible) {
+  if (isSpinnerVisible && !hasMaxCount) {
     getNextMonth(state)
   }
+
+  return state
 }
 
 function edit (state, releaseId) {
@@ -256,8 +265,6 @@ function onItemRemoved (state, { nodeSelector, parentSelector }) {
     titleKey: 'tapahtumapoistettu'
   })
 
-  const timelineViewport = document.querySelector('.timeline-viewport')
-  const nextMonthSpinner = document.querySelector('.timeline-next-month-spinner')
   const node = document.querySelector(nodeSelector)
   const parent = document.querySelector(parentSelector)
 
@@ -275,7 +282,7 @@ function onItemRemoved (state, { nodeSelector, parentSelector }) {
       node.remove()
     }
 
-    autoFetchNextMonth(state, timelineViewport, nextMonthSpinner)
+    autoFetchNextMonth(state)
   }, 1000)
 
   return state
@@ -324,6 +331,7 @@ function emptyTimeline () {
   return {
     items: [],
     preloadedItems: [],
+    direction: 'up',
     dateFormat: 'M.YYYY',
     isLoadingNext: false,
     isLoadingPrevious: false,
@@ -359,6 +367,7 @@ const timeline = {
   getPreloadedMonth,
   getPreviousMonth,
   getNextMonth,
+  autoFetchNextMonth,
   getRelatedNotification,
   edit,
   confirmRemove

@@ -20,12 +20,29 @@ const propTypes = {
 }
 
 class App extends React.Component {
+  constructor (props) {
+    super(props)
+
+    this.handleTimelineTabItemClick = this.handleTimelineTabItemClick.bind(this)
+  }
+
   componentDidUpdate (prevProps) {
     // Update when translations are received
     if (prevProps.state.translations.items !== this.props.state.translations.items) {
       setTranslations(this.props.state.translations.items)
       this.forceUpdate()
     }
+  }
+
+  handleTimelineTabItemClick () {
+    const controller = this.props.controller
+
+    controller.view.toggleTab('timeline')
+
+    // Fetch timeline items on first tab change
+    this.props.state.timeline.preloadedItems.length
+      ? controller.timeline.getPreloadedMonth()
+      : controller.timeline.getPreviousMonth()
   }
 
   render () {
@@ -148,7 +165,7 @@ class App extends React.Component {
                   name="timeline"
                   selectedTab={selectedTab}
                   column="sm-col-6"
-                  onClick={controller.view.toggleTab}
+                  onClick={this.handleTimelineTabItemClick}
                 >
                   {translate('aikajana')}
                 </TabItem>
