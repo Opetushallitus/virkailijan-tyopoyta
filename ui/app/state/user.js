@@ -1,22 +1,17 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
-import moment from 'moment'
 
-import categories from './categories'
-import userGroups from './userGroups'
-import tagGroups from './tagGroups'
-import targetingGroups from './targetingGroups'
-import notifications from './notifications/notifications'
-import specialNotifications from './notifications/specialNotifications'
-import timeline from './timeline'
+import translations from './translations'
 
-import getData from '../utils/getData'
+import getData from './utils/getData'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 
 function fetch () {
+  console.log('Fetching user info')
+
   getData({
     url: urls.login,
     requestOptions: {
@@ -30,25 +25,7 @@ function fetch () {
 function onReceived (state, response) {
   console.log('Received user', response)
 
-  const month = moment().format('M')
-  const year = moment().format('YYYY')
-
-  categories.fetch()
-  userGroups.fetch()
-  tagGroups.fetch()
-  targetingGroups.fetch()
-
-  specialNotifications.fetch()
-
-  notifications.fetch({
-    page: 1,
-    categories: response.profile.categories
-  })
-
-  timeline.fetch({
-    month,
-    year
-  })
+  translations.fetch(response.lang || state.defaultLocale)
 
   const draftKey = `${state.draftKey}${response.userId}`
   const draft = window.localStorage.getItem(draftKey) || response.draft
@@ -62,7 +39,16 @@ function onReceived (state, response) {
   )(state)
 }
 
-function onFetchFailed (state) {
+function onFetchFailed (state, error) {
+  console.log('Fetching user info failed')
+
+  // Redirect to login page if response is not JSON
+  if (error.toString().indexOf('SyntaxError') >= 0) {
+    window.location.replace(urls['cas.login'])
+
+    return state
+  }
+
   return R.compose(
     R.assocPath(['user', 'isLoading'], false),
     R.assocPath(['user', 'hasLoadingFailed'], true)

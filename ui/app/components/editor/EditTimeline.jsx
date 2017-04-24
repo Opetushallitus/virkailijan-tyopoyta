@@ -29,6 +29,7 @@ function EditTimeline (props) {
     <div>
       <h2 className="hide">{translate('aikajana')}</h2>
 
+      {/*Timeline items*/}
       {timeline.map((item, index) =>
         <EditTimelineItem
           key={`editTimelineItem${item.id}`}

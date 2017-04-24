@@ -5,8 +5,8 @@ import moment from 'moment'
 import view from './view'
 import notifications from './notifications/notifications'
 import editor from './editor/editor'
-import getData from '../utils/getData'
-import createAlert from '../utils/createAlert'
+import getData from './utils/getData'
+import createAlert from './utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
@@ -71,12 +71,25 @@ function onFetchFailed (state) {
   )(state)
 }
 
+function autoFetchNextMonth (state, timelineViewport, spinner) {
+  // Check if spinner is visible in the viewport
+  const offset = spinner.getBoundingClientRect()
+
+  const isSpinnerVisible = offset.bottom > 0 && offset.top < timelineViewport.clientHeight
+
+  if (isSpinnerVisible) {
+    getNextMonth(state)
+  }
+}
+
 function onItemRemoved (state, { result, nodeSelector, parentSelector }) {
   const alert = createAlert({
     variant: 'success',
     titleKey: 'tapahtumapoistettu'
   })
 
+  const timelineViewport = document.querySelector('.timeline-viewport')
+  const nextMonthSpinner = document.querySelector('.timeline-next-month-spinner')
   const node = document.querySelector(nodeSelector)
   const overlay = document.querySelector(`${nodeSelector}-overlay`)
   const parent = document.querySelector(parentSelector)
@@ -92,6 +105,8 @@ function onItemRemoved (state, { result, nodeSelector, parentSelector }) {
       } else {
         node.remove()
       }
+
+      autoFetchNextMonth(state, timelineViewport, nextMonthSpinner)
     }, 1000)
   } else {
     alert.variant = 'error'
@@ -131,7 +146,6 @@ function onCurrentMonthReceived (state, response) {
   return R.compose(
     R.assocPath(['timeline', 'items'], [currentMonthsVisibleDays]),
     R.assocPath(['timeline', 'preloadedItems'], [currentMonthsPastDays]),
-    R.assocPath(['timeline', 'count'], R.length(R.keys(currentAndComingDays))),
     R.assocPath(['timeline', 'isLoadingNext'], false)
   )(state)
 }
@@ -148,27 +162,20 @@ function onNewMonthReceived (state, options) {
   const firstMonth = R.head(timeline.items)
   const firstMonthMoment = moment(`${firstMonth.month}.${firstMonth.year}`, dateFormat)
 
-  const newCount = () => {
-    const count = R.length(R.keys(response.days)) || 1
-    return timeline.count + count
-  }
-
-  const newState = R.assocPath(['timeline', 'count'], newCount(), state)
-
   // Returned date is before first month and year - prepend new items to timeline.items
   if (requestedDateMoment.isBefore(firstMonthMoment)) {
     return R.compose(
       R.assocPath(['timeline', 'items'], R.prepend(response, timeline.items)),
       R.assocPath(['timeline', 'direction'], 'up'),
       R.assocPath(['timeline', 'isLoadingPrevious'], false)
-    )(newState)
+    )(state)
   } else {
     // Returned date is after last month and year - append new items to timeline.items
     return R.compose(
       R.assocPath(['timeline', 'items'], R.append(response, timeline.items)),
       R.assocPath(['timeline', 'direction'], 'down'),
       R.assocPath(['timeline', 'isLoadingNext'], false)
-    )(newState)
+    )(state)
   }
 }
 
@@ -309,12 +316,10 @@ function emptyTimeline () {
   return {
     items: [],
     preloadedItems: [],
-    count: 0,
     dateFormat: 'M.YYYY',
     isLoadingNext: false,
     isLoadingPrevious: false,
     isInitialLoad: true,
-    isRemovingItem: false,
     hasLoadingFailed: false
   }
 }

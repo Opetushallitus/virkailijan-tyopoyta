@@ -9,6 +9,7 @@ const defaultProps = {
   className: ''
 }
 
+// Uses Font Awesome icon classes
 function Icon (props) {
   const {
     name,

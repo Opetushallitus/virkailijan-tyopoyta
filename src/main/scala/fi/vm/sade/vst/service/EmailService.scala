@@ -2,9 +2,10 @@ package fi.vm.sade.vst.service
 
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
-import fi.vm.sade.vst.model.{EmailEvent, Release}
+import fi.vm.sade.vst.model.{UserInformation, JsonSupport, EmailEvent, Release}
 import fi.vm.sade.vst.module.RepositoryModule
 import fi.vm.sade.vst.security.{UserService, KayttooikeusService, RequestMethod, CasUtils}
+import fi.vm.sade.vst.util.IterableUtils
 import java.time.LocalDate
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
@@ -15,7 +16,8 @@ class EmailService(casUtils: CasUtils,
   extends RepositoryModule
   with GroupEmailComponent
   with Configuration
-  with JsonFormats {
+  with JsonFormats
+  with JsonSupport {
 
   sealed trait EmailEventType { val description: String }
   case object ImmediateEmail extends EmailEventType { val description = "Immediately sent email" }
@@ -23,53 +25,33 @@ class EmailService(casUtils: CasUtils,
   sealed case class UserOidEmail(userOid: String, email: String)
   sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
 
+  val groupTypeFilter = "yhteystietotyyppi2"
+  val contactTypeFilter = "YHTEYSTIETO_SAHKOPOSTI"
+
   lazy val emailConfiguration = new GroupEmailerSettings(config)
   lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
-//  lazy val groupEmailService: GroupEmailService = new FakeGroupEmailService
-  private def casClient = casUtils.serviceClient(emailConfig.serviceAddress)
+
   private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
+  private def userAccessService = casUtils.serviceClient(authenticationConfig.kayttooikeusUri)
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
-  private def parseLanguagesFromResponse(response: String): Map[String, Seq[String]] = {
+  private def parseUserInformationFromResponse(response: String): Seq[UserInformation] = {
     val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
-    val oidWithLanguages = json.map { value =>
-      val oid = (value \ "oidHenkilo").as[String]
-      val languages = (value \\ "kieliKoodi").map(_.as[String])
-      (oid, languages)
-    }
-    oidWithLanguages.toMap
+    val userInformation = json.flatMap(parseSingleUserInformation)
+    userInformation.toSeq
   }
 
-  private def parseOidAndEmailFromResponse(response: String): Seq[UserOidEmail] = {
-    Try(scala.xml.XML.loadString(response)) match {
-      case Success(s) =>
-        val rows = s \\ "rows"
-        rows.map { row =>
-          val oid = (row \ "henkiloOid").text
-          val email = (row \ "henkiloEmail").text
-          UserOidEmail(oid, email)
-        }
-      case Failure(f) =>
-        Seq.empty
-    }
+  private def parsePersonOidsFromResponse(response: String): Seq[String] = {
+    val json = Json.parse(response)
+    val personOids = (json \ "personOids").asOpt[Seq[String]].getOrElse(Seq.empty)
+    personOids
   }
 
-  private def parseResponse(resp: Try[String]): Seq[UserOidEmail] = {
+  private def parseUserOidsAndEmails(resp: Try[String]): Seq[UserInformation] = {
     resp match {
-      case Success(s) =>
-        parseOidAndEmailFromResponse(s).filter(oidAndEmail => oidAndEmail.userOid.nonEmpty && oidAndEmail.email.nonEmpty)
-      case Failure(f) =>
-        Seq.empty
-    }
-  }
-
-  private def parseUserLanguageInformation(resp: Try[String]): Map[String, Seq[String]] = {
-    resp match {
-      case Success(s) =>
-        parseLanguagesFromResponse(s)
-      case Failure(f) =>
-        Map.empty
+      case Success(s) => parseUserInformationFromResponse(s)
+      case Failure(f) => Seq.empty
     }
   }
 
@@ -84,8 +66,9 @@ class EmailService(casUtils: CasUtils,
 
   def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
     val userInfoToReleases = releases.flatMap { release =>
-      val oidsAndEmails = oidsAndEmailsForUserGroup(userGroupsForRelease(release))
-      val userInfo = filterUserInformation(userInformation(oidsAndEmails))
+      val userGroups = userGroupIdsForRelease(release)
+      val userInformation = basicUserInformationForUserGroups(userGroups)
+      val userInfo = filterUserInformation(userInformation)
       userInfo.map(_ -> release)
     }
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
@@ -107,7 +90,7 @@ class EmailService(casUtils: CasUtils,
     sendEmails(releases ++ previousDateReleases, TimedEmail)
   }
 
-  def formEmail(userInfo: BasicUserInformation, releases: Iterable[Release]): EmailMessage = {
+  private def formEmail(userInfo: BasicUserInformation, releases: Iterable[Release]): EmailMessage = {
     val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
     val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
     val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
@@ -122,51 +105,40 @@ class EmailService(casUtils: CasUtils,
     EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, language), html = true)
   }
 
-  def formRecipient(email: String): EmailRecipient = {
+  private def formRecipient(email: String): EmailRecipient = {
     EmailRecipient(email)
   }
 
-  def releaseEventExists(release: Release): Boolean = emailRepository.existsForRelease(release.id)
-
-  def userGroupsForRelease(release: Release): Seq[String] = {
+  private def userGroupIdsForRelease(release: Release): Seq[Long] = {
     val userGroups = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
-    accessService.appGroups.filter(appGroup => userGroups.contains(appGroup.id)).map(_.name)
+    accessService.appGroups.filter(appGroup => userGroups.contains(appGroup.id)).map(_.id)
   }
 
-  def oidsAndEmailsForUserGroup(userGroups: Seq[String]): Seq[UserOidEmail] = {
-    val userGroupsValues = userGroups.map(group => s""""$group"""").mkString(",")
-    val json = s"""{
-                 |  "searchTerms": {
-                 |	  "searchType": "EMAIL",
-                 |		"targetGroups": [{
-                 |		  "options": ["TUNNUKSENHALTIJAT"],
-                 |			"type": "KOULUTA_KAYTTAJAT"
-                 |		}],
-                 |		"terms": [{
-                 |		  "type": "koulutaRoolis",
-                 |			"values": [$userGroupsValues]
-                 |		}]
-                 |	}
-                 |}""".stripMargin
-    val body = Option(json)
-    val response = casClient.authenticatedRequest(s"${emailConfig.serviceAddress}/api/search/list.json?lang=fi", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
-    parseResponse(response)
+  private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
+    val response = userAccessService.authenticatedRequest(s"${authenticationConfig.kayttooikeusUri}/kayttooikeusryhma/$groupOid/henkilot", RequestMethod.GET)
+    response match {
+      case Success(s) => parsePersonOidsFromResponse(s)
+      case Failure(f) => Seq.empty
+    }
   }
 
-  private def userInformation(userOidAndEmail: Seq[UserOidEmail]): Seq[BasicUserInformation] = {
-    val formattedOids = userOidAndEmail.map { oidAndEmail => s""""${oidAndEmail.userOid}""""}
+  private def userInformationByOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
+    val formattedOids = oids.map { oid => s""""$oid""""}
     val json = s"""[${formattedOids.mkString(",")}]"""
     val body = Option(json)
-    val response = oppijanumeroRekisteri.authenticatedRequest(s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
-    val languages = parseUserLanguageInformation(response)
-    basicUserInformation(userOidAndEmail, languages)
+
+    val response = oppijanumeroRekisteri.authenticatedRequest(s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
+    val userInformation = parseUserOidsAndEmails(response)
+    for {
+      userInfo <- userInformation
+      contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
+      contactInfo <- contactGroups.yhteystieto.filter(_.yhteystietoTyyppi == contactTypeFilter)
+    } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
   }
 
-  private def basicUserInformation(userOidAndEmail: Seq[UserOidEmail], userLanguages: Map[String, Seq[String]]): Seq[BasicUserInformation] = {
-    userOidAndEmail.map { userInformation =>
-      val languages = userLanguages.getOrElse(userInformation.userOid, Seq.empty)
-      BasicUserInformation(userInformation.userOid, userInformation.email, languages)
-    }
+  private def basicUserInformationForUserGroups(userGroups: Seq[Long]): Seq[BasicUserInformation] = {
+    val personOids = userGroups.flatMap(personOidsForUserGroup).distinct
+    IterableUtils.mapToSplitted(450, personOids, userInformationByOids).toSeq
   }
 
   private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)

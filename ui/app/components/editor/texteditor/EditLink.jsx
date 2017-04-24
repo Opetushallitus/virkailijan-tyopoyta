@@ -34,6 +34,7 @@ class EditLink extends React.Component {
     this.props.confirmLink(this.state.url, this.props.selectedText)
   }
 
+  // Confirm link to Enter key press
   _onLinkInputKeyDown (event) {
     if (event.which === 13) {
       this.props.confirmLink(this.state.url, this.props.selectedText)

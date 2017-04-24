@@ -1,14 +1,16 @@
 package fi.vm.sade.vst.repository
 
-import fi.vm.sade.vst.DBConfig
+import fi.vm.sade.vst.{DBConfig, Logging}
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
+
 import scala.util.Random
 import scalikejdbc._
 import Tables._
 
-class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo {
-  val (r, n, c, nt, t, tg, tgc, tl, tc, cat, rc, ee, ug) = (
+class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo with Logging {
+
+  private val (r, n, c, nt, t, tg, tgc, tl, tc, cat, rc, ee, ug) = (
     ReleaseTable.syntax,
     NotificationTable.syntax,
     NotificationContentTable.syntax,
@@ -275,7 +277,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         n.releaseId -> releaseId,
         n.publishDate -> notification.publishDate,
         n.expiryDate -> notification.expiryDate,
-        n.createdBy -> s"${user.givenNames.head}${user.lastName.head}",
+        n.createdBy -> user.initials,
         n.createdAt -> LocalDate.now()
       )
     }.updateAndReturnGeneratedKey().apply()
@@ -303,10 +305,32 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
+  private def deleteNotificationTags(notificationId: Long, tags: Seq[Long])(implicit session: DBSession) = {
+    withSQL{
+      delete.from(NotificationTagTable as nt)
+        .where.eq(nt.notificationId, notificationId)
+        .and.in(nt.tagId, tags)
+    }.update().apply()
+  }
+
+  private def updateNotificationTags(notificationUpdate: NotificationUpdate)(implicit session: DBSession) = {
+
+    val currentTags = withSQL(
+      select.from(NotificationTagTable as nt).where.eq(nt.notificationId, notificationUpdate.id))
+      .map(NotificationTagTable(nt)).toList().apply().map(_.tagId)
+
+    val removed = currentTags.diff(notificationUpdate.tags)
+    val added = notificationUpdate.tags.diff(currentTags)
+
+    deleteNotificationTags(notificationUpdate.id, removed)
+    added.foreach(insertNotificationTags(notificationUpdate.id, _))
+  }
+
   private def addNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
       val notificationId: Long = insertNotification(releaseId, user, notification)
       notification.content.values.foreach(insertNotificationContent(notificationId, _))
       notification.tags.foreach(t => insertNotificationTags(notificationId, t))
+      AuditLog.auditCreateNotification(user, notificationId)
       notificationId
   }
 
@@ -331,9 +355,10 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update.apply()
   }
 
-  private def addTimelineItem(releaseId: Long, item: TimelineItem, notificationId: Option[Long])(implicit session: DBSession): Unit = {
+  private def addTimelineItem(user: User, releaseId: Long, item: TimelineItem)(implicit session: DBSession): Unit = {
       val itemId = insertTimelineItem(releaseId, item)
       item.content.values.foreach(insertTimelineContent(itemId, _))
+      AuditLog.auditCreateEvent(user, itemId)
   }
 
   private def insertReleaseCategories(releaseId: Long, categories: Seq[Long])(implicit session: DBSession): Unit = {
@@ -368,7 +393,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
-  private def updateReleaseUsergroups(releaseUpdate: ReleaseUpdate)(implicit session: DBSession) = {
+  private def updateReleaseUsergroups(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): Int = {
 
     val currentUsergroups = withSQL[ReleaseUserGroup](
       select.from(ReleaseUserGroupTable as ug).where.eq(ug.releaseId, releaseUpdate.id))
@@ -379,6 +404,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     deleteReleaseUsergroups(releaseUpdate.id, removed)
     insertReleaseUsergroups(releaseUpdate.id, added)
+
+    added.size + removed.size
   }
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup] = {
@@ -388,7 +415,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     userGroups.map(ReleaseUserGroupTable(ug)).toList.apply
   }
 
-  private def updateReleaseCategories(releaseUpdate: ReleaseUpdate)(implicit session: DBSession) = {
+  private def updateReleaseCategories(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): Int = {
 
     val existingCategories = withSQL[ReleaseCategory](
       select.from(ReleaseCategoryTable as rc).where.eq(rc.releaseId, releaseUpdate.id))
@@ -399,10 +426,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     deleteReleaseCategories(releaseUpdate.id, removed)
     insertReleaseCategories(releaseUpdate.id, added)
+
+    added.size + removed.size
   }
 
-  override def deleteNotification(notificationId: Long): Int = {
-    withSQL(update(NotificationTable as n).set(NotificationTable.column.deleted -> true).where.eq(n.id, notificationId)).update().apply()
+  def deleteNotification(user: User, notificationId: Long): Int = {
+    val count = withSQL(update(NotificationTable as n).set(NotificationTable.column.deleted -> true).where.eq(n.id, notificationId)).update().apply()
+    AuditLog.auditDeleteNotification(user, notificationId)
+    count
   }
 
   private def updateNotification(current: Notification, updated: NotificationUpdate, user: User): Unit = {
@@ -410,12 +441,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     withSQL{
       update(NotificationTable as n).set(column.publishDate -> updated.publishDate,
         column.expiryDate -> updated.expiryDate,
-        column.modifiedBy -> s"${user.givenNames.head}${user.lastName.head}",
+        column.modifiedBy -> user.initials,
         column.modifiedAt -> LocalDate.now()).where.eq(n.id, updated.id)
     }.update().apply()
 
     withSQL(delete.from(NotificationContentTable as c).where.eq(c.notificationId, current.id)).update().apply()
     updated.content.values.foreach(insertNotificationContent(current.id, _))
+    updateNotificationTags(updated)
+    AuditLog.auditUpdateNotification(user, updated.id)
   }
 
   private def insertOrUpdateNotification(releaseUpdate: ReleaseUpdate, user: User)(implicit session: DBSession) = {
@@ -423,48 +456,53 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     (currentNotification, releaseUpdate.notification) match {
       case (None, Some(n)) => addNotification(releaseUpdate.id, user, n)
-      case (Some(n), None) => deleteNotification(n.id)
+      case (Some(n), None) => deleteNotification(user, n.id)
       case (Some(current), Some(updated)) => updateNotification(current, updated, user)
       case _ => ()
     }
   }
 
-  private def deleteTimelineItems(deletedItems: Seq[TimelineItem])(implicit session: DBSession) = {
+  private def deleteTimelineItems(user: User, deletedItems: Seq[TimelineItem])(implicit session: DBSession) = {
     withSQL(delete.from(TimelineContentTable as tc).where.in(tc.timelineId, deletedItems.map(_.id))).update().apply()
     withSQL(delete.from(TimelineTable as tl).where.in(tl.id, deletedItems.map(_.id))).update().apply()
+    deletedItems.foreach(item => AuditLog.auditDeleteEvent(user, item.id))
   }
 
-  private def updateTimelineItem(item: TimelineItem)(implicit session: DBSession) = {
+  private def updateTimelineItem(user: User, item: TimelineItem)(implicit session: DBSession) = {
     val column = TimelineTable.column
     withSQL(update(TimelineTable as tl).set(column.date -> item.date).where.eq(tl.id, item.id)).update().apply()
     withSQL(delete.from(TimelineContentTable as tc).where.eq(tc.timelineId, item.id)).update().apply()
     item.content.values.foreach(insertTimelineContent(item.id, _))
+    AuditLog.auditUpdateEvent(user, item.id)
   }
 
-  private def updateReleaseTimeline(releaseUpdate: ReleaseUpdate)(implicit session: DBSession) = {
+  private def updateReleaseTimeline(user: User, releaseUpdate: ReleaseUpdate)(implicit session: DBSession) = {
     val currentTimeline: Seq[TimelineItem] = timelineForRelease(releaseUpdate.id)
 
     val newItems = releaseUpdate.timeline.filter(_.id < 0)
 
-    newItems.foreach(insertTimelineItem(releaseUpdate.id, _))
+    newItems.foreach{ item => addTimelineItem(user, releaseUpdate.id, item) }
 
     val deletedItems = currentTimeline.filter(item => !releaseUpdate.timeline.map(_.id).contains(item.id))
 
-    deleteTimelineItems(deletedItems)
+    deleteTimelineItems(user, deletedItems)
 
     val updatedItems = releaseUpdate.timeline.filter(_.id >= 0)
 
-    updatedItems.foreach(updateTimelineItem)
+    updatedItems.foreach(updateTimelineItem(user, _))
   }
-
 
   override def updateRelease(user: User, releaseUpdate: ReleaseUpdate): Option[Release] = {
     DB localTx { implicit session =>
 
-      updateReleaseCategories(releaseUpdate)
-      updateReleaseUsergroups(releaseUpdate)
+      val updatedCategories = updateReleaseCategories(releaseUpdate)
+      val updatedUserGroups = updateReleaseUsergroups(releaseUpdate)
       insertOrUpdateNotification(releaseUpdate, user)
-      updateReleaseTimeline(releaseUpdate)
+      updateReleaseTimeline(user, releaseUpdate)
+
+      if( updatedCategories + updatedUserGroups > 0){
+        AuditLog.auditUpdateRelease(user, releaseUpdate.id)
+      }
 
       findRelease(releaseUpdate.id)
     }
@@ -473,18 +511,20 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   override def addRelease(user: User, releaseUpdate: ReleaseUpdate): Option[Release] = {
     val id = DB localTx { implicit session =>
       val releaseId = insertRelease(releaseUpdate)
-      val notificationId = releaseUpdate.notification.map(addNotification(releaseId, user, _))
-      releaseUpdate.timeline.foreach(addTimelineItem(releaseId, _, notificationId))
+      releaseUpdate.notification.foreach(addNotification(releaseId, user, _))
+      releaseUpdate.timeline.foreach(addTimelineItem(user, releaseId, _))
       releaseId
     }
+    AuditLog.auditCreateRelease(user, id)
     release(id, user)
   }
 
-  override def deleteRelease(id: Long): Int = {
-    val r = ReleaseTable.column
-    DB localTx { implicit session =>
+  override def deleteRelease(user: User, id: Long): Int = {
+    val count = DB localTx { implicit session =>
       withSQL{update(ReleaseTable).set(ReleaseTable.column.deleted -> true)}.update().apply()
     }
+    AuditLog.auditDeleteRelease(user, id)
+    count
   }
 
   override def deleteTimelineItem(id: Long): Int = {
@@ -499,15 +539,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     releases.flatten
   }
 
+  //TODO: Separate test data generation to its own file
   // Some helper functions for release generation
   private def addNewRelease(release: Release): Long = {
     val releaseCol = ReleaseTable.column
-    val id: Long = withSQL {
+    withSQL {
       insert.into(ReleaseTable).namedValues(
         releaseCol.deleted -> release.deleted
       )
     }.updateAndReturnGeneratedKey.apply()
-    id
   }
   private def mockText: String = {
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +

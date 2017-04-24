@@ -151,7 +151,7 @@ trait JsonSupport {
 
    val userKayttooikeusryhmaReads: Reads[Kayttooikeusryhma] = (
     (JsPath \ "ryhmaId").read[Long] and
-    (JsPath \ "name").read[String] and
+    (JsPath \ "tehtavanimike").read[String] and
     (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
     Reads.pure(Seq.empty) and
     Reads.pure(Seq.empty)
@@ -223,6 +223,16 @@ trait JsonSupport {
       "data" -> group.data
     )
   }
+
+  implicit val userLanguageReads: Reads[UserLanguage] = Json.reads[UserLanguage]
+
+  implicit val userContactInformationReads: Reads[UserContactInformation] = Json.reads[UserContactInformation]
+
+  implicit val userContactInformationGroupReads: Reads[UserContactInformationGroup] = Json.reads[UserContactInformationGroup]
+
+  implicit val userInformationReads: Reads[UserInformation] = Json.reads[UserInformation]
+
+  def parseSingleUserInformation(jsonVal: JsValue): Option[UserInformation] = Json.fromJson(jsonVal)(userInformationReads).asOpt
 
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] ={
     val jsonVal = Json.parse(jsString)

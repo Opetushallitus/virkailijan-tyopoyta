@@ -43,10 +43,10 @@ class Collapse extends React.Component {
         <Button
           variants={['ghost']}
           className="regular py2 px0"
-          onClick={this.handleToggleButtonClick}
+          data-selenium-id={`${id}-button`}
           aria-controls={id}
           aria-expanded={this.state.isVisible}
-          data-selenium-id={`${id}-button`}
+          onClick={this.handleToggleButtonClick}
         >
           <span data-selenium-id={`${id}-title`}>{title}</span>
 

@@ -1,10 +1,4 @@
 import React, { PropTypes } from 'react'
-import R from 'ramda'
-
-// Data
-import roles from '../data/myroles.json'
-import translation from '../data/translation.json'
-import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 // Components
 import NotificationsMenu from './notifications/NotificationsMenu'
@@ -26,77 +20,12 @@ const propTypes = {
 }
 
 class App extends React.Component {
-  constructor (props) {
-    super(props)
-
-    this.getRoles()
-  }
-
-  getRoles () {
-    window.fetch(urls['cas.myroles'],
-      {
-        credentials: 'include'
-      })
-      .then(response => response.json())
-      .then(roles => {
-        this.setState({
-          roles: roles
-        })
-        if (roles) {
-          window.myroles = roles
-          this.getTranslate()
-        }
-      })
-      .catch(() => {
-        if (window.location.host.indexOf('localhost') === 0 || window.location.host.indexOf('10.0.2.2') === 0) { // dev mode (copypaste from upper)
-          this.setState({roles})
-          if (roles) {
-            this.getTranslate()
-          }
-        } else { // real usage
-          if (window.location.href.indexOf('ticket=') > 0) { // to prevent strange cyclic cas login problems (atm related to sticky sessions)
-            window.alert('Problems with login, please reload page or log out and try again')
-          } else {
-            window.location.href = urls['cas.login'] + window.location.href
-          }
-        }
-      })
-  }
-
-  getTranslate () {
-    let lang = 'fi'
-
-    for (let i = 0; i < this.state.roles.length; i++) {
-      if (this.state.roles[i].indexOf('LANG_') === 0) {
-        lang = this.state.roles[i].substring(5)
-      }
+  componentDidUpdate (prevProps) {
+    // Update when translations are received
+    if (prevProps.state.translations.items !== this.props.state.translations.items) {
+      setTranslations(this.props.state.translations.items)
+      this.forceUpdate()
     }
-
-    window.fetch(urls['lokalisointi.localisation'] + lang, {
-      credentials: 'include'
-    })
-      .then(response => response.json)
-      .then(data => {
-        let json = data
-
-        if (!R.is(Array, data)) {
-          json = translation
-        }
-
-        setTranslations(json)
-      })
-      .catch(() => {
-        if (window.location.host.indexOf('localhost') === 0 || window.location.host.indexOf('10.0.2.2') === 0) { // dev mode (copypaste from upper)
-          setTranslations(translation)
-        } else { // real usage
-          if (window.location.href.indexOf('ticket=') > 0) { // to prevent strange cyclic cas login problems (atm related to sticky sessions)
-            window.alert('Problems with login, please reload page or log out and try again')
-          } else {
-            window.location.href = urls['cas.login'] + window.location.href
-          }
-        }
-      })
-      .then(() => { this.forceUpdate() })
   }
 
   render () {
@@ -160,6 +89,7 @@ class App extends React.Component {
             >
               <UnpublishedNotifications
                 controller={controller.unpublishedNotifications}
+                defaultLocale={state.defaultLocale}
                 locale={state.user.lang}
                 notifications={state.unpublishedNotifications}
               />
@@ -167,7 +97,7 @@ class App extends React.Component {
             : null
         }
 
-        {/*Content*/}
+        {/*Content, hidden if login has failed*/}
         <div className={`container ${state.user.hasLoadingFailed ? 'display-none' : ''}`} data-selenium-id="container">
           {/*Alerts*/}
           <div className="alert-container col-12 md-col-6 lg-col-4 px2" data-selenium-id="alert-container">
@@ -184,8 +114,9 @@ class App extends React.Component {
             )}
           </div>
 
+          {/*Spinner to display while login or fetching translations is in process*/}
           {
-            state.user.isLoading
+            state.user.isLoading || state.translations.isLoading
               ? <div className="py3">
                 <Delay time={1000}>
                   <Spinner isVisible />
@@ -194,7 +125,13 @@ class App extends React.Component {
               : null
           }
 
-          <div className={`flex flex-wrap col-12 ${state.user.isLoading ? 'display-none' : ''}`}>
+          {/*Hidden while login or fetching translations is in process*/}
+          <div
+            className={
+              `flex flex-wrap col-12
+              ${state.user.isLoading || state.translations.isLoading ? 'display-none' : ''}`
+            }
+          >
             {/*Notification/timeline view selection for small screens*/}
             <div className="col-12 mt3 md-hide lg-hide">
               <Tabs>
@@ -220,10 +157,9 @@ class App extends React.Component {
 
             {/*Notifications*/}
             <section
-              ref={notifications => (this.notifications = notifications)}
               className={`col-12 md-col-7 md-pr2 ${selectedTab === 'notifications' ? 'block' : 'xs-hide sm-hide'}`}
             >
-              {/*Menu*/}
+              {/*Menu, displayed only for admin users*/}
               {
                 state.user.isAdmin
                   ? <NotificationsMenu controller={controller} draft={state.draft} />
@@ -244,7 +180,9 @@ class App extends React.Component {
             </section>
 
             {/*Timeline*/}
-            <section className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}>
+            <section
+              className={`col-12 md-col-5 relative mt1 ${selectedTab === 'timeline' ? 'block' : 'xs-hide sm-hide'}`}
+            >
               <Timeline
                 controller={controller.timeline}
                 defaultLocale={state.defaultLocale}

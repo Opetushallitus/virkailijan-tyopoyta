@@ -82,11 +82,13 @@ function TimelineItem (props) {
     onEditButtonClick(releaseId)
   }
 
+  // Hide remove button and display confirmation on remove button click
   const handleRemoveButtonClick = () => {
     document.querySelector(removeButtonSelector).classList.add('display-none')
     document.querySelector(removeContainerSelector).classList.remove('display-none')
   }
 
+  // Overlay timeline item on confirm remove button click
   const handleConfirmRemoveButtonClick = () => {
     document.querySelector(`#${htmlId}`).style.opacity = 0.3
     document.querySelector(overlaySelector).classList.remove('display-none')
@@ -94,6 +96,7 @@ function TimelineItem (props) {
     onConfirmRemoveButtonClick(id, `#${htmlId}`, `#${dayId}`)
   }
 
+  // Hide confirmation and display remove button on cancel button click
   const handleCancelRemoveButtonClick = () => {
     document.querySelector(removeButtonSelector).classList.remove('display-none')
     document.querySelector(removeContainerSelector).classList.add('display-none')
@@ -102,6 +105,7 @@ function TimelineItem (props) {
 
   return (
     <div className="timeline-item-container">
+      {/*Display overlay when removing*/}
       {
         user.isAdmin
           ? <div id={`${htmlId}-overlay`} className="display-none">

@@ -3,8 +3,8 @@
   position: fixed;
   bottom: 0;
   left: 50%;
-  max-width: calc(var(--container-width / 2));
+  z-index: var(--z2);
+  max-width: calc(var(--container-width) / 2);
   /*Center fixed container vertically*/
   transform: translateX(-50%);
-  z-index: var(--z2);
 }

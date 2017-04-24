@@ -5,6 +5,7 @@ const propTypes = {
   children: PropTypes.node.isRequired
 }
 
+// Displays children after a period of time
 class Delay extends React.Component {
   constructor (props) {
     super(props)

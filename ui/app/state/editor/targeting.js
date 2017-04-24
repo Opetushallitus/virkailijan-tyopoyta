@@ -3,7 +3,7 @@ import R from 'ramda'
 import editor from './editor'
 import targetingGroups from '../targetingGroups'
 import { validate, rules } from './validation'
-import getData from '../../utils/getData'
+import getData from '../utils/getData'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 function update (state, { prop, value }) {
@@ -22,7 +22,7 @@ function update (state, { prop, value }) {
     rules(newState)['release']
   )
 
-  return editor.saveDraft(R.assocPath(path, validatedRelease, state))
+  return R.assocPath(path, validatedRelease, state)
 }
 
 function toggleTargetingGroup (state, id) {
@@ -110,14 +110,14 @@ function removeSelectedTags (state, categoryId) {
   const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
   const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
 
-  return editor.saveDraft(R.assocPath(
+  return R.assocPath(
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
       rules(newState)['release']
     ),
     newState
-  ))
+  )
 }
 
 function toggleTag (state, id) {
@@ -130,14 +130,14 @@ function toggleTag (state, id) {
 
   const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
 
-  return editor.saveDraft(R.assocPath(
+  return R.assocPath(
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
       rules(newState)['release']
     ),
     newState
-  ))
+  )
 }
 
 function toggleSendEmail (state, value) {

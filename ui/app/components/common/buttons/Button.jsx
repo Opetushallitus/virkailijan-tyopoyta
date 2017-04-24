@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react'
 
 import Delay from '../Delay'
 import Spinner from '../Spinner'
+import getVariantsString from '../../utils/getVariantsString'
 
 const propTypes = {
   variants: PropTypes.array,
@@ -32,18 +33,14 @@ function Button (props) {
     <button
       className={`
         oph-button ${activeClass} ${className}
-        ${variants.map(variant => `oph-button-${variant}`).join(' ')}
+        ${getVariantsString('button', variants)}
       `}
       type="button"
       {...rest}
     >
       {isLoading
         ? <Delay time={1000}>
-          <Spinner
-            variant="in-button"
-            isVisible
-            delay=""
-          />
+          <Spinner variant="in-button" isVisible />
         </Delay>
         : null
       }

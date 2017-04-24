@@ -32,6 +32,12 @@ const defaultProps = {
   controls: []
 }
 
+// Polyfill for String.startsWith
+function startsWith (url, searchString, position) {
+  position = position || 0
+  return url.substr(position, searchString.length) === searchString
+}
+
 function findLinkEntities (contentBlock, callback) {
   contentBlock.findEntityRanges(
     character => {
@@ -68,21 +74,24 @@ class TextEditor extends React.Component {
     ])
 
     this.state = {
-      editorState: EditorState.createWithContent(convertFromHTML({ htmlToEntity })(this.props.data), decorator),
+      editorState: EditorState.createWithContent(
+        convertFromHTML({ htmlToEntity })(this.props.data),
+        decorator
+      ),
       showURLInput: false
     }
 
     this.focus = () => this.editor.focus()
 
-    this.onChange = (editorState) => {
-      this.setState({editorState})
+    this.onChange = editorState => {
+      this.setState({ editorState })
     }
 
-    this.handleKeyCommand = (command) => this._handleKeyCommand(command)
-    this.onTab = (e) => this._onTab(e)
-    this.toggleBlockType = (type) => this._toggleBlockType(type)
-    this.toggleInlineStyle = (style) => this._toggleInlineStyle(style)
-    this.onURLChange = (e) => this.setState({urlValue: e.target.value})
+    this.handleKeyCommand = command => this._handleKeyCommand(command)
+    this.onTab = e => this._onTab(e)
+    this.toggleBlockType = type => this._toggleBlockType(type)
+    this.toggleInlineStyle = style => this._toggleInlineStyle(style)
+    this.onURLChange = e => this.setState({ urlValue: e.target.value })
 
     this.promptForLink = this._promptForLink.bind(this)
     this.confirmLink = this._confirmLink.bind(this)
@@ -91,7 +100,7 @@ class TextEditor extends React.Component {
     this.getSelectedText = this._getSelectedText.bind(this)
   }
 
-  _save () {
+  _save (editorState) {
     const content = this.state.editorState.getCurrentContent()
 
     const plainText = content.getPlainText()
@@ -116,10 +125,12 @@ class TextEditor extends React.Component {
   _handleKeyCommand (command) {
     const {editorState} = this.state
     const newState = RichUtils.handleKeyCommand(editorState, command)
+
     if (newState) {
       this.onChange(newState)
       return true
     }
+
     return false
   }
 
@@ -135,6 +146,11 @@ class TextEditor extends React.Component {
         blockType
       )
     )
+
+    // Save after timeout, otherwise updating the content's styling won't work properly
+    setTimeout(() => {
+      this.save()
+    }, 0)
   }
 
   _toggleInlineStyle (inlineStyle) {
@@ -144,6 +160,11 @@ class TextEditor extends React.Component {
         inlineStyle
       )
     )
+
+    // Save after timeout, otherwise updating the content's styling won't work properly
+    setTimeout(() => {
+      this.save()
+    }, 0)
   }
 
   _promptForLink (e) {
@@ -175,7 +196,8 @@ class TextEditor extends React.Component {
   }
 
   _confirmLink (url, text) {
-    const urlWithHttp = url.startsWith('http://') || url.startsWith('https://')
+    // Enforce http:// prefix for link URLs
+    const urlWithHttp = startsWith(url, 'http://') || startsWith(url, 'https://')
       ? url
       : `http://${url.replace('http://', '')}`
 
@@ -265,10 +287,9 @@ class TextEditor extends React.Component {
       editorState
     } = this.state
 
-    // If the user changes block type before entering any text, we can
-    // either style the placeholder or hide it. Let's just hide it now.
     let className = 'RichEditor-editor'
     let contentState = editorState.getCurrentContent()
+
     if (!contentState.hasText()) {
       if (contentState.getBlockMap().first().getType() !== 'unstyled') {
         className += ' RichEditor-hidePlaceholder'
@@ -277,6 +298,8 @@ class TextEditor extends React.Component {
 
     let selection = editorState.getSelection()
     let entity = this._getEntityAtCursor(editorState)
+
+    // Link can be edited if cursor is on one
     let isCursorOnLink = (entity !== null && entity.type === 'LINK')
 
     const selectedText = this.getSelectedText(selection)
@@ -285,6 +308,7 @@ class TextEditor extends React.Component {
     return (
       <div className={`RichEditor-root ${this.state.showURLInput ? 'editor-has-link-form' : ''}`}>
         <div className="RichEditor-controls-container">
+          {/*Button for styling the content*/}
           <InlineStyleControls
             controls={controls}
             currentStyle={editorState.getCurrentInlineStyle()}
@@ -297,6 +321,8 @@ class TextEditor extends React.Component {
             onClick={this.toggleBlockType}
           />
 
+          {/*Edit link*/}
+          {/*Disabled if cursor is not on a link or no text is selected*/}
           <IconButton
             id="RichEditor-edit-link-button"
             title={isCursorOnLink ? translate('muokkaalinkki') : translate('lisaalinkki')}
@@ -306,6 +332,8 @@ class TextEditor extends React.Component {
             onClick={this.promptForLink}
           />
 
+          {/*Remove link*/}
+          {/*Disabled if cursor is not on a link*/}
           <IconButton
             id="RichEditor-remove-link-button"
             title={translate('poistalinkki')}
@@ -326,6 +354,7 @@ class TextEditor extends React.Component {
             />
           </div>
 
+          {/*Form for editing the link*/}
           {this.state.showURLInput
             ? <EditLink
               url={R.pathOr('', ['data', 'url'], entity)}

@@ -17,16 +17,23 @@ ldap.user.password={{ldap_manager_password}}
 
 #DB
 db.type=postgresql
+db.postgresql.driver=org.postgresql.Driver
 db.postgresql.uri={{virkailijan_tyopoyta_db_uri}}
 db.postgresql.username={{virkailijan_tyopoyta_db_username}}
 db.postgresql.password={{virkailijan_tyopoyta_db_password}}
 
+db.pool.poolInitialSize=5
+db.pool.poolMaxSize=7
+db.pool.poolConnectionTimeoutMillis=1000
+db.pool.poolValidationQuery=select 1 as one
+
+db.page.length=50
 
 #Ryhmäsähköposti
 ryhmasahkoposti.cas.service = https://{{host_virkailija}}/ryhmasahkoposti-service
-ryhmasahkoposti.service = https://{{host_virkailija}}/ryhmasahkoposti-service/email
-
-osoitepalvelu.service = https://{{host_virkailija}}/osoitekoostepalvelu
+ryhmasahkoposti.service.email.url = https://{{host_virkailija}}/ryhmasahkoposti-service/email
+ryhmasahkoposti.service.batch.size = 500
+ryhmasahkoposti.rest.url=https://{{host_virkailija}}/ryhmasahkoposti-service/email
 
 oph.logo.url = http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif
 

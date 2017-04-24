@@ -1470,5 +1470,15 @@
     "locale": "fi",
     "key": "kohderyhmavalintojenhakuepaonnistui",
     "value": "Kohderyhmävalintojen haku epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "sahkopostilahetetty",
+    "value": "Sähköposti lähetetty"
+  },
+  {
+    "locale": "fi",
+    "key": "sahkopostinlahetysepaonnistui",
+    "value": "Sähköpostin lähetys epäonnistui"
   }
 ]

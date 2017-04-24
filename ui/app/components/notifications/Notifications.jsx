@@ -6,7 +6,6 @@ import R from 'ramda'
 import Notification from './Notification'
 import NotificationTagSelect from './NotificationTagSelect'
 import NotificationCategoryCheckboxes from './NotificationCategoryCheckboxes'
-import Collapse from '../common/Collapse'
 import Delay from '../common/Delay'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
@@ -40,6 +39,10 @@ class Notifications extends React.Component {
       .onValue(() => this.autoLoadNotifications())
   }
 
+  /*
+    Get next page after update if placeholder is present and visible, i.e. when deleting notifications
+    or when using the app on large displays
+  */
   componentDidUpdate () {
     if (this.placeholderNotification) {
       this.autoLoadNotifications()
@@ -52,7 +55,7 @@ class Notifications extends React.Component {
       isLoading
     } = this.props.notifications
 
-    // Check if a new page is already being loaded
+    // Check if a new page is already being fetched
     if (isLoading) {
       return
     }
@@ -67,6 +70,7 @@ class Notifications extends React.Component {
       return
     }
 
+    // Check if placeholder is visible in the viewport
     const offset = this.placeholderNotification.getBoundingClientRect()
 
     const isPlaceholderVisible = offset.bottom > 0 &&
@@ -77,6 +81,7 @@ class Notifications extends React.Component {
     }
   }
 
+  // Check if there are more notifications to fetch: count on list >= total count of found notifications
   isLastPageLoaded () {
     const {
       items,
@@ -97,12 +102,6 @@ class Notifications extends React.Component {
       categories
     } = this.props
 
-    const getNotificationSelectedCategoriesString = categoriesAmount => {
-      return categoriesAmount === 0
-        ? translate('eirajoituksia')
-        : categoriesAmount
-    }
-
     return (
       <div data-selenium-id="notifications">
         <h2 className="hide">{translate('tiedotteet')}</h2>
@@ -119,23 +118,18 @@ class Notifications extends React.Component {
 
         {/*Filter notifications by categories*/}
         <div data-selenium-id="notification-categories">
-          <Collapse
-            id="notification-categories-collapse"
-            title={
-              `${translate('rajoitanakyviatiedotteita')}
-              (${getNotificationSelectedCategoriesString(notifications.categories.length)})`
-            }
+          <NotificationCategoryCheckboxes
+            controller={controller}
+            categories={categories}
+            selectedCategories={notifications.categories}
             isVisible={R.path(['profile', 'firstLogin'], user)}
-          >
-            <NotificationCategoryCheckboxes
-              controller={controller}
-              categories={categories}
-              selectedCategories={notifications.categories}
-            />
-          </Collapse>
+          />
         </div>
 
         {/*Notifications list*/}
+
+        {/*Display "No notifications" text when there are no regular/special notifications*/}
+        {/*and no selected tags or categories*/}
         {
           !notifications.hasLoadingFailed &&
           !notifications.isLoading &&
@@ -147,6 +141,7 @@ class Notifications extends React.Component {
             : null
         }
 
+        {/*Display spinner when notifications or special notifications are being fetched*/}
         {
           (notifications.isLoading && notifications.count === 0) ||
            specialNotifications.isLoading
@@ -190,6 +185,8 @@ class Notifications extends React.Component {
             : null
         }
 
+        {/*Display "No notifications for search terms when there are no regular notifications*/}
+        {/*and user has selected tags or categories*/}
         {
           !notifications.hasLoadingFailed &&
           !notifications.isLoading &&
@@ -216,6 +213,7 @@ class Notifications extends React.Component {
                 />
               )}
 
+              {/*Display placeholder and spinner when there are more notifications to fetch*/}
               {
                 this.isLastPageLoaded()
                   ? null

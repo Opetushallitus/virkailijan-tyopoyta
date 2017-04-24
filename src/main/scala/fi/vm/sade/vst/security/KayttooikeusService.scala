@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 import fi.vm.sade.vst.repository.ReleaseRepository
 
+import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
 class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository) extends JsonSupport{
@@ -14,33 +15,38 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
 
   def appGroups: Seq[Kayttooikeusryhma] = groups.get
 
-  private def parseResponse(resp: Try[String], forUser: Boolean): Seq[Kayttooikeusryhma] = {
+  private def parseResponse(resp: Try[String], forUser: Boolean = false): Seq[Kayttooikeusryhma] = {
     resp match {
       case Success(s) => parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
       case Failure(e) => List.empty
     }
   }
 
-  private def rightsForGroup(group: Kayttooikeusryhma): Seq[String] = {
-    val rightsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/${group.id}/kayttooikeus", RequestMethod.GET)
+  private def getGroupsWithRole(role: String): Seq[Kayttooikeusryhma] = {
+    val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
+    val body = Option(json)
 
-    val rights = rightsResponse match {
-      case Success(s) => parseKayttooikedet(s).getOrElse(List.empty)
-      case Failure(e) => List.empty
-    }
+    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/ryhmasByKayttooikeus",
+      RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
 
-    rights.filter(r => r.palveluName == "VIRKAILIJANTYOPOYTA").map(r => s"APP_${r.palveluName}_${r.role}")
+    parseResponse(resp)
   }
 
-  private def filterUserGroups(groups: Seq[Kayttooikeusryhma]): Seq[Kayttooikeusryhma] = {
-    val categories = releaseRepository.serviceCategories
-    groups.map(g => {
-      val rights = rightsForGroup(g)
+  private def getServiceGroups: Seq[Kayttooikeusryhma] = {
 
+    val appCategories = releaseRepository.serviceCategories
+    val roles = List("CRUD", "MUUT", "2ASTE", "KK", "PERUS")
+
+    val roleMap: Map[String, Seq[Kayttooikeusryhma]] = roles.map(role => (s"APP_VIRKAILIJANTYOPOYTA_$role", getGroupsWithRole(role))).toMap
+    val groups: Seq[Kayttooikeusryhma] = roleMap.values.flatten.toSet.toList
+
+    groups.map(g => {
+      val rolesForGroup = roleMap.filter(_._2.contains(g)).keys.toList
       g.copy(
-        roles = rights,
-        categories = categories.filter(c => rights.contains(c.role)).map(_.id))
-    }).filter(_.roles.nonEmpty)
+        roles = rolesForGroup,
+        categories = appCategories.filter(c => rolesForGroup.contains(c.role)).map(_.id)
+      )
+    })
   }
 
   def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
@@ -48,18 +54,13 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     if(isAdmin) appGroups else {
       val groupsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/henkilo/$oid", RequestMethod.GET)
 
-      val userRights = parseResponse(groupsResponse, forUser = true)
+      val groupsForUser = parseResponse(groupsResponse, forUser = true)
 
-      appGroups.toSet.intersect(userRights.toSet).toList
+      appGroups.filter(g => groupsForUser.map(_.id).contains(g.id))
     }
   }
 
-  def fetchServiceUsergroups: Seq[Kayttooikeusryhma] = {
-    val koResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/", RequestMethod.GET)
-    filterUserGroups(parseResponse(koResponse, forUser = false))
-  }
-
-  def sortedUserGroups: Seq[Kayttooikeusryhma] = fetchServiceUsergroups.sortBy(_.id)
+  def sortedUserGroups: Seq[Kayttooikeusryhma] = getServiceGroups.sortBy(_.id)
 
   def updateApplicationGroups(): Unit = {
     groups.set(sortedUserGroups)

@@ -20,18 +20,18 @@ class Timeline extends React.Component {
   constructor (props) {
     super(props)
 
-    this.loadTimeline = this.loadTimeline.bind(this)
+    this.fetchTimeline = this.fetchTimeline.bind(this)
     this.moveTimeline = this.moveTimeline.bind(this)
   }
 
   componentDidMount () {
     const body = document.body
 
-    // Load next or previous month when scrolling the timeline
+    // Fetch next or previous month when scrolling the timeline
     Bacon
       .fromEvent(this.timelineViewport, 'scroll')
       .debounce(100)
-      .onValue(event => this.loadTimeline(event))
+      .onValue(event => this.fetchTimeline(event))
 
     // Keep timeline in viewport when scrolling the page
     Bacon
@@ -61,7 +61,7 @@ class Timeline extends React.Component {
       })
   }
 
-  // Only update if timeline items have changed or loading has failed
+  // Only update if timeline items have changed or fetch has failed
   shouldComponentUpdate (nextProps, nextState) {
     const newTimeline = nextProps.timeline
     const timeline = this.props.timeline
@@ -73,24 +73,26 @@ class Timeline extends React.Component {
   componentDidUpdate () {
     const timeline = this.props.timeline
 
+    // If fetching new items fails, block new fetches
     if (timeline.hasLoadingFailed) {
       return
     }
 
-    // Scroll to first month on initial load and after user scrolls to the previous month
+    // Scroll to first month after initial fetch and after user scrolls to the previous month
     if (timeline.items.length === 1 || timeline.direction === 'up') {
       this.timelineViewport.scrollTop = this.months.offsetTop
     }
 
-    // Automatically load next months until items fill the whole timeline node
+    // Automatically fetch next months until items fill the whole timeline node
     if (this.months.clientHeight < this.timeline.clientHeight) {
       this.props.controller.getNextMonth()
     }
   }
 
-  loadTimeline (event) {
+  fetchTimeline (event) {
     const node = event.target
 
+    // If fetching new items fails, block new fetches
     if (this.props.timeline.hasLoadingFailed) {
       return
     }
@@ -108,10 +110,12 @@ class Timeline extends React.Component {
     }
   }
 
+  // Move timeline in viewport
   moveTimeline () {
     const virkailijaRaamit = document.querySelector('header')
     const virkailijaRaamitHeight = virkailijaRaamit ? virkailijaRaamit.clientHeight : 0
 
+    // Adjust height based on Raamit component's height and depending if user has scrolled past it
     if (window.pageYOffset > virkailijaRaamitHeight) {
       this.timelineViewport.style.top = `${window.pageYOffset - virkailijaRaamitHeight}px`
       this.timelineViewport.style.height = '95vh'
@@ -144,9 +148,10 @@ class Timeline extends React.Component {
           ref={timelineViewport => (this.timelineViewport = timelineViewport)}
           className="timeline-viewport"
         >
+          {/*Visually hidden heading*/}
           <h2 className="hide">{translate('tapahtumatalkaen')} {currentDate}</h2>
 
-          {/*Visually hidden button for loading the previous month*/}
+          {/*Visually hidden button for fetching the previous month*/}
           <button
             className="hide"
             type="button"
@@ -155,6 +160,7 @@ class Timeline extends React.Component {
             {translate('naytaedellinenkuukausi')}
           </button>
 
+          {/*Timeline*/}
           <div ref={timeline => (this.timeline = timeline)} className="timeline relative">
             <div className="timeline-line sm-center md-left-align lg-center my3">
               <Spinner isVisible={!hasLoadingFailed} />
@@ -191,7 +197,7 @@ class Timeline extends React.Component {
                 </div>
               )}
 
-              {/*Visually hidden button for loading the next month*/}
+              {/*Visually hidden button for fetching the next month*/}
               <button
                 className="hide"
                 type="button"
@@ -201,7 +207,7 @@ class Timeline extends React.Component {
               </button>
 
               <div
-                className={`py3 ${isInitialLoad ? 'display-none' : ''}`}
+                className={`timeline-next-month-spinner py3 ${isInitialLoad ? 'display-none' : ''}`}
                 ref={nextMonthSpinner => (this.nextMonthSpinner = nextMonthSpinner)}
               >
                 <Spinner isVisible={!hasLoadingFailed} />

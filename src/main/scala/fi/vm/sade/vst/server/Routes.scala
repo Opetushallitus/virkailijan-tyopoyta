@@ -10,6 +10,7 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
+import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate, User}
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.{KayttooikeusService, UserService}
@@ -30,14 +31,18 @@ class Routes(authenticationService: UserService,
              userService: UserService,
              sessionConfig: SessionConfig)
   extends Directives
-  with JsonSupport {
+  with JsonSupport with Logging {
 
   implicit val sessionManager = new SessionManager[String](sessionConfig)
+
+  implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[String] {
+    override def log(msg: String): Unit = ()
+  }
 
   def authenticateUser(ticket: String): Route = {
     userService.authenticate(ticket) match {
     case Some((uid, user)) =>
-      setSession(oneOff, usingCookies, uid) {
+      setSession(refreshable, usingCookies, uid) {
         ctx => ctx.complete(serialize(user))
       }
     case None => complete(StatusCodes.Unauthorized)
@@ -50,9 +55,7 @@ class Routes(authenticationService: UserService,
           HttpResponse(entity = HttpEntity(`application/json`, Json.toJson(result).toString()))
         }
       case Failure(e) ⇒
-        println(s"Exception in route execution")
-        println(s"${e.getLocalizedMessage}")
-        println(e)
+        logger.error(s"Exception in route execution", e)
         complete(StatusCodes.InternalServerError, e.getMessage)
     }
   }
@@ -69,19 +72,17 @@ class Routes(authenticationService: UserService,
           HttpResponse(entity = HttpEntity(`text/html(UTF-8)`, result.toString))
         }
       case Failure(e) ⇒
-        println(s"Exception in route execution")
-        println(s"${e.getLocalizedMessage}")
-        println(e)
+        logger.error(s"Exception in route execution", e)
         complete(ToResponseMarshallable(s"Error: $e"))
     }
   }
 
-  def sendInstantEmails(release: Release, releaseUpdate: ReleaseUpdate) = {
+  def sendInstantEmails(release: Release, releaseUpdate: ReleaseUpdate): Release = {
     if (releaseUpdate.notification.exists(_.sendEmail)) emailService.sendEmails(Vector(release), emailService.ImmediateEmail)
     release
   }
 
-  def withUser: Directive1[User] = requiredSession(oneOff, usingCookies).flatMap {
+  def withUser: Directive1[User] = requiredSession(refreshable, usingCookies).flatMap {
     uid =>
       userService.findUser(uid) match {
         case Success(user) => provide(user)
@@ -98,7 +99,7 @@ class Routes(authenticationService: UserService,
     val notificationValid: Boolean= release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
     val timelineValid: Boolean = release.timeline.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
 
-    if(!notificationValid || !timelineValid) println("Invalid html content!")
+    if(!notificationValid || !timelineValid) logger.error("Invalid html content!")
 
     notificationValid && timelineValid
   }
@@ -126,9 +127,9 @@ class Routes(authenticationService: UserService,
               val release = parseReleaseUpdate(json)
               release match {
                 case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.addRelease(user, r).map(
-                  release => {
-                    sendInstantEmails(release, r)
+                  added => {
                     userService.deleteDraft(user)
+                    added.id
                   })))
                 case None => complete(StatusCodes.BadRequest)
               }
@@ -140,7 +141,11 @@ class Routes(authenticationService: UserService,
             entity(as[String]) { json =>
               val release = parseReleaseUpdate(json)
               release match {
-                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(release => sendInstantEmails(release, r))))
+                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(
+                  added => {
+                    userService.deleteDraft(user)
+                    added.id
+                  })))
                 case None => complete(StatusCodes.BadRequest)
               }
             }
@@ -175,7 +180,7 @@ class Routes(authenticationService: UserService,
             }
           } ~
           delete{
-            path(IntNumber){ id => sendResponse(Future(releaseRepository.deleteNotification(id)))}
+            path(IntNumber){ id => sendResponse(Future(releaseRepository.deleteNotification(user, id)))}
           }
         }
       }
@@ -260,7 +265,7 @@ class Routes(authenticationService: UserService,
     }
   }
 
-  val emailRoutes: Route = requiredSession(oneOff, usingCookies) {uid =>
+  val emailRoutes: Route = withAdminUser {user =>
     get {
       path("emailLogs") {
         sendResponse(Future(releaseRepository.emailLogs))
@@ -291,6 +296,17 @@ class Routes(authenticationService: UserService,
           }
         }
     }
+    post {
+      pathPrefix("email") {
+        path(IntNumber) { releaseId =>
+          val release = releaseRepository.release(releaseId, user)
+          release match{
+            case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+            case None => complete(StatusCodes.BadRequest)
+          }
+        }
+      }
+    }
   }
 
 //  val devRoutes: Route = {
@@ -309,13 +325,10 @@ class Routes(authenticationService: UserService,
     pathPrefix("virkailijan-tyopoyta") {
       get {
         path("login") {
-          optionalSession(oneOff, usingCookies) {
-            case Some(uid) => sendResponse(
-              Future(userService.findUser(uid)).flatMap{
-                case Success(u) => Future.successful(u)
-                case Failure(e) => Future.failed(e)
-              }
-            )
+          optionalSession(refreshable, usingCookies) {
+            case Some(uid) =>
+              invalidateSession(refreshable, usingCookies)
+              redirect(userService.loginUrl, StatusCodes.Found)
             case None => redirect(userService.loginUrl, StatusCodes.Found)
           }
         } ~

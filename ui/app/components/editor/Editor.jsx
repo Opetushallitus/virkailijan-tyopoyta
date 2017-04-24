@@ -4,16 +4,15 @@ import R from 'ramda'
 
 import EditNotification from './EditNotification'
 import EditTimeline from './EditTimeline'
+import PreviewAndReleaseButton from './PreviewAndReleaseButton'
 import Targeting from './targeting/Targeting'
-import PreviewRelease from './preview/PreviewRelease'
+import Preview from './preview/Preview'
 import ValidationMessages from './preview/ValidationMessages'
-import Button from '../common/buttons/Button'
 import Tabs from '../common/tabs/Tabs'
 import TabItem from '../common/tabs/TabItem'
 import TabContent from '../common/tabs/TabContent'
 import TabPane from '../common/tabs/TabPane'
 import Alert from '../common/Alert'
-import Popup from '../common/Popup'
 import Delay from '../common/Delay'
 import Spinner from '../common/Spinner'
 import { translate } from '../common/Translations'
@@ -100,6 +99,8 @@ function Editor (props) {
     event.preventDefault()
 
     if (isPreviewed) {
+      document.querySelector('#editor-button-save').setAttribute('disabled', true)
+
       controller.save(editedRelease.id)
     } else {
       controller.togglePreview(true)
@@ -122,7 +123,7 @@ function Editor (props) {
         )}
       </div>
 
-      {/*Tabs and release's state*/}
+      {/*Tabs and notifications' state*/}
       <div className="md-flex flex-wrap px3">
         <div className="flex flex-wrap md-col-8 mb0">
           <Tabs>
@@ -269,7 +270,7 @@ function Editor (props) {
       {
         isPreviewed
           ? <section className="py3 px3 border-top border-bottom" data-selenium-id="editor-preview">
-            <PreviewRelease
+            <Preview
               locale={user.lang}
               categories={categories.items}
               userGroups={userGroups.items}
@@ -296,40 +297,23 @@ function Editor (props) {
         }
 
         {/*Preview & publish*/}
-        <Button
-          id="editor-button-save"
-          variants={['primary', 'big']}
-          type="submit"
+        <PreviewAndReleaseButton
           disabled={
             isSavingRelease || isLoadingRelease ||
-            // Release is empty
-            editedRelease.validationState === 'empty' ||
-            // Release is incomplete
-            editedRelease.validationState === 'incomplete' ||
+            // Release isn't targeted or tags aren't selected
+            editedRelease.validationState === 'empty' || editedRelease.validationState === 'incomplete' ||
             // Notification is empty and empty timeline items exist
             (notification.validationState === 'empty' && emptyTimelineItems.length === timeline.length) ||
             // Notification is incomplete
             notification.validationState === 'incomplete' ||
             // Incomplete timeline items exist
-            incompleteTimelineItems.length
+            incompleteTimelineItems.length > 0
           }
           isLoading={isSavingRelease}
-        >
-          {isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
-        </Button>
-
-        {
-          hasSaveFailed
-            ? <Popup
-              target="#editor-button-save"
-              variant="error"
-              position="right"
-              title={translate('julkaisuepaonnistui')}
-              text={translate('kokeileuudestaan')}
-              onOutsideClick={controller.toggleHasSaveFailed}
-            />
-            : null
-        }
+          text={isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
+          hasSaveFailed={hasSaveFailed}
+          onOutsidePopupClick={controller.toggleHasSaveFailed}
+        />
       </div>
     </form>
   )

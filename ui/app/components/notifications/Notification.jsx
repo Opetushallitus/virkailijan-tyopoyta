@@ -58,6 +58,7 @@ class Notification extends React.Component {
   }
 
   componentWillReceiveProps (newProps) {
+    // Check if notification is removed and should be set hidden
     if (newProps.notification.isRemoved) {
       setTimeout(() => {
         this.setState({
@@ -87,6 +88,7 @@ class Notification extends React.Component {
     this.props.controller.confirmRemove(this.props.notification, this.props.index)
   }
 
+  // Reset the list when closing a notification related to a timeline item
   handleCloseRelatedNotificationButtonClick () {
     this.props.controller.getPage(1)
   }
@@ -107,6 +109,7 @@ class Notification extends React.Component {
       isRemoved
     } = notification
 
+    // Has user clicked "Display related notification" on a timeline item whose notification isn't wasn't on the list?
     const isRelatedToTimelineItem = notification.isRelatedToTimelineItem
 
     // Use default locale's content if the version for user's language is missing
@@ -128,6 +131,7 @@ class Notification extends React.Component {
           ${isRemoved ? 'notification-is-removed' : ''}
         `}
       >
+        {/*Display an overlay and a spinner when notification is being removed*/}
         {
           isRemoving
             ? <Overlay variants={['component', 'transparent']}>
@@ -219,6 +223,7 @@ class Notification extends React.Component {
             : null
         }
 
+        {/*Content*/}
         <div
           className={`
             notification

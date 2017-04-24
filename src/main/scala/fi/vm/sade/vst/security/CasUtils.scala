@@ -12,7 +12,7 @@ object RequestMethod extends Enumeration {
   val GET, POST = Value
 }
 
-class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
+class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends Logging{
 
   private lazy val casUser = CasUser(config.casUsername, config.casPassword)
 
@@ -20,7 +20,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
 
   def validateTicket(serviceTicket: ServiceTicket) : Try[Username] = {
     Try(validateTicketTask(serviceTicket).unsafePerformSync).recoverWith({
-      case t => Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected", t))
+      case t => Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
     })
   }
 
@@ -54,15 +54,12 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) {
         case RequestMethod.POST => Method.POST
       }
 
-//      import scodec.bits.ByteVector
-//      import scalaz.stream.{Process => ScalazProcess}
-//      val requestBody = body.map(content => ScalazProcess.emit(content).map(s => ByteVector(s.getBytes))).getOrElse(EmptyBody)
       val uriOption = Uri.fromString(uri).toOption
 
       uriOption match {
         case Some(u) => u
         case None => {
-          println(s"Failed parsing uri: $uri")
+          logger.error(s"Failed parsing uri: $uri")
           None
         }
       }

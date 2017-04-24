@@ -8,6 +8,7 @@ import { translate } from '../common/Translations'
 
 const propTypes = {
   controller: PropTypes.object.isRequired,
+  defaultLocale: PropTypes.string.isRequired,
   locale: PropTypes.string.isRequired,
   notifications: PropTypes.object.isRequired
 }
@@ -15,6 +16,7 @@ const propTypes = {
 function UnpublishedNotifications (props) {
   const {
     controller,
+    defaultLocale,
     locale,
     notifications
   } = props
@@ -51,6 +53,7 @@ function UnpublishedNotifications (props) {
           : null
       }
 
+      {/*Display "No notifications" text or list of notifications*/}
       {
         !isLoading && items.length === 0
           ? <span>{translate('eijulkaisemattomiatiedotteita')}</span>
@@ -74,9 +77,11 @@ function UnpublishedNotifications (props) {
               </div>
             </div>
 
+            {/*Notifications*/}
             {items.map(notification =>
               <UnpublishedNotification
                 key={notification.id}
+                defaultLocale={defaultLocale}
                 locale={locale}
                 notification={notification}
                 onTitleClick={controller.edit}

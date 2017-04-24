@@ -50,11 +50,11 @@ function LimitedTextField (props) {
 
       <input
         className="oph-input"
+        data-selenium-id={name}
         maxLength={maxLength}
         type="text"
         name={name}
         value={value}
-        data-selenium-id={name}
         onChange={handleChange}
         onBlur={onBlur}
       />

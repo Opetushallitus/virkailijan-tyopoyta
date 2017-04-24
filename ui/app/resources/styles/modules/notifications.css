@@ -114,6 +114,9 @@
 .notification a {
   text-decoration: none;
   color: var(--link-color);
+  transition-property: color;
+  transition-duration: var(--transition-duration-base);
+  transition-timing-function: var(--transition-duration-base);
 }
 
 .notification a:hover,

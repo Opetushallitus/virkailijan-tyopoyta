@@ -29,7 +29,7 @@ function EditNotification (props) {
 
   const content = notification.content
 
-  // Add 2 hours for first days of months, otherwise the previous months' last days are also selectable
+  // Add 2 hours to account for first days of months, otherwise the previous months' last days are also selectable
   const minDate = moment().add(2, 'hours')
 
   const handleIsDisruptionNotificationCheckboxChange = () => {
@@ -75,7 +75,7 @@ function EditNotification (props) {
     <div>
       <h2 className="hide">{translate('tiedote')}</h2>
 
-      {/*Title*/}
+      {/*Title and disruption notification checkbox*/}
       <div className="flex flex-wrap mb2">
         <div className="col-12 sm-col-6 sm-pr2 mb2 sm-mb0">
           <LimitedTextField

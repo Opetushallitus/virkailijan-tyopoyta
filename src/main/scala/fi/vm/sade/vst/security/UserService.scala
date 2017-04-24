@@ -1,24 +1,26 @@
 package fi.vm.sade.vst.security
 
-import concurrent.duration._
+import java.net.URLEncoder
+
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
-import fi.vm.sade.vst.Configuration
+import fi.vm.sade.vst.{Configuration, Logging}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
-import java.net.URLEncoder
-import language.postfixOps
+import play.api.libs.json._
+
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
+import scalacache.ScalaCache
 import scalacache.guava.GuavaCache
 import scalacache.memoization._
-import scalacache.ScalaCache
-import scala.util.{Failure, Success, Try}
-import play.api.libs.json._
 
 class UserService(casUtils: CasUtils,
                   ldapClient: LdapClient,
                   kayttooikeusService: KayttooikeusService,
                   userRepository: UserRepository,
                   releaseRepository: ReleaseRepository)
-  extends Configuration {
+  extends Configuration with Logging {
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 
@@ -62,14 +64,27 @@ class UserService(casUtils: CasUtils,
 
   private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(10 minutes) {
     ldapClient.findUser(uid) match {
-      case Some(ldapUser) => Success(createUser(ldapUser))
+      case Some(ldapUser) => {
+        Success(createUser(ldapUser))
+      }
       case None => Failure(new IllegalStateException(s"User $uid not found in LDAP"))
     }
   }
 
   def findUser(uid: String ): Try[User] = {
     val user = fetchCacheableUserData(uid)
-    user.map(u => u.copy(profile = Some(userRepository.userProfile(u.userId)), draft = userRepository.fetchDraft(u.userId)))
+
+    user match{
+      case Success(u) => {
+        Success(u.copy(
+          profile = Some(userRepository.userProfile(u.userId)),
+          draft = userRepository.fetchDraft(u.userId)))
+      }
+      case Failure(e) => {
+        logger.debug(s"LDAP call failed for uid $uid : ${e.getMessage}")
+        user
+      }
+    }
   }
 
   def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(user, userProfile)
@@ -98,11 +113,11 @@ class UserService(casUtils: CasUtils,
     (uid, user) match {
       case (Success(id), Success(u)) => Some(id, u)
       case (Failure(e), _) => {
-        println(s"Failed to authenticate ticket: ${e.getMessage}")
+        logger.error(s"Failed to authenticate ticket: ${e.getMessage}")
         None
       }
-      case (_, Failure(t)) =>
-        println(s"Failed to find user ${t.getMessage}")
+      case (Success(u), Failure(t)) =>
+        logger.error(s"Failed to find user $u : ${t.getMessage}")
         None
       case _ => None
     }

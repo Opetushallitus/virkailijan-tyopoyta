@@ -1,6 +1,5 @@
 import R from 'ramda'
 
-import editor from './editor'
 import targeting from './targeting'
 import { validate, rules } from './validation'
 
@@ -20,14 +19,14 @@ function update (state, { prop, value }) {
 
   const newState = R.assocPath(path, validatedNotification, state)
 
-  return editor.saveDraft(R.assocPath(
+  return R.assocPath(
     ['editor', 'editedRelease'],
     validate(
       newState.editor.editedRelease,
       rules(newState)['release']
     ),
     newState
-  ))
+  )
 }
 
 function updateContent (state, { prop, language, value }) {

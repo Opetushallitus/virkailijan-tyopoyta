@@ -1,3 +1,6 @@
+/* Animations first, otherwise they won't work on IE */
+@import "modules/animations.css";
+
 /* External components */
 @import "draft-js/dist/Draft.css";
 @import "react-datepicker";
@@ -22,7 +25,6 @@
 @import "modules/basscss.css";
 @import "modules/styleguide.css";
 @import "modules/utils.css";
-@import "modules/animations.css";
 @import "modules/alerts.css";
 @import "modules/tags.css";
 @import "modules/notifications.css";

@@ -22,21 +22,24 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.1",
   "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
   "com.typesafe.play" %% "play-json" % "2.6.0-M1",
-  "org.json4s" %% "json4s-native" % "3.5.0"
+  "org.json4s" %% "json4s-native" % "3.5.0",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
 )
 
 // OPH dependencies
 libraryDependencies ++= Seq(
   "fi.vm.sade" %% "scala-cas" % "0.4.0-SNAPSHOT",
   "fi.vm.sade" %% "scala-group-emailer" % "0.3.0-SNAPSHOT",
-  "fi.vm.sade" %% "scala-ldap-client" % "1.0.0-SNAPSHOT"
+  "fi.vm.sade" %% "scala-ldap-client" % "1.0.0-SNAPSHOT",
+  "fi.vm.sade" % "auditlogger" % "7.0.0-SNAPSHOT"
 )
 
 // Extra util dependencies
 libraryDependencies ++= Seq(
   "com.github.cb372" %% "scalacache-guava" % "0.9.3",
   "org.json4s" %% "json4s-native" % "3.5.0",
-  "org.jsoup" % "jsoup" % "1.10.2"
+  "org.jsoup" % "jsoup" % "1.10.2",
+  "ch.qos.logback" % "logback-classic" % "1.2.3"
 )
 
 // DB dependencies

@@ -42,7 +42,7 @@ function ValidationMessages (props) {
           : null
       }
 
-      {/*Release is targeted but tags are missing*/}
+      {/*Release is targeted but tags aren't selected*/}
       {
         release.userGroups.length > 0 &&
         (notification.validationState === 'incomplete' ||

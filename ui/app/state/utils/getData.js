@@ -42,6 +42,7 @@ function getData (options) {
     .then(json => onSuccess(json))
     .catch(error => {
       console.error(error)
+
       onError(error)
     })
 }

@@ -3,8 +3,8 @@ import Bacon from 'baconjs'
 
 import view from '../view'
 import editor from '../editor/editor'
-import getData from '../../utils/getData'
-import createAlert from '../../utils/createAlert'
+import getData from '../utils/getData'
+import createAlert from '../utils/createAlert'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
@@ -213,7 +213,11 @@ function toggleTag (state, id) {
 function setSelectedTags (state, selected) {
   console.log('Updating selected tags', selected)
 
-  fetch({ page: 1, tags: selected })
+  fetch({
+    page: 1,
+    tags: selected,
+    categories: state.notifications.categories
+  })
 
   return R.compose(
     R.assocPath(['notifications', 'isLoading'], true),
