@@ -224,6 +224,16 @@ trait JsonSupport {
     )
   }
 
+  implicit val userLanguageReads: Reads[UserLanguage] = Json.reads[UserLanguage]
+
+  implicit val userContactInformationReads: Reads[UserContactInformation] = Json.reads[UserContactInformation]
+
+  implicit val userContactInformationGroupReads: Reads[UserContactInformationGroup] = Json.reads[UserContactInformationGroup]
+
+  implicit val userInformationReads: Reads[UserInformation] = Json.reads[UserInformation]
+
+  def parseSingleUserInformation(jsonVal: JsValue): Option[UserInformation] = Json.fromJson(jsonVal)(userInformationReads).asOpt
+
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] ={
     val jsonVal = Json.parse(jsString)
     val result = Json.fromJson(jsonVal)(releaseUpdateReads)

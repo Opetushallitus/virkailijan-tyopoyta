@@ -106,4 +106,13 @@ case class KayttoikeusDescription(text: Option[String], lang: String)
 case class Draft(userId: String, data: String)
 
 case class TargetingGroup(id: Long, userId: String, name: String, data: String)
+
 case class TargetingGroupUpdate(name: String, data: String)
+
+case class UserLanguage(kieliKoodi: String, kieliTyyppi: String)
+
+case class UserContactInformation(yhteystietoTyyppi: String, yhteystietoArvo: String)
+
+case class UserContactInformationGroup(id: Long, ryhmaKuvaus: String, yhteystieto: Seq[UserContactInformation])
+
+case class UserInformation(oidHenkilo: String, asiointiKieli: UserLanguage, yhteystiedotRyhma: Seq[UserContactInformationGroup])
