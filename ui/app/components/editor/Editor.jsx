@@ -60,8 +60,6 @@ const releaseValidationStateKeys = {
   complete: 'valmis'
 }
 
-// TODO: Throttle onChange updates
-
 function Editor (props) {
   const {
     controller,

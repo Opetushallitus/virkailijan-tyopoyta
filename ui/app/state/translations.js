@@ -2,7 +2,7 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import { getStateData } from '../appState'
-import getData from './utils/getData'
+import http from './utils/http'
 import localTranslations from '../data/translation.json'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
@@ -12,7 +12,7 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch (language) {
   console.log('Fetching translations')
 
-  getData({
+  http({
     url: `${urls['lokalisointi.localisation']}${language}`,
     requestOptions: {
       credentials: 'include'
@@ -25,6 +25,7 @@ function fetch (language) {
 function onReceived (state, response) {
   console.log('Received translations')
 
+  // Get rest of the necessary data
   getStateData(state)
 
   window.translations = response
@@ -36,11 +37,10 @@ function onReceived (state, response) {
 }
 
 function onFetchFailed (state) {
-  console.log('Fetching translations failed, using local translations')
+  console.warn('Fetching translations failed, using local translations')
 
+  // Get rest of the necessary data
   getStateData(state)
-
-  window.translations = localTranslations
 
   return R.compose(
     R.assocPath(['translations', 'items'], localTranslations),

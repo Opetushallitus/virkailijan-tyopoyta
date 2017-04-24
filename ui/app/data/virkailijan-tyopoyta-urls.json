@@ -1,4 +1,5 @@
 {
+  "luokka": "https://itest-virkailija.oph.ware.fi",
   "cas.login": "/cas/login",
   "lokalisointi.localisation":"/lokalisointi/cxf/rest/v1/localisation?category=virkailijan-tyopoyta&locale=",
   "login": "/virkailijan-tyopoyta/login",
@@ -12,6 +13,6 @@
   "unpublished.notifications": "/virkailijan-tyopoyta/api/notifications/unpublished",
   "categories": "/virkailijan-tyopoyta/api/categories",
   "tags": "/virkailijan-tyopoyta/api/tags",
-  "usergroups": "/virkailijan-tyopoyta/api/usergroups",
+  "user.groups": "/virkailijan-tyopoyta/api/usergroups",
   "timeline": "/virkailijan-tyopoyta/api/timeline"
 }

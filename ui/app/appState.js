@@ -52,7 +52,9 @@ export function getController () {
   return controller
 }
 
-// Application state stream
+/*
+  Application state stream. User actions are merged to the initial state.
+ */
 export function appState () {
   return Bacon.update(
     initialState,
@@ -81,6 +83,7 @@ export function appState () {
     [targetingGroups.fetchBus], targetingGroups.onReceived,
     [targetingGroups.fetchFailedBus], targetingGroups.onFetchFailed,
     [targetingGroups.saveBus], targetingGroups.onSaveComplete,
+    [targetingGroups.saveFailedBus], targetingGroups.onSaveFailed,
     [targetingGroups.removeBus], targetingGroups.onRemoveComplete,
     [targetingGroups.removeFailedBus], targetingGroups.onRemoveFailed,
 
@@ -104,7 +107,8 @@ export function appState () {
     // Notifications
     [notifications.fetchBus], notifications.onReceived,
     [notifications.fetchFailedBus], notifications.onFetchFailed,
-    [notifications.removeNotificationBus], notifications.onNotificationRemoved,
+    [notifications.notificationRemovedBus], notifications.onNotificationRemoved,
+    [notifications.removeNotificationFailedBus], notifications.onRemoveNotificationFailed,
     [notifications.saveCategoriesFailedBus], notifications.onSaveCategoriesFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
@@ -117,7 +121,8 @@ export function appState () {
     // Timeline
     [timeline.fetchBus], timeline.onReceived,
     [timeline.fetchFailedBus], timeline.onFetchFailed,
-    [timeline.removeItemBus], timeline.onItemRemoved,
+    [timeline.itemRemovedBus], timeline.onItemRemoved,
+    [timeline.removeItemFailedBus], timeline.onRemoveItemFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
@@ -146,8 +151,6 @@ export function appState () {
 
     [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
     [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
-    [dispatcher.stream(events.editor.editNotification.setAsDisruptionNotification)],
-    editor.editNotification.setAsDisruptionNotification,
 
     [dispatcher.stream(events.editor.editTimeline.updateItem)], editor.editTimeline.updateItem,
     [dispatcher.stream(events.editor.editTimeline.updateContent)], editor.editTimeline.updateContent,

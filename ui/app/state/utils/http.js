@@ -8,7 +8,8 @@ function getSearchParamsString (params) {
   }, '?')
 }
 
-function getData (options) {
+// Does an HTTP request
+export default function http (options) {
   const minute = 60000
 
   const {
@@ -23,6 +24,7 @@ function getData (options) {
   const urlWithParams = `${url}${searchParams ? getSearchParamsString(searchParams) : ''}`
 
   requestOptions.headers = requestOptions.headers || {}
+
   // Don't cache responses, since IE11 always returns the cached response
   requestOptions.headers['Cache-Control'] = 'no-store'
   requestOptions.headers['Pragma'] = 'no-cache'
@@ -30,6 +32,7 @@ function getData (options) {
   // Set credentials: same-origin to allow sending cookies
   requestOptions.credentials = 'same-origin'
 
+  // Timeout after maxRequestTime
   const timeout = new Promise((resolve, reject) => {
     setTimeout(reject, maxRequestTime)
   })
@@ -37,6 +40,7 @@ function getData (options) {
   const request = window.fetch(urlWithParams, requestOptions)
     .then(response => response.json())
 
+  // Return the request or timeout depending which resolves first
   return Promise
     .race([timeout, request])
     .then(json => onSuccess(json))
@@ -46,5 +50,3 @@ function getData (options) {
       onError(error)
     })
 }
-
-export default getData

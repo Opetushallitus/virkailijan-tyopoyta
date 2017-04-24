@@ -3,33 +3,23 @@ import Bacon from 'baconjs'
 
 import view from './view'
 import editor from './editor/editor'
-import getData from './utils/getData'
+import http from './utils/http'
 import createAlert from './utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 const saveBus = new Bacon.Bus()
+const saveFailedBus = new Bacon.Bus()
 const removeBus = new Bacon.Bus()
 const removeFailedBus = new Bacon.Bus()
 
-const newTargetingGroup = ({ name, categories, userGroups, tags }, specialTags) => {
-  return {
-    name,
-    data: {
-      categories,
-      userGroups,
-      // Filter out special tags
-      tags: R.reject(tag => R.contains(tag, R.pluck('id', specialTags)), tags)
-    },
-    isRemoving: false
-  }
-}
+// GET requests
 
 function fetch (state) {
   console.log('Fetching targeting groups')
 
-  getData({
+  http({
     url: urls['targeting.groups'],
     onSuccess: targetingGroups => fetchBus.push(targetingGroups),
     onError: error => fetchFailedBus.push(error)
@@ -39,6 +29,7 @@ function fetch (state) {
 function onReceived (state, targetingGroups) {
   console.log('Received targeting groups')
 
+  // Data is received as a JSON string
   R.forEach(targetingGroup => (targetingGroup.data = JSON.parse(targetingGroup.data)), targetingGroups)
 
   return R.compose(
@@ -48,7 +39,7 @@ function onReceived (state, targetingGroups) {
 }
 
 function onFetchFailed (state) {
-  console.log('Fetching targeting groups failed')
+  console.error('Fetching targeting groups failed')
 
   const alert = createAlert({
     variant: 'error',
@@ -60,23 +51,43 @@ function onFetchFailed (state) {
   return R.assocPath(['targetingGroups', 'isLoading'], false, state)
 }
 
-function onSaveComplete (state, { result }) {
-  if (!result) {
-    console.log('Saving targeting group failed')
+// POST requests
 
-    const alert = createAlert({
-      variant: 'error',
-      titleKey: 'kohderyhmavalinnantallennusepaonnistui'
-    })
+function save (state, targetingGroup) {
+  console.log('Saving targeting group')
 
-    return R.assocPath(['view', 'alerts'], view.setNewAlerts(alert, state.view.alerts), state)
-  }
+  http({
+    url: urls['targeting.groups'],
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(newTargetingGroup(targetingGroup, state.tagGroups.specialTags))
+    },
+    onSuccess: () => saveBus.push('saved'),
+    onError: error => saveBus.push(error)
+  })
+}
 
+function onSaveComplete (state) {
   console.log('Targeting group saved')
 
-  fetch()
-
   return R.assoc('targetingGroups', initialState, state)
+}
+
+function onSaveFailed (state) {
+  console.error('Saving targeting group failed')
+
+  const alert = createAlert({
+    variant: 'error',
+    titleKey: 'kohderyhmavalinnantallennusepaonnistui'
+  })
+
+  view.alertsBus.push(alert)
+
+  return state
 }
 
 function onRemoveComplete (state, id) {
@@ -91,7 +102,7 @@ function onRemoveComplete (state, id) {
 }
 
 function onRemoveFailed (state, id) {
-  console.log('Remove targeting group failed')
+  console.error('Remove targeting group failed')
 
   const newTargetingGroups = update(id, state.targetingGroups.items, {
     isRemoving: false,
@@ -100,6 +111,8 @@ function onRemoveFailed (state, id) {
 
   return R.assocPath(['targetingGroups', 'items'], newTargetingGroups, state)
 }
+
+// Updating state
 
 function update (id, targetingGroups, options) {
   const targetingGroup = R.find(R.propEq('id', id))(targetingGroups)
@@ -113,40 +126,42 @@ function update (id, targetingGroups, options) {
   return R.update(index, newTargetingGroup, targetingGroups)
 }
 
-function save (state, targetingGroup) {
-  console.log('Saving targeting group')
+// Initial state
 
-  getData({
-    url: urls['targeting.groups'],
-    requestOptions: {
-      method: 'POST',
-      dataType: 'json',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify(newTargetingGroup(targetingGroup, state.tagGroups.specialTags))
+// Special tags aren't saved to targeting groups
+const newTargetingGroup = ({ name, categories, userGroups, tags }, specialTags) => {
+  return {
+    name,
+    data: {
+      categories,
+      userGroups,
+      // Filter out special tags
+      tags: R.reject(tag => R.contains(tag, R.pluck('id', specialTags)), tags)
     },
-    onSuccess: () => saveBus.push({ result: true }),
-    onError: () => saveBus.push({ result: false })
-  })
+    isRemoving: false
+  }
 }
 
-const initialState = {
+const emptyTargetingGroups = {
   items: [],
   isLoading: true
 }
+
+const initialState = emptyTargetingGroups
 
 const targetingGroups = {
   initialState,
   fetchBus,
   fetchFailedBus,
   saveBus,
+  saveFailedBus,
   removeBus,
   removeFailedBus,
   fetch,
   onReceived,
   onFetchFailed,
   onSaveComplete,
+  onSaveFailed,
   onRemoveComplete,
   onRemoveFailed,
   save,

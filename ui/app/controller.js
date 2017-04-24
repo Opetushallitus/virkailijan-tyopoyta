@@ -100,7 +100,7 @@ export function initController (dispatcher, events) {
       updateContent: (language, prop) => value =>
         dispatcher.push(events.editor.editNotification.updateContent, { language, prop, value }),
 
-      setAsDisruptionNotification: id => dispatcher.push(events.editor.editNotification.setAsDisruptionNotification, id)
+      setAsDisruptionNotification: id => dispatcher.push(events.editor.targeting.toggleTag, id)
     }
   }
 

@@ -2,7 +2,7 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import editor from '../editor/editor'
-import getData from '../utils/getData'
+import http from '../utils/http'
 import createAlert from '../utils/createAlert'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
@@ -12,29 +12,25 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching unpublished notifications')
 
-  getData({
+  http({
     url: urls['unpublished.notifications'],
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
   })
 }
 
-function reset () {
-  fetch()
-
-  return emptyState()
-}
-
-function onReceived (state, response) {
+function onReceived (state, notifications) {
   console.log('Received unpublished notifications')
 
   return R.compose(
     R.assocPath(['unpublishedNotifications', 'isLoading'], false),
-    R.assocPath(['unpublishedNotifications', 'items'], response)
+    R.assocPath(['unpublishedNotifications', 'items'], notifications)
   )(state)
 }
 
 function onFetchFailed (state) {
+  console.error('Fetching unpublished notifications failed')
+
   const alert = createAlert({
     variant: 'error',
     titleKey: 'julkaisemattomienhakuepaonnistui',
@@ -75,7 +71,7 @@ function close (state) {
   // Focus on element which was clicked to open the modal dialog
   document.querySelector(state.unpublishedNotifications.eventTargetId).focus()
 
-  return R.assoc('unpublishedNotifications', emptyState(), state)
+  return R.assoc('unpublishedNotifications', emptyNotifications(), state)
 }
 
 function edit (state, releaseId) {
@@ -94,7 +90,7 @@ function removeAlert (state, id) {
   return R.assocPath(['unpublishedNotifications', 'alerts'], newAlerts, state)
 }
 
-function emptyState () {
+function emptyNotifications () {
   return {
     alerts: [],
     items: [],
@@ -112,7 +108,7 @@ const events = {
   removeAlert
 }
 
-const initialState = emptyState()
+const initialState = emptyNotifications()
 
 const notifications = {
   fetchBus,
@@ -120,7 +116,6 @@ const notifications = {
   events,
   initialState,
   fetch,
-  reset,
   onReceived,
   onFetchFailed,
   open,
