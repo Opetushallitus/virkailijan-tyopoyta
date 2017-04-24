@@ -8,6 +8,9 @@ event streamista. Niistä palautuu objekti, joka annetaan App-komponentille
 Kun tila muuttuu, Reactin virtuaali-DOM hoitaa 
 komponenttien päivittämisen. Komponenttien omaa `state`a käytetään harvoissa tapauksissa.
 
+Tilaa voi tutkia esim. Chromen kehitystyökaluilla 
+[React Developer Tools](https://github.com/facebook/react-devtools)-lisäosalla. 
+
 ## appState, controller ja dispatcher
 
 Jokainen käyttäjän tekemä toiminto on oma streaminsa, joka yhdistetään sovelluksen tilan 
@@ -61,6 +64,8 @@ uuden tilan.
 Asynkroniset muutokset tehdään määrittelemällä kutsun suorittava metodi, 
 uusi Bus kutsun onnistumista sekä epäonnistumista varten, 
 callback-metodit molemmille tapahtumille ja yhdistämällä ne `appState`ssa:
+
+Kutsuissa käytetään http-apumetodia (`ui/app/state/utils/http.js: http`).
 
 ```
 // user.js

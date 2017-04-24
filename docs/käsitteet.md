@@ -40,7 +40,8 @@ kategorioiden perusteella.
 
 Käyttäjä kuuluu yhteen tai useampaan käyttöoikeusryhmään. Käyttöoikeusryhmät
 määrittävät mitä sisältöä käyttäjä näkee työpöydällä. Ryhmiä ovat esim.
-Opinto-ohjaaja ja Korkeakouluvirkailija.
+Opinto-ohjaaja ja Korkeakouluvirkailija. Ryhmät yhdistetään tunnisteen perusteella
+yhteen tai useampaan kategoriaan käyttöliittymää varten.
 
 ## Avainsana
 
@@ -50,12 +51,13 @@ Käyttäjä voi rajata näkyviä tiedotteita avainsanojen perusteella.
 ## Avainsanaryhmä
 
 Jokainen avainsana kuuluu yhteen avainsanaryhmään. Avainsanaryhmiä ovat Perusopetus,
-Korkeakoulutus ja Vapaa sivistystyö.
+Korkeakoulutus ja Vapaa sivistystyö. Ryhmät yhdistetään tunnisteen perusteella 
+yhteen tai useampaan kategoriaan käyttöliittymää varten.
 
 ## Erikoisavainsana
 
-Esimerkiksi tiedotteen merkkaaminen häiriötiedotteeksi tehdään erikoisavainsanalla, jota 
-käsitellään backendissä ja käyttöliittymässä omalla tavallaan.
+Esimerkiksi tiedotteen merkkaaminen häiriötiedotteeksi tehdään erikoisavainsanalla.
+Erikoisavainsanoja käsitellään backendissä ja käyttöliittymässä omalla tavallaan.
 
 ## Kohderyhmävalinta / tallennettu kohdennus
 

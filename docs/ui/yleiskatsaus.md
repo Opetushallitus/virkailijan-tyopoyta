@@ -1,17 +1,15 @@
+Virkailijan työpöytä on React/Scala-sovellus, jossa kentän virkailijat ja OPH:n työntekijät
+voivat katsella ja julkaista tiedotteita sekä tapahtumia.
+
 Tiedostorakenne x
 
-Codestyle x
+Koodityyli x
 
-Tärkeimmät riippuvuudet
-
-- React, Bacon.js, Ramda, Babel jne.
-- React Devtools
+Tärkeimmät riippuvuudet x
 
 Käsitteet x
 
-Tilan hallinta
-
-- Bacon.js-arkkitehtuuri: controller + dispatcher + appState
+Tilan hallinta x
 
 Tyylit
 
@@ -21,9 +19,5 @@ Testaus
 
 - Nightwatch
 - vaatii lokaalisti IE:llä babel-polyfillin ja whatwg-fetchin, ne ovat vain raameissa 
-
-Build
-
-- Webpack + npm
 
 Komponentit x

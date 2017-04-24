@@ -1,4 +1,4 @@
-# Code style
+# Koodityyli
 
 ## JavaScript & React/JSX
 
