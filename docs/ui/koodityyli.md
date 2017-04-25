@@ -43,3 +43,7 @@ Luokat nimetään komponentin, variantin ja tilan mukaan:
 `.notification-disruption`
 
 `.notification-is-expanded`
+
+Komponenttien ulkoasun määrittelyssä hyödynnetään 
+[Basscss](http://basscss.com/)-kirjaston apuluokkia
+([funktionaalinen CSS](https://marcelosomers.com/writing/rationalizing-functional-css/ )).
