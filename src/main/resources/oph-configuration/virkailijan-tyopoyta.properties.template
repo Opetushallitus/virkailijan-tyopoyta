@@ -1,8 +1,9 @@
+baseUrl=https://{{host_virkailija}}
+
 server.port={{palvelu_portti}}
 virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}}
 
 #CAS
-cas.url={{cas_url}}
 virkailijan-tyopoyta.cas.service=https://{{host_virkailija}}/virkailijan-tyopoyta
 virkailijan-tyopoyta.cas.user={{virkailijan_tyopoyta_cas_user}}
 virkailijan-tyopoyta.cas.password={{virkailijan_tyopoyta_cas_password}}
@@ -35,10 +36,8 @@ ryhmasahkoposti.service.email.url = https://{{host_virkailija}}/ryhmasahkoposti-
 ryhmasahkoposti.service.batch.size = 500
 ryhmasahkoposti.rest.url=https://{{host_virkailija}}/ryhmasahkoposti-service/email
 
+virkailijan.tyopoyta.login="{cas.url}/login?service={virkailijan-tyopoyta.cas.service}"
 oph.logo.url = http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif
-
-# Oppijanumerorekisteri
-oppijanumerorekisteri.service = https://{{host_virkailija}}/oppijanumerorekisteri-service
 
 # Quartz settings
 akka.quartz.schedules.AutomatedReleasesEmail.description = Daily check to see if new automated release emails should be sent
