@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/virkailijan-tyopoyta.log</file>
+        <file>>${user.home}/logs/virkailijan-tyopoyta.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${user.home}/logs/virkailijan-tyopoyta-%d{yyyy_MM_dd}-%i.log.gz</fileNamePattern>
         </rollingPolicy>
