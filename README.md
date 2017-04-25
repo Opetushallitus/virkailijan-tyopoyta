@@ -3,7 +3,7 @@
 Virkailijan työpöytä on React/Scala-sovellus, jossa kentän virkailijat ja OPH:n työntekijät
 voivat katsella ja julkaista tiedotteita sekä tapahtumia.
 
-Dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
+Käyttöliittymän dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
 
 ## Paikallinen kehitysympäristö
 
