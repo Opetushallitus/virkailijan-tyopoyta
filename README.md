@@ -14,6 +14,9 @@ Dokumentaatio löytyy [docs](docs)-kansiosta.
 - [Git](https://git-scm.com/)
 - paikallinen konfiguraatiotiedosto, `common.properties` tai `application.conf`
 
+Käyttöliittymän kehitystä varten asenna myös selaimellesi React Developer Tools -lisäosa
+(esim. [Chromelle](https://github.com/facebook/react-devtools)).
+
 ### Konfiguraatiotiedosto
 
 ### Rakentaminen

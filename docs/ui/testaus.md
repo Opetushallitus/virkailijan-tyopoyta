@@ -20,8 +20,21 @@ ja muuta arvot oikeiksi
 - `npm run e2e-smoketests` ajaa kaikki `../nightwatch/smoketests`-kansiossa olevat testit
 
 - yksittäisiä testejä ajetaan komennolla
-`nightwatch -t {polku testikansioon}/{componentTests|smoketests}/{testin nimi}.js` 
+`nightwatch -t ui/app/resources/test/nightwatch/{componentTests|smoketests}/{testin nimi}.js` 
 
-### Konfigurointi
+Raportit ja kuvakaappaukset epäonnistuneista testeistä luodaan 
+`../nightwatch/reports`-kansioon. 
+
+### Konfiguraatio
+
+`commands.js` Testeissä yleisesti käytettyjä komentoja, esim. luokan työpöydälle
+kirjautuminen (http://nightwatchjs.org/guide#extending).
+
+`config.js` Testeissä käytetyt globaalit muuttujat.
+
+`pageObjects.js` Selektorit testien käyttämille elementeille 
+(http://nightwatchjs.org/guide#page-objects). 
+
+Testattavat elementit merkataan komponenteissa `data-selenium-id="{nimi}"`-arvolla.
 
 Testejä ajaessa paikallisen kannan on oltava tyhjä tiedotteista ja aikajanan tapahtumista.
