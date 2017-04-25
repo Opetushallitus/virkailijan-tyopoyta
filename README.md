@@ -12,7 +12,7 @@ Käyttöliittymän dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
 - [Node.js & npm](https://nodejs.org/en/)
 - [Scala sbt](http://www.scala-sbt.org/)
 - [Git](https://git-scm.com/)
-- paikallinen konfiguraatiotiedosto, `common.properties` tai `application.conf`
+- paikallinen konfiguraatiotiedosto `common.properties`
 
 Käyttöliittymän kehitystä varten asenna myös selaimellesi React Developer Tools -lisäosa
 (esim. [Chromelle](https://github.com/facebook/react-devtools)).
