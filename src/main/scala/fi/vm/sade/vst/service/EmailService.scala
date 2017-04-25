@@ -32,7 +32,7 @@ class EmailService(casUtils: CasUtils,
   lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
 
   private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
-  private def userAccessService = casUtils.serviceClient(authenticationConfig.kayttooikeusUri)
+  private def userAccessService = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
@@ -115,7 +115,7 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
-    val response = userAccessService.authenticatedRequest(s"${authenticationConfig.kayttooikeusUri}/kayttooikeusryhma/$groupOid/henkilot", RequestMethod.GET)
+    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString),RequestMethod.GET)
     response match {
       case Success(s) => parsePersonOidsFromResponse(s)
       case Failure(f) => Seq.empty

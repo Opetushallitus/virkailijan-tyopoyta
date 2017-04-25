@@ -5,9 +5,10 @@ import java.nio.file.Paths
 
 import com.softwaremill.session.SessionConfig
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import fi.vm.sade.properties.OphProperties
 import fi.vm.sade.security.ldap.LdapConfig
 
-case class AuthenticationConfig(casUrl: String, serviceId: String, casUsername: String, casPassword: String, kayttooikeusUri: String,  memoizeDuration: Int)
+case class AuthenticationConfig(serviceId: String, casUsername: String, casPassword: String, memoizeDuration: Int)
 case class ServerConfig(port: Int, actorSystemConfig: Config)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
@@ -19,6 +20,11 @@ trait Configuration {
   private lazy val homeDir = sys.props.getOrElse("user.home", "")
   private lazy val confFile: File = Paths.get(homeDir, "/oph-configuration/common.properties").toFile
 
+  lazy val urls: OphProperties = new fi.vm.sade.scalaproperties.OphProperties()
+    .addFiles("/virkailjian-tyopoyta-oph.properties")
+    .addOptionalFiles(s"$homeDir/oph-configuration/common.properties")
+    .addDefault("baseUrl", config.getString("baseUrl"))
+
   lazy val ldapConfig = LdapConfig(
     config.getString("ldap.server.host"),
     config.getString("ldap.user.dn"),
@@ -26,22 +32,21 @@ trait Configuration {
 
 
   lazy val authenticationConfig = AuthenticationConfig(
-    config.getString("cas.url"),
     config.getString("virkailijan-tyopoyta.cas.service"),
     config.getString("virkailijan-tyopoyta.cas.user"),
     config.getString("virkailijan-tyopoyta.cas.password"),
-    config.getString("kayttooikeus.url"),
     10)
 
   lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("virkailijan-tyopoyta.cas.user"), config.getString("virkailijan-tyopoyta.cas.password"))
-  lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(config.getString("oppijanumerorekisteri.service"))
+  lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(
+    urls.url("oppijanumerorekisteri.service"))
 
   lazy val actorSystemConfig: Config = ConfigFactory.parseResources("conf/akka.conf")
 
   lazy val serverConfig = ServerConfig(config.getInt("server.port"), actorSystemConfig)
 
-  lazy val loginPage = config.getString("virkailijan-tyopoyta.login")
-  lazy val ophLogoUrl = config.getString("oph.logo.url")
+  lazy val loginPage: String = config.getString("virkailijan-tyopoyta.login")
+  lazy val ophLogoUrl: String = config.getString("oph.logo.url")
 
   private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
 

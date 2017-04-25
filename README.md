@@ -24,6 +24,7 @@ Käyttöliittymän kehitystä varten asenna myös selaimellesi React Developer T
 Ensimmäisellä kerralla:
 - kloonaa repositorysta `uusi-tyopoyta`-branch
 - `npm install` ja `npm run build` juuressa
+- Kopioi `virkailijan-tyopoyta.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
 
 Jatkossa:
 - `sbt run`
@@ -32,6 +33,9 @@ Jatkossa:
 
 Käyttöliittymä rakennetaan `target/scala-2.11/classes/ui`-kansioon, jota Webpack
 vahtii. Muutokset `ui`-kansion tiedostoihin käynnistävät käyttöliittymän rakentamisen.
+
+Ajettavan jarrin tuottaminen `mvn clean install`
+Frontin minifioitu versio `npm run dist'
 
 ### Internet Explorer
 
