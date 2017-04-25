@@ -5,10 +5,10 @@
   "main": "index.jsx",
   "scripts": {
     "test": "node_modules/standard/bin/cmd.js",
-    "build": "webpack",
-    "dist": "webpack -p",
+    "build": "NODE_ENV=development webpack --config webpack/dev.config.js",
+    "dist": "NODE_ENV=production webpack --config webpack/prod.config.js",
     "start": "webpack-dev-server",
-    "start-dev": "webpack --output-path target/scala-2.11/classes/ui --watch",
+    "start-dev": "NODE_ENV=development webpack --config webpack/dev.config.js --watch",
     "e2e-setup": "selenium-standalone install",
     "e2e-smoketests": "nightwatch ui/app/resources/test/nightwatch/smoketests"
   },
@@ -53,6 +53,7 @@
     "webpack": "1.13.1",
     "webpack-dev-server": "1.14.1",
     "webpack-livereload-plugin": "0.8.1",
+    "webpack-merge": "^4.1.0",
     "webpack-uglify-js-plugin": "1.1.9",
     "webpack-validator": "3.0.0"
   },
