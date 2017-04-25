@@ -125,6 +125,7 @@ class NotificationTagSelect extends React.Component {
           noResultsMessage={translate('eitunnisteita')}
           onChange={this.handleChange}
           onLabelClick={this.handleLabelClick}
+          closeOnChange
           options={tagGroups.isLoading ? [] : this.mapDropdownOptions()}
           placeholder={translate(this.getPlaceholderKey())}
           search
