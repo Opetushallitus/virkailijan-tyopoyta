@@ -14,7 +14,7 @@ Käyttöliittymän dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
 - [Git](https://git-scm.com/)
 - paikallinen konfiguraatiotiedosto `common.properties`
 
-Käyttöliittymän kehitystä varten asenna myös selaimellesi React Developer Tools -lisäosa
+Asenna käyttöliittymän kehitystä varten selaimellesi React Developer Tools -lisäosa
 (esim. [Chromelle](https://github.com/facebook/react-devtools)).
 
 ### Konfiguraatiotiedosto
