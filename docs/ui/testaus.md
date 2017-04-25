@@ -25,6 +25,8 @@ ja muuta arvot oikeiksi
 Raportit ja kuvakaappaukset epäonnistuneista testeistä luodaan 
 `../nightwatch/reports`-kansioon. 
 
+Käyttäjätunnuksen ja salasanan sisältävää `environments.json`ia ei saa commitoida Githubiin.
+
 ### Konfiguraatio
 
 `commands.js` Testeissä yleisesti käytettyjä komentoja, esim. luokan työpöydälle

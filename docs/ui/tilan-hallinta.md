@@ -24,6 +24,7 @@ välittämisen.
 Malli on kuvattu tarkemmin allaolevissa artikkeleissa:
 
 https://github.com/milankinen/react-bacon-todomvc
+
 https://medium.com/milankinen/good-bye-flux-welcome-bacon-rx-23c71abfb1a7
 
 ## Sovelluksen alustus
@@ -34,8 +35,8 @@ renderöidään sovellus (`index.jsx`)
 2. tehdään kirjautuminen AJAX-kutsulla `state/user.js: fetch`
 
 3. jos kirjautuminen onnistuu:
-- haetaan käännökset lokalisointipalvelusta 
-tai lokaalista käännöstiedostosta (`data/translations.json`):
+- haetaan käännökset käännöspalvelusta 
+tai paikallisesta käännöstiedostosta (`data/translations.json`):
 `state/translations.js: fetch`
 - kun käännökset on haettu, haetaan kaikki muu tarvittava sisältö erillisillä kutsuilla
 `state/appState.js: getStateData`
