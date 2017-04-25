@@ -9,7 +9,8 @@ Kun tila muuttuu, Reactin virtuaali-DOM hoitaa
 komponenttien päivittämisen. Komponenttien omaa `state`a käytetään harvoissa tapauksissa.
 
 Tilaa voi tutkia esim. Chromen kehitystyökaluilla 
-[React Developer Tools](https://github.com/facebook/react-devtools)-lisäosalla. 
+[React Developer Tools](https://github.com/facebook/react-devtools)-lisäosalla 
+App-komponentin `state`-propsista. 
 
 ## appState, controller ja dispatcher
 
@@ -58,8 +59,7 @@ function update (state, {muokattava arvo}) {
 }
 ```
 
-Metodin on aina palautettava uusi tilaobjekti, jotta appState voi koostaa 
-uuden tilan.
+Metodin on aina palautettava uusi tilaobjekti, jotta appStaten Bacon.update toimisi.
 
 Asynkroniset muutokset tehdään määrittelemällä kutsun suorittava metodi, 
 uusi Bus kutsun onnistumista sekä epäonnistumista varten, 

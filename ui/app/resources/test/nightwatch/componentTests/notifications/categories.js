@@ -1,5 +1,5 @@
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka,
+  before: browser => browser.page.pageObjects().login.luokka(browser),
 
   after: browser => {
     browser.end()

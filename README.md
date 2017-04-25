@@ -11,6 +11,7 @@ Dokumentaatio löytyy [docs](docs)-kansiosta.
 
 - [Node.js & npm](https://nodejs.org/en/)
 - [Scala sbt](http://www.scala-sbt.org/)
+- [Git](https://git-scm.com/)
 - paikallinen konfiguraatiotiedosto, `common.properties` tai `application.conf`
 
 ### Konfiguraatiotiedosto
@@ -18,7 +19,7 @@ Dokumentaatio löytyy [docs](docs)-kansiosta.
 ### Rakentaminen
 
 Ensimmäisellä kerralla:
-- kloonaa repositorysta `virkailijan-tyopoyta`-branch
+- kloonaa repositorysta `uusi-tyopoyta`-branch
 - `npm install` ja `npm run build` juuressa
 
 Jatkossa:
@@ -28,3 +29,11 @@ Jatkossa:
 
 Käyttöliittymä rakennetaan `target/scala-2.11/classes/ui`-kansioon, jota Webpack
 vahtii. Muutokset `ui`-kansion tiedostoihin käynnistävät käyttöliittymän rakentamisen.
+
+### Internet Explorer
+
+Sovellus vaatii IE:llä toimiakseen [fetch](https://github.com/github/fetch)- 
+ja [Babel](https://babeljs.io/docs/usage/polyfill/)-polyfillit.
+
+Luokalla, QA:lla ja tuotantoympäristöissä ne tulevat virkailijan raamien kautta, mutta
+paikallisesti IE:llä testatessa ne täytyy tuoda App.jsx:ään:

@@ -3,6 +3,9 @@
 Alta löytyy sovelluksen oleellisimpia riippuvuuksia ja työkaluja. Kaikki riippuvuudet on 
 listattu juuren `package.json`:ssa.
 
+Versionumeroista poistetaan etumerkit kuten `^/~`, jotta jokaisella 
+kehittäjällä olisi samat versiot asennettuna.
+
 - [React](https://facebook.github.io/react/): komponentit
 - [Bacon.js](https://baconjs.github.io/): tilan hallinta
 - [Ramda](https://github.com/ramda/ramda): JavaScript-apumetodit
