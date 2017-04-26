@@ -77,7 +77,7 @@ function NotificationCategoryCheckboxes (props) {
                 className="col-12 sm-col-6 lg-col-4 sm-pr1"
               >
                 <Checkbox
-                  label={category.name}
+                  label={translate(category.name)}
                   checked={isCategoryChecked(category.id, selectedCategories)}
                   value={category.id}
                   onChange={handleCategoryChange}

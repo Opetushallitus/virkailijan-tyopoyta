@@ -167,7 +167,7 @@ function Targeting (props) {
             {categories.map(category =>
               <div key={`releaseCategory${category.id}`} className="mb1">
                 <Checkbox
-                  label={category.name}
+                  label={translate(category.name)}
                   checked={isCategoryChecked(category.id, release.categories)}
                   value={category.id}
                   onChange={handleCategoryChange}
@@ -227,7 +227,7 @@ function Targeting (props) {
             <div className="mb2">{translate('tiedotteenavainsanat')} *</div>
 
             {tagGroups.map(tagGroup =>
-              <Fieldset key={`notificationTagGroup${tagGroup.id}`} legend={tagGroup.name}>
+              <Fieldset key={`notificationTagGroup${tagGroup.id}`} legend={translate(tagGroup.name)}>
                 <CheckboxButtonGroup
                   groupId={tagGroup.id}
                   htmlId="notification-tag"

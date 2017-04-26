@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react'
 import R from 'ramda'
 
 import CheckboxButton from './CheckboxButton'
+import { translate } from '../Translations'
 
 const propTypes = {
   htmlId: PropTypes.string.isRequired,
@@ -36,7 +37,7 @@ function CheckboxButtonGroup (props) {
             key={htmlId + option.id}
             id={option.id}
             htmlId={htmlId}
-            label={option.name}
+            label={translate(option.name)}
             checked={isChecked(selectedOptions, option.id)}
             disabled={disabled}
             onChange={onChange}
