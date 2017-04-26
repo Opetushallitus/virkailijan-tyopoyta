@@ -105,8 +105,8 @@ export function appState () {
     // Notifications
     [notifications.fetchBus], notifications.onReceived,
     [notifications.fetchFailedBus], notifications.onFetchFailed,
-    [notifications.notificationRemovedBus], notifications.onNotificationRemoved,
-    [notifications.removeNotificationFailedBus], notifications.onRemoveNotificationFailed,
+    [notifications.releaseRemovedBus], notifications.onReleaseRemoved,
+    [notifications.removeReleaseFailedBus], notifications.onRemoveReleaseFailed,
     [notifications.saveCategoriesFailedBus], notifications.onSaveCategoriesFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,

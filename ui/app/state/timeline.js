@@ -16,13 +16,8 @@ const removeItemFailedBus = new Bacon.Bus()
 
 // GET requests
 
-function fetch (options) {
+function fetch ({ month, year }) {
   console.log('Fetching timeline')
-
-  const {
-    month,
-    year
-  } = options
 
   http({
     url: urls.timeline,
@@ -270,7 +265,7 @@ function onItemRemoved (state, { nodeSelector, parentSelector }) {
 
   view.alertsBus.push(alert)
 
-  // Fade out the deleted timeline item's DOM node and fetch next month if necessary
+  // Fade out the deleted timeline item's DOM node and fetch next month if spinner comes to viewport
   setTimeout(() => {
     node.style.opacity = 0
   }, 500)

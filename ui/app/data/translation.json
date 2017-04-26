@@ -1424,17 +1424,17 @@
   {
     "locale": "fi",
     "key": "vahvistatiedotteenpoistaminen",
-    "value": "Vahvista tiedotteen poistaminen"
+    "value": "Vahvista tiedotteen ja tapahtumien poistaminen"
   },
   {
     "locale": "fi",
     "key": "tiedotteenpoistoepaonnistui",
-    "value": "Tiedotteen poistaminen epäonnistui"
+    "value": "Tiedotteen ja tapahtumien poistaminen epäonnistui"
   },
   {
     "locale": "fi",
-    "key": "tiedotepoistettu",
-    "value": "Tiedote poistettu"
+    "key": "tiedotejatapahtumapoistettu",
+    "value": "Tiedote ja tapahtuma(t) poistettu"
   },
   {
     "locale": "fi",

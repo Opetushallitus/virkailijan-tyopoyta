@@ -1,7 +1,9 @@
 import R from 'ramda'
 import Bacon from 'baconjs'
+import moment from 'moment'
 
 import view from '../view'
+import timeline from '../timeline'
 import editor from '../editor/editor'
 import http from '../utils/http'
 import toggleValue from '../utils/toggleValue'
@@ -11,8 +13,8 @@ import urls from '../../data/virkailijan-tyopoyta-urls.json'
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
 const saveCategoriesFailedBus = new Bacon.Bus()
-const notificationRemovedBus = new Bacon.Bus()
-const removeNotificationFailedBus = new Bacon.Bus()
+const releaseRemovedBus = new Bacon.Bus()
+const removeReleaseFailedBus = new Bacon.Bus()
 
 // GET requests
 
@@ -165,7 +167,7 @@ function onSaveCategoriesFailed (state) {
 // DELETE requests
 
 function confirmRemove (state, { notification, index }) {
-  console.log('Removing notification with id', notification.id)
+  console.log('Removing release with id', notification.releaseId)
 
   // Set path depending if the removed notification has a variant (e.g. a disruption notification)
   const path = notification.variant
@@ -178,12 +180,12 @@ function confirmRemove (state, { notification, index }) {
   )(notification)
 
   http({
-    url: `${urls.notifications}/${notification.id}`,
+    url: `${urls.release}/${notification.releaseId}`,
     requestOptions: {
       method: 'DELETE'
     },
-    onSuccess: () => notificationRemovedBus.push({ notification, index }),
-    onError: () => removeNotificationFailedBus.push({ notification, index })
+    onSuccess: () => releaseRemovedBus.push({ notification, index }),
+    onError: () => removeReleaseFailedBus.push({ notification, index })
   })
 
   return R.assocPath(
@@ -193,12 +195,15 @@ function confirmRemove (state, { notification, index }) {
   )
 }
 
-function onNotificationRemoved (state, { notification, index }) {
-  console.log('Notification removed')
+function onReleaseRemoved (state, { notification, index }) {
+  console.log('Release removed')
+
+  const month = moment().format('M')
+  const year = moment().format('YYYY')
 
   const alert = createAlert({
     variant: 'success',
-    titleKey: 'tiedotepoistettu'
+    titleKey: 'tiedotejatapahtumapoistettu'
   })
 
   view.alertsBus.push(alert)
@@ -214,14 +219,16 @@ function onNotificationRemoved (state, { notification, index }) {
     ? R.path(['notifications', 'count'], state)
     : R.dec(R.path(['notifications', 'count'], state))
 
-  // Get first page if notification was related to a timeline item
+  // Get first page if notification was related to a timeline item (the notification is the only item on the list)
   if (notification.isRelatedToTimelineItem) {
     fetch({ page: 1 })
 
     return R.assoc(prop, emptyNotifications(), state)
   }
 
+  // Reset timeline and remove notification
   return R.compose(
+    R.assoc('timeline', timeline.initialState),
     R.assocPath(
       path,
       R.update(index, R.assoc('isRemoved', true, notification), R.path(path, state)),
@@ -230,8 +237,8 @@ function onNotificationRemoved (state, { notification, index }) {
   )(state)
 }
 
-function onRemoveNotificationFailed (state, notification, index) {
-  console.error('Remove notification failed')
+function onRemoveReleaseFailed (state, { notification, index }) {
+  console.error('Remove release failed')
 
   const path = notification.variant
     ? [`${notification.variant}Notifications`, 'items']
@@ -239,7 +246,7 @@ function onRemoveNotificationFailed (state, notification, index) {
 
   const alert = createAlert({
     variant: 'error',
-    titleKey: 'tiedotteenpoistoepaonnistui'
+    titleKey: 'tiedotteenjatapahtumanpoistoepaonnistui'
   })
 
   view.alertsBus.push(alert)
@@ -345,16 +352,16 @@ const initialState = emptyNotifications()
 const notifications = {
   fetchBus,
   fetchFailedBus,
-  notificationRemovedBus,
-  removeNotificationFailedBus,
+  releaseRemovedBus,
+  removeReleaseFailedBus,
   saveCategoriesFailedBus,
   events,
   initialState,
   fetch,
   onReceived,
   onFetchFailed,
-  onNotificationRemoved,
-  onRemoveNotificationFailed,
+  onReleaseRemoved,
+  onRemoveReleaseFailed,
   onSaveCategoriesFailed,
   toggleTag,
   setSelectedTags,
