@@ -36,7 +36,7 @@ ryhmasahkoposti.service.email.url = https://{{host_virkailija}}/ryhmasahkoposti-
 ryhmasahkoposti.service.batch.size = 500
 ryhmasahkoposti.rest.url=https://{{host_virkailija}}/ryhmasahkoposti-service/email
 
-virkailijan.tyopoyta.login="{baseUrl}/cas/login?service={virkailijan-tyopoyta.cas.service}"
+virkailijan-tyopoyta.login="{baseUrl}/cas/login?service={virkailijan-tyopoyta.cas.service}"
 oph.logo.url = http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif
 
 # Quartz settings
