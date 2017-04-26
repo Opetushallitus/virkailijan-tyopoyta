@@ -32,6 +32,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
         .leftJoin(ReleaseUserGroupTable as ug).on(r.id, ug.releaseId)
         .where.eq(r.id, id)
+        .and.eq(r.deleted, false)
     }
     q.one(ReleaseTable(r))
       .toManies(
@@ -184,7 +185,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     val sql = withSQL[Release] {
        timelineJoins
-        .where.between(tl.date, startDate, endDate)
+         .where.eq(r.deleted, false)
+        .and.between(tl.date, startDate, endDate)
         .and.withRoundBracket(_.in(rc.categoryId, cats).or.isNull(rc.categoryId))
     }
 
@@ -521,7 +523,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   override def deleteRelease(user: User, id: Long): Int = {
     val count = DB localTx { implicit session =>
-      withSQL{update(ReleaseTable).set(ReleaseTable.column.deleted -> true)}.update().apply()
+      withSQL{update(ReleaseTable as r).set(ReleaseTable.column.deleted -> true).where.eq(r.id, id)}.update().apply()
     }
     AuditLog.auditDeleteRelease(user, id)
     count
