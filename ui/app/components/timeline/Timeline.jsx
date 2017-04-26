@@ -92,8 +92,10 @@ class Timeline extends React.Component {
       this.timelineViewport.scrollTop = this.months.offsetTop
     }
 
-    // Automatically fetch next months until items fill the whole timeline node
-    this.props.controller.autoFetchNextMonth()
+    // Automatically load next months until items fill the whole timeline node
+    if (this.months.clientHeight < this.timeline.clientHeight) {
+      this.props.controller.getNextMonth()
+    }
   }
 
   fetchTimeline (event) {
