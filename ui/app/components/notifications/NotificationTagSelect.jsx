@@ -80,8 +80,8 @@ class NotificationTagSelect extends React.Component {
       option.tags.map(item => {
         return {
           value: item.id,
-          text: item.name,
-          description: option.name
+          text: translate(item.name),
+          description: translate(option.name)
         }
       })
     )
