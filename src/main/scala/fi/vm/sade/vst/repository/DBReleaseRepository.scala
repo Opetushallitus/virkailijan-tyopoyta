@@ -226,7 +226,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => TagTable.opt(t)(rs),
       rs => TagGroupCategoryTable.opt(tgc)(rs))
       .map{
-        (tagGroup, tags, categories) => tagGroup.copy(tags = tags, categories = categories.map(_.categoryId))
+        (tagGroup, tags, categories) => tagGroup.copy(tags = tags.sortBy(_.id), categories = categories.map(_.categoryId))
       }.list.apply().filter(tagGroupShownToUser(_, user))
   }
 
