@@ -28,8 +28,6 @@ function onReceived (state, response) {
   // Get rest of the necessary data
   getStateData(state)
 
-  window.translations = response
-
   return R.compose(
     R.assocPath(['translations', 'items'], response),
     R.assocPath(['translations', 'isLoading'], false)

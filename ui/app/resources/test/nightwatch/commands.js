@@ -7,16 +7,22 @@ module.exports = {
         password
       } = browser.globals.luokka
 
+      const loginAlert = browser.page.pageObjects().elements.loginAlert.selector
       const container = browser.page.pageObjects().elements.container.selector
 
       browser
-        .url('http://google.com')
-        .execute(`window.open("${url}")`)
-        .windowHandles(result => browser.switchWindow(result.value[1]))
-        .waitForElementPresent('input#username', 5000)
-        .setValue('input#username', username)
-        .setValue('input#password', [password, browser.Keys.ENTER])
-        .execute(`window.location.replace("${browser.launch_url}")`)
+        .init()
+        .waitForElementPresent(loginAlert, 5000, function () {
+          browser
+            .execute(`window.open("${url}")`)
+            .windowHandles(result => this.switchWindow(result.value[1]))
+            .setValue('input#username', username)
+            .setValue('input#password', [password, browser.Keys.ENTER])
+            .execute('window.close()')
+            .windowHandles(result => this.switchWindow(result.value[0]))
+            .execute('location.reload()')
+            .waitForElementNotPresent(loginAlert, 5000)
+        })
 
       browser.expect.element(container).to.be.visible.after(5000)
     }

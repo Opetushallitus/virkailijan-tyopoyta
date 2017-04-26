@@ -62,8 +62,8 @@ class App extends React.Component {
               <Alert
                 id={1}
                 variant="error"
-                titleKey="kayttajatietojenhakuepaonnistui"
-                textKey="paivitasivu"
+                titleKey="Käyttäjätietojen haku epäonnistui"
+                textKey="Kirjaudu aluksi luokalle ja päivitä sivu"
               />
             </div>
             : null

@@ -44,17 +44,11 @@ function onReceived (state, user) {
 function onFetchFailed (state, error) {
   console.error('Fetching user info failed')
 
-  let loginUrl = window.location.hostname === 'localhost' ? urls['luokka.login'] : urls['cas.login']
+  // Redirect to login page on test/QA/production environment, display error on localhost if response is not JSON
+  if (error.toString().indexOf('SyntaxError') >= 0 && window.location.hostname !== 'localhost') {
+    console.warn('Sign in to CAS first')
 
-  // Redirect to login page on test/QA/production environment, open login page on dev if response is not JSON
-  if (error.toString().indexOf('SyntaxError') >= 0) {
-    console.warn('Sign in to CAS first and refresh the page')
-
-    window.location.hostname === 'localhost'
-      ? window.open(urls['luokka'])
-      : window.location.replace(loginUrl)
-
-    return state
+    window.location.replace(urls['cas.login'])
   }
 
   return R.compose(
