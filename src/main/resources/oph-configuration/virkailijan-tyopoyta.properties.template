@@ -32,6 +32,8 @@ db.page.length=50
 
 #Ryhmäsähköposti
 ryhmasahkoposti.cas.service = https://{{host_virkailija}}/ryhmasahkoposti-service
+ryhmasahkoposti.cas.username={{virkailijan_tyopoyta_cas_user}}
+ryhmasahkoposti.cas.password={{virkailijan_tyopoyta_cas_password}}
 ryhmasahkoposti.service.email.url = https://{{host_virkailija}}/ryhmasahkoposti-service/email
 ryhmasahkoposti.service.batch.size = 500
 ryhmasahkoposti.rest.url=https://{{host_virkailija}}/ryhmasahkoposti-service/email
