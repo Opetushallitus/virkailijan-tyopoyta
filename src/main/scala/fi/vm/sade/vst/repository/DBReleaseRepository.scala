@@ -596,6 +596,4 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       .apply()
       .flatMap(r => release(r.id))
   }
-
-  def emailLogs: Seq[EmailEvent] = withSQL{select.from(EmailEventTable as ee)}.map(EmailEventTable(ee)).list.apply
 }

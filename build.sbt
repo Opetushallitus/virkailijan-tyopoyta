@@ -11,6 +11,8 @@ mainClass in (Compile, run) := Some("fi.vm.sade.vst.Main")
 
 resourceDirectory in (Compile, run) := baseDirectory.value / "resources"
 
+parallelExecution in Test := false
+
 val AkkaHttpVersion   = "10.0.0"
 
 resolvers += "oph-sade-artifactory-snapshots" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-snapshot-local"
@@ -62,6 +64,6 @@ libraryDependencies ++= Seq(
 // Test libraries
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % "test",
-  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
-  "org.specs2" %% "specs2-core" % "3.8.9" % "test"
+  "org.specs2" %% "specs2-core" % "3.8.9" % "test",
+  "org.specs2" %% "specs2-junit" % "3.8.9" % "test"
 )

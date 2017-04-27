@@ -24,7 +24,6 @@ trait ReleaseRepository{
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup]
   def emailReleasesForDate(date: LocalDate): Seq[Release]
-  def emailLogs: Seq[EmailEvent]
 
   def deleteRelease(user: User, id: Long): Int
   def addRelease(user: User, release: ReleaseUpdate): Option[Release]

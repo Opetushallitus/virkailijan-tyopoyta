@@ -267,34 +267,31 @@ class Routes(authenticationService: UserService,
 
   val emailRoutes: Route = withAdminUser {user =>
     get {
-      path("emailLogs") {
-        sendResponse(Future(releaseRepository.emailLogs))
-      } ~
-        path("releasesForDate") {
-          parameters("year".as[Int], "month".as[Int], "day".as[Int]) {
-            (year, month, day) => {
-              val date = java.time.LocalDate.of(year, month, day)
-              val releases = releaseRepository.emailReleasesForDate(date)
-              sendResponse(Future(releases))
-            }
-          }
-        } ~
-        path("emailhtml") {
-          parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
-            (year, month, day) => {
-              sendHtml(Future {
-                val date = (for {
-                  y <- year
-                  m <- month
-                  d <- day
-                } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
-                val releases = releaseRepository.emailReleasesForDate(date)
-                val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
-                emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
-              })
-            }
+      path("releasesForDate") {
+        parameters("year".as[Int], "month".as[Int], "day".as[Int]) {
+          (year, month, day) => {
+            val date = java.time.LocalDate.of(year, month, day)
+            val releases = releaseRepository.emailReleasesForDate(date)
+            sendResponse(Future(releases))
           }
         }
+      } ~
+      path("emailhtml") {
+        parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
+          (year, month, day) => {
+            sendHtml(Future {
+              val date = (for {
+                y <- year
+                m <- month
+                d <- day
+              } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
+              val releases = releaseRepository.emailReleasesForDate(date)
+              val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
+              emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
+            })
+          }
+        }
+      }
     }
     post {
       pathPrefix("email") {
