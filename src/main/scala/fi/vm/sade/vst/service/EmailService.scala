@@ -55,12 +55,16 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def filterUserInformation(userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
-    val userProfiles = userService.userProfiles(userInformation.map(_.userOid)).groupBy(_.userId)
+  private def filterUserInformation(release: Release, userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
+    val userProfiles = userService.userProfiles(userInformation.map(_.userOid)).map(profile => profile.userId -> profile).toMap
 
     userInformation.filter { user =>
-      val profiles = userProfiles.getOrElse(user.userOid, Seq.empty)
-      !profiles.exists(!_.sendEmail)
+      val profile = userProfiles.get(user.userOid)
+      val profileCategories = profile.map(_.categories).getOrElse(Seq.empty)
+      val allowedCategories = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
+
+      val sendEmail = !profile.exists(!_.sendEmail)
+      sendEmail && allowedCategories
     }
   }
 
@@ -68,7 +72,7 @@ class EmailService(casUtils: CasUtils,
     val userInfoToReleases = releases.flatMap { release =>
       val userGroups = userGroupIdsForRelease(release)
       val userInformation = basicUserInformationForUserGroups(userGroups)
-      val userInfo = filterUserInformation(userInformation)
+      val userInfo = filterUserInformation(release, userInformation)
       userInfo.map(_ -> release)
     }
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
