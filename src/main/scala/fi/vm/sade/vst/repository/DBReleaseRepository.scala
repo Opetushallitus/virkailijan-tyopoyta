@@ -94,7 +94,6 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     .leftJoin(NotificationTable as n)
     .on(sqls.eq(r.id, n.releaseId)
       .and(sqls.le(n.publishDate, LocalDate.now()))
-      .and(sqls.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate))
       .and(sqls.eq(n.deleted, false)))
     .leftJoin(TimelineContentTable as tc).on(tl.id, tc.timelineId)
 
@@ -176,6 +175,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     notificationsFromRS(sql, user).headOption
   }
 
+  private def notificationExpired(notification: Option[Notification]): Boolean =
+    notification.flatMap(_.expiryDate.map(!_.isAfter(LocalDate.now()))).getOrElse(false)
+
   private def listTimeline(selectedCategories: RowIds, month: YearMonth, user: User): Seq[TimelineItem] = {
 
     val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories.get else user.allowedCategories
@@ -197,7 +199,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => TimelineContentTable.opt(tc)(rs),
       rs => NotificationTable.opt(n)(rs)).map {
         (_, categories, userGroups, timeline, content, notification) =>
-          if(releaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)){
+          if(releaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)
+            && !notificationExpired(notification.headOption)){
             timeline.map(tl =>
               tl.copy(
                 content = content.filter(_.timelineId == tl.id).groupBy(_.language).transform((_, v) => v.head),
