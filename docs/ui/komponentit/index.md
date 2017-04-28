@@ -21,3 +21,6 @@ ideaalitila.
 - osittainen tila: osa komponentin datasta on haettu
 - virhetila: komponenttiin liittyvä AJAX-kutsu on epäonnistunut
 - ideaalitila: data on haettu onnistuneesti
+
+Uusia komponentteja luodessa voi käyttää pohjana `ComponentTemplate.jsx`ää tai
+`StatelessComponentTemplate.jsx`ää.
