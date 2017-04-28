@@ -45,7 +45,7 @@ trait Configuration {
 
   private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
 
-  lazy val config: Config = ConfigFactory.parseFile(confFile).withFallback(referenceConfig)
+  lazy val config: Config = ConfigFactory.parseFile(confFile)
 
   lazy val dBConfig: DBConfig = DBConfig(
     config.getString(s"db.$dbType.uri"),
