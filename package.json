@@ -70,7 +70,7 @@
     "font-awesome": "4.7.0",
     "lodash.debounce": "4.0.8",
     "moment": "2.15.1",
-    "oph-virkailija-style-guide": "github:opetushallitus/virkailija-styles#styleguide",
+    "oph-virkailija-style-guide": "github:opetushallitus/virkailija-styles",
     "ramda": "0.23.0",
     "react": "15.4.2",
     "react-addons-shallow-compare": "15.3.2",

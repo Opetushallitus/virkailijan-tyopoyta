@@ -9,14 +9,24 @@ import scala.xml.{Elem, XML}
 object EmailHtmlService extends Configuration {
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
-  // TODO: Email forming could be done using templates, it was just easier to make if using pure scala for now
+  // TODO: Email forming could be done using templates and TemplateProcessor, it was just easier to make if using pure scala for now
   def htmlString(releases: Iterable[Release], language: String) = {
-    s"""<!DOCTYPE html>
+    s"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         |${htmlBasicFrame(releases, language)}
      """.stripMargin
   }
 
+  def titleForRelease(release: Release, language: String) = {
+    val notificationContent = release.notification.map(_.content)
+    // This defaults to Finnish content if no content is found on given language
+    val releaseContent = notificationContent.flatMap(_.get(language)).orElse(notificationContent.flatMap(_.get("fi")))
+    val title = releaseContent.map(_.title).getOrElse("No title")
+    title
+  }
+
   def htmlTitle(notifications: Iterable[Notification], language: String) = {
+    // Currently not in use. Native mail clients seem to take title as the first row of the message which messes up
+    // the text lining.
     val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
     val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
     val dates = notifications.map(_.publishDate)
@@ -32,15 +42,17 @@ object EmailHtmlService extends Configuration {
   def htmlHeader(date: LocalDate, language: String) = {
     val contentReleases = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentReleases, EmailTranslations.defaultEmailContentReleases)
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
-    <div style="padding-left: 2em; padding-right: 2em;">
-      <p class="release-title">{date.format(formatter)} {contentReleases}:</p>
+    <div style="padding-bottom: 2em;">
+      <div style="padding: 1em 2em 1em 2em;">
+        <h4>{date.format(formatter)} {contentReleases}:</h4>
+      </div>
     </div>
   }
 
   def htmlFooter(language: String) = {
     val loginLink = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailFooterLink, EmailTranslations.defaultEmailFooterLink)
     <div style="background: #FFFFFF; padding: 1em 2em 1em 2em;">
-      <table style="width: 100%; height: 100%;">
+      <table style="width: 100%">
         <tr>
           <td style="text-align: left">
             <a href={loginPage}>{loginLink}</a>
@@ -76,10 +88,9 @@ object EmailHtmlService extends Configuration {
   }
 
   def htmlBasicFrame(releases: Iterable[Release], language: String): Elem = {
-    <html lang="en">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
       <head>
-        <meta charset="UTF-8" />
-        {htmlTitle(releases.flatMap(_.notification), language)}
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
       </head>
       <body style="background: #F6F4F0; font-family: arial;">
         <div style="padding-left: 4em; padding-right: 4em;">
@@ -109,9 +120,15 @@ object EmailHtmlService extends Configuration {
   }
 
   private def mainReleaseContent(releaseContent: String): Either[String, Elem] = {
-    Try(XML.loadString(releaseContent))
+    val wrappedReleaseContent =
+      s"""
+         |<div>
+         |$releaseContent
+         |</div>
+       """.stripMargin
+    Try(XML.loadString(wrappedReleaseContent))
       .toOption
-      .toRight(releaseContent)
+      .toRight(wrappedReleaseContent)
   }
 }
 

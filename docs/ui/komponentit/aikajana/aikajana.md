@@ -14,7 +14,7 @@ Aikajana koostuu:
 `/ui/app/components/timeline/TimelineHeading.jsx`
 
 - [tapahtumista](aikajanan-tapahtuma.md)
-`/ui/app/components/timeline/TimelineDay.jsx`
+`/ui/app/components/timeline/TimelineDay.jsx` ja
 `/ui/app/components/timeline/TimelineItem.jsx`
 
 Aikajanalle haetaan automaattisesti uusia kuukausia niin kauan, kunnes tapahtumat tai 
@@ -64,3 +64,6 @@ Käyttäjä skrollaa sivua:
 Käyttäjä vie kursorin aikajanan päälle / pois aikajanan päältä:
 - sivun vierityspalkki piilotetaan/näytetään (estää sivun skrollauksen samalla 
 jos käyttäjä skrollaa aikajanan alkuun/loppuun)
+
+Käyttäjä muuttaa selainikkunan kokoa
+- haetaan uusia kuukausia jos lopussa oleva latausanimaatio tulee näkyviin

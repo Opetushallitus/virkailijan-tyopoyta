@@ -1,9 +1,13 @@
-## Tiedotelista
+## Tiedotteet
 
 `/ui/app/components/notifications/Notifications.jsx`
 
-Peruskäyttäjä voi katsella tavallisia tiedotteita sekä häiriötiedotteita. 
-Ylläpitokäyttäjä voi avata muokattavaksi ja poistaa tiedotteita.
+Peruskäyttäjä voi katsella [tavallisia tiedotteita sekä häiriötiedotteita](tiedote.md) 
+Ylläpitokäyttäjä voi avata muokattavaksi, poistaa tiedotteita sekä käyttää 
+[tiedotevalikkoa](tiedotevalikko.md).
+
+Tiedotelistaa voi rajata [avainsanojen](tiedotteiden-avainsanarajaus.md) ja 
+[kategorioiden](tiedotteiden-kategoriarajaus.md) perusteella.
 
 Häiriötiedotteet ja tavalliset tiedotteet haetaan backendistä erillisillä AJAX-kutsuilla. 
 Hauissa palautuvat vain ne tiedotteet, joihin käyttäjällä on oikeudet 
