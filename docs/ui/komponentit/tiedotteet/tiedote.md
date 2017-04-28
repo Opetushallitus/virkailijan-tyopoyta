@@ -7,10 +7,6 @@
 Tiedotteen poiston ollessa kesken, painallukset estetään ja sen päällä 
 näytetään latausanimaatio.
 
-## Osittainen tila
-
-Poistuva tiedote häivytetään pois listalta.
-
 ## Virhetila
 
 Jos poisto epäonnistuu, näkymässä näytetään virheilmoitus.
@@ -27,6 +23,7 @@ ei ole)
 - avainsanat
 - laajenna/lyhennä-painikkeet, jos kuvauksen pituus ylittää maksimimerkkimäärän TAI
 sulje-painike, jos tiedote on haettu erikseen listalle aikajanan tapahtumaan liittyvänä
+- punainen vasen reunus, jos kyseessä on häiriötiedote
 
 Ylläpitokäyttäjille:
 - julkaisijan nimikirjaimet
@@ -45,8 +42,8 @@ Käyttäjä painaa poista-painiketta:
 - tiedotteen viereen aukeaa poiston vahvistus -popup
 
 Käyttäjä painaa popupin poista-painiketta:
-- tehdään AJAX-kutsu tiedotteen poistamiseksi, jonka valmistuttua
-tiedote poistetaan listalta
+- tehdään AJAX-kutsu julkaisun poistamiseksi, jonka valmistuttua
+tiedote poistetaan listalta ja aikajana tyhjennetään
 
 Käyttäjä painaa popupin peruuta-painiketta:
 - popup sulkeutuu

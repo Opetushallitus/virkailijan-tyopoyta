@@ -18,7 +18,7 @@ Käyttöliittymän tiedostot ovat polussa `/ui/app`.
 
 ## Paikallinen data
 
-`/data` Käännökset, roolit ja endpointien URL:t.
+`/data` Käännökset ja endpointien URL:t.
 
 ## Staattiset resurssit
 

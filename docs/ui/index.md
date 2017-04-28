@@ -1,4 +1,4 @@
-# Käyttöliittymä
+# Sisällysluettelo
 
 - [Koodityyli](koodityyli.md)
 - [Riippuvuudet](riippuvuudet.md)

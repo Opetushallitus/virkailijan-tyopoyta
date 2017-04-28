@@ -28,11 +28,11 @@ Poikkeukset sääntöihin lisätään projektin juureen `.eslintrc`:hen.
 - käytetään relatiivisia yksikköjä absoluuttisten sijasta (`rem/em/%` > `px/pt`)
 
 Ominaisuudet järjestetään tyypin mukaan:
-1. typografiaan liittyvät (`font-size`, `font-family`...)
-2. ulkoasuun liittyvät (`position`, `display`, `float`, `clear`...)
-3. box modeliin liittyvät (`width`, `height`, `margin`, `padding`...)
-4. ulkonäköön liittyvät (`color`, `background`, `border`...)
-5. muut (`cursor`, `overflow`...)
+1. typografiaan liittyvät – `font-size`, `font-family`, `text-*`...
+2. ulkoasuun liittyvät – `position`, `display`, `float`, `clear`... 
+3. box modeliin liittyvät – `width`, `height`, `margin`, `padding`...
+4. ulkonäköön liittyvät – `border`, `background`, `color`...
+5. muut – `cursor`, `overflow`...
 
 Luokat nimetään komponentin, variantin ja tilan mukaan:
 

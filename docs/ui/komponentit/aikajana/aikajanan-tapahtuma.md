@@ -7,10 +7,6 @@
 Tapahtuman poiston ollessa kesken, painallukset estetään ja sen päällä 
 näytetään latausanimaatio.
 
-## Osittainen tila
-
-Poistuva tapahtuma häivytetään pois aikajanalta.
-
 ## Virhetila
 
 Jos poisto epäonnistuu, näkymässä näytetään virheilmoitus.
