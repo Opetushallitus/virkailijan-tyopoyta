@@ -4,14 +4,15 @@ import fi.vm.sade.vst.AuthenticationConfig
 import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
 import java.util.concurrent.atomic.AtomicReference
 
+import fi.vm.sade.properties.OphProperties
 import fi.vm.sade.vst.repository.ReleaseRepository
 
 import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
-class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository) extends JsonSupport{
+class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository, urls: OphProperties) extends JsonSupport{
   private lazy val groups: AtomicReference[Seq[Kayttooikeusryhma]] = new AtomicReference[Seq[Kayttooikeusryhma]](sortedUserGroups)
-  private val kayttooikeusClient = casUtils.serviceClient(config.kayttooikeusUri)
+  private val kayttooikeusClient = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
   def appGroups: Seq[Kayttooikeusryhma] = groups.get
 
@@ -26,7 +27,7 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
     val body = Option(json)
 
-    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/ryhmasByKayttooikeus",
+    val resp: Try[String] = kayttooikeusClient.authenticatedRequest( urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
       RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
 
     parseResponse(resp)
@@ -52,7 +53,7 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
   def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
 
     if(isAdmin) appGroups else {
-      val groupsResponse = kayttooikeusClient.authenticatedRequest(s"${config.kayttooikeusUri}/kayttooikeusryhma/henkilo/$oid", RequestMethod.GET)
+      val groupsResponse = kayttooikeusClient.authenticatedRequest(urls.url("kayttooikeus-service.userGroupsForUser", oid), RequestMethod.GET)
 
       val groupsForUser = parseResponse(groupsResponse, forUser = true)
 

@@ -1,13 +1,13 @@
 const moment = require('moment')
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka,
+  before: browser => browser.page.pageObjects().login.luokka(browser),
 
   after: browser => {
     browser.end()
   },
 
-  'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
+  'open editor': browser => require('../common/modal')['open modal'](browser, 'editor'),
 
   'set title': (browser, language = 'fi', title = require('crypto').randomBytes(4).toString('hex')) => {
     const editor = browser.page.pageObjects().section.editor

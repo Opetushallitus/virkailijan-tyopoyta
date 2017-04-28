@@ -1,36 +1,27 @@
-const path = require('path')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const validate = require('webpack-validator')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 const esLintFriendlyFormatter = require('eslint-friendly-formatter')
 
-const webpack = require('webpack')
-
-const PATHS = {
-  dev: path.join(__dirname, 'target/scala-2.11/classes/ui'),
-  build: path.join(__dirname, 'src/main/resources/ui'),
-  app: path.join(__dirname, 'ui/app'),
-  style: path.join(__dirname, 'ui/app/resources/styles/app.css'),
-  images: path.join(__dirname, 'ui/app/resources/img'),
-  fonts: path.join(__dirname, 'ui/app/resources/fonts')
-}
+const PATHS = require('./paths.js')
 
 const config = {
   entry: {
     app: PATHS.app,
     style: PATHS.style
   },
+
   output: {
-    path: PATHS.build,
     filename: '[name].js',
     chunkFilename: '[id].js',
     publicPath: '/virkailijan-tyopoyta/'
   },
+
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
-  devtool: 'source-map',
+
   module: {
     loaders: [
       {
@@ -67,33 +58,27 @@ const config = {
       }
     ]
   },
+
   postcss: function (webpack) {
     return [
       require('postcss-smart-import')({ addDependencyTo: webpack }),
       require('postcss-cssnext')()
     ]
   },
+
   eslint: {
     formatter: esLintFriendlyFormatter,
     failOnError: true
   },
-  devServer: {
-    historyApiFallback: true,
-    hot: true,
-    inline: true,
-    stats: 'errors-only'
-  },
+
   plugins: [
-    // new webpack.optimize.UglifyJsPlugin({
-    //   compress: { warnings: false }
-    // }),
+    new webpack.EnvironmentPlugin([
+      'NODE_ENV'
+    ]),
     new ExtractTextPlugin('[name].css'),
-    new CleanWebpackPlugin([PATHS.build, PATHS.dev], {
-      root: process.cwd()
-    }),
     new HtmlWebpackPlugin({
       template: 'ui/app/index.html',
-      title: 'Login',
+      title: 'App',
       appMountId: 'app',
       inject: false
     }),

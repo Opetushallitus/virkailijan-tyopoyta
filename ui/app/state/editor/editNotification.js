@@ -1,7 +1,8 @@
 import R from 'ramda'
 
-import targeting from './targeting'
 import { validate, rules } from './validation'
+
+// Update methods
 
 function update (state, { prop, value }) {
   console.log('Updating notification', prop, value)
@@ -19,23 +20,25 @@ function update (state, { prop, value }) {
 
   const newState = R.assocPath(path, validatedNotification, state)
 
+  // Also validate release when notification is updated, since release's validationState depends on the notification
+  const validatedRelease = validate(
+    newState.editor.editedRelease,
+    rules(newState)['release']
+  )
+
   return R.assocPath(
     ['editor', 'editedRelease'],
-    validate(
-      newState.editor.editedRelease,
-      rules(newState)['release']
-    ),
+    validatedRelease,
     newState
   )
 }
 
+// Update content.{language}.{prop}
 function updateContent (state, { prop, language, value }) {
   return update(state, { prop: ['content', language, prop], value })
 }
 
-function setAsDisruptionNotification (state, id) {
-  return targeting.toggleTag(state, id)
-}
+// Initial state
 
 function emptyContent (id, language) {
   return {
@@ -64,8 +67,7 @@ function emptyNotification () {
 
 const events = {
   update,
-  updateContent,
-  setAsDisruptionNotification
+  updateContent
 }
 
 const editNotification = {
@@ -73,8 +75,7 @@ const editNotification = {
   emptyNotification,
   emptyContent,
   update,
-  updateContent,
-  setAsDisruptionNotification
+  updateContent
 }
 
 export default editNotification

@@ -32,7 +32,7 @@ class EmailService(casUtils: CasUtils,
   lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
 
   private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
-  private def userAccessService = casUtils.serviceClient(authenticationConfig.kayttooikeusUri)
+  private def userAccessService = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
@@ -55,12 +55,16 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def filterUserInformation(userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
-    val userProfiles = userService.userProfiles(userInformation.map(_.userOid)).groupBy(_.userId)
+  private def filterUserInformation(release: Release, userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
+    val userProfiles = userService.userProfiles(userInformation.map(_.userOid)).map(profile => profile.userId -> profile).toMap
 
     userInformation.filter { user =>
-      val profiles = userProfiles.getOrElse(user.userOid, Seq.empty)
-      !profiles.exists(!_.sendEmail)
+      val profile = userProfiles.get(user.userOid)
+      val profileCategories = profile.map(_.categories).getOrElse(Seq.empty)
+      val allowedCategories = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
+
+      val sendEmail = !profile.exists(!_.sendEmail)
+      sendEmail && allowedCategories
     }
   }
 
@@ -68,7 +72,7 @@ class EmailService(casUtils: CasUtils,
     val userInfoToReleases = releases.flatMap { release =>
       val userGroups = userGroupIdsForRelease(release)
       val userInformation = basicUserInformationForUserGroups(userGroups)
-      val userInfo = filterUserInformation(userInformation)
+      val userInfo = filterUserInformation(release, userInformation)
       userInfo.map(_ -> release)
     }
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
@@ -115,7 +119,7 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
-    val response = userAccessService.authenticatedRequest(s"${authenticationConfig.kayttooikeusUri}/kayttooikeusryhma/$groupOid/henkilot", RequestMethod.GET)
+    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString),RequestMethod.GET)
     response match {
       case Success(s) => parsePersonOidsFromResponse(s)
       case Failure(f) => Seq.empty

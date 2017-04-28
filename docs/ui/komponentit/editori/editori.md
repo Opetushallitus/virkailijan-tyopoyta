@@ -50,6 +50,8 @@ kestänyt yli yhden sekunnin:
 - käyttöoikeusyhmien tai
 - avainsanaryhmien
 
+Editorin sulkeminen estetään julkaisemisen ajaksi.
+
 ## Virhetila
 
 Jos jonkin edellä mainitun haku epäonnistuu, näytetään virheilmoitus editorissa. 

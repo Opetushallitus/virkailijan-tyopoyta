@@ -80,8 +80,8 @@ class NotificationTagSelect extends React.Component {
       option.tags.map(item => {
         return {
           value: item.id,
-          text: item.name,
-          description: option.name
+          text: translate(item.name),
+          description: translate(option.name)
         }
       })
     )
@@ -125,6 +125,7 @@ class NotificationTagSelect extends React.Component {
           noResultsMessage={translate('eitunnisteita')}
           onChange={this.handleChange}
           onLabelClick={this.handleLabelClick}
+          closeOnChange
           options={tagGroups.isLoading ? [] : this.mapDropdownOptions()}
           placeholder={translate(this.getPlaceholderKey())}
           search

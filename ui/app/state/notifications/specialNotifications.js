@@ -2,7 +2,7 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import view from '../view'
-import getData from '../utils/getData'
+import http from '../utils/http'
 import createAlert from '../utils/createAlert'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
 
@@ -12,25 +12,28 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch (options) {
   console.log('Fetching special notifications')
 
-  getData({
+  http({
     url: urls['special.notifications'],
     onSuccess: notifications => fetchBus.push(notifications),
     onError: error => fetchFailedBus.push(error)
   })
 }
 
-function onReceived (state, response) {
+function onReceived (state, notifications) {
   console.log('Received special notifications')
 
-  R.forEach(item => (item.variant = 'special'), response)
+  // Set variant for rendering and state handling
+  R.forEach(item => (item.variant = 'special'), notifications)
 
   return R.compose(
-    R.assocPath(['specialNotifications', 'items'], response),
+    R.assocPath(['specialNotifications', 'items'], notifications),
     R.assocPath(['specialNotifications', 'isLoading'], false)
   )(state)
 }
 
 function onFetchFailed (state) {
+  console.error('Fetching special notifications failed')
+
   const alert = createAlert({
     variant: 'error',
     titleKey: 'hairiotiedotteidenhakuepaonnistui',
@@ -45,13 +48,7 @@ function onFetchFailed (state) {
   )(state)
 }
 
-function reset () {
-  fetch()
-
-  return emptyState()
-}
-
-function emptyState () {
+function emptyNotifications () {
   return {
     items: [],
     isLoading: true,
@@ -59,7 +56,7 @@ function emptyState () {
   }
 }
 
-const initialState = emptyState()
+const initialState = emptyNotifications()
 
 const specialNotifications = {
   fetchBus,
@@ -67,8 +64,7 @@ const specialNotifications = {
   initialState,
   fetch,
   onReceived,
-  onFetchFailed,
-  reset
+  onFetchFailed
 }
 
 export default specialNotifications

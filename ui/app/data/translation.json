@@ -1424,17 +1424,17 @@
   {
     "locale": "fi",
     "key": "vahvistatiedotteenpoistaminen",
-    "value": "Vahvista tiedotteen poistaminen"
+    "value": "Vahvista tiedotteen ja tapahtumien poistaminen"
   },
   {
     "locale": "fi",
     "key": "tiedotteenpoistoepaonnistui",
-    "value": "Tiedotteen poistaminen epäonnistui"
+    "value": "Tiedotteen ja tapahtumien poistaminen epäonnistui"
   },
   {
     "locale": "fi",
-    "key": "tiedotepoistettu",
-    "value": "Tiedote poistettu"
+    "key": "tiedotejatapahtumapoistettu",
+    "value": "Tiedote ja tapahtuma(t) poistettu"
   },
   {
     "locale": "fi",
@@ -1480,5 +1480,215 @@
     "locale": "fi",
     "key": "sahkopostinlahetysepaonnistui",
     "value": "Sähköpostin lähetys epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "Perusopetus",
+    "value": "Perusopetus"
+  },
+  {
+    "locale": "fi",
+    "key": "Ammatillinenkoulutus",
+    "value": "Ammatillinen koulutus"
+  },
+  {
+    "locale": "fi",
+    "key": "erityisopetus",
+    "value": "Erityisopetus"
+  },
+  {
+    "locale": "fi",
+    "key": "Lukiokoulutus",
+    "value": "Lukiokoulutus"
+  },
+  {
+    "locale": "fi",
+    "key": "yhteishautamm",
+    "value": "Yhteishaut (ammatillinen)"
+  },
+  {
+    "locale": "fi",
+    "key": "Korkeakoulutus",
+    "value": "Korkeakoulutus"
+  },
+  {
+    "locale": "fi",
+    "key": "yhteihautlukiot",
+    "value": "Yhteishaut (lukiot)"
+  },
+  {
+    "locale": "fi",
+    "key": "PJVK-haut",
+    "value": "PJVK-haut"
+  },
+  {
+    "locale": "fi",
+    "key": "vapaasivistys",
+    "value": "Vapaa sivistystyö"
+  },
+  {
+    "locale": "fi",
+    "key": "perus",
+    "value": "Perusopetus ja toinen aste"
+  },
+  {
+    "locale": "fi",
+    "key": "vapaasivistystyö",
+    "value": "Vapaa sivistystyö"
+  },
+  {
+    "locale": "fi",
+    "key": "Aikataulut",
+    "value": "Aikataulut"
+  },
+  {
+    "locale": "fi",
+    "key": "Kielikoe",
+    "value": "Kielikoe"
+  },
+  {
+    "locale": "fi",
+    "key": "Koski",
+    "value": "Koski"
+  },
+  {
+    "locale": "fi",
+    "key": "Kehitystyö",
+    "value": "Kehitystyö"
+  },
+  {
+    "locale": "fi",
+    "key": "Käyttöoikeudet",
+    "value": "Käyttöoikeudet"
+  },
+  {
+    "locale": "fi",
+    "key": "Opintopolku-info",
+    "value": "Opintopolku-info"
+  },
+  {
+    "locale": "fi",
+    "key": "Opo-paketti",
+    "value": "Opo-paketti"
+  },
+  {
+    "locale": "fi",
+    "key": "Oppivalmiustesti",
+    "value": "Oppivalmiustesti"
+  },
+  {
+    "locale": "fi",
+    "key": "paasyjasoveltuvuus",
+    "value": "Pääsy- ja soveltuvuuskoe"
+  },
+  {
+    "locale": "fi",
+    "key": "Tarjonta",
+    "value": "Tarjonta"
+  },
+  {
+    "locale": "fi",
+    "key": "Tiedonsiirrot",
+    "value": "Tiedonsiirrot"
+  },
+  {
+    "locale": "fi",
+    "key": "Tilastot",
+    "value": "Tilastot"
+  },
+  {
+    "locale": "fi",
+    "key": "Valinnat",
+    "value": "Valinnat"
+  },
+  {
+    "locale": "fi",
+    "key": "Raportit",
+    "value": "Raportit"
+  },
+  {
+    "locale": "fi",
+    "key": "Aikataulut",
+    "value": "Aikataulut"
+  },
+  {
+    "locale": "fi",
+    "key": "Erillishaku",
+    "value": "Erillishaku"
+  },
+  {
+    "locale": "fi",
+    "key": "Hakulomakkeen hallinta",
+    "value": "Hakulomakkeen hallinta"
+  },
+  {
+    "locale": "fi",
+    "key": "Kehitystyö",
+    "value": "Kehitystyö"
+  },
+  {
+    "locale": "fi",
+    "key": "Käyttöoikeudet",
+    "value": "Käyttöoikeudet"
+  },
+  {
+    "locale": "fi",
+    "key": "Lisähaku",
+    "value": "Lisähaku"
+  },
+  {
+    "locale": "fi",
+    "key": "Opintopolku-info",
+    "value": "Opintopolku-info"
+  },
+  {
+    "locale": "fi",
+    "key": "Opo-paketti",
+    "value": "Opo-paketti"
+  },
+  {
+    "locale": "fi",
+    "key": "Raportit",
+    "value": "Raportit"
+  },
+  {
+    "locale": "fi",
+    "key": "Tarjonta",
+    "value": "Tarjonta"
+  },
+  {
+    "locale": "fi",
+    "key": "Tiedonsiirrot",
+    "value": "Tiedonsiirrot"
+  },
+  {
+    "locale": "fi",
+    "key": "Tilastot",
+    "value": "Tilastot"
+  },
+  {
+    "locale": "fi",
+    "key": "Valinnat",
+    "value": "Valinnat"
+  },
+  {
+    "locale": "fi",
+    "key": "Valintakoe",
+    "value": "Valintakoe"
+  },
+  {
+    "locale": "fi",
+    "key": "Yhteishaku",
+    "value": "Yhteishaku"
+  },
+  {
+    "locale": "fi",
+    "key": "Käyttöoikeudet",
+    "value": "Käyttöoikeudet"
+  },
+  {
+    "locale": "fi",
+    "key": "Tarjonta",
+    "value": "Tarjonta"
   }
 ]

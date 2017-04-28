@@ -1,6 +1,6 @@
 import Bacon from 'baconjs'
 
-module.exports = function () {
+export default function Dispatcher () {
   const busCache = {}
 
   this.stream = function (name) {

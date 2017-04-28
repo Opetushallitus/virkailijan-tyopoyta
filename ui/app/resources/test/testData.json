@@ -1,136 +1,29 @@
 {
-  "releases": [
+  "userGroups": [
     {
-      "id": 1,
-      "notification":
-      {
-        "id": 1,
-        "releaseId": 1,
-        "content": {
-          "fi": {
-            "title": "Häiriötiedote",
-            "text": "<p><strong>AIKU</strong>-palvelussa käyttökatko 1.2.2017 kello 01:00-03:00</p>"
-          },
-          "sv": {
-            "title": "Häiriötiedote",
-            "text": "<p><strong>AIKU</strong>-palvelussa käyttökatko 1.2.2017 kello 01:00-03:00</p>"
-          }
-        },
-        "startDate": "1.1.2017",
-        "endDate": "23.7.2017",
-        "initialDate": "1.1.2017",
-        "tags": [1, 2],
-        "created": "20.12.2016 12:07",
-        "creator": "CS"
-      },
-      "timeline": [
-        {
-          "id": 1,
-          "releaseId": 1,
-          "initialDate": "1.2.2017",
-          "date": "1.2.2017",
-          "content": {
-            "fi": {
-              "text": "AIKU-palvelussa käyttökatko"
-            },
-            "sv": {
-              "text": "AIKU-palvelussa käyttökatko"
-            }
-          }
-        }
-      ],
-
-      "categories": [1, 2],
-      "userGroups": [2, 3],
-      "focusedCategory": 1,
-      "focusedUserGroups": [1, 3],
-      "sendEmail": true
-    }
-  ],
-  "unpublishedReleases": [
+      "categories": [2, 3, 4, 5, 6, 7],
+      "id": 1216,
+      "description": {
+        "EN": "Vastuukäyttäjä (virallinen ryhmä)",
+        "FI": "Vastuukäyttäjä (virallinen ryhmä)",
+        "SV": "Vastuukäyttäjä (SV)"
+      }
+    },
     {
-      "id": 2,
-      "notification":
-      {
-        "id": 2,
-        "releaseId": 2,
-        "content": {
-          "fi": {
-            "title": "Hakuaika alkaa",
-            "text": "<p>Kevään ensimmäinen hakuaika alkaa. Haku koskee vieraskielisiä ammattikorkeakoulututkintoon johtavia koulutuksia ja vieraskielisiä yliopistojen pelkästään alempaan korkeakoulututkintoon...</p>"
-          },
-          "sv": {
-            "title": "Hakuaika alkaa",
-            "text": "<p>Kevään ensimmäinen hakuaika alkaa. Haku koskee vieraskielisiä ammattikorkeakoulututkintoon johtavia koulutuksia ja vieraskielisiä yliopistojen pelkästään alempaan korkeakoulututkintoon...</p>"
-          }
-        },
-        "startDate": "1.6.2017",
-        "endDate": "1.7.2017",
-        "initialDate": "1.6.2017",
-        "tags": [3],
-        "created": "23.5.2016 12:07",
-        "creator": "CS"
-      },
-      "timeline": [],
-      "categories": [3],
-      "userGroups": [1],
-      "focusedCategory": null,
-      "focusedUserGroups": [],
-      "sendEmail": false
-    }
-  ],
-  "timeline": [
-    {
-      "id": 1,
-      "releaseId": 1,
-      "initialDate": "1.2.2017",
-      "date": "1.2.2017",
-      "content": {
-        "fi": {
-          "text": "<p>AIKU-palvelussa <a href='test'>käyttökatko</a></p>"
-        },
-        "sv": {
-          "text": "<p>AIKU-palvelussa käyttökatko</p>"
-        }
+      "categories": [8],
+      "id": 1560,
+      "description": {
+        "EN": "Valintakäyttäjä (EN)",
+        "FI": "Valintakäyttäjä (virallinen ryhmä)",
+        "SV": "Valintakäyttäjä (SV)"
       }
     }
   ],
-  "categories": [
+  "targetingGroups": [
     {
+      "data": "{\"categories\":[1],\"userGroups\":[1216],\"tags\":[1,2]}",
       "id": 1,
-      "name": "Perusopetus"
-    },
-    {
-      "id": 2,
-      "name": "Lukiokoulutus"
-    },
-    {
-      "id": 3,
-      "name": "Yhteishaut (lukiot)"
-    },
-    {
-      "id": 4,
-      "name": "Ammatillinen koulutus"
-    },
-    {
-      "id": 5,
-      "name": "Yhteishaut (amm.)"
-    },
-    {
-      "id": 6,
-      "name": "PJVK-haut"
-    },
-    {
-      "id": 7,
-      "name": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haku"
-    },
-    {
-      "id": 8,
-      "name": "Korkeakoulutus"
-    },
-    {
-      "id": 9,
-      "name": "Vapaan sivistystyön koulutus"
+      "name": "Testi"
     }
   ],
   "tagGroups": [
@@ -292,42 +185,176 @@
       ]
     }
   ],
-  "userGroups": [
+  "categories": [
+    {
+      "id": 1,
+      "name": "Perusopetus"
+    },
     {
       "id": 2,
-      "name": "Pääkäyttäjä",
-      "categories": [1, 2, 3, 4]
+      "name": "Lukiokoulutus"
     },
     {
       "id": 3,
-      "name": "Opinto-ohjaaja",
-      "categories": [1, 2]
+      "name": "Yhteishaut (lukiot)"
     },
     {
       "id": 4,
-      "name": "Oppilaitos- ja tarjontakäyttäjä",
-      "categories": [3]
+      "name": "Ammatillinen koulutus"
     },
     {
       "id": 5,
-      "name": "Tiedonsiirtäjä",
-      "categories": [4]
+      "name": "Yhteishaut (amm.)"
+    },
+    {
+      "id": 6,
+      "name": "PJVK-haut"
+    },
+    {
+      "id": 7,
+      "name": "Erityisopetuksena järjestettävän ammatillisen koulutuksen haku"
+    },
+    {
+      "id": 8,
+      "name": "Korkeakoulutus"
+    },
+    {
+      "id": 9,
+      "name": "Vapaan sivistystyön koulutus"
     }
   ],
-  "targetingGroups": [
+  "notifications": [
+    {
+      "count": 1,
+      "items": [
+        {
+          "categories": [1],
+          "content": {
+            "fi": {
+              "language": "fi",
+              "notificationId": 1,
+              "text": "<p>Testi</p>",
+              "title": "Otsikko"
+            }
+          },
+          "createdAt": "17.04.2017",
+          "createdBy": "CS",
+          "endDate": null,
+          "id": 1,
+          "releaseId": 1,
+          "sendEmail": false,
+          "startDate": "17.04.2017",
+          "tags": [1]
+        }
+      ]
+    }
+  ],
+  "specialNotifications": [
+    {
+      "categories": [1],
+      "content": {
+        "fi": {
+          "language": "fi",
+          "notificationId": 2,
+          "text": "<p>Testi</p>",
+          "title": "Otsikko"
+        }
+      },
+      "createdAt": "24.04.2017",
+      "createdBy": "CS",
+      "endDate": null,
+      "id": 2,
+      "releaseId": 2,
+      "sendEmail": false,
+      "startDate": "24.04.2017",
+      "tags": [32]
+    }
+  ],
+  "releases": [
     {
       "id": 1,
-      "name": "Ammatillisen päivitetty aikataulu",
-      "categories": [4],
-      "userGroups": [1216],
-      "tags": [1, 2]
+      "categories": [1],
+      "notification":         {
+        "categories": [1],
+        "content": {
+          "fi": {
+            "language": "fi",
+            "notificationId": 1,
+            "text": "<p>Testi</p>",
+            "title": "Tiedote"
+          }
+        },
+        "createdAt": "24.04.2017",
+        "createdBy": "CS",
+        "endDate": null,
+        "id": 1,
+        "releaseId": 1,
+        "sendEmail": false,
+        "startDate": "24.04.2017",
+        "tags": [1]
+      },
+      "timeline": [
+        {
+          "content": {
+            "fi": {
+              "language": "fi",
+              "timelineId": 1,
+              "text": "<p>Testi</p>"
+            }
+          },
+          "date": "24.04.2017",
+          "id": 1,
+          "notificationId": 1,
+          "releaseId": 1
+        }
+      ],
+      "usergroups": [1216]
     },
     {
       "id": 2,
-      "name": "Lukioiden päivitetty aikataulu",
-      "categories": [2, 3],
-      "userGroups": [1221],
-      "tags": [1]
+      "categories": [1],
+      "notification":         {
+        "categories": [1],
+        "content": {
+          "fi": {
+            "language": "fi",
+            "notificationId": 2,
+            "text": "<p>Testi</p>",
+            "title": "Häiriötiedote"
+          }
+        },
+        "createdAt": "24.04.2017",
+        "createdBy": "CS",
+        "endDate": null,
+        "id": 2,
+        "releaseId": 2,
+        "sendEmail": false,
+        "startDate": "24.04.2017",
+        "tags": [32]
+      },
+      "timeline": [],
+      "usergroups": [1560]
     }
-  ]
+  ],
+  "timeline": {
+    "days": {
+      "24": [
+        {
+          "content": {
+            "fi": {
+              "language": "fi",
+              "timelineId": 1,
+              "text": "<p>Testi</p>"
+            }
+          },
+          "date": "24.04.2017",
+          "id": 1,
+          "notificationId": 1,
+          "releaseId": 1
+        }
+      ]
+    },
+    "month": 4,
+    "year": 2017
+  }
 }

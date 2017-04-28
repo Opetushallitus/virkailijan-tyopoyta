@@ -2,7 +2,7 @@ import R from 'ramda'
 import Bacon from 'baconjs'
 
 import editor from './editor/editor'
-import getData from './utils/getData'
+import http from './utils/http'
 import createAlert from './utils/createAlert'
 
 import urls from '../data/virkailijan-tyopoyta-urls.json'
@@ -13,8 +13,8 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching user groups')
 
-  getData({
-    url: urls.usergroups,
+  http({
+    url: urls['user.groups'],
     onSuccess: userGroups => fetchBus.push(userGroups),
     onError: error => fetchFailedBus.push(error)
   })
@@ -30,6 +30,8 @@ function onReceived (state, userGroups) {
 }
 
 function onFetchFailed (state) {
+  console.error('Fetching user groups failed')
+
   const alert = createAlert({
     variant: 'error',
     titleKey: 'kayttajaryhmienhakuepaonnistui',

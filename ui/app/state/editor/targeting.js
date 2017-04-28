@@ -1,10 +1,35 @@
 import R from 'ramda'
 
-import editor from './editor'
 import targetingGroups from '../targetingGroups'
 import { validate, rules } from './validation'
-import getData from '../utils/getData'
+
+import toggleValue from '../utils/toggleValue'
+import getData from '../utils/http'
 import urls from '../../data/virkailijan-tyopoyta-urls.json'
+
+// DELETE requests
+
+function removeTargetingGroup (state, id) {
+  console.log('Removing targeting group with id', id)
+
+  const newTargetingGroups = targetingGroups.update(id, state.targetingGroups.items, {
+    isRemoving: true,
+    hasRemoveFailed: false
+  })
+
+  getData({
+    url: `${urls['targeting.groups']}/${id}`,
+    requestOptions: {
+      method: 'DELETE'
+    },
+    onSuccess: () => targetingGroups.removeBus.push(id),
+    onError: () => targetingGroups.removeFailedBus.push(id)
+  })
+
+  return R.assocPath(['targetingGroups', 'items'], newTargetingGroups, state)
+}
+
+// Updating state
 
 function update (state, { prop, value }) {
   console.log('Updating release', prop, value)
@@ -25,6 +50,7 @@ function update (state, { prop, value }) {
   return R.assocPath(path, validatedRelease, state)
 }
 
+// Select categories, user groups and tags on toggling a targeting group
 function toggleTargetingGroup (state, id) {
   const newId = state.editor.editedRelease.selectedTargetingGroup === id
     ? null
@@ -49,24 +75,35 @@ function toggleTargetingGroup (state, id) {
   return update(newState, { prop: 'selectedTargetingGroup', value: newId })
 }
 
-function removeTargetingGroup (state, id) {
-  console.log('Removing targeting group with id', id)
+// Remove selected tags from tag groups which aren't linked to selected categories
+function removeSelectedTags (state, categoryId) {
+  const editedRelease = state.editor.editedRelease
+  const selectedTags = editedRelease.notification.tags
+  const selectedCategories = editedRelease.categories
 
-  const newTargetingGroups = targetingGroups.update(id, state.targetingGroups.items, {
-    isRemoving: true,
-    hasRemoveFailed: false
-  })
+  if (selectedCategories.length === 0) {
+    return state
+  }
 
-  getData({
-    url: `${urls['targeting.groups']}/${id}`,
-    requestOptions: {
-      method: 'DELETE'
-    },
-    onSuccess: () => targetingGroups.removeBus.push(id),
-    onError: () => targetingGroups.removeFailedBus.push(id)
-  })
+  /*
+   Get all tag IDs from tag groups which are linked to selected categories
+   Always allow tags in state.tagGroups.specialTags
+   */
+  const allowedTags = R.pluck('id', R.flatten(R.pluck('tags',
+    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tagGroups.items)
+  ))).concat(R.pluck('id', state.tagGroups.specialTags))
 
-  return R.assocPath(['targetingGroups', 'items'], newTargetingGroups, state)
+  const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
+  const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
+
+  return R.assocPath(
+    ['editor', 'editedRelease'],
+    validate(
+      newState.editor.editedRelease,
+      rules(newState)['release']
+    ),
+    newState
+  )
 }
 
 function toggleCategory (state, category) {
@@ -85,39 +122,9 @@ function toggleCategory (state, category) {
 
 function toggleUserGroup (state, value) {
   const groups = state.editor.editedRelease.userGroups
-  const newGroups = editor.toggleValue(value, groups)
+  const newGroups = toggleValue(value, groups)
 
   return update(state, { prop: 'userGroups', value: newGroups })
-}
-
-function removeSelectedTags (state, categoryId) {
-  const editedRelease = state.editor.editedRelease
-  const selectedTags = editedRelease.notification.tags
-  const selectedCategories = editedRelease.categories
-
-  if (selectedCategories.length === 0) {
-    return state
-  }
-
-  /*
-    Get all tag IDs from tag groups which are linked to selected categories
-    Always allow tags in state.tagGroups.specialTags
-  */
-  const allowedTags = R.pluck('id', R.flatten(R.pluck('tags',
-    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tagGroups.items)
-  ))).concat(R.pluck('id', state.tagGroups.specialTags))
-
-  const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
-  const newState = R.assocPath(['editor', 'editedRelease', 'notification', 'tags'], newSelectedTags, state)
-
-  return R.assocPath(
-    ['editor', 'editedRelease'],
-    validate(
-      newState.editor.editedRelease,
-      rules(newState)['release']
-    ),
-    newState
-  )
 }
 
 function toggleTag (state, id) {

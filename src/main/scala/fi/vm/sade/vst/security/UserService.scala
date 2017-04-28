@@ -1,11 +1,9 @@
 package fi.vm.sade.vst.security
 
-import java.net.URLEncoder
-
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
-import fi.vm.sade.vst.{Configuration, Logging}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
+import fi.vm.sade.vst.{Configuration, Logging}
 import play.api.libs.json._
 
 import scala.concurrent.duration._
@@ -24,9 +22,9 @@ class UserService(casUtils: CasUtils,
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 
-  private lazy val servicePart = URLEncoder.encode(s"${authenticationConfig.serviceId}/authenticate", "UTF-8")
+  private lazy val servicePart = s"${authenticationConfig.serviceId}/authenticate"
 
-  lazy val loginUrl =s"${authenticationConfig.casUrl}/login?service=$servicePart"
+  lazy val loginUrl: String = urls.url("cas.login", servicePart)
 
   val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
 

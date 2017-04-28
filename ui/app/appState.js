@@ -81,12 +81,13 @@ export function appState () {
     [targetingGroups.fetchBus], targetingGroups.onReceived,
     [targetingGroups.fetchFailedBus], targetingGroups.onFetchFailed,
     [targetingGroups.saveBus], targetingGroups.onSaveComplete,
+    [targetingGroups.saveFailedBus], targetingGroups.onSaveFailed,
     [targetingGroups.removeBus], targetingGroups.onRemoveComplete,
     [targetingGroups.removeFailedBus], targetingGroups.onRemoveFailed,
 
     // View
     [view.alertsBus], view.onAlertsReceived,
-    [dispatcher.stream(events.view.toggleTab)], view.toggleTab,
+    [dispatcher.stream(view.toggleTab)], view.toggleTab,
     [dispatcher.stream(events.view.removeAlert)], view.removeAlert,
 
     // Unpublished notifications
@@ -104,7 +105,8 @@ export function appState () {
     // Notifications
     [notifications.fetchBus], notifications.onReceived,
     [notifications.fetchFailedBus], notifications.onFetchFailed,
-    [notifications.removeNotificationBus], notifications.onNotificationRemoved,
+    [notifications.releaseRemovedBus], notifications.onReleaseRemoved,
+    [notifications.removeReleaseFailedBus], notifications.onRemoveReleaseFailed,
     [notifications.saveCategoriesFailedBus], notifications.onSaveCategoriesFailed,
     [dispatcher.stream(events.notifications.toggleTag)], notifications.toggleTag,
     [dispatcher.stream(events.notifications.setSelectedTags)], notifications.setSelectedTags,
@@ -117,10 +119,12 @@ export function appState () {
     // Timeline
     [timeline.fetchBus], timeline.onReceived,
     [timeline.fetchFailedBus], timeline.onFetchFailed,
-    [timeline.removeItemBus], timeline.onItemRemoved,
+    [timeline.itemRemovedBus], timeline.onItemRemoved,
+    [timeline.removeItemFailedBus], timeline.onRemoveItemFailed,
     [dispatcher.stream(events.timeline.getPreloadedMonth)], timeline.getPreloadedMonth,
     [dispatcher.stream(events.timeline.getNextMonth)], timeline.getNextMonth,
     [dispatcher.stream(events.timeline.getPreviousMonth)], timeline.getPreviousMonth,
+    [dispatcher.stream(events.timeline.autoFetchNextMonth)], timeline.autoFetchNextMonth,
     [dispatcher.stream(events.timeline.getRelatedNotification)], timeline.getRelatedNotification,
     [dispatcher.stream(events.timeline.edit)], timeline.edit,
     [dispatcher.stream(events.timeline.confirmRemove)], timeline.confirmRemove,
@@ -146,8 +150,6 @@ export function appState () {
 
     [dispatcher.stream(events.editor.editNotification.update)], editor.editNotification.update,
     [dispatcher.stream(events.editor.editNotification.updateContent)], editor.editNotification.updateContent,
-    [dispatcher.stream(events.editor.editNotification.setAsDisruptionNotification)],
-    editor.editNotification.setAsDisruptionNotification,
 
     [dispatcher.stream(events.editor.editTimeline.updateItem)], editor.editTimeline.updateItem,
     [dispatcher.stream(events.editor.editTimeline.updateContent)], editor.editTimeline.updateContent,

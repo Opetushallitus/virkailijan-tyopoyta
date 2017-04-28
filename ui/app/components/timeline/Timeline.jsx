@@ -33,6 +33,14 @@ class Timeline extends React.Component {
       .debounce(100)
       .onValue(event => this.fetchTimeline(event))
 
+    // Fetch new items on window resize if the '.timeline-next-month-spinner' is visible
+    Bacon
+      .fromEvent(window, 'resize')
+      .debounce(100)
+      .onValue(() => {
+        this.props.controller.autoFetchNextMonth()
+      })
+
     // Keep timeline in viewport when scrolling the page
     Bacon
       .fromEvent(window, 'scroll')
@@ -48,7 +56,6 @@ class Timeline extends React.Component {
         if (scrollBarWidth) {
           body.classList.add('overflow-hidden')
           body.style.marginRight = `${scrollBarWidth}px`
-          document.querySelector('.alert-container').style.right = `100px`
         }
       })
 
@@ -57,7 +64,6 @@ class Timeline extends React.Component {
       .onValue(() => {
         body.classList.remove('overflow-hidden')
         body.style.marginRight = 0
-        document.querySelector('.alert-container').style.right = 0
       })
   }
 
@@ -78,12 +84,15 @@ class Timeline extends React.Component {
       return
     }
 
-    // Scroll to first month after initial fetch and after user scrolls to the previous month
-    if (timeline.items.length === 1 || timeline.direction === 'up') {
+    /*
+      Scroll to first month after user scrolls to the previous month
+      or one month has been received
+    */
+    if (timeline.items.length === 2 || timeline.direction === 'up') {
       this.timelineViewport.scrollTop = this.months.offsetTop
     }
 
-    // Automatically fetch next months until items fill the whole timeline node
+    // Automatically load next months until items fill the whole timeline node
     if (this.months.clientHeight < this.timeline.clientHeight) {
       this.props.controller.getNextMonth()
     }

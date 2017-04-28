@@ -150,6 +150,17 @@ class Routes(authenticationService: UserService,
               }
             }
           }
+        } ~
+        delete{
+          path(IntNumber) { id =>
+            val result = Future(releaseRepository.deleteRelease(user, id))
+            onComplete(result) {
+              case Success(_) ⇒
+                sendResponse(result)
+              case Failure(e) ⇒
+                complete(StatusCodes.InternalServerError, e.getMessage)
+            }
+          }
         }
       }
     }

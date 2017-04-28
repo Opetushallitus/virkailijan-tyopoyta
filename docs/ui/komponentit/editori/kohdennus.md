@@ -34,3 +34,8 @@ esikatsele/julkaise-painike poistetaan käytöstä
 Vaihtoehto "Kohdenna kaikille käyttöoikeusryhmille" on erikoistapaus, joka tarkoittaa
 kohdentamista kaikille suodatetuille ryhmille. Se näytetään riippumatta
 kategoriavalinnoista.
+
+Käyttäjä valitsee Lähetä sähköpostia -valinnan (näkyvissä jos tiedote on keskeneräinen
+tai valmis)
+- julkaisemisen onnistuessa tehdään AJAX-kutsu sähköpostin lähettämiseksi
+

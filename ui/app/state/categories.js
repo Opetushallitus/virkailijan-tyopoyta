@@ -3,7 +3,7 @@ import Bacon from 'baconjs'
 
 import view from './view'
 import editor from './editor/editor'
-import getData from './utils/getData'
+import http from './utils/http'
 import createAlert from './utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
@@ -13,7 +13,7 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching categories')
 
-  getData({
+  http({
     url: urls.categories,
     onSuccess: categories => fetchBus.push(categories),
     onError: error => fetchFailedBus.push(error)
@@ -29,7 +29,10 @@ function onReceived (state, categories) {
   )(state)
 }
 
+// Display an error in the view and in the editor if fetching fails
 function onFetchFailed (state) {
+  console.error('Fetching categories failed')
+
   const alert = createAlert({
     variant: 'error',
     titleKey: 'kategorioidenhakuepaonnistui',

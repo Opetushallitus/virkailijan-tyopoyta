@@ -3,7 +3,7 @@ import Bacon from 'baconjs'
 
 import view from './view'
 import editor from './editor/editor'
-import getData from './utils/getData'
+import http from './utils/http'
 import createAlert from './utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
@@ -13,7 +13,7 @@ const fetchFailedBus = new Bacon.Bus()
 function fetch () {
   console.log('Fetching tag groups')
 
-  getData({
+  http({
     url: urls['tags'],
     onSuccess: tagGroups => fetchBus.push(tagGroups),
     onError: error => fetchFailedBus.push(error)
@@ -24,6 +24,11 @@ function onReceived (state, tagGroups) {
   console.log('Received tag groups')
 
   const regularTags = R.reject(tagGroup => tagGroup.name === 'SPECIAL')(tagGroups)
+
+  /*
+    Special tags are used for special cases, e.g. marking a disruption notification
+    and have custom logic for rendering and state handling
+   */
   const specialTags = R.prop('tags', R.find(R.propEq('name', 'SPECIAL'))(tagGroups))
 
   return R.compose(
@@ -33,7 +38,10 @@ function onReceived (state, tagGroups) {
   )(state)
 }
 
+// Display an error in the view and in the editor if fetching fails
 function onFetchFailed (state) {
+  console.error('Fetching tag groups failed')
+
   const alert = createAlert({
     variant: 'error',
     titleKey: 'avainsanojenhakuepaonnistui',

@@ -256,14 +256,14 @@ class Notification extends React.Component {
               <Tag
                 key={`notificationTag${category.id}`}
                 variant="category"
-                text={category.name}
+                text={translate(category.name)}
               />
             )}
 
             {tags.map(tag =>
               <Tag
                 key={`notificationTag${tag.id}`}
-                text={tag.name}
+                text={translate(tag.name)}
               />
             )}
           </span>

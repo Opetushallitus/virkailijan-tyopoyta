@@ -41,8 +41,9 @@
   margin-bottom: var(--space-3);
   padding-top: var(--space-2);
   padding-right: var(--space-2);
-  padding-bottom: var(--space-1);
+  padding-bottom: 3rem;
   padding-left: var(--space-2);
+  border: 1px solid transparent;
   border-radius: var(--border-radius-base);
   background-color: var(--white);
   box-shadow: var(--box-shadow-base);
