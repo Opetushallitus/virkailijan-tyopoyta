@@ -60,7 +60,7 @@ class UserService(casUtils: CasUtils,
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
   }
 
-  private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(10 minutes) {
+  private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(authenticationConfig.memoizeDuration minutes) {
     ldapClient.findUser(uid) match {
       case Some(ldapUser) => {
         Success(createUser(ldapUser))
@@ -111,11 +111,11 @@ class UserService(casUtils: CasUtils,
     (uid, user) match {
       case (Success(id), Success(u)) => Some(id, u)
       case (Failure(e), _) => {
-        logger.error(s"Failed to authenticate ticket: ${e.getMessage}")
+        logger.error(s"Ticket validation failed", e)
         None
       }
       case (Success(u), Failure(t)) =>
-        logger.error(s"Failed to find user $u : ${t.getMessage}")
+        logger.error(s"Failed to find user data for $u", t)
         None
       case _ => None
     }
