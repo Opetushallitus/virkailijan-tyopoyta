@@ -7,17 +7,16 @@ import akka.http.scaladsl.model.ContentTypes.`text/html(UTF-8)`
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
 import fi.vm.sade.vst.Logging
-import fi.vm.sade.vst.model.{EmailEvent, JsonSupport}
+import fi.vm.sade.vst.model.JsonSupport
 import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
 import fi.vm.sade.vst.service.EmailService
 import io.swagger.annotations._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 @Api(value = "Sähköpostin lähetykseen liittyvät admin operaatiot", produces = "application/json")
 @Path("")
@@ -32,19 +31,6 @@ class EmailRoutes(val userService: UserService, releaseRepository: ReleaseReposi
       case Failure(e) ⇒
         logger.error(s"Exception in route execution", e)
         complete(ToResponseMarshallable(s"Error: $e"))
-    }
-  }
-
-  @ApiOperation(value = "Palauttaa email logit", httpMethod = "GET")
-  @Path("/emailLogs")
-  @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Sähköpostin lähetyksen logit", response = classOf[Array[EmailEvent]]),
-    new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
-  def emailLogsRoute: Route = withAdminUser { user =>
-    path("emailLogs") {
-      get{
-        sendResponse(Future(releaseRepository.emailLogs))
-      }
     }
   }
 
@@ -97,5 +83,5 @@ class EmailRoutes(val userService: UserService, releaseRepository: ReleaseReposi
     }
   }
 
-  val routes: Route = emailLogsRoute ~ emailHtmlRoute ~ sendEmailRoute
+  val routes: Route =  emailHtmlRoute ~ sendEmailRoute
 }

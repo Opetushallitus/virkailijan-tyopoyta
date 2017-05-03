@@ -11,6 +11,8 @@ mainClass in (Compile, run) := Some("fi.vm.sade.vst.Main")
 
 resourceDirectory in (Compile, run) := baseDirectory.value / "resources"
 
+parallelExecution in Test := false
+
 val AkkaHttpVersion   = "10.0.0"
 
 resolvers += "oph-sade-artifactory-snapshots" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-snapshot-local"
@@ -60,4 +62,11 @@ libraryDependencies ++= Seq(
 // Akka-quartz-scheduler for Scheduling / Cron jobs
 libraryDependencies ++= Seq(
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.4.0-akka-2.3.x"
+)
+
+// Test libraries
+libraryDependencies ++= Seq(
+  "junit" % "junit" % "4.11" % "test",
+  "org.specs2" %% "specs2-core" % "3.8.9" % "test",
+  "org.specs2" %% "specs2-junit" % "3.8.9" % "test"
 )

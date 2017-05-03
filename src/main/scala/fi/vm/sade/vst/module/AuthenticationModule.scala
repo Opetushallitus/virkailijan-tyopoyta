@@ -1,12 +1,12 @@
-package fi.vm.sade.vst.security
+package fi.vm.sade.vst.module
 
 import fi.vm.sade.security.ldap.LdapClient
 import fi.vm.sade.utils.cas._
 import fi.vm.sade.vst.Configuration
-import fi.vm.sade.vst.repository.RepositoryModule
+import fi.vm.sade.vst.security.CasUtils
 import org.http4s.client
 
-trait AuthenticationModule extends Configuration with RepositoryModule{
+trait AuthenticationModule extends Configuration {
 
   import com.softwaremill.macwire._
 
@@ -14,5 +14,4 @@ trait AuthenticationModule extends Configuration with RepositoryModule{
 
   lazy val casUtils: CasUtils = wire[CasUtils]
   lazy val ldapClient: LdapClient = wire[LdapClient]
-  lazy val kayttooikeusService: KayttooikeusService = wire[KayttooikeusService]
 }
