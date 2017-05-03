@@ -2,11 +2,15 @@ package fi.vm.sade.vst.model
 
 import java.time.LocalDate
 
+import io.swagger.annotations.ApiModel
+
 
 case class Tag(id: Long, name: String, tagType: Option[String], groupId: Long)
 
+@ApiModel
 case class TagGroup(id: Long, name: String, tags: Seq[Tag] = Seq.empty, categories: Seq[Long] = Seq.empty)
 
+@ApiModel
 case class Category(id: Long, name: String, role: String)
 
 case class TagGroupCategory(groupId: Long, categoryId: Long)
@@ -26,11 +30,13 @@ case class User(userId: String,
                 profile: Option[UserProfile] = None,
                 draft: Option[Draft] = None)
 
+@ApiModel
 case class UserProfile(userId: String,
                        categories: Seq[Long] = Seq.empty,
                        sendEmail: Boolean = false,
                        firstLogin: Boolean = false)
 
+@ApiModel
 case class UserProfileUpdate(categories: Seq[Long] = Seq.empty,
                              sendEmail: Boolean = true)
 
@@ -50,8 +56,10 @@ case class TimelineItem(id: Long,
                         content: Map[String, TimelineContent] = Map.empty,
                         notificationId: Option[Long] = None)
 
+@ApiModel
 case class Timeline(month: Int, year: Int, days: Map[String,Seq[TimelineItem]] = Map.empty)
 
+@ApiModel
 case class Release(id: Long,
                    notification: Option[Notification] = None,
                    timeline: Seq[TimelineItem] = Nil,
@@ -61,8 +69,10 @@ case class Release(id: Long,
                    sendEmail: Boolean = false)
 
 
+@ApiModel
 case class NotificationList(totalAmount: Int, notifications: Seq[Notification])
 
+@ApiModel
 case class Notification(id: Long,
                         releaseId: Long,
                         publishDate: LocalDate,
@@ -86,6 +96,7 @@ case class NotificationUpdate(id: Long,
                         tags: Seq[Long] = List.empty,
                         sendEmail: Boolean = false)
 
+@ApiModel
 case class ReleaseUpdate(id: Long,
                          notification: Option[NotificationUpdate] = None,
                          timeline: Seq[TimelineItem] = Nil,
@@ -95,6 +106,7 @@ case class ReleaseUpdate(id: Long,
 
 case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, content: Map[String, TimelineContent] = Map.empty)
 
+@ApiModel
 case class EmailEvent(id: Long, createdAt: LocalDate, releaseId: Long, eventType: String)
 
 case class Kayttooikeusryhma(id: Long, name: String, description: Map[String, Option[String]], roles: Seq[String], categories: Seq[Long])
@@ -105,6 +117,7 @@ case class KayttoikeusDescription(text: Option[String], lang: String)
 
 case class Draft(userId: String, data: String)
 
+@ApiModel
 case class TargetingGroup(id: Long, userId: String, name: String, data: String)
 
 case class TargetingGroupUpdate(name: String, data: String)
