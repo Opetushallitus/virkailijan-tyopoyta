@@ -6,9 +6,9 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.{Directives, Route}
 import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate}
-import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.service.ReleaseService
 import io.swagger.annotations._
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
 
 @Api(value = "Julkaisuihin liittyvät rajapinnat", produces = "application/json")
 @Path("/release")
-class ReleaseRoutes(val userService: UserService, releaseRepository: ReleaseRepository)
+class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService)
   extends SessionSupport
   with Directives
   with JsonSupport
@@ -47,7 +47,7 @@ class ReleaseRoutes(val userService: UserService, releaseRepository: ReleaseRepo
   def getReleaseRoute: Route = withAdminUser { user =>
     get{
       path("release" / IntNumber) { id =>
-        sendOptionalResponse(Future(releaseRepository.release(id, user)))
+        sendOptionalResponse(Future(releaseService.release(id, user)))
       }
     }
   }
@@ -66,7 +66,7 @@ class ReleaseRoutes(val userService: UserService, releaseRepository: ReleaseRepo
         entity(as[String]) { json =>
           val release = parseReleaseUpdate(json)
           release match {
-            case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.addRelease(user, r).map(
+            case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
               added => {
                 userService.deleteDraft(user)
                 added.id
@@ -92,7 +92,7 @@ class ReleaseRoutes(val userService: UserService, releaseRepository: ReleaseRepo
         entity(as[String]) { json =>
           val release = parseReleaseUpdate(json)
           release match {
-            case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseRepository.updateRelease(user, r).map(
+            case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
               edited => {
                 userService.deleteDraft(user)
                 edited.id
@@ -116,7 +116,7 @@ class ReleaseRoutes(val userService: UserService, releaseRepository: ReleaseRepo
   def deleteReleaseRoute: Route = withAdminUser { user =>
     get{
       path("release" / IntNumber) { id =>
-        val result = Future(releaseRepository.deleteRelease(user, id))
+        val result = Future(releaseService.deleteRelease(user, id))
         onComplete(result) {
           case Success(_) ⇒ sendResponse(result)
           case Failure(e) ⇒ complete(StatusCodes.NotFound, e.getMessage)

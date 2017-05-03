@@ -4,17 +4,17 @@ import javax.ws.rs.Path
 
 import akka.http.scaladsl.server.{Directives, Route}
 import fi.vm.sade.vst.model.{Category, JsonSupport, Kayttooikeusryhma, TagGroup}
-import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.service.ReleaseService
 import io.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @Api(value = "Yleiseien tietojen hakuun liittyvät rajapinnat", produces = "application/json")
 @Path("")
-class GeneralRoutes(val userService: UserService, releaseRepository: ReleaseRepository) extends Directives with SessionSupport with JsonSupport with ResponseUtils {
+class GeneralRoutes(val userService: UserService, releaseService: ReleaseService) extends Directives with SessionSupport with JsonSupport with ResponseUtils {
 
   @ApiOperation(value = "Hakee käyttäjälle näytettävät kategoriat", httpMethod = "GET")
   @Path("/categories")
@@ -24,7 +24,7 @@ class GeneralRoutes(val userService: UserService, releaseRepository: ReleaseRepo
   def categoriesRoute: Route = withUser { user =>
     path("categories"){
       get{
-        sendResponse(Future(releaseRepository.categories(user)))
+        sendResponse(Future(releaseService.categories(user)))
       }
     }
   }
@@ -37,7 +37,7 @@ class GeneralRoutes(val userService: UserService, releaseRepository: ReleaseRepo
   def tagsRoute: Route = withUser { user =>
     path("tags"){
       get{
-        sendResponse(Future(releaseRepository.tags(user)))
+        sendResponse(Future(releaseService.tags(user)))
       }
     }
   }

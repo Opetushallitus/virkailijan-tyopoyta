@@ -51,3 +51,40 @@ import 'babel-polyfill'
 ```
 
 Kyseistä muutosta ei saa viedä version hallintaan konfliktien välttämiseksi.
+
+### Sovelluksen komponentit
+
+Authentication - Käyttäjän autentikointi ja käyttäjän perustietojen haku
+
+Migration - Tietokantamigraatiot
+
+Repository  - Tietokantahaut
+
+Routes  - Reititys
+
+Scheduler - Ajastetut tehtävät: Koostesähköpostien lähetys ja työpöytään liitettyjen käyttöoikeusryhmien päivitys
+
+Server - Webbiserveri
+
+Service - Palvelukerros: Käyttäjään, julkaisuihin ja sähköposteihin liittyvät operaatiot
+   
+
+### Integraatiot ulkoisiin järjestelmiin
+
+CAS 
+- Käyttäjän autentikointi ja autentikoidut kutsut muihin järjestelmiin
+
+LDAP 
+- Autentikoidun käyttäjän tietojen haku
+
+Käyttöoikeuspalvelu 
+- Työpöytään liitettyjen käyttöoikeusryhmien haku
+- Käyttäjän käyttöoikeusryhmien haku
+- Käyttöoikeusryhmien jäsenten haku sähköpostin lähetystä varten
+  
+Oppijanumerorekisteri 
+- Käyttäjän kutsumanimen haku (tiedotteen laatijan nimikirjaimet)
+- Käyttäjien yhteystietojen haku sähköposteihin
+
+Ryhmäsähköpostipalvelu 
+- Sähköpostien lähetys

@@ -4,7 +4,6 @@ import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
 
 trait ReleaseRepository{
-  type RowIds = Option[Seq[Long]]
 
   def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
   def notification(id: Long, user: User) : Option[Notification]
@@ -13,7 +12,7 @@ trait ReleaseRepository{
 
   def unpublishedNotifications(user: User): Seq[Notification]
 
-  def timeline(categories: RowIds, month: YearMonth, user: User): Timeline
+  def timeline(categories: Seq[Long], month: YearMonth, user: User): Timeline
   def deleteTimelineItem(id: Long): Int
 
   def tags(user: User): Seq[TagGroup]
@@ -30,5 +29,4 @@ trait ReleaseRepository{
   def updateRelease(user: User, release: ReleaseUpdate): Option[Release]
 
   def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release]
-
 }

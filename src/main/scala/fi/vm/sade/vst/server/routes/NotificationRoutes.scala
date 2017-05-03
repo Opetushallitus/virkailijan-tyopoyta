@@ -6,9 +6,9 @@ import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.{JsonSupport, Notification, NotificationList}
-import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.service.ReleaseService
 import io.swagger.annotations._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -16,7 +16,7 @@ import scala.concurrent.Future
 
 @Api(value = "Tiedotteisiin liittyvät rajapinnat.", produces = "application/json")
 @Path("/notifications")
-class NotificationRoutes(val userService: UserService, releaseRepository: ReleaseRepository)
+class NotificationRoutes(val userService: UserService, releaseService: ReleaseService)
   extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging{
 
   @ApiOperation(value = "Hakee tiedotteet", httpMethod = "GET", response = classOf[NotificationList])
@@ -33,7 +33,7 @@ class NotificationRoutes(val userService: UserService, releaseRepository: Releas
       get{
         parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
           (categories, tags, page) => sendResponse(Future(
-            releaseRepository.notifications(categories.getOrElse(Seq.empty), tags.getOrElse(Seq.empty), page, user)))
+            releaseService.notifications(categories.getOrElse(Seq.empty), tags.getOrElse(Seq.empty), page, user)))
         }
       }
     }
@@ -51,7 +51,7 @@ class NotificationRoutes(val userService: UserService, releaseRepository: Releas
   def getNotificationRoute: Route = withUser { user =>
     path("notifications" / IntNumber){ id =>
       get{
-        sendOptionalResponse(Future(releaseRepository.notification(id, user)))
+        sendOptionalResponse(Future(releaseService.notification(id, user)))
       }
     }
   }
@@ -64,7 +64,7 @@ class NotificationRoutes(val userService: UserService, releaseRepository: Releas
   def getSpecialNotificationsRoute: Route = withUser { user =>
     path("notifications" / "special"){
       get{
-        sendResponse(Future(releaseRepository.specialNotifications(user)))
+        sendResponse(Future(releaseService.specialNotifications(user)))
       }
     }
   }
@@ -77,7 +77,7 @@ class NotificationRoutes(val userService: UserService, releaseRepository: Releas
   def getUnpublishedNotificationsRoute: Route = withAdminUser { user =>
     path("notifications" / "unpublished"){
       get{
-        sendResponse(Future(releaseRepository.unpublishedNotifications(user)))
+        sendResponse(Future(releaseService.unpublishedNotifications(user)))
       }
     }
   }
@@ -93,7 +93,7 @@ class NotificationRoutes(val userService: UserService, releaseRepository: Releas
   def deleteNotificationRoute = withAdminUser { user =>
     path("notifications" / IntNumber){ id =>
       delete{
-        sendResponse(Future(releaseRepository.deleteNotification(user, id)))
+        sendResponse(Future(releaseService.deleteNotification(user, id)))
       }
     }
   }

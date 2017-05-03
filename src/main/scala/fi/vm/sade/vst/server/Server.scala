@@ -8,7 +8,6 @@ import fi.vm.sade.vst.{Logging, ServerConfig}
 
 class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSystem) extends Logging{
 
-//  implicit val system = ActorSystem("vst-actorsystem", config.actorSystemConfig)
   implicit val materializer = ActorMaterializer()
 
   implicit val blockingDispatcher: MessageDispatcher = system.dispatchers.lookup("blocking-dispatcher")

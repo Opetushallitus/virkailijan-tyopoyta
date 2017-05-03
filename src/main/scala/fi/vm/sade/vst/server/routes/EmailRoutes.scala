@@ -8,10 +8,9 @@ import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
 import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.JsonSupport
-import fi.vm.sade.vst.repository.ReleaseRepository
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
-import fi.vm.sade.vst.service.EmailService
+import fi.vm.sade.vst.service.{EmailService, ReleaseService}
 import io.swagger.annotations._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,7 +19,7 @@ import scala.util.{Failure, Success}
 
 @Api(value = "Sähköpostin lähetykseen liittyvät admin operaatiot", produces = "application/json")
 @Path("")
-class EmailRoutes(val userService: UserService, releaseRepository: ReleaseRepository, emailService: EmailService) extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging{
+class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService) extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging{
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {
@@ -54,8 +53,8 @@ class EmailRoutes(val userService: UserService, releaseRepository: ReleaseReposi
                 m <- month
                 d <- day
               } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
-              val releases = releaseRepository.emailReleasesForDate(date)
-              val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
+              val releases = releaseService.emailReleasesForDate(date)
+              val previousDateReleases = releaseService.emailReleasesForDate(date.minusDays(1))
               emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
             })
           }
@@ -74,7 +73,7 @@ class EmailRoutes(val userService: UserService, releaseRepository: ReleaseReposi
   def sendEmailRoute: Route = withAdminUser { user =>
     path("email" / IntNumber) { releaseId =>
       post{
-        val release = releaseRepository.release(releaseId, user)
+        val release = releaseService.release(releaseId, user)
         release match{
           case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
           case None => complete(StatusCodes.BadRequest)

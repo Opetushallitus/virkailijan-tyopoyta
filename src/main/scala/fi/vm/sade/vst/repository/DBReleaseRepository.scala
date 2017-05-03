@@ -144,10 +144,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def notificationExpired(notification: Option[Notification]): Boolean =
     notification.flatMap(_.expiryDate.map(!_.isAfter(LocalDate.now()))).getOrElse(false)
 
-  private def listTimeline(selectedCategories: RowIds, month: YearMonth, user: User): Seq[TimelineItem] = {
-
-    val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories.get else user.allowedCategories
-
+  private def listTimeline(categories: Seq[Long], month: YearMonth, user: User): Seq[TimelineItem] = {
     val startDate = month.atDay(1)
     val endDate = month.atEndOfMonth()
 
@@ -155,7 +152,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
        timelineJoins
          .where.eq(r.deleted, false)
         .and.between(tl.date, startDate, endDate)
-        .and.withRoundBracket(_.in(rc.categoryId, cats).or.isNull(rc.categoryId))
+        .and.withRoundBracket(_.in(rc.categoryId, categories).or.isNull(rc.categoryId))
     }
 
     sql.one(ReleaseTable(r)).toManies(
@@ -416,7 +413,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     NotificationList(notifications.size, notifications.slice(offset(page), offset(page) + pageLength))
   }
 
-  override def timeline(categories: RowIds, month: YearMonth, user: User): Timeline = {
+  override def timeline(categories: Seq[Long], month: YearMonth, user: User): Timeline = {
     val eventsForMonth = listTimeline(categories, month, user)
     val dayEvents: Map[String, Seq[TimelineItem]] = eventsForMonth.groupBy(tl => tl.date.getDayOfMonth.toString)
 

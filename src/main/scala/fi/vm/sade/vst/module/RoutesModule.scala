@@ -5,8 +5,7 @@ import fi.vm.sade.vst.server.routes._
 import fi.vm.sade.vst.server.{Routes, SwaggerDocService}
 
 trait RoutesModule
-  extends AuthenticationModule
-  with ServiceModule
+  extends ServiceModule
   with RepositoryModule {
 
     implicit val system = ActorSystem("vst-actorsystem", serverConfig.actorSystemConfig)
