@@ -37,6 +37,8 @@ vahtii. Muutokset `ui`-kansion tiedostoihin käynnistävät käyttöliittymän r
 Ajettavan jarrin tuottaminen `mvn clean install`
 Frontin minifioitu versio `npm run dist'
 
+Swagger-dokumentaatio osoitteessa http://localhost:8081/virkailijan-tyopoyta/swagger
+
 ### Internet Explorer
 
 Sovellus vaatii IE:llä toimiakseen [fetch](https://github.com/github/fetch)- 
