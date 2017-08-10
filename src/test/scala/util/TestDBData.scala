@@ -1,5 +1,8 @@
 package util
 
+import java.nio.file.Paths
+
+import com.typesafe.config.{Config, ConfigFactory}
 import fi.vm.sade.vst.Configuration
 import org.flywaydb.core.Flyway
 import org.specs2.execute.AsResult
@@ -8,6 +11,8 @@ import org.specs2.specification.Around
 
 trait TestDBData extends Configuration { this: Specification =>
   sequential
+
+  override lazy val config: Config = ConfigFactory.parseFile(Paths.get("src/test/resources/oph-configuration/common.properties").toFile);
 
   override lazy val dbType: String = "h2"
   private val commonLocation: String = "classpath:/migration/common"
