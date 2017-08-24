@@ -18,8 +18,11 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
 
   private def parseResponse(resp: Try[String], forUser: Boolean = false): Seq[Kayttooikeusryhma] = {
     resp match {
-      case Success(s) => parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
-      case Failure(e) => List.empty
+      case Success(s) =>
+        parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
+          .filter(_.tila.forall(_.equals("MYONNETTY")))
+      case Failure(e) =>
+        List.empty
     }
   }
 

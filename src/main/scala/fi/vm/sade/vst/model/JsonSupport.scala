@@ -145,6 +145,7 @@ trait JsonSupport {
     (JsPath \ "id").read[Long] and
     (JsPath \ "name").read[String] and
     (JsPath \ "description" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    (JsPath \ "tila").readNullable[String] and
     Reads.pure(Seq.empty) and
     Reads.pure(Seq.empty)
   )(Kayttooikeusryhma.apply _)
@@ -153,6 +154,7 @@ trait JsonSupport {
     (JsPath \ "ryhmaId").read[Long] and
     (JsPath \ "tehtavanimike").read[String] and
     (JsPath \ "ryhmaNames" \ "texts").read[List[KayttoikeusDescription]].map(desc => desc.groupBy(_.lang).transform((l, d) => d.head.text)) and
+    (JsPath \ "tila").readNullable[String] and
     Reads.pure(Seq.empty) and
     Reads.pure(Seq.empty)
     )(Kayttooikeusryhma.apply _)
@@ -191,7 +193,7 @@ trait JsonSupport {
   }
 
   def readKayttooikeusryhmat(user: Boolean): Reads[List[Kayttooikeusryhma]] = {
-    implicit val reads = if(user) userKayttooikeusryhmaReads else  kayttooikeusryhmaReads
+    implicit val reads: Reads[Kayttooikeusryhma] = if (user) userKayttooikeusryhmaReads else  kayttooikeusryhmaReads
 
     JsPath.read[List[Kayttooikeusryhma]]
   }
