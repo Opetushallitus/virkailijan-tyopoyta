@@ -33,12 +33,14 @@ class TimelineRoutes (val userService: UserService, releaseService: ReleaseServi
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Kuukauden tapahtumat päivittäin jaoteltuna", response = classOf[Timeline]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def getTimelineRoute: Route = withUser { user =>
+  def getTimelineRoute: Route =
     path("timeline"){
       get{
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
-          (categories, year, month) => sendResponse(Future(releaseService.timeline(categories.getOrElse(Seq.empty), parseMonth(year, month), user)))
-        }
+          (categories, year, month) => {
+            withUser { user =>
+              sendResponse(Future(releaseService.timeline(categories.getOrElse(Seq.empty), parseMonth(year, month), user)))
+        }}
       }
     }
   }
@@ -50,9 +52,10 @@ class TimelineRoutes (val userService: UserService, releaseService: ReleaseServi
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen tapahtumien lukumäärä (käytännössä 0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def deleteEventRoute: Route = withUser { user =>
+  def deleteEventRoute: Route =
     path("timeline" / IntNumber){ id =>
       delete{
+        withUser { user =>
         sendResponse(Future(releaseService.deleteTimelineItem(id)))
       }
     }

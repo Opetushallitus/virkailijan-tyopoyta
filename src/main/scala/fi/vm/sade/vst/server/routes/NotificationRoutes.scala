@@ -28,9 +28,10 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Sivullinen kategorioita ja tageja vastaavia käyttäjälle kohdennettuja tiedotteita", response = classOf[NotificationList]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def getNotificationsRoute: Route = withUser { user =>
+  def getNotificationsRoute: Route =
     path("notifications"){
       get{
+        withUser { user =>
         parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
           (categories, tags, page) => sendResponse(Future(
             releaseService.notifications(categories.getOrElse(Seq.empty), tags.getOrElse(Seq.empty), page, user)))
@@ -48,9 +49,10 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
     new ApiResponse(code = 200, message = "Id:tä vastaava tiedote", response = classOf[Notification]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota"),
     new ApiResponse(code = 404, message = "Annetulla id:llä ei löytynyt tiedotetta")))
-  def getNotificationRoute: Route = withUser { user =>
+  def getNotificationRoute: Route =
     path("notifications" / IntNumber){ id =>
       get{
+        withUser { user =>
         sendOptionalResponse(Future(releaseService.notification(id, user)))
       }
     }
@@ -61,9 +63,10 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   @ApiResponses(Array(
     new ApiResponse(code=200, message = "Lista erikoistiedotteista, eli niistä, jotka sisältävät jotain erikoistageja, esim. häiriötiedotteet", response = classOf[Array[Notification]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def getSpecialNotificationsRoute: Route = withUser { user =>
+  def getSpecialNotificationsRoute: Route =
     path("notifications" / "special"){
       get{
+        withUser { user =>
         sendResponse(Future(releaseService.specialNotifications(user)))
       }
     }
@@ -74,9 +77,10 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   @ApiResponses(Array(
     new ApiResponse(code=200, message = "Lista julkaisemattomista tiedotteista", response = classOf[Array[Notification]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota tai muokkausoikeuksia")))
-  def getUnpublishedNotificationsRoute: Route = withAdminUser { user =>
+  def getUnpublishedNotificationsRoute: Route =
     path("notifications" / "unpublished"){
       get{
+        withAdminUser { user =>
         sendResponse(Future(releaseService.unpublishedNotifications(user)))
       }
     }
@@ -90,9 +94,10 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   @ApiResponses(Array(
     new ApiResponse(code=200, message = "Poistettujen tiedotteiden lukumäärä (käytännössä 0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota tai muokkausoikeuksia")))
-  def deleteNotificationRoute = withAdminUser { user =>
+  def deleteNotificationRoute =
     path("notifications" / IntNumber){ id =>
       delete{
+        withAdminUser { user =>
         sendResponse(Future(releaseService.deleteNotification(user, id)))
       }
     }

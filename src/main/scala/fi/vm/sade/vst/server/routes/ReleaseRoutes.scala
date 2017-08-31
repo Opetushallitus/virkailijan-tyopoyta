@@ -44,9 +44,10 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 200, message = "Id:tä vastaava julkaisu", response = classOf[Release]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 404, message = "Annetulla id;llä ei löytynyt julkaisua")))
-  def getReleaseRoute: Route = withAdminUser { user =>
+  def getReleaseRoute: Route =
     get{
       path("release" / IntNumber) { id =>
+        withAdminUser { user =>
         sendOptionalResponse(Future(releaseService.release(id, user)))
       }
     }
@@ -60,10 +61,11 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 200, message = "Luodun julkaisun id", response = classOf[Long]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 400, message = "Julkaisun lukeminen epäonnistui")))
-  def addReleaseRoute: Route = withAdminUser { user =>
+  def addReleaseRoute: Route =
     post{
       path("release") {
         entity(as[String]) { json =>
+          withAdminUser { user =>
           val release = parseReleaseUpdate(json)
           release match {
             case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
@@ -86,10 +88,11 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 200, message = "Muokatun julkaisun id", response = classOf[Long]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 400, message = "Julkaisun lukeminen epäonnistui")))
-  def editReleaseRoute: Route = withAdminUser { user =>
+  def editReleaseRoute: Route =
     put{
       path("release") {
         entity(as[String]) { json =>
+          withAdminUser { user =>
           val release = parseReleaseUpdate(json)
           release match {
             case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
@@ -113,9 +116,10 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 200, message = "Poistettujen julkaisujen lukumäärä (käytännössä 0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 404, message = "Annetulla id;llä ei löytynyt julkaisua")))
-  def deleteReleaseRoute: Route = withAdminUser { user =>
+  def deleteReleaseRoute: Route =
     get{
       path("release" / IntNumber) { id =>
+        withAdminUser { user =>
         val result = Future(releaseService.deleteRelease(user, id))
         onComplete(result) {
           case Success(_) ⇒ sendResponse(result)

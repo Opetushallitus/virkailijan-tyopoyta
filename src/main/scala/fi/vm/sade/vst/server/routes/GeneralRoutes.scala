@@ -21,9 +21,10 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Lista käyttäjälle näytettävistä kategorioista",  response = classOf[Array[Category]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def categoriesRoute: Route = withUser { user =>
+  def categoriesRoute: Route =
     path("categories"){
       get{
+        withUser { user =>
         sendResponse(Future(releaseService.categories(user)))
       }
     }
@@ -34,9 +35,10 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Lista avainsanoista ryhmittäin",  response = classOf[Array[TagGroup]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def tagsRoute: Route = withUser { user =>
+  def tagsRoute: Route =
     path("tags"){
       get{
+        withUser { user =>
         sendResponse(Future(releaseService.tags(user)))
       }
     }
@@ -47,9 +49,10 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Lista sovelluksen kyättämistä käyttöoikeusryhmistä",  response = classOf[Array[Kayttooikeusryhma]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def userGroupsRoute: Route = withUser { user =>
+  def userGroupsRoute: Route =
     path("usergroups"){
       get{
+        withUser { user =>
         sendResponse(Future(userService.serviceUserGroups))
       }
     }

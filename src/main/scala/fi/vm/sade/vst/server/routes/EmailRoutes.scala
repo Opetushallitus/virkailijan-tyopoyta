@@ -42,11 +42,12 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Käynnistettyjen lähetysjobien id:t", response = classOf[Array[String]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
-  def emailHtmlRoute: Route = withAdminUser { user =>
+  def emailHtmlRoute: Route =
     path("emailhtml") {
       get{
         parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
           (year, month, day) => {
+            withAdminUser { user =>
             sendHtml(Future {
               val date = (for {
                 y <- year
@@ -70,9 +71,10 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Käynnistettyjen lähetysjobien määrä", response = classOf[Array[String]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
-  def sendEmailRoute: Route = withAdminUser { user =>
+  def sendEmailRoute: Route =
     path("email" / IntNumber) { releaseId =>
       post{
+        withAdminUser { user =>
         val release = releaseService.release(releaseId, user)
         release match{
           case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))

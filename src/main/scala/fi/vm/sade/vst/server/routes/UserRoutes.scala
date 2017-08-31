@@ -21,9 +21,10 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Kirjautuneen käyttäjän käyttäjäprofiili", response = classOf[UserProfile]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def userProfileRoute: Route = withUser { user =>
+  def userProfileRoute: Route =
     path("user"){
       get{
+        withUser { user =>
         sendResponse(Future(userService.userProfile(user.userId)))
       }
     }
@@ -38,10 +39,11 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
     new ApiResponse(code = 200, message = "Tallennettu käyttäjäprofiili", response = classOf[UserProfile]),
     new ApiResponse(code = 400, message = "Käyttäjäprofiilin luku ei onnistunut"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def setUserProfileRoute: Route = withUser { user =>
+  def setUserProfileRoute: Route =
     path("user"){
       post{
         entity(as[String]) { json =>
+          withUser { user =>
           val updateProfile = parseUserProfileUpdate(json)
           updateProfile match {
             case Some(u) => sendResponse(Future(userService.setUserProfile(user,u)))
@@ -59,10 +61,11 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Tallennettujen luonnosten määrä (1 tai 0)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def saveDraftRoute: Route = withAdminUser { user =>
+  def saveDraftRoute: Route =
     path("draft"){
       post{
         entity(as[String]) { json =>
+          withAdminUser { user =>
           sendResponse(Future(userService.saveDraft(user, json)))
         }
       }
@@ -74,9 +77,10 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen luonnosten määrä (1 tai 0)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def deleteDraftRoute: Route = withAdminUser { user =>
+  def deleteDraftRoute: Route =
     path("draft"){
       delete{
+        withAdminUser { user =>
         sendResponse(Future(userService.deleteDraft(user)))
       }
     }
@@ -87,9 +91,10 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Käyttäjälle tallennetut kohdennusvalinnat", response = classOf[Array[TargetingGroup]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def getTargetingGroupRoute: Route = withAdminUser { user =>
+  def getTargetingGroupRoute: Route =
     path("targetingGroups") {
       get {
+        withAdminUser { user =>
         sendResponse(Future(userService.targetingGroups(user)))
       }
     }
@@ -103,10 +108,11 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
     new ApiResponse(code = 200, message = "Tallennetut kohdennusvalinnat", response = classOf[TargetingGroup]),
     new ApiResponse(code = 400, message = "Kohdennusvalintojen lukeminen ei onnistunut"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def saveTargetingGroupRoute: Route = withAdminUser { user =>
+  def saveTargetingGroupRoute: Route =
     path("targetingGroups"){
       post {
         entity(as[String]) { json =>
+          withAdminUser { user =>
           val targetingGroup = parseTargetingGroup(json)
           targetingGroup match {
             case Some(g) => sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
@@ -124,9 +130,10 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen kohdennusvalintojen lukumäärä (0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def deleteTargetingGroupRoute: Route = withAdminUser { user =>
+  def deleteTargetingGroupRoute: Route =
     path("targetingGroups" / IntNumber){ id =>
       delete {
+        withAdminUser { user =>
         sendResponse(Future(userService.deleteTargetingGroup(user, id)))
       }
     }
