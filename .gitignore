@@ -11,3 +11,8 @@ nb-configuration.xml
 **/.settings
 **/.classpath
 **/nb-configuration.xml
+.idea
+node_modules
+.idea
+*.iml
+logs
