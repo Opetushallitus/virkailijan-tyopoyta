@@ -15,7 +15,7 @@ class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSys
   private lazy val port = config.port
 
   def start(): Unit = {
-    val handler = Http().bindAndHandle(routes.routes, "::0", port)
+    val handler = Http().bindAndHandle(routes.routes, "0.0.0.0", port)
     logger.info(s"Starting server on port $port")
     handler.failed.foreach {case ex : Exception => logger.error("Failed to bind to port", ex)}
   }
