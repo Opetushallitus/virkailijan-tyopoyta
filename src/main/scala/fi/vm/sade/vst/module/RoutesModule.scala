@@ -6,23 +6,23 @@ import fi.vm.sade.vst.server.{Routes, SwaggerDocService}
 
 trait RoutesModule
   extends ServiceModule
-  with RepositoryModule {
+    with RepositoryModule {
 
-    implicit val system = ActorSystem("vst-actorsystem", serverConfig.actorSystemConfig)
+  implicit val system = ActorSystem("vst-actorsystem", serverConfig.actorSystemConfig)
 
-    import com.softwaremill.macwire._
+  import com.softwaremill.macwire._
 
-//    lazy val quartzScheduler: QuartzScheduler = wire[QuartzScheduler]
+  //    lazy val quartzScheduler: QuartzScheduler = wire[QuartzScheduler]
 
-    lazy val generalRoutes: GeneralRoutes = wire[GeneralRoutes]
-    lazy val loginRoutes: LoginRoutes = wire[LoginRoutes]
-    lazy val notificationRoutes: NotificationRoutes = wire[NotificationRoutes]
-    lazy val releaseRoutes: ReleaseRoutes = wire[ReleaseRoutes]
-    lazy val timelineRoutes: TimelineRoutes = wire[TimelineRoutes]
-    lazy val userRoutes: UserRoutes = wire[UserRoutes]
-    lazy val emailRoutes: EmailRoutes = wire[EmailRoutes]
+  lazy val generalRoutes: GeneralRoutes = wire[GeneralRoutes]
+  lazy val loginRoutes: LoginRoutes = wire[LoginRoutes]
+  lazy val notificationRoutes: NotificationRoutes = wire[NotificationRoutes]
+  lazy val releaseRoutes: ReleaseRoutes = wire[ReleaseRoutes]
+  lazy val timelineRoutes: TimelineRoutes = wire[TimelineRoutes]
+  lazy val userRoutes: UserRoutes = wire[UserRoutes]
+  lazy val emailRoutes: EmailRoutes = wire[EmailRoutes]
 
-    lazy val swaggerService: SwaggerDocService = wire[SwaggerDocService]
+  lazy val swaggerService: SwaggerDocService = wire[SwaggerDocService]
 
   lazy val routes: Routes = wire[Routes]
 }

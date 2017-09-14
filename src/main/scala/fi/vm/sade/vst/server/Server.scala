@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import fi.vm.sade.vst.{Logging, ServerConfig}
 
-class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSystem) extends Logging{
+class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSystem) extends Logging {
 
   implicit val materializer = ActorMaterializer()
 
@@ -17,6 +17,6 @@ class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSys
   def start(): Unit = {
     val handler = Http().bindAndHandle(routes.routes, "0.0.0.0", port)
     logger.info(s"Starting server on port $port")
-    handler.failed.foreach {case ex : Exception => logger.error("Failed to bind to port", ex)}
+    handler.failed.foreach { case ex: Exception => logger.error("Failed to bind to port", ex) }
   }
 }

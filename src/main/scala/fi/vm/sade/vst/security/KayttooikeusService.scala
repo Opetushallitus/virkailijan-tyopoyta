@@ -10,7 +10,7 @@ import fi.vm.sade.vst.repository.ReleaseRepository
 import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
-class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository, urls: OphProperties) extends JsonSupport{
+class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository, urls: OphProperties) extends JsonSupport {
   private lazy val groups: AtomicReference[Seq[Kayttooikeusryhma]] = new AtomicReference[Seq[Kayttooikeusryhma]](sortedUserGroups)
   private val kayttooikeusClient = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
@@ -27,7 +27,7 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
     val body = Option(json)
 
-    val resp: Try[String] = kayttooikeusClient.authenticatedRequest( urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
+    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
       RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
 
     parseResponse(resp)
@@ -52,7 +52,9 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
 
   def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
 
-    if(isAdmin) appGroups else {
+    if (isAdmin) {
+      appGroups
+    } else {
       val groupsResponse = kayttooikeusClient.authenticatedRequest(urls.url("kayttooikeus-service.userGroupsForUser", oid), RequestMethod.GET)
 
       val groupsForUser = parseResponse(groupsResponse, forUser = true)

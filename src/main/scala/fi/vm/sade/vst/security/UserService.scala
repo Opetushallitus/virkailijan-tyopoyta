@@ -69,10 +69,10 @@ class UserService(casUtils: CasUtils,
     }
   }
 
-  def findUser(uid: String ): Try[User] = {
+  def findUser(uid: String): Try[User] = {
     val user = fetchCacheableUserData(uid)
 
-    user match{
+    user match {
       case Success(u) => {
         Success(u.copy(
           profile = Some(userRepository.userProfile(u.userId)),

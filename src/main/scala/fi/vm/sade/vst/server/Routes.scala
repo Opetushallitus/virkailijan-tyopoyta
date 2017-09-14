@@ -15,27 +15,27 @@ class Routes(generalRoutes: GeneralRoutes,
   extends Directives {
 
 
-  val apiRoutes: Route = pathPrefix("api"){
+  val apiRoutes: Route = pathPrefix("api") {
     releaseRoutes.routes ~
-    notificationRoutes.routes ~
-    timelineRoutes.routes ~
-    userRoutes.routes ~
-    generalRoutes.routes ~
-    emailRoutes.routes
+      notificationRoutes.routes ~
+      timelineRoutes.routes ~
+      userRoutes.routes ~
+      generalRoutes.routes ~
+      emailRoutes.routes
   }
 
   val frontEndRoutes: Route = get {
     pathEndOrSingleSlash {
       getFromResource("ui/index.html")
     } ~
-    encodeResponse {
-      getFromResourceDirectory("ui")
-    }
+      encodeResponse {
+        getFromResourceDirectory("ui")
+      }
   }
 
   val routes: Route = {
     pathPrefix("virkailijan-tyopoyta") {
-     frontEndRoutes ~ loginRoutes.routes ~ apiRoutes ~ swaggerDocService.swaggerRoutes
+      frontEndRoutes ~ loginRoutes.routes ~ apiRoutes ~ swaggerDocService.swaggerRoutes
     }
   }
 }

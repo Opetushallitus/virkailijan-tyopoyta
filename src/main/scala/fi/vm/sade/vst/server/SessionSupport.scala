@@ -33,7 +33,7 @@ trait SessionSupport extends Directives with Configuration {
       }
   }
 
-  def withAdminUser: Directive1[User] = withUser.flatMap{
+  def withAdminUser: Directive1[User] = withUser.flatMap {
     case user if user.isAdmin => provide(user)
     case _ => complete(StatusCodes.Unauthorized)
   }

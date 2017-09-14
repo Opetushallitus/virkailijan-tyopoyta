@@ -12,7 +12,7 @@ object EmailHtmlService extends Configuration {
   // TODO: Email forming could be done using templates and TemplateProcessor, it was just easier to make if using pure scala for now
   def htmlString(releases: Iterable[Release], language: String) = {
     s"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-        |${htmlBasicFrame(releases, language)}
+       |${htmlBasicFrame(releases, language)}
      """.stripMargin
   }
 
@@ -36,7 +36,9 @@ object EmailHtmlService extends Configuration {
     val subjectDateString =
       if (minDate == maxDate) s"${minDate.format(formatter)}"
       else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
-    <title>{contentHeader} {subjectDateString}</title>
+    <title>
+      {contentHeader} {subjectDateString}
+    </title>
   }
 
   def htmlHeader(date: LocalDate, language: String) = {
@@ -44,7 +46,9 @@ object EmailHtmlService extends Configuration {
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
     <div style="padding-bottom: 2em;">
       <div style="padding: 1em 2em 1em 2em;">
-        <h4>{date.format(formatter)} {contentReleases}:</h4>
+        <h4>
+          {date.format(formatter)} {contentReleases}:
+        </h4>
       </div>
     </div>
   }
@@ -55,7 +59,9 @@ object EmailHtmlService extends Configuration {
       <table style="width: 100%">
         <tr>
           <td style="text-align: left">
-            <a href={loginPage}>{loginLink}</a>
+            <a href={loginPage}>
+              {loginLink}
+            </a>
           </td>
           <td style="text-align: right">
             <img src={ophLogoUrl} alt="Opetushallitus"/>
@@ -90,7 +96,7 @@ object EmailHtmlService extends Configuration {
   def htmlBasicFrame(releases: Iterable[Release], language: String): Elem = {
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
       <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
       </head>
       <body style="background: #F6F4F0; font-family: arial;">
         <div style="padding-left: 4em; padding-right: 4em;">

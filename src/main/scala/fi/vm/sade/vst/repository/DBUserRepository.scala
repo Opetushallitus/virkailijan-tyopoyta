@@ -66,7 +66,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
-  override def setUserProfile(user: User, userProfileData: UserProfileUpdate): UserProfile ={
+  override def setUserProfile(user: User, userProfileData: UserProfileUpdate): UserProfile = {
     fetchUserProfile(user.userId) match {
       case Some(_) => updateUserProfile(user.userId, userProfileData)
       case None => insertUserProfile(user.userId, userProfileData)
@@ -94,14 +94,14 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   }
 
   private def updateDraft(userId: String, data: String) = {
-    withSQL{
+    withSQL {
       update(DraftTable as d).set(DraftTable.column.data -> data).where.eq(d.userId, userId)
     }.update().apply()
   }
 
   private def insertDraft(userId: String, data: String) = {
     val column = DraftTable.column
-    withSQL{
+    withSQL {
       insert.into(DraftTable).namedValues(
         column.userId -> userId,
         column.data -> data
@@ -115,14 +115,14 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   override def saveDraft(user: User, data: String): Int = {
     val currentDraft = fetchDraft(user.userId)
-      currentDraft match {
-        case Some(_) => updateDraft(user.userId, data)
-        case None => insertDraft(user.userId, data)
+    currentDraft match {
+      case Some(_) => updateDraft(user.userId, data)
+      case None => insertDraft(user.userId, data)
     }
   }
 
   override def findTargetingGroups(user: User): Seq[TargetingGroup] = {
-    withSQL[TargetingGroup]{
+    withSQL[TargetingGroup] {
       select.from(TargetingGroupTable as tg).where.eq(tg.userId, user.userId)
     }.map(TargetingGroupTable(tg)).toList().apply()
   }
@@ -133,7 +133,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   override def saveTargetingGroup(user: User, name: String, data: String): Option[TargetingGroup] = {
     val column = TargetingGroupTable.column
-    val id = withSQL{
+    val id = withSQL {
       insert.into(TargetingGroupTable).namedValues(
         column.userId -> user.userId,
         column.name -> name,
@@ -144,7 +144,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   }
 
   override def deleteTargetingGroup(user: User, id: Long): Int = {
-    withSQL{
+    withSQL {
       delete.from(TargetingGroupTable as tg).where.eq(tg.userId, user.userId).and.eq(tg.id, id)
     }.update().apply()
   }

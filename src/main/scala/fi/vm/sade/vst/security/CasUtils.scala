@@ -12,13 +12,13 @@ object RequestMethod extends Enumeration {
   val GET, POST = Value
 }
 
-class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends Logging{
+class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends Logging {
 
   private lazy val casUser = CasUser(config.casUsername, config.casPassword)
 
-  private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId+"/authenticate")
+  private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId + "/authenticate")
 
-  def validateTicket(serviceTicket: ServiceTicket) : Try[Username] = {
+  def validateTicket(serviceTicket: ServiceTicket): Try[Username] = {
     Try(validateTicketTask(serviceTicket).unsafePerformSync).recoverWith({
       case t => Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
     })

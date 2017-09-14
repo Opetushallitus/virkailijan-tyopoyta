@@ -19,9 +19,18 @@ class EmailService(casUtils: CasUtils,
   with JsonFormats
   with JsonSupport {
 
-  sealed trait EmailEventType { val description: String }
-  case object ImmediateEmail extends EmailEventType { val description = "Immediately sent email" }
-  case object TimedEmail extends EmailEventType { val description = "Normally timed email" }
+  sealed trait EmailEventType {
+    val description: String
+  }
+
+  case object ImmediateEmail extends EmailEventType {
+    val description = "Immediately sent email"
+  }
+
+  case object TimedEmail extends EmailEventType {
+    val description = "Normally timed email"
+  }
+
   sealed case class UserOidEmail(userOid: String, email: String)
   sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
 
@@ -119,7 +128,7 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
-    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString),RequestMethod.GET)
+    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
     response match {
       case Success(s) => parsePersonOidsFromResponse(s)
       case Failure(f) => Seq.empty
@@ -127,7 +136,7 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def userInformationByOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
-    val formattedOids = oids.map { oid => s""""$oid""""}
+    val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
     val body = Option(json)
 

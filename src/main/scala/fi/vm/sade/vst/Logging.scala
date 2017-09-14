@@ -6,7 +6,7 @@ import fi.vm.sade.auditlog.virkailijantyopoyta.VirkailijanTyopoytaOperation._
 import fi.vm.sade.auditlog.{ApplicationType, Audit}
 import fi.vm.sade.vst.model.User
 
-trait Logging extends LazyLogging{
+trait Logging extends LazyLogging {
 
   private val audit = new Audit("virkailijan-tyopoyta", ApplicationType.VIRKAILIJA)
 
@@ -22,7 +22,7 @@ trait Logging extends LazyLogging{
       val create, update, delete = Value
     }
 
-    def auditCreateRelease(user: User, releaseId: Long): Unit ={
+    def auditCreateRelease(user: User, releaseId: Long): Unit = {
       val logMessage = builder()
         .virkailijaOid(user.userId)
         .releaseId(releaseId.toString)
@@ -111,4 +111,5 @@ trait Logging extends LazyLogging{
       audit.log(logMessage)
     }
   }
+
 }

@@ -9,7 +9,8 @@ import org.specs2.execute.AsResult
 import org.specs2.mutable.Specification
 import org.specs2.specification.Around
 
-trait TestDBData extends Configuration { this: Specification =>
+trait TestDBData extends Configuration {
+  this: Specification =>
   sequential
 
   override lazy val config: Config = ConfigFactory.parseFile(Paths.get("src/test/resources/oph-configuration/common.properties").toFile);
@@ -33,4 +34,5 @@ trait TestDBData extends Configuration { this: Specification =>
       AsResult.effectively(t)
     }
   }
+
 }

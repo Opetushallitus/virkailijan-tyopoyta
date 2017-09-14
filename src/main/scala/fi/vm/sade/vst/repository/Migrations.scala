@@ -3,7 +3,7 @@ package fi.vm.sade.vst.repository
 import fi.vm.sade.vst.{DBConfig, Logging}
 import org.flywaydb.core.Flyway
 
-class Migrations(dBConfig: DBConfig) extends Logging{
+class Migrations(dBConfig: DBConfig) extends Logging {
   private val commonLocation: String = "classpath:/migration/common"
   private val h2Location: String = "classpath:/migration/h2"
   private val postgresqlLocation: String = "classpath:/migration/postgresql"

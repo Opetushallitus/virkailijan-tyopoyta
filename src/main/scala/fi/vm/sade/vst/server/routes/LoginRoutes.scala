@@ -25,7 +25,8 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
           ctx => ctx.complete(serialize(user))
         }
       case None => complete(StatusCodes.Unauthorized)
-    }}
+    }
+  }
 
   @ApiOperation(value = "Käyttäjän kirjautuminen", httpMethod = "GET")
   @Path("/login")
@@ -33,7 +34,7 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
     new ApiResponse(code = 302, message = "Uudelleenohjaus CASsille, service-parametrina /authenticate endpoint"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def loginRoute: Route = path("login") {
-    get{
+    get {
       optionalSession(refreshable, usingCookies) {
         case Some(uid) =>
           invalidateSession(refreshable, usingCookies)
@@ -53,8 +54,8 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
     new ApiResponse(code = 200, message = "Autentikoidun käyttäjän tiedot", response = classOf[User]),
     new ApiResponse(code = 401, message = "Tickettiä ei ole tai sitä ei pystytä validoimaan")))
   def authenticationRoute: Route = path("authenticate") {
-    get{
-      extractRequest{ request =>
+    get {
+      extractRequest { request =>
         val ticket = request.uri.query().get("ticket")
         ticket match {
           case Some(t) => authenticateUser(t)
@@ -64,6 +65,6 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
     }
   }
 
-  val routes: Route = loginRoute ~authenticationRoute
+  val routes: Route = loginRoute ~ authenticationRoute
 }
 

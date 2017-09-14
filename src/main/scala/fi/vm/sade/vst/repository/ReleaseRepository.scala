@@ -3,11 +3,11 @@ package fi.vm.sade.vst.repository
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
 
-trait ReleaseRepository{
+trait ReleaseRepository {
 
   def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
-  def notification(id: Long, user: User) : Option[Notification]
-  def specialNotifications(user: User) : Seq[Notification]
+  def notification(id: Long, user: User): Option[Notification]
+  def specialNotifications(user: User): Seq[Notification]
   def deleteNotification(user: User, id: Long): Int
 
   def unpublishedNotifications(user: User): Seq[Notification]

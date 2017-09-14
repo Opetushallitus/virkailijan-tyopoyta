@@ -19,44 +19,44 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   @ApiOperation(value = "Hakee käyttäjälle näytettävät kategoriat", httpMethod = "GET")
   @Path("/categories")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Lista käyttäjälle näytettävistä kategorioista",  response = classOf[Array[Category]]),
+    new ApiResponse(code = 200, message = "Lista käyttäjälle näytettävistä kategorioista", response = classOf[Array[Category]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def categoriesRoute: Route =
-    path("categories"){
-      get{
+    path("categories") {
+      get {
         withUser { user =>
-        sendResponse(Future(releaseService.categories(user)))
+          sendResponse(Future(releaseService.categories(user)))
+        }
       }
     }
-  }
 
   @ApiOperation(value = "Hakee avainsanat", httpMethod = "GET")
   @Path("/tags")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Lista avainsanoista ryhmittäin",  response = classOf[Array[TagGroup]]),
+    new ApiResponse(code = 200, message = "Lista avainsanoista ryhmittäin", response = classOf[Array[TagGroup]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def tagsRoute: Route =
-    path("tags"){
-      get{
+    path("tags") {
+      get {
         withUser { user =>
-        sendResponse(Future(releaseService.tags(user)))
+          sendResponse(Future(releaseService.tags(user)))
+        }
       }
     }
-  }
 
   @ApiOperation(value = "Hakee käyttöoikeusryhmät", httpMethod = "GET")
   @Path("/usergroups")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Lista sovelluksen kyättämistä käyttöoikeusryhmistä",  response = classOf[Array[Kayttooikeusryhma]]),
+    new ApiResponse(code = 200, message = "Lista sovelluksen kyättämistä käyttöoikeusryhmistä", response = classOf[Array[Kayttooikeusryhma]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def userGroupsRoute: Route =
-    path("usergroups"){
-      get{
+    path("usergroups") {
+      get {
         withUser { user =>
-        sendResponse(Future(userService.serviceUserGroups))
+          sendResponse(Future(userService.serviceUserGroups))
+        }
       }
     }
-  }
 
   val routes: Route = categoriesRoute ~ tagsRoute ~ userGroupsRoute
 

@@ -44,7 +44,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   private def notificationForRelease(releaseId: Long): Option[Notification] =
-    withSQL[Notification]{
+    withSQL[Notification] {
       select
         .from(NotificationTable as n)
         .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
@@ -56,9 +56,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       .toManies(
         rs => NotificationContentTable.opt(c)(rs),
         rs => NotificationTagTable.opt(nt)(rs))
-      .map{ (notification, content, tags) => notification.copy(
-        content = content.groupBy(_.language).transform((_,v) => v.head),
-        tags = tags.map(_.tagId))}
+      .map { (notification, content, tags) =>
+        notification.copy(
+          content = content.groupBy(_.language).transform((_, v) => v.head),
+          tags = tags.map(_.tagId))
+      }
       .single
       .apply()
 
@@ -70,11 +72,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         .where.eq(tl.releaseId, releaseId)
     }
       .one(TimelineTable(tl))
-        .toMany(
-          rs => TimelineContentTable.opt(tc)(rs))
-        .map{ (timelineItem, timelineContent) => timelineItem.copy(
-          content = timelineContent.groupBy(_.language).transform((_,v) => v.head)
-      )}.list.apply()
+      .toMany(
+        rs => TimelineContentTable.opt(tc)(rs))
+      .map { (timelineItem, timelineContent) =>
+        timelineItem.copy(
+          content = timelineContent.groupBy(_.language).transform((_, v) => v.head)
+        )
+      }.list.apply()
 
 
   private def notificationJoins: scalikejdbc.SelectSQLBuilder[Release] = select
@@ -106,7 +110,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => NotificationContentTable.opt(c)(rs),
       rs => NotificationTagTable.opt(nt)(rs)).map {
       (_, categories, usergroups, notifications, content, tags) =>
-        if(releaseTargetedForUser(categories.map(_.categoryId), usergroups.map(_.usergroupId), user)) {
+        if (releaseTargetedForUser(categories.map(_.categoryId), usergroups.map(_.usergroupId), user)) {
           notifications.headOption.map(n => n.copy(
             content = content.groupBy(_.language).transform((_, v) => v.head),
             tags = tags.map(_.tagId),
@@ -127,18 +131,20 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   private def listNotifications(selectedCategories: Seq[Long], tags: Seq[Long], page: Int, user: User): Seq[Notification] = {
 
-    val cats: Seq[Long] = if(selectedCategories.nonEmpty) selectedCategories else user.allowedCategories
+    val cats: Seq[Long] = if (selectedCategories.nonEmpty) selectedCategories else user.allowedCategories
 
     val sql: SQL[Release, NoExtractor] = withSQL[Release] {
       notificationJoins
         .where.not.gt(n.publishDate, LocalDate.now())
-        .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
+        .and.withRoundBracket {
+        _.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)
+      }
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
         .orderBy(n.publishDate).desc
     }
     notificationsFromRS(sql, user).filter(n =>
       (tags.isEmpty || n.tags.intersect(tags).nonEmpty) &&
-      (n.categories.isEmpty || n.categories.intersect(cats).nonEmpty))
+        (n.categories.isEmpty || n.categories.intersect(cats).nonEmpty))
   }
 
   private def notificationExpired(notification: Option[Notification]): Boolean =
@@ -149,8 +155,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val endDate = month.atEndOfMonth()
 
     val sql = withSQL[Release] {
-       timelineJoins
-         .where.eq(r.deleted, false)
+      timelineJoins
+        .where.eq(r.deleted, false)
         .and.between(tl.date, startDate, endDate)
         .and.withRoundBracket(_.in(rc.categoryId, categories).or.isNull(rc.categoryId))
     }
@@ -161,14 +167,14 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => TimelineTable.opt(tl)(rs),
       rs => TimelineContentTable.opt(tc)(rs),
       rs => NotificationTable.opt(n)(rs)).map {
-        (_, categories, userGroups, timeline, content, notification) =>
-          if(releaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)
-            && !notificationExpired(notification.headOption)){
-            timeline.map(tl =>
-              tl.copy(
-                content = content.filter(_.timelineId == tl.id).groupBy(_.language).transform((_, v) => v.head),
-                notificationId = notification.headOption.map(_.id)))
-          } else Seq.empty
+      (_, categories, userGroups, timeline, content, notification) =>
+        if (releaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)
+          && !notificationExpired(notification.headOption)) {
+          timeline.map(tl =>
+            tl.copy(
+              content = content.filter(_.timelineId == tl.id).groupBy(_.language).transform((_, v) => v.head),
+              notificationId = notification.headOption.map(_.id)))
+        } else Seq.empty
     }.list.apply().flatten
   }
 
@@ -234,7 +240,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   private def deleteNotificationTags(notificationId: Long, tags: Seq[Long])(implicit session: DBSession) = {
-    withSQL{
+    withSQL {
       delete.from(NotificationTagTable as nt)
         .where.eq(nt.notificationId, notificationId)
         .and.in(nt.tagId, tags)
@@ -254,11 +260,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   private def addNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
-      val notificationId: Long = insertNotification(releaseId, user, notification)
-      notification.content.values.foreach(insertNotificationContent(notificationId, _))
-      notification.tags.foreach(t => insertNotificationTags(notificationId, t))
-      AuditLog.auditCreateNotification(user, notificationId)
-      notificationId
+    val notificationId: Long = insertNotification(releaseId, user, notification)
+    notification.content.values.foreach(insertNotificationContent(notificationId, _))
+    notification.tags.foreach(t => insertNotificationTags(notificationId, t))
+    AuditLog.auditCreateNotification(user, notificationId)
+    notificationId
   }
 
   private def insertTimelineItem(releaseId: Long, item: TimelineItem)(implicit session: DBSession): Long = {
@@ -271,9 +277,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.updateAndReturnGeneratedKey().apply()
   }
 
-  private def insertTimelineContent(itemId: Long, content: TimelineContent)(implicit session: DBSession): Unit ={
+  private def insertTimelineContent(itemId: Long, content: TimelineContent)(implicit session: DBSession): Unit = {
     val tc = TimelineContentTable.column
-   withSQL{
+    withSQL {
       insert.into(TimelineContentTable).namedValues(
         tc.timelineId -> itemId,
         tc.language -> content.language,
@@ -283,21 +289,21 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   private def addTimelineItem(user: User, releaseId: Long, item: TimelineItem)(implicit session: DBSession): Unit = {
-      val itemId = insertTimelineItem(releaseId, item)
-      item.content.values.foreach(insertTimelineContent(itemId, _))
-      AuditLog.auditCreateEvent(user, itemId)
+    val itemId = insertTimelineItem(releaseId, item)
+    item.content.values.foreach(insertTimelineContent(itemId, _))
+    AuditLog.auditCreateEvent(user, itemId)
   }
 
   private def insertReleaseCategories(releaseId: Long, categories: Seq[Long])(implicit session: DBSession): Unit = {
     val rc = ReleaseCategoryTable.column
     val batchParams: Seq[Seq[Long]] = categories.map(c => Seq(releaseId, c))
-    withSQL{
+    withSQL {
       insert.into(ReleaseCategoryTable).namedValues(rc.releaseId -> sqls.?, rc.categoryId -> sqls.?)
     }.batch(batchParams: _*).apply()
   }
 
   private def deleteReleaseCategories(releaseId: Long, categories: Seq[Long])(implicit session: DBSession): Unit = {
-    withSQL{
+    withSQL {
       delete.from(ReleaseCategoryTable as rc)
         .where.eq(rc.releaseId, releaseId)
         .and.in(rc.categoryId, categories)
@@ -307,13 +313,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def insertReleaseUsergroups(releaseId: Long, userGroups: Seq[Long])(implicit session: DBSession): Unit = {
     val column = ReleaseUserGroupTable.column
     val batchParams = userGroups.map(g => Seq(releaseId, g))
-    withSQL{
+    withSQL {
       insert.into(ReleaseUserGroupTable).namedValues(column.releaseId -> sqls.?, column.usergroupId -> sqls.?)
     }.batch(batchParams: _*).apply()
   }
 
   private def deleteReleaseUsergroups(releaseId: Long, userGroups: Seq[Long])(implicit session: DBSession): Unit = {
-    withSQL{
+    withSQL {
       delete.from(ReleaseUserGroupTable as ug)
         .where.eq(ug.releaseId, releaseId)
         .and.in(ug.usergroupId, userGroups)
@@ -352,7 +358,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   private def updateNotification(current: Notification, updated: NotificationUpdate, user: User): Unit = {
     val column = NotificationTable.column
-    withSQL{
+    withSQL {
       update(NotificationTable as n).set(column.publishDate -> updated.publishDate,
         column.expiryDate -> updated.expiryDate,
         column.modifiedBy -> user.initials,
@@ -395,7 +401,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     val newItems = releaseUpdate.timeline.filter(_.id < 0)
 
-    newItems.foreach{ item => addTimelineItem(user, releaseUpdate.id, item) }
+    newItems.foreach { item => addTimelineItem(user, releaseUpdate.id, item) }
 
     val deletedItems = currentTimeline.filter(item => !releaseUpdate.timeline.map(_.id).contains(item.id))
 
@@ -429,7 +435,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val sql: SQL[Release, NoExtractor] = withSQL[Release] {
       notificationJoins
         .where.not.gt(n.publishDate, LocalDate.now())
-        .and.withRoundBracket{_.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)}
+        .and.withRoundBracket {
+        _.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)
+      }
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
         .and.eq(n.id, id)
         .orderBy(n.publishDate).desc
@@ -438,7 +446,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   override def tags(user: User): Seq[TagGroup] = {
-    val sql = withSQL[TagGroup]{
+    val sql = withSQL[TagGroup] {
       select
         .from(TagGroupTable as tg)
         .leftJoin(TagTable as t).on(tg.id, t.groupId)
@@ -448,7 +456,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     sql.one(TagGroupTable(tg)).toManies(
       rs => TagTable.opt(t)(rs),
       rs => TagGroupCategoryTable.opt(tgc)(rs))
-      .map{
+      .map {
         (tagGroup, tags, categories) => tagGroup.copy(tags = tags.sortBy(_.id), categories = categories.map(_.categoryId))
       }.list.apply().filter(tagGroupShownToUser(_, user))
   }
@@ -456,15 +464,15 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   override def serviceCategories: Seq[Category] = withSQL(select.from(CategoryTable as cat)).map(CategoryTable(cat)).list.apply()
 
   override def categories(user: User): Seq[Category] = {
-    if(user.isAdmin){
+    if (user.isAdmin) {
       serviceCategories
-    } else{
+    } else {
       withSQL(select.from(CategoryTable as cat).where.in(cat.role, user.roles)).map(CategoryTable(cat)).list.apply
     }
   }
 
   override def unpublishedNotifications(user: User): Seq[Notification] = {
-    val sql: SQL[Release, NoExtractor] = withSQL[Release]{
+    val sql: SQL[Release, NoExtractor] = withSQL[Release] {
       notificationJoins
         .where.gt(n.publishDate, LocalDate.now())
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
@@ -492,7 +500,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       insertOrUpdateNotification(releaseUpdate, user)
       updateReleaseTimeline(user, releaseUpdate)
 
-      if( updatedCategories + updatedUserGroups > 0){
+      if (updatedCategories + updatedUserGroups > 0) {
         AuditLog.auditUpdateRelease(user, releaseUpdate.id)
       }
 
@@ -513,7 +521,9 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   override def deleteRelease(user: User, id: Long): Int = {
     val count = DB localTx { implicit session =>
-      withSQL{update(ReleaseTable as r).set(ReleaseTable.column.deleted -> true).where.eq(r.id, id)}.update().apply()
+      withSQL {
+        update(ReleaseTable as r).set(ReleaseTable.column.deleted -> true).where.eq(r.id, id)
+      }.update().apply()
     }
     AuditLog.auditDeleteRelease(user, id)
     count
@@ -546,11 +556,13 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   override def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release] = {
-    val releases = for(_ <- 1 to amount) yield generateRelease(user: User, month)
+    val releases = for (_ <- 1 to amount) yield generateRelease(user: User, month)
     releases.flatten
   }
 
-  def emailLogs: Seq[EmailEvent] = withSQL{select.from(EmailEventTable as ee)}.map(EmailEventTable(ee)).list.apply
+  def emailLogs: Seq[EmailEvent] = withSQL {
+    select.from(EmailEventTable as ee)
+  }.map(EmailEventTable(ee)).list.apply
 
   //TODO: Separate test data generation to its own file
   // Some helper functions for release generation
@@ -562,6 +574,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       )
     }.updateAndReturnGeneratedKey.apply()
   }
+
   private def mockText: String = {
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
       "Phasellus convallis sapien neque, vitae porta risus luctus sed. " +
@@ -575,21 +588,23 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       "turpis.\n\nCurabitur libero ligula, tincidunt at consectetur vel, mollis ut ante. Maecenas condimentum " +
       "condimentum lobortis. In nibh velit, vestibulum at odio sed massa nunc."
   }
+
   private def emptyRelease: Release = Release(id = 0, notification = None, timeline = Seq.empty)
+
   private def generateRelease(user: User, month: YearMonth): Option[Release] = {
     val releaseId = addNewRelease(emptyRelease)
-    val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1)+1
+    val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1) + 1
     val startDate = month.atDay(startDay)
-    val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay)+startDay)
+    val endDate = month.atDay(Random.nextInt(month.atEndOfMonth().getDayOfMonth - startDay) + startDay)
     val notificationContent = NotificationContent(releaseId, "fi", s"$month-$startDay Lorem Ipsum", mockText.dropRight(Random.nextInt(mockText.length)).mkString)
-    val notification = NotificationUpdate(releaseId, releaseId, startDate, Option(endDate),  Map("fi" -> notificationContent), List.empty)
+    val notification = NotificationUpdate(releaseId, releaseId, startDate, Option(endDate), Map("fi" -> notificationContent), List.empty)
     addNotification(releaseId, user, notification)
     generateTimeLine(releaseId, startDate, endDate)
     release(releaseId)
   }
 
   private def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): Unit = {
-    val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1)+startDate.getDayOfMonth
+    val day = Random.nextInt(endDate.getDayOfMonth - startDate.getDayOfMonth + 1) + startDate.getDayOfMonth
     val publishDate = LocalDate.of(startDate.getYear, startDate.getMonth, day)
     val timelineItem = TimelineItem(releaseId, releaseId, publishDate, Map.empty)
     val timelineId = insertTimelineItem(releaseId, timelineItem)

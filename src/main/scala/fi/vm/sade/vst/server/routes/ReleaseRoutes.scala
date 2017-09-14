@@ -26,11 +26,11 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
   with ResponseUtils
   with Logging{
 
-    private def validateRelease(release: ReleaseUpdate): Boolean = {
+  private def validateRelease(release: ReleaseUpdate): Boolean = {
     val notificationValid: Boolean = release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
     val timelineValid: Boolean = release.timeline.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
 
-    if(!notificationValid || !timelineValid) logger.error("Invalid html content!")
+    if (!notificationValid || !timelineValid) logger.error("Invalid html content!")
 
     notificationValid && timelineValid
   }
@@ -45,13 +45,13 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 404, message = "Annetulla id;llä ei löytynyt julkaisua")))
   def getReleaseRoute: Route =
-    get{
+    get {
       path("release" / IntNumber) { id =>
         withAdminUser { user =>
-        sendOptionalResponse(Future(releaseService.release(id, user)))
+          sendOptionalResponse(Future(releaseService.release(id, user)))
+        }
       }
     }
-  }
 
   @ApiOperation(value = "Uuden julkaisun lisäys", notes = "Tallentaa uuden julkaisun ja poistaa luonnoksen", httpMethod = "POST")
   @ApiImplicitParams(Array(
@@ -62,23 +62,23 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 400, message = "Julkaisun lukeminen epäonnistui")))
   def addReleaseRoute: Route =
-    post{
+    post {
       path("release") {
         entity(as[String]) { json =>
           withAdminUser { user =>
-          val release = parseReleaseUpdate(json)
-          release match {
-            case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
-              added => {
-                userService.deleteDraft(user)
-                added.id
-              })))
-            case None => complete(StatusCodes.BadRequest)
+            val release = parseReleaseUpdate(json)
+            release match {
+              case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
+                added => {
+                  userService.deleteDraft(user)
+                  added.id
+                })))
+              case None => complete(StatusCodes.BadRequest)
+            }
           }
         }
       }
     }
-  }
 
   @ApiOperation(value = "Julkaisun päivitys", notes = "Päivittää julkaisun ja poistaa luonnoksen", httpMethod = "PUT")
   @ApiImplicitParams(Array(
@@ -89,23 +89,23 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 400, message = "Julkaisun lukeminen epäonnistui")))
   def editReleaseRoute: Route =
-    put{
+    put {
       path("release") {
         entity(as[String]) { json =>
           withAdminUser { user =>
-          val release = parseReleaseUpdate(json)
-          release match {
-            case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
-              edited => {
-                userService.deleteDraft(user)
-                edited.id
-              })))
-            case None => complete(StatusCodes.BadRequest)
+            val release = parseReleaseUpdate(json)
+            release match {
+              case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
+                edited => {
+                  userService.deleteDraft(user)
+                  edited.id
+                })))
+              case None => complete(StatusCodes.BadRequest)
+            }
           }
         }
       }
     }
-  }
 
   @ApiOperation(value = "Julkaisun poisto", notes = "", httpMethod = "DELETE")
   @Path("{id}")
@@ -117,17 +117,17 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 404, message = "Annetulla id;llä ei löytynyt julkaisua")))
   def deleteReleaseRoute: Route =
-    delete{
+    delete {
       path("release" / IntNumber) { id =>
         withAdminUser { user =>
-        val result = Future(releaseService.deleteRelease(user, id))
-        onComplete(result) {
-          case Success(_) ⇒ sendResponse(result)
-          case Failure(e) ⇒ complete(StatusCodes.NotFound, e.getMessage)
+          val result = Future(releaseService.deleteRelease(user, id))
+          onComplete(result) {
+            case Success(_) ⇒ sendResponse(result)
+            case Failure(e) ⇒ complete(StatusCodes.NotFound, e.getMessage)
+          }
         }
       }
     }
-  }
 
   val routes: Route = getReleaseRoute ~ addReleaseRoute ~ editReleaseRoute ~ deleteReleaseRoute
 }
