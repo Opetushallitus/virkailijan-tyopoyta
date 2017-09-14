@@ -2,9 +2,10 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
+import scala.concurrent.duration.DurationInt
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.ContentTypes.`text/html(UTF-8)`
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.ContentTypes.{`text/html(UTF-8)`, `application/json`}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, Route}
 import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.JsonSupport
@@ -64,6 +65,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     }
   }
 
+
   @ApiOperation(value = "Pakottaa sähköpostin lähetyksen annettua id:tä vastaavalle julkaisulle", httpMethod = "GET")
   @Path("/email/{id}")
   @ApiImplicitParams(Array(
@@ -73,15 +75,24 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
   def sendEmailRoute: Route =
     path("email" / IntNumber) { releaseId =>
-      post{
-        withAdminUser { user =>
-        val release = releaseService.release(releaseId, user)
-        release match{
-          case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
-          case None => complete(StatusCodes.BadRequest)
+      withRequestTimeout(60.seconds, emailTimeoutHandler) {
+        post{
+          withAdminUser { user =>
+            val release = releaseService.release(releaseId, user)
+            release match{
+              case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+              case None => complete(StatusCodes.BadRequest)
+            }
+          }
         }
       }
-    }
+  }
+
+  val emailTimeoutHandler: HttpRequest => HttpResponse = {
+    request => HttpResponse(
+      status = StatusCodes.RequestTimeout,
+      entity = HttpEntity.empty(`application/json`)
+    )
   }
 
   val routes: Route =  emailHtmlRoute ~ sendEmailRoute
