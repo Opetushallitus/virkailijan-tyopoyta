@@ -117,7 +117,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota"),
     new ApiResponse(code = 404, message = "Annetulla id;llä ei löytynyt julkaisua")))
   def deleteReleaseRoute: Route =
-    get{
+    delete{
       path("release" / IntNumber) { id =>
         withAdminUser { user =>
         val result = Future(releaseService.deleteRelease(user, id))
