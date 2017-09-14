@@ -24,7 +24,8 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
         setSession(refreshable, usingCookies, uid) {
           ctx => ctx.complete(serialize(user))
         }
-      case None => complete(StatusCodes.Unauthorized)
+      case None =>
+        complete(StatusCodes.Unauthorized)
     }
   }
 
@@ -39,7 +40,8 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
         case Some(uid) =>
           invalidateSession(refreshable, usingCookies)
           redirect(userService.loginUrl, StatusCodes.Found)
-        case None => redirect(userService.loginUrl, StatusCodes.Found)
+        case None =>
+          redirect(userService.loginUrl, StatusCodes.Found)
       }
     }
   }
@@ -58,8 +60,10 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
       extractRequest { request =>
         val ticket = request.uri.query().get("ticket")
         ticket match {
-          case Some(t) => authenticateUser(t)
-          case None => complete(StatusCodes.Unauthorized)
+          case Some(t) =>
+            authenticateUser(t)
+          case None =>
+            complete(StatusCodes.Unauthorized)
         }
       }
     }

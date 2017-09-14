@@ -174,5 +174,7 @@ private object EmailTranslations {
     "sv" -> sweTranslationsMap
   )
 
-  def translation(key: String): Map[TranslationKey, String] = translationMaps.getOrElse(key.toLowerCase, Map.empty)
+  def translation(key: String): Map[TranslationKey, String] = {
+    translationMaps.getOrElse(key.toLowerCase, Map.empty)
+  }
 }

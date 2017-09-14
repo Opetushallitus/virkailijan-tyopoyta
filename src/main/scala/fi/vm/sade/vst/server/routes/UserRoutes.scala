@@ -46,8 +46,10 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
           withUser { user =>
             val updateProfile = parseUserProfileUpdate(json)
             updateProfile match {
-              case Some(u) => sendResponse(Future(userService.setUserProfile(user, u)))
-              case None => complete(StatusCodes.BadRequest)
+              case Some(u) =>
+                sendResponse(Future(userService.setUserProfile(user, u)))
+              case None =>
+                complete(StatusCodes.BadRequest)
             }
           }
         }
@@ -115,8 +117,10 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
           withAdminUser { user =>
             val targetingGroup = parseTargetingGroup(json)
             targetingGroup match {
-              case Some(g) => sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
-              case None => complete(StatusCodes.BadRequest)
+              case Some(g) =>
+                sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
+              case None =>
+                complete(StatusCodes.BadRequest)
             }
           }
         }

@@ -154,7 +154,11 @@ class EmailService(casUtils: CasUtils,
     IterableUtils.mapToSplitted(450, personOids, userInformationByOids).toSeq
   }
 
-  private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
+  private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = {
+    EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
+  }
 
-  private def addEmailEvents(emailEvents: Iterable[EmailEvent]): Iterable[EmailEvent] = emailEvents.flatMap(emailRepository.addEvent)
+  private def addEmailEvents(emailEvents: Iterable[EmailEvent]): Iterable[EmailEvent] = {
+    emailEvents.flatMap(emailRepository.addEvent)
+  }
 }

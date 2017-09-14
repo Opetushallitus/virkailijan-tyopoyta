@@ -22,17 +22,21 @@ trait ResponseUtils extends Directives with Logging {
         complete {
           HttpResponse(entity = HttpEntity(`application/json`, Json.toJson(result).toString()))
         }
-      case Failure(e) ⇒ internalServerError(e)
+      case Failure(e) ⇒
+        internalServerError(e)
     }
   }
 
   def sendOptionalResponse[T](optionalResult: Future[Option[T]])(implicit writes: Writes[T]): Route = {
     onComplete(optionalResult) {
       case Success(result) => result match {
-        case Some(_) => sendResponse(optionalResult)
-        case None => complete(StatusCodes.NotFound)
+        case Some(_) =>
+          sendResponse(optionalResult)
+        case None =>
+          complete(StatusCodes.NotFound)
       }
-      case Failure(e) => internalServerError(e)
+      case Failure(e) =>
+        internalServerError(e)
     }
   }
 }

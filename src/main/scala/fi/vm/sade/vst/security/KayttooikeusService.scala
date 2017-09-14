@@ -18,8 +18,10 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
 
   private def parseResponse(resp: Try[String], forUser: Boolean = false): Seq[Kayttooikeusryhma] = {
     resp match {
-      case Success(s) => parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
-      case Failure(e) => List.empty
+      case Success(s) =>
+        parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
+      case Failure(e) =>
+        List.empty
     }
   }
 
@@ -27,14 +29,17 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
     val body = Option(json)
 
-    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
-      RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
+    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(
+      urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
+      RequestMethod.POST,
+      mediaType = Option(org.http4s.MediaType.`application/json`),
+      body = body
+    )
 
     parseResponse(resp)
   }
 
   private def getServiceGroups: Seq[Kayttooikeusryhma] = {
-
     val appCategories = releaseRepository.serviceCategories
     val roles = List("CRUD", "MUUT", "2ASTE", "KK", "PERUS")
 
@@ -51,7 +56,6 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
   }
 
   def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
-
     if (isAdmin) {
       appGroups
     } else {
@@ -63,7 +67,9 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     }
   }
 
-  def sortedUserGroups: Seq[Kayttooikeusryhma] = getServiceGroups.sortBy(_.id)
+  def sortedUserGroups: Seq[Kayttooikeusryhma] = {
+    getServiceGroups.sortBy(_.id)
+  }
 
   def updateApplicationGroups(): Unit = {
     groups.set(sortedUserGroups)

@@ -28,15 +28,23 @@ class UserService(casUtils: CasUtils,
 
   val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
 
-  private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
+  private def oppijanumeroRekisteri = {
+    casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
+  }
 
   private def userInitials(userOid: String): Option[String] = {
     val json = s"""["$userOid"]"""
     val body = Option(json)
-    val response = oppijanumeroRekisteri.authenticatedRequest(s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
+    val response = oppijanumeroRekisteri.authenticatedRequest(
+      s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList",
+      RequestMethod.POST,
+      mediaType = Option(org.http4s.MediaType.`application/json`),
+      body = body)
     response match {
-      case Success(s) => parseUserInitialsFromResponse(s)
-      case Failure(f) => None
+      case Success(s) =>
+        parseUserInitialsFromResponse(s)
+      case Failure(f) =>
+        None
     }
   }
 
@@ -65,7 +73,8 @@ class UserService(casUtils: CasUtils,
       case Some(ldapUser) => {
         Success(createUser(ldapUser))
       }
-      case None => Failure(new IllegalStateException(s"User $uid not found in LDAP"))
+      case None =>
+        Failure(new IllegalStateException(s"User $uid not found in LDAP"))
     }
   }
 
@@ -85,39 +94,57 @@ class UserService(casUtils: CasUtils,
     }
   }
 
-  def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = userRepository.setUserProfile(user, userProfile)
+  def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = {
+    userRepository.setUserProfile(user, userProfile)
+  }
 
-  def userProfile(oid: String): UserProfile = userRepository.userProfile(oid)
+  def userProfile(oid: String): UserProfile = {
+    userRepository.userProfile(oid)
+  }
 
-  def userProfiles(oids: Seq[String]): List[UserProfile] = userRepository.userProfiles(oids)
+  def userProfiles(oids: Seq[String]): List[UserProfile] = {
+    userRepository.userProfiles(oids)
+  }
 
-  def serviceUserGroups: Seq[Kayttooikeusryhma] = kayttooikeusService.appGroups
+  def serviceUserGroups: Seq[Kayttooikeusryhma] = {
+    kayttooikeusService.appGroups
+  }
 
-  def saveDraft(user: User, draft: String): Int = userRepository.saveDraft(user, draft)
+  def saveDraft(user: User, draft: String): Int = {
+    userRepository.saveDraft(user, draft)
+  }
 
-  def targetingGroups(user: User) = userRepository.findTargetingGroups(user)
+  def targetingGroups(user: User) = {
+    userRepository.findTargetingGroups(user)
+  }
 
-  def saveTargetingGroup(user: User, name: String, data: String): Option[TargetingGroup] = userRepository.saveTargetingGroup(user, name, data)
+  def saveTargetingGroup(user: User, name: String, data: String): Option[TargetingGroup] = {
+    userRepository.saveTargetingGroup(user, name, data)
+  }
 
-  def deleteTargetingGroup(user: User, id: Long) = userRepository.deleteTargetingGroup(user, id)
+  def deleteTargetingGroup(user: User, id: Long) = {
+    userRepository.deleteTargetingGroup(user, id)
+  }
 
-  def deleteDraft(user: User): Int = userRepository.deleteDraft(user)
+  def deleteDraft(user: User): Int = {
+    userRepository.deleteDraft(user)
+  }
 
   def authenticate(ticket: String): Option[(String, User)] = {
-
     val uid = casUtils.validateTicket(ticket)
     val user = uid.flatMap(findUser)
 
     (uid, user) match {
-      case (Success(id), Success(u)) => Some(id, u)
-      case (Failure(e), _) => {
+      case (Success(id), Success(u)) =>
+        Some(id, u)
+      case (Failure(e), _) =>
         logger.error(s"Ticket validation failed", e)
         None
-      }
       case (Success(u), Failure(t)) =>
         logger.error(s"Failed to find user data for $u", t)
         None
-      case _ => None
+      case _ =>
+        None
     }
   }
 }

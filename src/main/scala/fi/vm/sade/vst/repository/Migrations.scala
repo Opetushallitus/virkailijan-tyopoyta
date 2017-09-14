@@ -13,8 +13,11 @@ class Migrations(dBConfig: DBConfig) extends Logging {
 
   def run(): Unit = {
     val dbType = dBConfig.dbType.toLowerCase.equals("h2")
-    if (dbType) flyway.setLocations(commonLocation, h2Location)
-    else flyway.setLocations(commonLocation, postgresqlLocation)
+    if (dbType) {
+      flyway.setLocations(commonLocation, h2Location)
+    } else {
+      flyway.setLocations(commonLocation, postgresqlLocation)
+    }
 
     val migrations = flyway.migrate
     logger.info(s"Ran $migrations data migrations")

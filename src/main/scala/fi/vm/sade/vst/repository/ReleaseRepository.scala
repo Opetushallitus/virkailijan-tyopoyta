@@ -4,7 +4,6 @@ import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
 
 trait ReleaseRepository {
-
   def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
   def notification(id: Long, user: User): Option[Notification]
   def specialNotifications(user: User): Seq[Notification]

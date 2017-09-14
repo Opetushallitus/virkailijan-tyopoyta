@@ -25,16 +25,20 @@ trait SessionSupport extends Directives with Configuration {
     override def log(msg: String): Unit = ()
   }
 
-  def withUser: Directive1[User] = requiredSession(refreshable, usingCookies).flatMap {
-    uid =>
-      userService.findUser(uid) match {
-        case Success(user) => provide(user)
-        case Failure(e) => complete(StatusCodes.Unauthorized)
-      }
+  def withUser: Directive1[User] = {
+    requiredSession(refreshable, usingCookies).flatMap {
+      uid =>
+        userService.findUser(uid) match {
+          case Success(user) => provide(user)
+          case Failure(e) => complete(StatusCodes.Unauthorized)
+        }
+    }
   }
 
-  def withAdminUser: Directive1[User] = withUser.flatMap {
-    case user if user.isAdmin => provide(user)
-    case _ => complete(StatusCodes.Unauthorized)
+  def withAdminUser: Directive1[User] = {
+    withUser.flatMap {
+      case user if user.isAdmin => provide(user)
+      case _ => complete(StatusCodes.Unauthorized)
+    }
   }
 }

@@ -15,7 +15,10 @@ object IterableUtils {
   }
 
   def mapToSplitted[A, B](splitSize: Int, iterable: Iterable[A], func: (Iterable[A]) => (Iterable[B])): Iterable[B] = {
-    if (splitSize <= 0) func(iterable)
-    else loop(splitSize, iterable, Vector.empty, func)
+    if (splitSize <= 0) {
+      func(iterable)
+    } else {
+      loop(splitSize, iterable, Vector.empty, func)
+    }
   }
 }

@@ -30,7 +30,9 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     val notificationValid: Boolean = release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
     val timelineValid: Boolean = release.timeline.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
 
-    if (!notificationValid || !timelineValid) logger.error("Invalid html content!")
+    if (!notificationValid || !timelineValid) {
+      logger.error("Invalid html content!")
+    }
 
     notificationValid && timelineValid
   }

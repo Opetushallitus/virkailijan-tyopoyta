@@ -9,18 +9,20 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   val (u, uc, d, tg) = (UserProfileTable.syntax, UserCategoryTable.syntax, DraftTable.syntax, TargetingGroupTable.syntax)
 
-  private def fetchUserProfile(userId: String) = withSQL[UserProfile] {
-    select
-      .from(UserProfileTable as u)
-      .leftJoin(UserCategoryTable as uc).on(u.userId, uc.userId)
-      .where.eq(u.userId, userId)
-  }.one(UserProfileTable(u))
-    .toMany(
-      rs => UserCategoryTable.opt(uc)(rs)
-    ).map((userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
-    .single.apply()
+  private def fetchUserProfile(userId: String): Option[UserProfile] = {
+    withSQL[UserProfile] {
+      select
+        .from(UserProfileTable as u)
+        .leftJoin(UserCategoryTable as uc).on(u.userId, uc.userId)
+        .where.eq(u.userId, userId)
+    }.one(UserProfileTable(u))
+      .toMany(
+        rs => UserCategoryTable.opt(uc)(rs)
+      ).map((userProfile, categories) => userProfile.copy(categories = categories.map(_.categoryId)))
+      .single.apply()
+  }
 
-  private def insertUserProfile(userId: String, userProfileUpdate: UserProfileUpdate) = {
+  private def insertUserProfile(userId: String, userProfileUpdate: UserProfileUpdate): UserProfile = {
     val uc = UserProfileTable.column
     DB localTx { implicit session =>
       withSQL {
@@ -33,7 +35,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail, firstLogin = true)
   }
 
-  private def insertUserCategory(userId: String, categoryId: Long)(implicit session: DBSession) = {
+  private def insertUserCategory(userId: String, categoryId: Long)(implicit session: DBSession): Int = {
     val uc = UserCategoryTable.column
     DB localTx { implicit session =>
       withSQL {
@@ -44,7 +46,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     }
   }
 
-  private def updateUserCategories(userId: String, categories: Seq[Long]) = {
+  private def updateUserCategories(userId: String, categories: Seq[Long]): Unit = {
     val existingCategories = withSQL(select.from(UserCategoryTable as uc).where.eq(uc.userId, userId))
       .map(UserCategoryTable(uc)).list.apply().map(_.categoryId)
 
@@ -57,7 +59,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     added.foreach(insertUserCategory(userId, _))
   }
 
-  private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate) = {
+  private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate): UserProfile = {
     DB localTx { implicit session =>
       val sql = withSQL(update(UserProfileTable as u).set(UserProfileTable.column.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId))
       sql.update().apply()
@@ -68,15 +70,19 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   override def setUserProfile(user: User, userProfileData: UserProfileUpdate): UserProfile = {
     fetchUserProfile(user.userId) match {
-      case Some(_) => updateUserProfile(user.userId, userProfileData)
-      case None => insertUserProfile(user.userId, userProfileData)
+      case Some(_) =>
+        updateUserProfile(user.userId, userProfileData)
+      case None =>
+        insertUserProfile(user.userId, userProfileData)
     }
   }
 
   override def userProfile(userId: String): UserProfile = {
     fetchUserProfile(userId) match {
-      case Some(userProfile) => userProfile
-      case None => insertUserProfile(userId, UserProfileUpdate())
+      case Some(userProfile) =>
+        userProfile
+      case None =>
+        insertUserProfile(userId, UserProfileUpdate())
     }
   }
 
@@ -116,8 +122,10 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   override def saveDraft(user: User, data: String): Int = {
     val currentDraft = fetchDraft(user.userId)
     currentDraft match {
-      case Some(_) => updateDraft(user.userId, data)
-      case None => insertDraft(user.userId, data)
+      case Some(_) =>
+        updateDraft(user.userId, data)
+      case None =>
+        insertDraft(user.userId, data)
     }
   }
 

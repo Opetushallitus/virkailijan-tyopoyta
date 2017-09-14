@@ -80,8 +80,10 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
           withAdminUser { user =>
             val release = releaseService.release(releaseId, user)
             release match {
-              case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
-              case None => complete(StatusCodes.BadRequest)
+              case Some(r) =>
+                sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+              case None =>
+                complete(StatusCodes.BadRequest)
             }
           }
         }

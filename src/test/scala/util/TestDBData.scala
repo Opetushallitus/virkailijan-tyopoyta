@@ -5,7 +5,7 @@ import java.nio.file.Paths
 import com.typesafe.config.{Config, ConfigFactory}
 import fi.vm.sade.vst.Configuration
 import org.flywaydb.core.Flyway
-import org.specs2.execute.AsResult
+import org.specs2.execute.{AsResult, Result}
 import org.specs2.mutable.Specification
 import org.specs2.specification.Around
 
@@ -30,7 +30,7 @@ trait TestDBData extends Configuration {
   trait WithDefaultData extends Around {
     cleanDb()
 
-    override def around[T: AsResult](t: => T) = {
+    override def around[T: AsResult](t: => T): Result = {
       AsResult.effectively(t)
     }
   }
