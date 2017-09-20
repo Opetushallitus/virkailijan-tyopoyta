@@ -9,7 +9,6 @@ import fi.vm.sade.vst.server.SessionSupport
 import io.swagger.annotations._
 
 
-
 @Api(value = "Kirjautumiseen liittyvät rajapinnat", produces = "application/json")
 @Path("")
 class FrontEndRoutes(val userService: UserService) extends SessionSupport {
@@ -20,13 +19,13 @@ class FrontEndRoutes(val userService: UserService) extends SessionSupport {
         case Some(_) =>
           pathEndOrSingleSlash {
             getFromResource("ui/index.html")
-          } ~
-            encodeResponse {
-              getFromResourceDirectory("ui")
-            }
+          }
         case None =>
           redirect(userService.loginUrl, StatusCodes.Found)
-      }
+      } ~
+        encodeResponse {
+          getFromResourceDirectory("ui")
+        }
     }
 
   val routes: Route = route
