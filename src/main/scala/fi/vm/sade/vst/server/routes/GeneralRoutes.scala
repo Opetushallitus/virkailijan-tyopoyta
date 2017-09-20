@@ -24,7 +24,7 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   def categoriesRoute: Route =
     path("categories") {
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendResponse(Future(releaseService.categories(user)))
         }
       }
@@ -38,7 +38,7 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   def tagsRoute: Route =
     path("tags") {
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendResponse(Future(releaseService.tags(user)))
         }
       }
@@ -52,7 +52,7 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   def userGroupsRoute: Route =
     path("usergroups") {
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendResponse(Future(userService.serviceUserGroups))
         }
       }

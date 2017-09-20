@@ -15,7 +15,7 @@ class FrontEndRoutes(val userService: UserService) extends SessionSupport {
 
   val route: Route =
     get {
-      extractTicketOption {
+      withSession {
         case Some(_) =>
           pathEndOrSingleSlash {
             getFromResource("ui/index.html")

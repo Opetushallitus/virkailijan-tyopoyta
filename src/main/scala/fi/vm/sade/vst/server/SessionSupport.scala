@@ -10,7 +10,6 @@ import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
 
 /**
   * Created by mty on 26/04/2017.
@@ -31,18 +30,24 @@ trait SessionSupport extends Directives with Configuration {
     }
   }
 
-  def withUser: Directive1[User] = {
-    requiredSession(refreshable, usingCookies).flatMap {
+  def withSession: Directive1[Option[User]] = {
+    requiredSession(refreshable, usingCookies). map {
       uid =>
-        userService.findUser(uid) match {
-          case Success(user) => provide(user)
-          case Failure(e) => complete(StatusCodes.Unauthorized)
-        }
+        userService.findUser(uid).toOption
+    }
+  }
+
+  def withUserOrUnauthorized: Directive1[User] = {
+    withSession.flatMap {
+      case Some(user) =>
+        provide(user)
+      case None =>
+        complete(StatusCodes.Unauthorized)
     }
   }
 
   def withAdminUser: Directive1[User] = {
-    withUser.flatMap {
+    withUserOrUnauthorized.flatMap {
       case user if user.isAdmin => provide(user)
       case _ => complete(StatusCodes.Unauthorized)
     }

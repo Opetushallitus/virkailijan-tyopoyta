@@ -30,7 +30,7 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   def getNotificationsRoute: Route =
     path("notifications") {
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           parameter("categories".as(CsvSeq[Long]).?, "tags".as(CsvSeq[Long]).?, "page".as[Int].?(1)) {
             (categories, tags, page) =>
               sendResponse(Future(
@@ -52,7 +52,7 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   def getNotificationRoute: Route =
     path("notifications" / IntNumber) { id =>
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendOptionalResponse(Future(releaseService.notification(id, user)))
         }
       }
@@ -66,7 +66,7 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   def getSpecialNotificationsRoute: Route =
     path("notifications" / "special") {
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendResponse(Future(releaseService.specialNotifications(user)))
         }
       }

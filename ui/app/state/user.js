@@ -48,7 +48,7 @@ function onFetchFailed (state, error) {
   if (error.toString().indexOf('SyntaxError') >= 0 && window.location.hostname !== 'localhost') {
     console.warn('Sign in to CAS first')
 
-    window.location.replace(urls['cas.login'])
+    //window.location.replace(urls['cas.login'])
   }
 
   return R.compose(

@@ -24,7 +24,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
   def userProfileRoute: Route =
     path("user") {
       get {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendResponse(Future(userService.userProfile(user.userId)))
         }
       }
@@ -43,7 +43,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
     path("user") {
       post {
         entity(as[String]) { json =>
-          withUser { user =>
+          withUserOrUnauthorized { user =>
             val updateProfile = parseUserProfileUpdate(json)
             updateProfile match {
               case Some(u) =>

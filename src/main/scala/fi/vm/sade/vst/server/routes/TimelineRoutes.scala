@@ -38,7 +38,7 @@ class TimelineRoutes(val userService: UserService, releaseService: ReleaseServic
       get {
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
           (categories, year, month) => {
-            withUser { user =>
+            withUserOrUnauthorized { user =>
               sendResponse(Future(releaseService.timeline(categories.getOrElse(Seq.empty), parseMonth(year, month), user)))
             }
           }
@@ -56,7 +56,7 @@ class TimelineRoutes(val userService: UserService, releaseService: ReleaseServic
   def deleteEventRoute: Route =
     path("timeline" / IntNumber) { id =>
       delete {
-        withUser { user =>
+        withUserOrUnauthorized { user =>
           sendResponse(Future(releaseService.deleteTimelineItem(id)))
         }
       }
