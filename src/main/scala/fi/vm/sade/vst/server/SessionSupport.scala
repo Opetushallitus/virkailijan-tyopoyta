@@ -31,9 +31,9 @@ trait SessionSupport extends Directives with Configuration {
   }
 
   def withSession: Directive1[Option[User]] = {
-    requiredSession(refreshable, usingCookies). map {
+    optionalSession(refreshable, usingCookies). map {
       uid =>
-        userService.findUser(uid).toOption
+        uid.flatMap(userService.findUser(_).toOption)
     }
   }
 

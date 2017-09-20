@@ -18,11 +18,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @Path("")
 class LoginRoutes(val userService: UserService) extends SessionSupport with JsonSupport with ResponseUtils {
 
+  private val serviceRoot: String = "/virkailijan-tyopoyta/"
+
   private def authenticateUser(ticket: String): Route = {
     userService.authenticate(ticket) match {
       case Some((uid, user)) =>
         setSession(refreshable, usingCookies, uid) {
-          redirect("/", StatusCodes.Found)
+          redirect(serviceRoot, StatusCodes.Found)
         }
       case None =>
         complete(StatusCodes.Unauthorized)

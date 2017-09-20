@@ -15,13 +15,13 @@ class FrontEndRoutes(val userService: UserService) extends SessionSupport {
 
   val route: Route =
     get {
-      withSession {
-        case Some(_) =>
-          pathEndOrSingleSlash {
+      pathEndOrSingleSlash {
+        withSession {
+          case Some(_) =>
             getFromResource("ui/index.html")
-          }
-        case None =>
-          redirect(userService.loginUrl, StatusCodes.Found)
+          case None =>
+            redirect(userService.loginUrl, StatusCodes.Found)
+        }
       } ~
         encodeResponse {
           getFromResourceDirectory("ui")
