@@ -22,7 +22,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     userService.authenticate(ticket) match {
       case Some((uid, user)) =>
         setSession(refreshable, usingCookies, uid) {
-          ctx => ctx.complete(serialize(user))
+          redirect("", StatusCodes.Found)
         }
       case None =>
         complete(StatusCodes.Unauthorized)

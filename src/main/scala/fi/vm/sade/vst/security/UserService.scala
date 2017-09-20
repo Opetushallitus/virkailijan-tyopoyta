@@ -22,7 +22,7 @@ class UserService(casUtils: CasUtils,
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 
-  private lazy val servicePart = s"${authenticationConfig.serviceId}/"
+  private lazy val servicePart = s"${authenticationConfig.serviceId}/authenticate"
 
   lazy val loginUrl: String = urls.url("cas.login", servicePart)
 
