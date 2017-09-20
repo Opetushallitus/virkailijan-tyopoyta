@@ -13,7 +13,7 @@ function fetch () {
   console.log('Fetching user info')
 
   http({
-    url: urls.login,
+    url: urls.details,
     requestOptions: {
       mode: 'no-cors'
     },
@@ -48,7 +48,7 @@ function onFetchFailed (state, error) {
   if (error.toString().indexOf('SyntaxError') >= 0 && window.location.hostname !== 'localhost') {
     console.warn('Sign in to CAS first')
 
-    //window.location.replace(urls['cas.login'])
+    //window.location.replace(urls['user.details'])
   }
 
   return R.compose(

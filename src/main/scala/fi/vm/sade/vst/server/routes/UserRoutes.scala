@@ -56,6 +56,20 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
       }
     }
 
+  @ApiOperation(value = "Hakee käyttäjän tallennetut tiedot", httpMethod = "GET")
+  @Path("/userDetails")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Kirjautuneen käyttäjän tiedot", response = classOf[UserProfile]),
+    new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
+  def userDetailsRoute: Route =
+    path("userDetails") {
+      get {
+        withUserOrUnauthorized { user =>
+          sendResponse(Future(user))
+        }
+      }
+    }
+
   @ApiOperation(value = "Tallentaa käyttäjän luonnoksen", httpMethod = "POST")
   @Path("/draft")
   @ApiImplicitParams(Array(
@@ -143,8 +157,14 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
       }
     }
 
-  val routes: Route = userProfileRoute ~ setUserProfileRoute ~
-    saveDraftRoute ~ deleteDraftRoute ~
-    getTargetingGroupRoute ~ saveTargetingGroupRoute ~ deleteTargetingGroupRoute
+  val routes: Route =
+      userProfileRoute ~
+      setUserProfileRoute ~
+      userDetailsRoute ~
+      saveDraftRoute ~
+      deleteDraftRoute ~
+      getTargetingGroupRoute ~
+      saveTargetingGroupRoute ~
+      deleteTargetingGroupRoute
 
 }
