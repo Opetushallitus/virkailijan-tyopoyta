@@ -3,7 +3,7 @@ package fi.vm.sade.vst.server.routes
 import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{Directives, Route}
+import akka.http.scaladsl.server.Route
 import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession, setSession}
 import com.softwaremill.session.SessionOptions.{refreshable, usingCookies}
 import fi.vm.sade.vst.model.{JsonSupport, User}
@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @Api(value = "Kirjautumiseen liittyvät rajapinnat", produces = "application/json")
 @Path("")
-class LoginRoutes(val userService: UserService) extends Directives with SessionSupport with JsonSupport with ResponseUtils {
+class LoginRoutes(val userService: UserService) extends SessionSupport with JsonSupport with ResponseUtils {
 
   private def authenticateUser(ticket: String): Route = {
     userService.authenticate(ticket) match {
@@ -57,14 +57,11 @@ class LoginRoutes(val userService: UserService) extends Directives with SessionS
     new ApiResponse(code = 401, message = "Tickettiä ei ole tai sitä ei pystytä validoimaan")))
   def authenticationRoute: Route = path("authenticate") {
     get {
-      extractRequest { request =>
-        val ticket = request.uri.query().get("ticket")
-        ticket match {
-          case Some(t) =>
-            authenticateUser(t)
-          case None =>
-            complete(StatusCodes.Unauthorized)
-        }
+      extractTicketOption {
+        case Some(t) =>
+          authenticateUser(t)
+        case None =>
+          complete(StatusCodes.Unauthorized)
       }
     }
   }

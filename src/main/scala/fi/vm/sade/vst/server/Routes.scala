@@ -5,6 +5,7 @@ import fi.vm.sade.vst.server.routes._
 
 
 class Routes(generalRoutes: GeneralRoutes,
+             frontEndRoutes: FrontEndRoutes,
              releaseRoutes: ReleaseRoutes,
              notificationRoutes: NotificationRoutes,
              timelineRoutes: TimelineRoutes,
@@ -24,18 +25,9 @@ class Routes(generalRoutes: GeneralRoutes,
       emailRoutes.routes
   }
 
-  val frontEndRoutes: Route = get {
-    pathEndOrSingleSlash {
-      getFromResource("ui/index.html")
-    } ~
-      encodeResponse {
-        getFromResourceDirectory("ui")
-      }
-  }
-
   val routes: Route = {
     pathPrefix("virkailijan-tyopoyta") {
-      frontEndRoutes ~ loginRoutes.routes ~ apiRoutes ~ swaggerDocService.swaggerRoutes
+      frontEndRoutes.routes ~ loginRoutes.routes ~ apiRoutes ~ swaggerDocService.swaggerRoutes
     }
   }
 }

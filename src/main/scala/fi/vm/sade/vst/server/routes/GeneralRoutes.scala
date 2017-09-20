@@ -2,7 +2,7 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
-import akka.http.scaladsl.server.{Directives, Route}
+import akka.http.scaladsl.server.Route
 import fi.vm.sade.vst.model.{Category, JsonSupport, Kayttooikeusryhma, TagGroup}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
@@ -14,7 +14,7 @@ import scala.concurrent.Future
 
 @Api(value = "Yleiseien tietojen hakuun liittyvät rajapinnat", produces = "application/json")
 @Path("")
-class GeneralRoutes(val userService: UserService, releaseService: ReleaseService) extends Directives with SessionSupport with JsonSupport with ResponseUtils {
+class GeneralRoutes(val userService: UserService, releaseService: ReleaseService) extends SessionSupport with JsonSupport with ResponseUtils {
 
   @ApiOperation(value = "Hakee käyttäjälle näytettävät kategoriat", httpMethod = "GET")
   @Path("/categories")

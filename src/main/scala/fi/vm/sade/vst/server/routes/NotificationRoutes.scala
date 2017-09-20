@@ -2,9 +2,8 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
-import akka.http.scaladsl.server.{Directives, Route}
+import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
-import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.{JsonSupport, Notification, NotificationList}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
@@ -17,7 +16,7 @@ import scala.concurrent.Future
 @Api(value = "Tiedotteisiin liittyvät rajapinnat.", produces = "application/json")
 @Path("/notifications")
 class NotificationRoutes(val userService: UserService, releaseService: ReleaseService)
-  extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging {
+  extends SessionSupport with JsonSupport with ResponseUtils {
 
   @ApiOperation(value = "Hakee tiedotteet", httpMethod = "GET", response = classOf[NotificationList])
   @ApiImplicitParams(Array(

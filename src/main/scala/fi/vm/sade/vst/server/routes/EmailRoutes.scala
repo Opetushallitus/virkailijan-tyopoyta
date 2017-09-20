@@ -7,7 +7,6 @@ import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.ContentTypes.{`text/html(UTF-8)`, `application/json`}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, Route}
-import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.JsonSupport
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
@@ -20,7 +19,7 @@ import scala.util.{Failure, Success}
 
 @Api(value = "Sähköpostin lähetykseen liittyvät admin operaatiot", produces = "application/json")
 @Path("")
-class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService) extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging {
+class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService) extends Directives with SessionSupport with JsonSupport with ResponseUtils {
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {

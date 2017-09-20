@@ -15,6 +15,7 @@ trait RoutesModule
   //    lazy val quartzScheduler: QuartzScheduler = wire[QuartzScheduler]
 
   lazy val generalRoutes: GeneralRoutes = wire[GeneralRoutes]
+  lazy val frontEndRoutes: FrontEndRoutes = wire[FrontEndRoutes]
   lazy val loginRoutes: LoginRoutes = wire[LoginRoutes]
   lazy val notificationRoutes: NotificationRoutes = wire[NotificationRoutes]
   lazy val releaseRoutes: ReleaseRoutes = wire[ReleaseRoutes]

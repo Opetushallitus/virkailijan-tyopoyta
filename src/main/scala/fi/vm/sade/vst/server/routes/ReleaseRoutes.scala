@@ -3,8 +3,7 @@ package fi.vm.sade.vst.server.routes
 import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{Directives, Route}
-import fi.vm.sade.vst.Logging
+import akka.http.scaladsl.server.Route
 import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
@@ -21,10 +20,8 @@ import scala.util.{Failure, Success}
 @Path("/release")
 class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService)
   extends SessionSupport
-  with Directives
   with JsonSupport
-  with ResponseUtils
-  with Logging{
+  with ResponseUtils {
 
   private def validateRelease(release: ReleaseUpdate): Boolean = {
     val notificationValid: Boolean = release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))

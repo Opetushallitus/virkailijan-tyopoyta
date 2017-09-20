@@ -25,6 +25,12 @@ trait SessionSupport extends Directives with Configuration {
     override def log(msg: String): Unit = ()
   }
 
+  def extractTicketOption: Directive1[Option[String]] = {
+    extractRequest.map { request =>
+      request.uri.query().get("ticket")
+    }
+  }
+
   def withUser: Directive1[User] = {
     requiredSession(refreshable, usingCookies).flatMap {
       uid =>
