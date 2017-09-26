@@ -29,7 +29,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
           redirect(serviceRoot, StatusCodes.Found)
         }
       case None =>
-        complete(StatusCodes.Unauthorized)
+        complete(StatusCodes.Unauthorized, "Validating ticket or finding user data failed")
     }
   }
 
@@ -65,7 +65,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
         case Some(t) =>
           authenticateUser(t)
         case None =>
-          complete(StatusCodes.Unauthorized)
+          complete(StatusCodes.Unauthorized, "No ticket provided")
       }
     }
   }
@@ -91,13 +91,15 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     new ApiResponse(code = 302, message = "")))
   def logoutRoute: Route = path("logout") {
     get {
-      optionalSession(refreshable, usingCookies) { ticketOpt =>
-        ticketOpt.foreach(removeTicket)
-        redirect(userService.loginUrl, StatusCodes.Found)
+      optionalSession(refreshable, usingCookies) {
+        case Some(ticket) =>
+          removeTicket(ticket)
+          redirect(userService.loginUrl, StatusCodes.Found)
+        case None =>
+          complete(StatusCodes.Unauthorized, "Tried to logout but was not logged in")
       }
     }
   }
-
 
   val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ logoutRoute
 }

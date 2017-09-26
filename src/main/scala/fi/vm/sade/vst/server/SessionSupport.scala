@@ -19,7 +19,7 @@ trait SessionSupport extends Directives with Configuration {
 
   val userService: UserService
 
-  private val ticketUserMap = mutable.Map[String,String]()
+  private val ticketUserMap = mutable.Map[String, String]()
 
   implicit val sessionManager = new SessionManager[String](sessionConfig)
 
@@ -33,8 +33,9 @@ trait SessionSupport extends Directives with Configuration {
         }
       }
     }
-
   }
+
+  val refreshTokenManager = sessionManager.createRefreshTokenManager(refreshTokenStorage)
 
   def extractTicketOption: Directive1[Option[String]] = {
     extractRequest.map { request =>
@@ -43,25 +44,39 @@ trait SessionSupport extends Directives with Configuration {
   }
 
   def withSession: Directive1[Option[User]] = {
-    optionalSession(refreshable, usingCookies). map {
-      ticketOpt =>
-        ticketOpt.flatMap(findUserForTicket(_))
+    optionalSession(refreshable, usingCookies).map {
+      case Some(ticket) =>
+        findUserForTicket(ticket)
+      case None =>
+        None
     }
   }
 
   def withUserOrUnauthorized: Directive1[User] = {
-    withSession.flatMap {
-      case Some(user) =>
-        provide(user)
+    optionalSession(refreshable, usingCookies).flatMap {
+      case Some(ticket) =>
+        ticketUserMap.get(ticket) match {
+          case Some(uid) =>
+            userService.findUser(uid).toOption match {
+              case Some(user) =>
+                provide(user)
+              case None =>
+                complete(StatusCodes.Unauthorized, s"No user found for user id $uid")
+            }
+          case None =>
+            complete(StatusCodes.Unauthorized, s"No user id found for ticket $ticket")
+        }
       case None =>
-        complete(StatusCodes.Unauthorized)
+        complete(StatusCodes.Unauthorized, "No session found")
     }
   }
 
   def withAdminUser: Directive1[User] = {
     withUserOrUnauthorized.flatMap {
-      case user if user.isAdmin => provide(user)
-      case _ => complete(StatusCodes.Unauthorized)
+      case user if user.isAdmin =>
+        provide(user)
+      case _ =>
+        complete(StatusCodes.Unauthorized, "User not found or not an admin")
     }
   }
 
@@ -76,6 +91,7 @@ trait SessionSupport extends Directives with Configuration {
 
   def removeTicket(ticket: String): Unit = {
     refreshTokenStorage.removeForTicket(ticket)
+    refreshTokenManager.removeToken(ticket)
     ticketUserMap.remove(ticket)
   }
- }
+}
