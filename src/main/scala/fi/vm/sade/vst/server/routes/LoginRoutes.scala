@@ -2,6 +2,7 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
+import fi.vm.sade.utils.cas.CasLogout
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession, setSession}
@@ -69,6 +70,35 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     }
   }
 
-  val routes: Route = loginRoute ~ authenticationRoute
+  @ApiOperation(value = "CAS backchannel logout", httpMethod = "POST")
+  @Path("/authenticate")
+  @ApiResponses(Array(
+    new ApiResponse(code = 302, message = "")))
+  def casRoute: Route = path("authenticate") {
+    post {
+      extractRequest { request =>
+        val param = request.uri.query().get("logoutRequest").getOrElse(throw new RuntimeException("Required parameter logoutRequest not found"))
+        val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
+        removeTicket(ticket)
+        redirect(userService.loginUrl, StatusCodes.Found)
+      }
+    }
+  }
+
+  @ApiOperation(value = "manual logout", httpMethod = "GET")
+  @Path("/logout")
+  @ApiResponses(Array(
+    new ApiResponse(code = 302, message = "")))
+  def logoutRoute: Route = path("logout") {
+    get {
+      optionalSession(refreshable, usingCookies) { ticketOpt =>
+        ticketOpt.foreach(removeTicket)
+        redirect(userService.loginUrl, StatusCodes.Found)
+      }
+    }
+  }
+
+
+  val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ logoutRoute
 }
 

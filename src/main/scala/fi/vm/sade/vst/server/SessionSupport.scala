@@ -10,7 +10,6 @@ import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
 
 import scala.collection.mutable
-import scala.util.Try
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -26,6 +25,15 @@ trait SessionSupport extends Directives with Configuration {
 
   implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[String] {
     override def log(msg: String): Unit = ()
+
+    def removeForTicket(ticket: String): Unit = {
+      store.foreach { case (selector, storedSession) =>
+        if (storedSession.session == ticket) {
+          this.remove(selector)
+        }
+      }
+    }
+
   }
 
   def extractTicketOption: Directive1[Option[String]] = {
@@ -64,5 +72,10 @@ trait SessionSupport extends Directives with Configuration {
   protected def findUserForTicket(ticket: String): Option[User] = {
     val uidOpt: Option[String] = ticketUserMap.get(ticket)
     uidOpt.flatMap(userService.findUser(_).toOption)
+  }
+
+  def removeTicket(ticket: String): Unit = {
+    refreshTokenStorage.removeForTicket(ticket)
+    ticketUserMap.remove(ticket)
   }
  }
