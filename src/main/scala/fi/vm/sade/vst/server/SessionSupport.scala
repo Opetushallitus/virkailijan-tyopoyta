@@ -9,6 +9,8 @@ import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
 
+import scala.collection.mutable
+import scala.util.Try
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -17,6 +19,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait SessionSupport extends Directives with Configuration {
 
   val userService: UserService
+
+  private val ticketUserMap = mutable.Map[String,String]()
 
   implicit val sessionManager = new SessionManager[String](sessionConfig)
 
@@ -32,8 +36,8 @@ trait SessionSupport extends Directives with Configuration {
 
   def withSession: Directive1[Option[User]] = {
     optionalSession(refreshable, usingCookies). map {
-      uid =>
-        uid.flatMap(userService.findUser(_).toOption)
+      ticketOpt =>
+        ticketOpt.flatMap(findUserForTicket(_))
     }
   }
 
@@ -52,4 +56,13 @@ trait SessionSupport extends Directives with Configuration {
       case _ => complete(StatusCodes.Unauthorized)
     }
   }
-}
+
+  protected def storeTicket(ticket: String, uid: String): Unit = {
+    ticketUserMap.update(ticket, uid)
+  }
+
+  protected def findUserForTicket(ticket: String): Option[User] = {
+    val uidOpt: Option[String] = ticketUserMap.get(ticket)
+    uidOpt.flatMap(userService.findUser(_).toOption)
+  }
+ }

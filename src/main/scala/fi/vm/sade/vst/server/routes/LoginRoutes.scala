@@ -23,7 +23,8 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   private def authenticateUser(ticket: String): Route = {
     userService.authenticate(ticket) match {
       case Some((uid, user)) =>
-        setSession(refreshable, usingCookies, uid) {
+        setSession(refreshable, usingCookies, ticket) {
+          storeTicket(ticket, uid)
           redirect(serviceRoot, StatusCodes.Found)
         }
       case None =>
@@ -39,7 +40,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   def loginRoute: Route = path("login") {
     get {
       optionalSession(refreshable, usingCookies) {
-        case Some(uid) =>
+        case Some(_) =>
           invalidateSession(refreshable, usingCookies)
           redirect(userService.loginUrl, StatusCodes.Found)
         case None =>
