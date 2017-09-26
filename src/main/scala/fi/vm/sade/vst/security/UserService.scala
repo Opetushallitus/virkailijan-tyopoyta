@@ -130,6 +130,10 @@ class UserService(casUtils: CasUtils,
     userRepository.deleteDraft(user)
   }
 
+  def validateTicket(ticket: String): Try[String] = {
+    casUtils.validateTicket(ticket)
+  }
+
   def authenticate(ticket: String): Option[(String, User)] = {
     val uid = casUtils.validateTicket(ticket)
     val user = uid.flatMap(findUser)

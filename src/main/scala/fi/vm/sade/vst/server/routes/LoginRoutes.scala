@@ -13,6 +13,7 @@ import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
 import io.swagger.annotations._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Success, Failure}
 
 
 @Api(value = "Kirjautumiseen liittyvät rajapinnat", produces = "application/json")
@@ -22,14 +23,19 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   private val serviceRoot: String = "/virkailijan-tyopoyta/"
 
   private def authenticateUser(ticket: String): Route = {
-    userService.authenticate(ticket) match {
-      case Some((uid, user)) =>
-        setSession(refreshable, usingCookies, ticket) {
-          storeTicket(ticket, uid)
-          redirect(serviceRoot, StatusCodes.Found)
+    userService.validateTicket(ticket) match {
+      case Success(uid) =>
+        userService.findUser(uid) match {
+          case Success(user) =>
+            setSession(refreshable, usingCookies, ticket) {
+              storeTicket(ticket, uid)
+              redirect(serviceRoot, StatusCodes.Found)
+            }
+          case Failure(t) =>
+            complete(StatusCodes.Unauthorized, s"Could not find user data for user id $uid: ${t.getMessage}")
         }
-      case None =>
-        complete(StatusCodes.Unauthorized, "Validating ticket or finding user data failed")
+      case Failure(t) =>
+        complete(StatusCodes.Unauthorized, s"Validating ticket $ticket failed: ${t.getMessage}")
     }
   }
 
