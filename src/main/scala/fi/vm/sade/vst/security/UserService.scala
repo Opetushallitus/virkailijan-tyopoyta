@@ -6,6 +6,7 @@ import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
 import fi.vm.sade.vst.{Configuration, Logging}
 import play.api.libs.json._
 
+import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
@@ -27,6 +28,8 @@ class UserService(casUtils: CasUtils,
   lazy val loginUrl: String = urls.url("cas.login", servicePart)
 
   val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
+
+  private val ticketUserMap = mutable.Map[String, String]()
 
   private def oppijanumeroRekisteri = {
     casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
@@ -151,4 +154,21 @@ class UserService(casUtils: CasUtils,
         None
     }
   }
+
+  def getUserIdForTicket(ticket: String): Option[String] = {
+    ticketUserMap.get(ticket)
+  }
+
+  def findUserForTicket(ticket: String): Option[User] = {
+    getUserIdForTicket(ticket).flatMap(uid => findUser(uid).toOption)
+  }
+
+  def storeTicket(ticket: String, userId: String): Unit = {
+    ticketUserMap.update(ticket, userId)
+  }
+
+  def removeTicket(ticket: String): Unit = {
+    ticketUserMap.remove(ticket)
+  }
+
 }

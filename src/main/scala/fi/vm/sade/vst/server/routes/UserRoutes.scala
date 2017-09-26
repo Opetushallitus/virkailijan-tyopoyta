@@ -65,6 +65,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
     path("userDetails") {
       get {
         withUserOrUnauthorized { user =>
+          logger.info(s"Responding with user details for ${user.userId}")
           sendResponse(Future(user))
         }
       }

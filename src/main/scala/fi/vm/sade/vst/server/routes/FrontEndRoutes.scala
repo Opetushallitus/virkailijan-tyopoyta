@@ -20,6 +20,7 @@ class FrontEndRoutes(val userService: UserService) extends SessionSupport {
           case Some(_) =>
             getFromResource("ui/index.html")
           case None =>
+            logger.info(s"Front page reached with no existing session, redirecting to CAS login")
             redirect(userService.loginUrl, StatusCodes.Found)
         }
       } ~

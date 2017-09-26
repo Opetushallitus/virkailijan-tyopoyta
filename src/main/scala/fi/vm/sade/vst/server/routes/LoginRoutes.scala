@@ -23,18 +23,22 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   private val serviceRoot: String = "/virkailijan-tyopoyta/"
 
   private def authenticateUser(ticket: String): Route = {
+    logger.info("Validating CAS ticket")
     userService.validateTicket(ticket) match {
       case Success(uid) =>
+        storeTicket(ticket, uid)
         userService.findUser(uid) match {
           case Success(user) =>
             setSession(refreshable, usingCookies, ticket) {
-              storeTicket(ticket, uid)
+              logger.info(s"Successfully validated CAS ticket and logged in $uid")
               redirect(serviceRoot, StatusCodes.Found)
             }
           case Failure(t) =>
+            logger.info(s"CAS ticket validated but no user data found for ${uid}: ${t.getMessage}")
             complete(StatusCodes.Unauthorized, s"Could not find user data for user id $uid: ${t.getMessage}")
         }
       case Failure(t) =>
+        logger.info(s"CAS ticket $ticket validation failed: ${t.getMessage}")
         complete(StatusCodes.Unauthorized, s"Validating ticket $ticket failed: ${t.getMessage}")
     }
   }
@@ -46,6 +50,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def loginRoute: Route = path("login") {
     get {
+      logger.info(s"/login reached, redirecting to CAS login")
       optionalSession(refreshable, usingCookies) {
         case Some(_) =>
           invalidateSession(refreshable, usingCookies)
@@ -69,8 +74,10 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     get {
       extractTicketOption {
         case Some(t) =>
+          logger.info(s"Got redirect to /authenticate from CAS login")
           authenticateUser(t)
         case None =>
+          logger.info(s"Got redirect to /authenticate from CAS login but no ticket was provided")
           complete(StatusCodes.Unauthorized, "No ticket provided")
       }
     }
@@ -82,8 +89,9 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     new ApiResponse(code = 302, message = "")))
   def casRoute: Route = path("authenticate") {
     post {
-      extractRequest { request =>
-        val param = request.uri.query().get("logoutRequest").getOrElse(throw new RuntimeException("Required parameter logoutRequest not found"))
+      formFieldMap { formFields =>
+        logger.info(s"Got CAS backchannel logout request, form: $formFields")
+        val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
         val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
         removeTicket(ticket)
         redirect(userService.loginUrl, StatusCodes.Found)
@@ -99,9 +107,11 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     get {
       optionalSession(refreshable, usingCookies) {
         case Some(ticket) =>
+          logger.info(s"Got manual logout request for ticket $ticket")
           removeTicket(ticket)
           redirect(userService.loginUrl, StatusCodes.Found)
         case None =>
+          logger.info(s"Got manual logout request but was not logged in")
           complete(StatusCodes.Unauthorized, "Tried to logout but was not logged in")
       }
     }
