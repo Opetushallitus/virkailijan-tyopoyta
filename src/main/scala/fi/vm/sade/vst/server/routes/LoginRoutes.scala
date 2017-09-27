@@ -77,8 +77,8 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
           logger.info(s"Got redirect to /authenticate from CAS login")
           authenticateUser(t)
         case None =>
-          logger.info(s"Got redirect to /authenticate from CAS login but no ticket was provided")
-          complete(StatusCodes.Unauthorized, "No ticket provided")
+          logger.info(s"Got to /authenticate from CAS login but no ticket was provided, redirecting to cas/login")
+          redirect(userService.loginUrl, StatusCodes.Found)
       }
     }
   }
