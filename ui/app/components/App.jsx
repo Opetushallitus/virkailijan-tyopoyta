@@ -63,7 +63,7 @@ class App extends React.Component {
                 id={1}
                 variant="error"
                 titleKey="Käyttäjätietojen haku epäonnistui"
-                textKey="Kirjaudu aluksi luokalle ja päivitä sivu"
+                textKey="Kokeile päivittää sivu."
               />
             </div>
             : null
