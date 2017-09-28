@@ -1,12 +1,15 @@
 package fi.vm.sade.vst.server.routes
 
+import java.net.{InetAddress, UnknownHostException}
 import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{Directives, Route}
+import fi.vm.sade.auditlog.{User => AuditUser}
+import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate}
 import fi.vm.sade.vst.security.UserService
-import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import fi.vm.sade.vst.service.ReleaseService
 import io.swagger.annotations._
 import org.jsoup.Jsoup
@@ -20,8 +23,11 @@ import scala.util.{Failure, Success}
 @Path("/release")
 class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService)
   extends SessionSupport
-  with JsonSupport
-  with ResponseUtils {
+    with AuditSupport
+    with Directives
+    with JsonSupport
+    with ResponseUtils
+    with Logging {
 
   private def validateRelease(release: ReleaseUpdate): Boolean = {
     val notificationValid: Boolean = release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
@@ -65,14 +71,16 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
       path("release") {
         entity(as[String]) { json =>
           withAdminUser { user =>
-            val release = parseReleaseUpdate(json)
-            release match {
-              case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
-                added => {
-                  userService.deleteDraft(user)
-                  added.id
-                })))
-              case None => complete(StatusCodes.BadRequest)
+            withAuditUser(user) { implicit au =>
+              val release = parseReleaseUpdate(json)
+              release match {
+                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
+                  added => {
+                    userService.deleteDraft(user)
+                    added.id
+                  })))
+                case None => complete(StatusCodes.BadRequest)
+              }
             }
           }
         }
@@ -92,14 +100,16 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
       path("release") {
         entity(as[String]) { json =>
           withAdminUser { user =>
-            val release = parseReleaseUpdate(json)
-            release match {
-              case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
-                edited => {
-                  userService.deleteDraft(user)
-                  edited.id
-                })))
-              case None => complete(StatusCodes.BadRequest)
+            withAuditUser(user) { implicit au =>
+              val release = parseReleaseUpdate(json)
+              release match {
+                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
+                  edited => {
+                    userService.deleteDraft(user)
+                    edited.id
+                  })))
+                case None => complete(StatusCodes.BadRequest)
+              }
             }
           }
         }
@@ -119,10 +129,12 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     delete {
       path("release" / IntNumber) { id =>
         withAdminUser { user =>
-          val result = Future(releaseService.deleteRelease(user, id))
-          onComplete(result) {
-            case Success(_) ⇒ sendResponse(result)
-            case Failure(e) ⇒ complete(StatusCodes.NotFound, e.getMessage)
+          withAuditUser(user) { implicit au =>
+            val result = Future(releaseService.deleteRelease(user, id))
+            onComplete(result) {
+              case Success(_) ⇒ sendResponse(result)
+              case Failure(e) ⇒ complete(StatusCodes.NotFound, e.getMessage)
+            }
           }
         }
       }

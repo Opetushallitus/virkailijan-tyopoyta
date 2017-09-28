@@ -1,16 +1,35 @@
 package fi.vm.sade.vst
 
 import com.typesafe.scalalogging.LazyLogging
-import fi.vm.sade.auditlog.virkailijantyopoyta.LogMessage.builder
-import fi.vm.sade.auditlog.virkailijantyopoyta.VirkailijanTyopoytaOperation._
-import fi.vm.sade.auditlog.{ApplicationType, Audit}
-import fi.vm.sade.vst.model.User
+import fi.vm.sade.auditlog.{ApplicationType, Audit, Changes, Operation, Target, User => AuditUser}
+import fi.vm.sade.vst.model._
+import play.api.libs.json.{JsObject, JsValue}
+import play.api.libs.json.Json.toJson
 
-trait Logging extends LazyLogging {
+trait Logging extends LazyLogging with JsonSupport {
 
-  private val audit = new Audit("virkailijan-tyopoyta", ApplicationType.VIRKAILIJA)
+  object LoggerImpl extends fi.vm.sade.auditlog.Logger {
+    def log(var1: String): Unit = {
+        logger.info(var1)
+    }
+  }
+
+
+  private val audit = new Audit(LoggerImpl, "virkailijan-tyopoyta", ApplicationType.VIRKAILIJA)
 
   object AuditLog {
+    object VirkailijanTyopoytaOperation extends Enumeration {
+      type VirkailijanTyopoytaOperation = Value
+      val VIRKAILIJAN_TYOPOYTA_CREATE, VIRKAILIJAN_TYOPOYTA_UPDATE, VIRKAILIJAN_TYOPOYTA_DELETE, VIRKAILIJAN_TYOPOYTA_SEND_EMAIL = Value
+    }
+
+    implicit def enumToOperation(value: VirkailijanTyopoytaOperation.Value): Operation = {
+      new Operation {
+        override def name(): String = value.toString
+      }
+    }
+
+    import VirkailijanTyopoytaOperation._
 
     object AuditTarget extends Enumeration {
       type PaymentStatus = Value
@@ -22,94 +41,199 @@ trait Logging extends LazyLogging {
       val create, update, delete = Value
     }
 
-    def auditCreateRelease(user: User, releaseId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .releaseId(releaseId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_CREATE)
+    def auditCreateRelease(user: User, releaseUpdate: ReleaseUpdate)(implicit au: AuditUser): Unit = {
+      val changes = toNewChanges(toJson(releaseUpdate))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.release.toString)
+        .setField("id", releaseUpdate.id.toString)
         .build()
-      audit.log(logMessage)
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_CREATE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditUpdateRelease(user: User, releaseId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .notificationId(releaseId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_UPDATE)
+    def auditUpdateRelease(user: User, oldRelease: ReleaseUpdate, newRelease: ReleaseUpdate)(implicit au: AuditUser): Unit = {
+      val changes = toDeltaChanges(toJson(oldRelease), toJson(newRelease))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.release.toString)
+        .setField("id", newRelease.id.toString)
         .build()
-      audit.log(logMessage)
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_UPDATE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditDeleteRelease(user: User, releaseId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .notificationId(releaseId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_DELETE)
+    def auditDeleteRelease(user: User, releaseId: Long)(implicit au: AuditUser): Unit = {
+      val changes: Changes = new Changes.Builder()
+        .updated("deleted", "false", "true")
         .build()
-      audit.log(logMessage)
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.release.toString)
+        .setField("id", releaseId.toString)
+        .build()
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_DELETE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditCreateNotification(user: User, notificationId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .notificationId(notificationId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_CREATE)
+    def auditCreateNotification(user: User, notification: NotificationUpdate)(implicit au: AuditUser): Unit = {
+      val changes = toNewChanges(toJson(notification))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.notification.toString)
+        .setField("id", notification.id.toString)
         .build()
-      audit.log(logMessage)
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_CREATE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditUpdateNotification(user: User, notificationId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .notificationId(notificationId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_UPDATE)
+    def auditUpdateNotification(user: User, oldNotification: NotificationUpdate, newNotification: NotificationUpdate)(implicit au: AuditUser): Unit = {
+      val changes = toDeltaChanges(toJson(oldNotification), toJson(newNotification))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.notification.toString)
+        .setField("id", newNotification.id.toString)
         .build()
-      audit.log(logMessage)
+
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_UPDATE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditDeleteNotification(user: User, notificationId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .notificationId(notificationId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_DELETE)
+    def auditDeleteNotification(user: User, notificationId: Long)(implicit au: AuditUser): Unit = {
+      val changes: Changes = new Changes.Builder()
+        .updated("deleted", "false", "true")
         .build()
-      audit.log(logMessage)
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.notification.toString)
+        .setField("id", notificationId.toString)
+        .build()
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_DELETE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditCreateEvent(user: User, timelineItemId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .eventId(timelineItemId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_CREATE)
+    def auditCreateEvent(user: User, timelineItem: TimelineItem)(implicit au: AuditUser): Unit = {
+      val changes = toNewChanges(toJson(timelineItem))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.timeline.toString)
+        .setField("id", timelineItem.id.toString)
         .build()
-      audit.log(logMessage)
+    val operation: Operation = VIRKAILIJAN_TYOPOYTA_CREATE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditUpdateEvent(user: User, timelineItemId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .eventId(timelineItemId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_UPDATE)
+    def auditUpdateEvent(user: User, oldTimelineItem: TimelineItem, newTimelineItem: TimelineItem)(implicit au: AuditUser): Unit = {
+      val changes = toDeltaChanges(toJson(oldTimelineItem), toJson(newTimelineItem))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.timeline.toString)
+        .setField("id", newTimelineItem.id.toString)
         .build()
-      audit.log(logMessage)
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_UPDATE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditDeleteEvent(user: User, timelineItemId: Long): Unit = {
-      val logMessage = builder()
-        .virkailijaOid(user.userId)
-        .eventId(timelineItemId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_DELETE)
+    def auditDeleteEvent(user: User, timelineItem: TimelineItem)(implicit au: AuditUser): Unit = {
+      val changes = toDeletedChanges(toJson(timelineItem))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.timeline.toString)
+        .setField("id", timelineItem.id.toString)
         .build()
-      audit.log(logMessage)
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_DELETE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
 
-    def auditSendEmail(releaseId: Long, eventType: String): Unit = {
-      val logMessage = builder()
-        .releaseId(releaseId.toString)
-        .setOperaatio(VIRKAILIJAN_TYOPOYTA_SEND_EMAIL)
+    def auditSendEmail(eventId: Long, event: EmailEvent)(implicit au: AuditUser): Unit = {
+      val changes = toNewChanges(toJson(event))
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_SEND_EMAIL
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.release.toString)
+        .setField("releaseId", event.releaseId.toString)
+        .setField("eventId", eventId.toString)
         .build()
-      audit.log(logMessage)
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
     }
   }
 
+  def toNewChanges(json: JsValue): Changes = {
+    val builder = new Changes.Builder()
+    json.asInstanceOf[JsObject].fields.foreach{ case (k,v) =>
+      builder.added(k, v.toString())
+    }
+    builder.build()
+  }
+
+  def toDeltaChanges(oldJson: JsValue, newJson: JsValue): Changes = {
+    val builder = new Changes.Builder()
+    val oldFields = oldJson.asInstanceOf[JsObject].fields
+    val newFields = newJson.asInstanceOf[JsObject].fields
+    oldFields.foreach{ case (k,v) =>
+      newFields.find(_._1 == k) match {
+        case Some(newField) =>
+          val newValue = newField._2
+          if (newValue != v) {
+            builder.updated(k, v.toString(), newValue.toString())
+          }
+        case None =>
+          builder.removed(k, v.toString())
+      }
+    }
+    newFields.foreach{ case (k,v) =>
+      if (!oldFields.exists(_._1 == k)) {
+          builder.added(k, v.toString())
+      }
+    }
+    builder.build()
+  }
+
+  def toDeletedChanges(json: JsValue): Changes = {
+    val builder = new Changes.Builder()
+    json.asInstanceOf[JsObject].fields.foreach{ case (k,v) =>
+      builder.removed(k, v.toString())
+    }
+    builder.build()
+  }
 }

@@ -94,15 +94,14 @@ case class NotificationUpdate(id: Long,
                               publishDate: LocalDate,
                               expiryDate: Option[LocalDate],
                               content: Map[String, NotificationContent] = Map.empty,
-                              tags: Seq[Long] = List.empty,
-                              sendEmail: Boolean = false)
+                              tags: Seq[Long] = List.empty)
 
 @ApiModel
 case class ReleaseUpdate(id: Long,
                          notification: Option[NotificationUpdate] = None,
                          timeline: Seq[TimelineItem] = Nil,
                          categories: Seq[Long] = Seq.empty,
-                         usergroups: Seq[Long] = Seq.empty)
+                         userGroups: Seq[Long] = Seq.empty)
 
 
 case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, content: Map[String, TimelineContent] = Map.empty)

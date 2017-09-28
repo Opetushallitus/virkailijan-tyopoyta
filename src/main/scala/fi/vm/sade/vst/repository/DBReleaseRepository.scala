@@ -1,5 +1,6 @@
 package fi.vm.sade.vst.repository
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.{DBConfig, Logging}
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
@@ -208,7 +209,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val releaseId = q.updateAndReturnGeneratedKey().apply()
 
     insertReleaseCategories(releaseId, releaseUpdate.categories)
-    insertReleaseUsergroups(releaseId, releaseUpdate.usergroups)
+    insertReleaseUsergroups(releaseId, releaseUpdate.userGroups)
 
     releaseId
   }
@@ -268,11 +269,11 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     added.foreach(insertNotificationTags(notificationUpdate.id, _))
   }
 
-  private def addNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession): Long = {
+  private def addNotification(releaseId: Long, user: User, notification: NotificationUpdate)(implicit session: DBSession, au: AuditUser): Long = {
     val notificationId: Long = insertNotification(releaseId, user, notification)
     notification.content.values.foreach(insertNotificationContent(notificationId, _))
     notification.tags.foreach(t => insertNotificationTags(notificationId, t))
-    AuditLog.auditCreateNotification(user, notificationId)
+    AuditLog.auditCreateNotification(user, notification)
     notificationId
   }
 
@@ -297,10 +298,10 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update.apply()
   }
 
-  private def addTimelineItem(user: User, releaseId: Long, item: TimelineItem)(implicit session: DBSession): Unit = {
+  private def addTimelineItem(user: User, releaseId: Long, item: TimelineItem)(implicit session: DBSession, au: AuditUser): Unit = {
     val itemId = insertTimelineItem(releaseId, item)
     item.content.values.foreach(insertTimelineContent(itemId, _))
-    AuditLog.auditCreateEvent(user, itemId)
+    AuditLog.auditCreateEvent(user, item)
   }
 
   private def insertReleaseCategories(releaseId: Long, categories: Seq[Long])(implicit session: DBSession): Unit = {
@@ -335,21 +336,21 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }.update().apply()
   }
 
-  private def updateReleaseUsergroups(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): Int = {
+  private def updateReleaseUsergroups(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): (Seq[Long],Seq[Long]) = {
     val currentUsergroups = withSQL[ReleaseUserGroup](
       select.from(ReleaseUserGroupTable as ug).where.eq(ug.releaseId, releaseUpdate.id))
       .map(ReleaseUserGroupTable(ug)).toList().apply().map(_.usergroupId)
 
-    val removed = currentUsergroups.diff(releaseUpdate.usergroups)
-    val added = releaseUpdate.usergroups.diff(currentUsergroups)
+    val removed = currentUsergroups.diff(releaseUpdate.userGroups)
+    val added = releaseUpdate.userGroups.diff(currentUsergroups)
 
     deleteReleaseUsergroups(releaseUpdate.id, removed)
     insertReleaseUsergroups(releaseUpdate.id, added)
 
-    added.size + removed.size
+    (currentUsergroups, releaseUpdate.categories)
   }
 
-  private def updateReleaseCategories(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): Int = {
+  private def updateReleaseCategories(releaseUpdate: ReleaseUpdate)(implicit session: DBSession): (Seq[Long],Seq[Long]) = {
     val existingCategories = withSQL[ReleaseCategory](
       select.from(ReleaseCategoryTable as rc).where.eq(rc.releaseId, releaseUpdate.id))
       .map(ReleaseCategoryTable(rc)).toList().apply().map(_.categoryId)
@@ -360,10 +361,10 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     deleteReleaseCategories(releaseUpdate.id, removed)
     insertReleaseCategories(releaseUpdate.id, added)
 
-    added.size + removed.size
+    (existingCategories, releaseUpdate.categories)
   }
 
-  private def updateNotification(current: Notification, updated: NotificationUpdate, user: User): Unit = {
+  private def updateNotification(current: Notification, updated: NotificationUpdate, user: User)(implicit au: AuditUser): Unit = {
     val column = NotificationTable.column
     withSQL {
       update(NotificationTable as n).set(column.publishDate -> updated.publishDate,
@@ -372,13 +373,22 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         column.modifiedAt -> LocalDate.now()).where.eq(n.id, updated.id)
     }.update().apply()
 
+    val oldNotification: NotificationUpdate = NotificationUpdate(
+      id = current.id,
+      releaseId = current.releaseId,
+      publishDate = current.publishDate,
+      expiryDate = current.expiryDate,
+      content = current.content,
+      tags = current.tags
+    )
+
     withSQL(delete.from(NotificationContentTable as c).where.eq(c.notificationId, current.id)).update().apply()
     updated.content.values.foreach(insertNotificationContent(current.id, _))
     updateNotificationTags(updated)
-    AuditLog.auditUpdateNotification(user, updated.id)
+    AuditLog.auditUpdateNotification(user, oldNotification, updated)
   }
 
-  private def insertOrUpdateNotification(releaseUpdate: ReleaseUpdate, user: User)(implicit session: DBSession): Unit = {
+  private def insertOrUpdateNotification(releaseUpdate: ReleaseUpdate, user: User)(implicit session: DBSession, au: AuditUser): (Option[Notification], Option[NotificationUpdate]) = {
     val currentNotification: Option[Notification] = notificationForRelease(releaseUpdate.id)
 
     (currentNotification, releaseUpdate.notification) match {
@@ -391,23 +401,26 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       case _ =>
         ()
     }
+
+    (currentNotification, releaseUpdate.notification)
   }
 
-  private def deleteTimelineItems(user: User, deletedItems: Seq[TimelineItem])(implicit session: DBSession): Unit = {
+  private def deleteTimelineItems(user: User, deletedItems: Seq[TimelineItem])(implicit session: DBSession, au: AuditUser): Unit = {
     withSQL(delete.from(TimelineContentTable as tc).where.in(tc.timelineId, deletedItems.map(_.id))).update().apply()
     withSQL(delete.from(TimelineTable as tl).where.in(tl.id, deletedItems.map(_.id))).update().apply()
-    deletedItems.foreach(item => AuditLog.auditDeleteEvent(user, item.id))
+    deletedItems.foreach(item => AuditLog.auditDeleteEvent(user, item))
   }
 
-  private def updateTimelineItem(user: User, item: TimelineItem)(implicit session: DBSession): Unit = {
+  private def updateTimelineItem(user: User, oldItem: TimelineItem, item: TimelineItem)(implicit session: DBSession, au: AuditUser): Unit = {
     val column = TimelineTable.column
     withSQL(update(TimelineTable as tl).set(column.date -> item.date).where.eq(tl.id, item.id)).update().apply()
     withSQL(delete.from(TimelineContentTable as tc).where.eq(tc.timelineId, item.id)).update().apply()
     item.content.values.foreach(insertTimelineContent(item.id, _))
-    AuditLog.auditUpdateEvent(user, item.id)
+
+    AuditLog.auditUpdateEvent(user, oldItem, item)
   }
 
-  private def updateReleaseTimeline(user: User, releaseUpdate: ReleaseUpdate)(implicit session: DBSession): Unit = {
+  private def updateReleaseTimeline(user: User, releaseUpdate: ReleaseUpdate)(implicit session: DBSession, au: AuditUser): (Seq[TimelineItem],Seq[TimelineItem]) = {
     val currentTimeline: Seq[TimelineItem] = timelineForRelease(releaseUpdate.id)
 
     val newItems = releaseUpdate.timeline.filter(_.id < 0)
@@ -420,7 +433,12 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
     val updatedItems = releaseUpdate.timeline.filter(_.id >= 0)
 
-    updatedItems.foreach(updateTimelineItem(user, _))
+    updatedItems.foreach { updated =>
+      val old: TimelineItem = currentTimeline.find(_.id == updated.id).get
+      updateTimelineItem(user, old, updated)
+    }
+
+    (currentTimeline, releaseUpdate.timeline)
   }
 
   override def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList = {
@@ -505,34 +523,41 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     release(id).filter(r => releaseTargetedForUser(r.categories, r.usergroups, user))
   }
 
-  override def updateRelease(user: User, releaseUpdate: ReleaseUpdate): Option[Release] = {
+  override def updateRelease(user: User, releaseUpdate: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
     DB localTx { implicit session =>
 
-      val updatedCategories = updateReleaseCategories(releaseUpdate)
-      val updatedUserGroups = updateReleaseUsergroups(releaseUpdate)
-      insertOrUpdateNotification(releaseUpdate, user)
-      updateReleaseTimeline(user, releaseUpdate)
+      val (oldCategories, newCategories) = updateReleaseCategories(releaseUpdate)
+      val (oldUserGroups, newUserGroups) = updateReleaseUsergroups(releaseUpdate)
+      val (oldNotification, newNotification) = insertOrUpdateNotification(releaseUpdate, user)
+      val (oldTimeline, newTimeline) = updateReleaseTimeline(user, releaseUpdate)
 
-      if (updatedCategories + updatedUserGroups > 0) {
-        AuditLog.auditUpdateRelease(user, releaseUpdate.id)
-      }
+      val oldNotificationUpdate = oldNotification.map(n => NotificationUpdate(n.id, n.releaseId, n.publishDate, n.expiryDate, n.content, n.tags))
+      val oldRelease = ReleaseUpdate(
+        id = releaseUpdate.id,
+        notification = oldNotificationUpdate,
+        timeline = oldTimeline,
+        categories = oldCategories,
+        userGroups = oldUserGroups
+      )
+
+      AuditLog.auditUpdateRelease(user, oldRelease, releaseUpdate)
 
       findRelease(releaseUpdate.id)
     }
   }
 
-  override def addRelease(user: User, releaseUpdate: ReleaseUpdate): Option[Release] = {
+  override def addRelease(user: User, releaseUpdate: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
     val id = DB localTx { implicit session =>
       val releaseId = insertRelease(releaseUpdate)
       releaseUpdate.notification.foreach(addNotification(releaseId, user, _))
       releaseUpdate.timeline.foreach(addTimelineItem(user, releaseId, _))
       releaseId
     }
-    AuditLog.auditCreateRelease(user, id)
+    AuditLog.auditCreateRelease(user, releaseUpdate)
     release(id, user)
   }
 
-  override def deleteRelease(user: User, id: Long): Int = {
+  override def deleteRelease(user: User, id: Long)(implicit au: AuditUser): Int = {
     val count = DB localTx { implicit session =>
       withSQL {
         update(ReleaseTable as r).set(ReleaseTable.column.deleted -> true).where.eq(r.id, id)
@@ -549,7 +574,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     }
   }
 
-  override def deleteNotification(user: User, notificationId: Long): Int = {
+  override def deleteNotification(user: User, notificationId: Long)(implicit au: AuditUser): Int = {
     val count = withSQL(update(NotificationTable as n).set(NotificationTable.column.deleted -> true).where.eq(n.id, notificationId)).update().apply()
     AuditLog.auditDeleteNotification(user, notificationId)
     count
@@ -568,7 +593,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       .flatMap(r => release(r.id))
   }
 
-  override def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release] = {
+  override def generateReleases(amount: Int, month: YearMonth, user: User)(implicit au: AuditUser): Seq[Release] = {
     val releases = for (_ <- 1 to amount) yield generateRelease(user: User, month)
     releases.flatten
   }
@@ -608,7 +633,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     Release(id = 0, notification = None, timeline = Seq.empty)
   }
 
-  private def generateRelease(user: User, month: YearMonth): Option[Release] = {
+  private def generateRelease(user: User, month: YearMonth)(implicit au: AuditUser): Option[Release] = {
     val releaseId = addNewRelease(emptyRelease)
     val startDay = Random.nextInt(month.atEndOfMonth().getDayOfMonth - 1) + 1
     val startDate = month.atDay(startDay)

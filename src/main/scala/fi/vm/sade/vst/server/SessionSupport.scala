@@ -1,10 +1,12 @@
 package fi.vm.sade.vst.server
 
+import org.ietf.jgss.Oid
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{Directive1, Directives}
+import akka.http.scaladsl.server._
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.{Configuration, Logging}
 import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
@@ -83,6 +85,8 @@ trait SessionSupport extends Directives with Configuration with Logging {
     }
   }
 
+
+
   protected def getUserIdForTicket(ticket: String): Option[String] = {
     userService.getUserIdForTicket(ticket)
   }
@@ -101,5 +105,25 @@ trait SessionSupport extends Directives with Configuration with Logging {
     refreshTokenStorage.removeForTicket(ticket)
     refreshTokenManager.removeToken(ticket)
     userService.removeTicket(ticket)
+  }
+}
+
+
+trait AuditSupport extends Directives {
+  def withAuditUser(user: User): Directive1[AuditUser] = {
+    extractClientIP.flatMap {
+      ip =>
+        cookie("virkailijan-tyopoyta-session").flatMap {
+          sessionCookie =>
+            headerValueByName("User-Agent").map {
+              userAgent => {
+                val oid = new Oid(user.userId)
+                val inetAddress = ip.toOption.get
+                val session: String = sessionCookie.value
+                new AuditUser(oid, inetAddress, session, userAgent)
+              }
+            }
+        }
+    }
   }
 }

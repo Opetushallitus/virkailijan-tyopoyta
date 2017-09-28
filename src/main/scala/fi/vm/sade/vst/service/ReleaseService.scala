@@ -2,6 +2,7 @@ package fi.vm.sade.vst.service
 
 import java.time.{LocalDate, YearMonth}
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.ReleaseRepository
 
@@ -20,7 +21,7 @@ class ReleaseService(releaseRepository: ReleaseRepository) {
     releaseRepository.specialNotifications(user)
   }
 
-  def deleteNotification(user: User, id: Long): Int = {
+  def deleteNotification(user: User, id: Long)(implicit au: AuditUser): Int = {
     releaseRepository.deleteNotification(user, id)
   }
 
@@ -61,15 +62,16 @@ class ReleaseService(releaseRepository: ReleaseRepository) {
     releaseRepository.emailReleasesForDate(date)
   }
 
-  def deleteRelease(user: User, id: Long): Int = {
+  def deleteRelease(user: User, id: Long)(implicit au: AuditUser): Int = {
     releaseRepository.deleteRelease(user, id)
   }
 
-  def addRelease(user: User, release: ReleaseUpdate): Option[Release] = {
+  def addRelease(user: User, release: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
+
     releaseRepository.addRelease(user, release)
   }
 
-  def updateRelease(user: User, release: ReleaseUpdate): Option[Release] = {
+  def updateRelease(user: User, release: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
     releaseRepository.updateRelease(user, release)
   }
 }

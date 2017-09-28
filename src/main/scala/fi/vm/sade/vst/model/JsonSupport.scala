@@ -95,8 +95,7 @@ trait JsonSupport {
       (JsPath \ "startDate").read[LocalDate](dateReads) and
       (JsPath \ "endDate").readNullable[LocalDate](dateReads) and
       (JsPath \ "content").read[Map[String, NotificationContent]] and
-      (JsPath \ "tags").read[Seq[Long]] and
-      (JsPath \ "sendEmail").read[Boolean]
+      (JsPath \ "tags").read[Seq[Long]]
     )(NotificationUpdate.apply _)
 
   implicit val notificationWrites: Writes[Notification] = Writes { notification =>
@@ -114,10 +113,31 @@ trait JsonSupport {
     )
   }
 
+  implicit val notificationUpdateWrites: Writes[NotificationUpdate] = Writes { notification =>
+    Json.obj(
+      "id" -> notification.id,
+      "releaseId" -> notification.releaseId,
+      "startDate" -> notification.publishDate,
+      "endDate" -> notification.expiryDate,
+      "content" -> notification.content,
+      "tags" -> notification.tags
+    )
+  }
+
   implicit val notificationListWrites: Writes[NotificationList] = Writes { notificationList =>
     Json.obj(
       "count" -> notificationList.totalAmount,
       "items" -> notificationList.notifications
+    )
+  }
+
+  implicit val releaseUpdateWrites: Writes[ReleaseUpdate] = Writes { release =>
+    Json.obj(
+      "id" -> release.id,
+      "notification" -> release.notification,
+      "timeline" -> release.timeline,
+      "categories" -> release.categories,
+      "userGroups" -> release.userGroups
     )
   }
 

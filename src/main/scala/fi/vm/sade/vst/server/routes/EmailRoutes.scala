@@ -4,12 +4,13 @@ import javax.ws.rs.Path
 
 import scala.concurrent.duration.DurationInt
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.ContentTypes.{`text/html(UTF-8)`, `application/json`}
+import akka.http.scaladsl.model.ContentTypes.{`application/json`, `text/html(UTF-8)`}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, Route}
+import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.JsonSupport
 import fi.vm.sade.vst.security.UserService
-import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import fi.vm.sade.vst.service.{EmailService, ReleaseService}
 import io.swagger.annotations._
 
@@ -19,7 +20,13 @@ import scala.util.{Failure, Success}
 
 @Api(value = "Sähköpostin lähetykseen liittyvät admin operaatiot", produces = "application/json")
 @Path("")
-class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService) extends Directives with SessionSupport with JsonSupport with ResponseUtils {
+class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService)
+  extends Directives
+    with SessionSupport
+    with AuditSupport
+    with JsonSupport
+    with ResponseUtils
+    with Logging {
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {
@@ -48,16 +55,18 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
         parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
           (year, month, day) => {
             withAdminUser { user =>
-              sendHtml(Future {
-                val date = (for {
-                  y <- year
-                  m <- month
-                  d <- day
-                } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
-                val releases = releaseService.emailReleasesForDate(date)
-                val previousDateReleases = releaseService.emailReleasesForDate(date.minusDays(1))
-                emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
-              })
+              withAuditUser(user) { implicit au =>
+                sendHtml(Future {
+                  val date = (for {
+                    y <- year
+                    m <- month
+                    d <- day
+                  } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
+                  val releases = releaseService.emailReleasesForDate(date)
+                  val previousDateReleases = releaseService.emailReleasesForDate(date.minusDays(1))
+                  emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
+                })
+              }
             }
           }
         }
@@ -77,12 +86,14 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
       withRequestTimeout(60.seconds, emailTimeoutHandler) {
         post {
           withAdminUser { user =>
-            val release = releaseService.release(releaseId, user)
-            release match {
-              case Some(r) =>
-                sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
-              case None =>
-                complete(StatusCodes.BadRequest)
+            withAuditUser(user) { implicit au =>
+              val release = releaseService.release(releaseId, user)
+              release match {
+                case Some(r) =>
+                  sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+                case None =>
+                  complete(StatusCodes.BadRequest)
+              }
             }
           }
         }

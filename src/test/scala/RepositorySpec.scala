@@ -20,15 +20,15 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
   val testEvent: EmailEvent = EmailEvent(1l, LocalDate.now(), 1l, "testEvent")
   "EmailRepository" should {
     "not find event from empty table" in new WithDefaultData {
-      emailRepository.emailEvent(1l) mustEqual None
+      emailRepository.emailEvent(1l)(null) mustEqual None
     }
 
     "should add new event" in new WithDefaultData {
-      emailRepository.addEvent(testEvent) mustEqual Option(testEvent)
+      emailRepository.addEvent(testEvent)(null) mustEqual Option(testEvent)
     }
 
     "not find event from empty table in different test" in new WithDefaultData {
-      emailRepository.emailEvent(1l) mustEqual None
+      emailRepository.emailEvent(1l)(null) mustEqual None
     }
   }
 }

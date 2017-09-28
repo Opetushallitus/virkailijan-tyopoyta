@@ -1,5 +1,6 @@
 package fi.vm.sade.vst.service
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.{UserInformation, JsonSupport, EmailEvent, Release}
@@ -77,7 +78,7 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
+  def sendEmails(releases: Iterable[Release], eventType: EmailEventType)(implicit au: AuditUser): Iterable[String] = {
     val userInfoToReleases = releases.flatMap { release =>
       val userGroups = userGroupIdsForRelease(release)
       val userInformation = basicUserInformationForUserGroups(userGroups)
@@ -96,7 +97,7 @@ class EmailService(casUtils: CasUtils,
     result
   }
 
-  def sendEmailsForDate(date: LocalDate): Unit = {
+  def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
     // TODO: Should this just take range of dates? At the moment it is easier to just get evets for current and previous date
     val releases = releaseRepository.emailReleasesForDate(date)
     val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
@@ -158,7 +159,7 @@ class EmailService(casUtils: CasUtils,
     EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
   }
 
-  private def addEmailEvents(emailEvents: Iterable[EmailEvent]): Iterable[EmailEvent] = {
-    emailEvents.flatMap(emailRepository.addEvent)
+  private def addEmailEvents(emailEvents: Iterable[EmailEvent])(implicit au: AuditUser): Iterable[EmailEvent] = {
+    emailEvents.flatMap(emailRepository.addEvent(_))
   }
 }
