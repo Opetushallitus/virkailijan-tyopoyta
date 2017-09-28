@@ -22,6 +22,7 @@ trait RoutesModule
   lazy val timelineRoutes: TimelineRoutes = wire[TimelineRoutes]
   lazy val userRoutes: UserRoutes = wire[UserRoutes]
   lazy val emailRoutes: EmailRoutes = wire[EmailRoutes]
+  lazy val healthRoutes: HealthRoutes = wire[HealthRoutes]
 
   lazy val swaggerService: SwaggerDocService = wire[SwaggerDocService]
 

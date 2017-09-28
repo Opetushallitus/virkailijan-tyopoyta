@@ -11,6 +11,7 @@ class Routes(generalRoutes: GeneralRoutes,
              timelineRoutes: TimelineRoutes,
              userRoutes: UserRoutes,
              emailRoutes: EmailRoutes,
+             healthRoutes: HealthRoutes,
              loginRoutes: LoginRoutes,
              swaggerDocService: SwaggerDocService)
   extends Directives {
@@ -18,11 +19,12 @@ class Routes(generalRoutes: GeneralRoutes,
 
   val apiRoutes: Route = pathPrefix("api") {
     releaseRoutes.routes ~
-      notificationRoutes.routes ~
-      timelineRoutes.routes ~
-      userRoutes.routes ~
-      generalRoutes.routes ~
-      emailRoutes.routes
+    notificationRoutes.routes ~
+    timelineRoutes.routes ~
+    userRoutes.routes ~
+    generalRoutes.routes ~
+    emailRoutes.routes ~
+    healthRoutes.routes
   }
 
   val routes: Route = {

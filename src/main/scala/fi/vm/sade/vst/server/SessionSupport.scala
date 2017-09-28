@@ -46,6 +46,7 @@ trait SessionSupport extends Directives with Configuration with Logging {
         logger.info(s"withSession found ticket, attempting to find user")
         userService.findUserForTicket(ticket)
       case None =>
+        logger.info(s"withSession found no ticket set")
         None
     }
   }
