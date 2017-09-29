@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import fi.vm.sade.vst.model.{JsonSupport, TargetingGroup, UserProfile}
 import fi.vm.sade.vst.security.UserService
-import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import io.swagger.annotations._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,7 +14,7 @@ import scala.concurrent.Future
 
 @Api(value = "Käyttäjätietoihin liittyvät rajapinnat", produces = "application/json")
 @Path("")
-class UserRoutes(val userService: UserService) extends SessionSupport with JsonSupport with ResponseUtils {
+class UserRoutes(val userService: UserService) extends SessionSupport with AuditSupport with JsonSupport with ResponseUtils {
 
   @ApiOperation(value = "Hakee käyttäjäprofiilin", httpMethod = "GET")
   @Path("/user")
@@ -25,7 +25,9 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
     path("user") {
       get {
         withUserOrUnauthorized { user =>
-          sendResponse(Future(userService.userProfile(user.userId)))
+          withAuditUser(user) { implicit au =>
+            sendResponse(Future(userService.userProfile(user.userId)))
+          }
         }
       }
     }
@@ -44,12 +46,14 @@ class UserRoutes(val userService: UserService) extends SessionSupport with JsonS
       post {
         entity(as[String]) { json =>
           withUserOrUnauthorized { user =>
-            val updateProfile = parseUserProfileUpdate(json)
-            updateProfile match {
-              case Some(u) =>
-                sendResponse(Future(userService.setUserProfile(user, u)))
-              case None =>
-                complete(StatusCodes.BadRequest)
+            withAuditUser(user) { implicit au =>
+              val updateProfile = parseUserProfileUpdate(json)
+              updateProfile match {
+                case Some(u) =>
+                  sendResponse(Future(userService.setUserProfile(user, u)))
+                case None =>
+                  complete(StatusCodes.BadRequest)
+              }
             }
           }
         }

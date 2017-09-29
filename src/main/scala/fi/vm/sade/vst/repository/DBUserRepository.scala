@@ -1,11 +1,12 @@
 package fi.vm.sade.vst.repository
 
-import fi.vm.sade.vst.DBConfig
+import fi.vm.sade.auditlog.{User => AuditUser}
+import fi.vm.sade.vst.{DBConfig, Logging}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.Tables.{DraftTable, TargetingGroupTable, UserCategoryTable, UserProfileTable}
 import scalikejdbc._
 
-class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo {
+class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo with Logging {
 
   val (u, uc, d, tg) = (UserProfileTable.syntax, UserCategoryTable.syntax, DraftTable.syntax, TargetingGroupTable.syntax)
 
@@ -59,16 +60,17 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     added.foreach(insertUserCategory(userId, _))
   }
 
-  private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate): UserProfile = {
+  private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
     DB localTx { implicit session =>
       val sql = withSQL(update(UserProfileTable as u).set(UserProfileTable.column.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId))
       sql.update().apply()
       updateUserCategories(userId, userProfileUpdate.categories)
     }
+    AuditLog.auditUpdateUserProfile(userId, ???, userProfileUpdate)
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
-  override def setUserProfile(user: User, userProfileData: UserProfileUpdate): UserProfile = {
+  override def setUserProfile(user: User, userProfileData: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
     fetchUserProfile(user.userId) match {
       case Some(_) =>
         updateUserProfile(user.userId, userProfileData)

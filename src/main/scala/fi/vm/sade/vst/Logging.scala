@@ -33,7 +33,7 @@ trait Logging extends LazyLogging with JsonSupport {
 
     object AuditTarget extends Enumeration {
       type PaymentStatus = Value
-      val release, notification, timeline = Value
+      val release, notification, timeline, profile = Value
     }
 
     object AuditOperation extends Enumeration {
@@ -173,6 +173,22 @@ trait Logging extends LazyLogging with JsonSupport {
         .setField("id", timelineItem.id.toString)
         .build()
       val operation: Operation = VIRKAILIJAN_TYOPOYTA_DELETE
+
+      audit.log(
+        au,
+        operation,
+        target,
+        changes)
+    }
+
+    def auditUpdateUserProfile(profileId: String, oldProfile: UserProfileUpdate, newProfile: UserProfileUpdate)(implicit au: AuditUser): Unit = {
+      val changes = toDeltaChanges(toJson(oldProfile), toJson(newProfile))
+      val target: Target = new Target.Builder()
+        .setField("type", AuditTarget.profile.toString)
+        .setField("id", profileId)
+        .build()
+
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_UPDATE
 
       audit.log(
         au,

@@ -91,11 +91,6 @@ trait SessionSupport extends Directives with Configuration with Logging {
     userService.getUserIdForTicket(ticket)
   }
 
-  protected def findUserForTicket(ticket: String): Option[User] = {
-    val uidOpt: Option[String] = getUserIdForTicket(ticket)
-    uidOpt.flatMap(userService.findUser(_).toOption)
-  }
-
   protected def storeTicket(ticket: String, uid: String): Unit = {
     userService.storeTicket(ticket, uid)
   }

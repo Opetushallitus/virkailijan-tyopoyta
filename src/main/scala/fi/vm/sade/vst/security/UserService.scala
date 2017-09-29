@@ -1,5 +1,6 @@
 package fi.vm.sade.vst.security
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
@@ -97,7 +98,7 @@ class UserService(casUtils: CasUtils,
     }
   }
 
-  def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile = {
+  def setUserProfile(user: User, userProfile: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
     userRepository.setUserProfile(user, userProfile)
   }
 

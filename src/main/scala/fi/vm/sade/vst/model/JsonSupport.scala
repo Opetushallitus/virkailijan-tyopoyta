@@ -149,6 +149,18 @@ trait JsonSupport {
       (JsPath \ "userGroups").read[List[Long]]
     )(ReleaseUpdate.apply _)
 
+  implicit val userProfileUpdateWrites: Writes[UserProfileUpdate] = Writes { release =>
+    Json.obj(
+      "categories" -> release.categories,
+      "sendEmail" -> release.sendEmail
+    )
+  }
+
+  implicit val userProfileUpdateReads: Reads[UserProfileUpdate] = (
+    (JsPath \ "categories").read[List[Long]] and
+      (JsPath \ "sendEmail").read[Boolean]
+    )(UserProfileUpdate.apply _)
+
   implicit val categoryWrites: Writes[Category] = Writes { category =>
     Json.obj(
       "id" -> category.id,
