@@ -75,9 +75,8 @@ class UserService(casUtils: CasUtils,
 
   private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(authenticationConfig.memoizeDuration minutes) {
     ldapClient.findUser(uid) match {
-      case Some(ldapUser) => {
+      case Some(ldapUser) =>
         Success(createUser(ldapUser))
-      }
       case None =>
         Failure(new IllegalStateException(s"User $uid not found in LDAP"))
     }
@@ -87,15 +86,13 @@ class UserService(casUtils: CasUtils,
     val user = fetchCacheableUserData(uid)
 
     user match {
-      case Success(u) => {
+      case Success(u) =>
         Success(u.copy(
           profile = Some(userRepository.userProfile(u.userId)),
           draft = userRepository.fetchDraft(u.userId)))
-      }
-      case Failure(e) => {
+      case Failure(e) =>
         logger.debug(s"LDAP call failed for uid $uid : ${e.getMessage}")
         user
-      }
     }
   }
 
@@ -119,7 +116,7 @@ class UserService(casUtils: CasUtils,
     userRepository.saveDraft(user, draft)
   }
 
-  def targetingGroups(user: User) = {
+  def targetingGroups(user: User): Seq[TargetingGroup] = {
     userRepository.findTargetingGroups(user)
   }
 
@@ -127,7 +124,7 @@ class UserService(casUtils: CasUtils,
     userRepository.saveTargetingGroup(user, name, data)
   }
 
-  def deleteTargetingGroup(user: User, id: Long) = {
+  def deleteTargetingGroup(user: User, id: Long): Int = {
     userRepository.deleteTargetingGroup(user, id)
   }
 

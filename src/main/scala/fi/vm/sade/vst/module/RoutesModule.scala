@@ -8,7 +8,7 @@ trait RoutesModule
   extends ServiceModule
     with RepositoryModule {
 
-  implicit val system = ActorSystem("vst-actorsystem", serverConfig.actorSystemConfig)
+  implicit val system: ActorSystem = ActorSystem("vst-actorsystem", serverConfig.actorSystemConfig)
 
   import com.softwaremill.macwire._
 

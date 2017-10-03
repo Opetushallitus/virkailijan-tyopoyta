@@ -13,8 +13,6 @@ object RequestMethod extends Enumeration {
 }
 
 class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends Logging {
-  private lazy val casUser = CasUser(config.casUsername, config.casPassword)
-
   private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId + "/authenticate")
 
   def validateTicket(serviceTicket: ServiceTicket): Try[Username] = {

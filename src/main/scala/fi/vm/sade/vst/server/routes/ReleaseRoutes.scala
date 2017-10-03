@@ -53,7 +53,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     get {
       path("release" / IntNumber) { id =>
         withAdminUser { user =>
-          sendOptionalResponse(Future(releaseService.release(id, user)))
+          sendOptionalResponse(Future(releaseService.getReleaseForUser(id, user)))
         }
       }
     }

@@ -223,7 +223,7 @@ trait JsonSupport {
   }
 
   def readKayttooikeusryhmat(user: Boolean): Reads[List[Kayttooikeusryhma]] = {
-    implicit val reads = if (user) userKayttooikeusryhmaReads else kayttooikeusryhmaReads
+    implicit val reads: Reads[Kayttooikeusryhma] = if (user) userKayttooikeusryhmaReads else kayttooikeusryhmaReads
 
     JsPath.read[List[Kayttooikeusryhma]]
   }

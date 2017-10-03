@@ -1,6 +1,6 @@
 package fi.vm.sade.vst.security
 
-import fi.vm.sade.vst.AuthenticationConfig
+import fi.vm.sade.vst.{AuthenticationConfig, Logging}
 import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
 import java.util.concurrent.atomic.AtomicReference
 
@@ -10,7 +10,7 @@ import fi.vm.sade.vst.repository.ReleaseRepository
 import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
-class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository, urls: OphProperties) extends JsonSupport {
+class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository, urls: OphProperties) extends JsonSupport with Logging {
   private lazy val groups: AtomicReference[Seq[Kayttooikeusryhma]] = new AtomicReference[Seq[Kayttooikeusryhma]](sortedUserGroups)
   private val kayttooikeusClient = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
@@ -21,6 +21,7 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
       case Success(s) =>
         parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
       case Failure(e) =>
+        logger.error("Failure parsing response from kayttooikeus-service", e)
         List.empty
     }
   }

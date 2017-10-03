@@ -52,8 +52,6 @@ trait Configuration {
   lazy val loginPage: String = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl: String = config.getString("oph.logo.url")
 
-  private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
-
   lazy val config: Config = ConfigFactory.parseFile(confFile)
 
   lazy val dBConfig: DBConfig = DBConfig(

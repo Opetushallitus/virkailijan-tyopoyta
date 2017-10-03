@@ -20,7 +20,7 @@ trait SessionSupport extends Directives with Configuration with Logging {
 
   val userService: UserService
 
-  implicit val sessionManager = new SessionManager[String](sessionConfig)
+  implicit val sessionManager: SessionManager[String] = new SessionManager[String](sessionConfig)
 
   implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[String] {
     override def log(msg: String): Unit = logger.info(msg)
@@ -34,7 +34,7 @@ trait SessionSupport extends Directives with Configuration with Logging {
     }
   }
 
-  val refreshTokenManager = sessionManager.createRefreshTokenManager(refreshTokenStorage)
+  val refreshTokenManager: RefreshTokenManager[String] = sessionManager.createRefreshTokenManager(refreshTokenStorage)
 
   def extractTicketOption: Directive1[Option[String]] = {
     extractRequest.map { request =>

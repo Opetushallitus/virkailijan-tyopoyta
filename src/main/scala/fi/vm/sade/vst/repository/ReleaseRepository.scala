@@ -19,7 +19,7 @@ trait ReleaseRepository {
   def categories(user: User): Seq[Category]
   def serviceCategories: Seq[Category]
 
-  def release(id: Long, user: User): Option[Release]
+  def getReleaseForUser(id: Long, user: User): Option[Release]
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup]
   def getEmailReleasesForDate(date: LocalDate): Seq[Release]

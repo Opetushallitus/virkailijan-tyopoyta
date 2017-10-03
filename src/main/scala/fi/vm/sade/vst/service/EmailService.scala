@@ -50,7 +50,7 @@ class EmailService(casUtils: CasUtils,
   private def parseUserInformationFromResponse(response: String): Seq[UserInformation] = {
     val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
     val userInformation = json.flatMap(parseSingleUserInformation)
-    userInformation.toSeq
+    userInformation
   }
 
   private def parsePersonOidsFromResponse(response: String): Seq[String] = {
@@ -75,10 +75,10 @@ class EmailService(casUtils: CasUtils,
     userInformation.filter { user =>
       val profile = userProfiles.get(user.userOid)
       val profileCategories = profile.map(_.categories).getOrElse(Seq.empty)
-      val allowedCategories = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
+      val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
 
-      val sendEmail = !profile.exists(!_.sendEmail)
-      sendEmail && allowedCategories
+      val sendEmail: Boolean = !profile.exists(!_.sendEmail)
+      sendEmail && hasAllowedCategories
     }
   }
 
@@ -92,9 +92,9 @@ class EmailService(casUtils: CasUtils,
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
     logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleases.size} users")
     val result = userInfoToReleasesMap.flatMap {
-      case (userInfo, releases) =>
+      case (userInfo, releasesForUser) =>
         val recipients = List(formRecipient(userInfo.email))
-        val email = formEmail(userInfo, releases)
+        val email = formEmail(userInfo, releasesForUser)
         groupEmailService.sendMailWithoutTemplate(EmailData(email, recipients))
     }
 
@@ -137,8 +137,11 @@ class EmailService(casUtils: CasUtils,
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
     val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
     response match {
-      case Success(s) => parsePersonOidsFromResponse(s)
-      case Failure(f) => Seq.empty
+      case Success(s) =>
+        parsePersonOidsFromResponse(s)
+      case Failure(f) =>
+        logger.error(s"Failure parsing person oids from response $response", f)
+        Seq.empty
     }
   }
 

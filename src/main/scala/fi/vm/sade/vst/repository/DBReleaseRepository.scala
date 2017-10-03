@@ -117,7 +117,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => NotificationContentTable.opt(c)(rs),
       rs => NotificationTagTable.opt(nt)(rs)).map {
       (_, categories, usergroups, notifications, content, tags) =>
-        if (releaseTargetedForUser(categories.map(_.categoryId), usergroups.map(_.usergroupId), user)) {
+        if (isReleaseTargetedForUser(categories.map(_.categoryId), usergroups.map(_.usergroupId), user)) {
           notifications.headOption.map(n => n.copy(
             content = content.groupBy(_.language).transform((_, v) => v.head),
             tags = tags.map(_.tagId),
@@ -135,7 +135,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     userGroups.isEmpty || user.groups.map(_.id).intersect(userGroups).nonEmpty
   }
 
-  private def releaseTargetedForUser(categories: Seq[Long], userGroups: Seq[Long], user: User) = {
+  private def isReleaseTargetedForUser(categories: Seq[Long], userGroups: Seq[Long], user: User): Boolean = {
     categoriesMatchUser(categories, user) && userGroupsMatchUser(userGroups, user)
   }
 
@@ -178,7 +178,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       rs => TimelineContentTable.opt(tc)(rs),
       rs => NotificationTable.opt(n)(rs)).map {
       (_, categories, userGroups, timeline, content, notification) =>
-        if (releaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)
+        if (isReleaseTargetedForUser(categories.map(_.categoryId), userGroups.map(_.usergroupId), user)
           && !notificationExpired(notification.headOption)) {
           timeline.map(tl =>
             tl.copy(
@@ -519,8 +519,8 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     userGroups.map(ReleaseUserGroupTable(ug)).toList.apply
   }
 
-  override def release(id: Long, user: User): Option[Release] = {
-    getRelease(id).filter(r => releaseTargetedForUser(r.categories, r.usergroups, user))
+  override def getReleaseForUser(id: Long, user: User): Option[Release] = {
+    getRelease(id).filter(r => isReleaseTargetedForUser(r.categories, r.usergroups, user))
   }
 
   override def updateRelease(user: User, releaseUpdate: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
@@ -554,7 +554,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       releaseId
     }
     AuditLog.auditCreateRelease(user, releaseUpdate)
-    release(id, user)
+    getReleaseForUser(id, user)
   }
 
   override def deleteRelease(user: User, id: Long)(implicit au: AuditUser): Int = {

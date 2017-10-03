@@ -85,8 +85,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
         post {
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
-              val release = releaseService.release(releaseId, user)
-              release match {
+              releaseService.getReleaseForUser(releaseId, user) match {
                 case Some(r) =>
                   sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
                 case None =>

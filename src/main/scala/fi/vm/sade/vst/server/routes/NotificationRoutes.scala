@@ -100,7 +100,7 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen tiedotteiden lukumäärä (käytännössä 0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota tai muokkausoikeuksia")))
-  def deleteNotificationRoute =
+  def deleteNotificationRoute: Route =
     path("notifications" / IntNumber) { id =>
       delete {
         withAdminUser { user =>

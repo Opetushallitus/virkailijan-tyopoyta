@@ -50,8 +50,8 @@ class ReleaseService(releaseRepository: ReleaseRepository) {
     releaseRepository.serviceCategories
   }
 
-  def release(id: Long, user: User): Option[Release] = {
-    releaseRepository.release(id, user)
+  def getReleaseForUser(id: Long, user: User): Option[Release] = {
+    releaseRepository.getReleaseForUser(id, user)
   }
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup] = {
