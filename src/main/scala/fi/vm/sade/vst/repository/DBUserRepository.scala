@@ -60,20 +60,26 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
     added.foreach(insertUserCategory(userId, _))
   }
 
-  private def updateUserProfile(userId: String, userProfileUpdate: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
+  private def updateUserProfile(userId: String, existingProfile: UserProfile, userProfileUpdate: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
     DB localTx { implicit session =>
       val sql = withSQL(update(UserProfileTable as u).set(UserProfileTable.column.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId))
       sql.update().apply()
       updateUserCategories(userId, userProfileUpdate.categories)
     }
-    AuditLog.auditUpdateUserProfile(userId, ???, userProfileUpdate)
+
+    val oldProfile: UserProfileUpdate = UserProfileUpdate(
+      categories =  existingProfile.categories,
+      sendEmail = existingProfile.sendEmail
+    )
+
+    AuditLog.auditUpdateUserProfile(userId, oldProfile, userProfileUpdate)
     UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
   }
 
   override def setUserProfile(user: User, userProfileData: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
     fetchUserProfile(user.userId) match {
-      case Some(_) =>
-        updateUserProfile(user.userId, userProfileData)
+      case Some(existingProfile) =>
+        updateUserProfile(user.userId, existingProfile, userProfileData)
       case None =>
         insertUserProfile(user.userId, userProfileData)
     }
