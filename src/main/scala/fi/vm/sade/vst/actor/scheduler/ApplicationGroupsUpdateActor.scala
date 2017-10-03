@@ -12,7 +12,8 @@ object ApplicationGroupsUpdateActor {
 
 class ApplicationGroupsUpdateActor(userAccessService: KayttooikeusService) extends Actor {
   override def receive: Receive = {
-    case UpdateApplicationGroups => updateApplicationGroups()
+    case UpdateApplicationGroups =>
+      updateApplicationGroups()
     case _ =>
   }
 

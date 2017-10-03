@@ -4,8 +4,6 @@ import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
 
-import akka.http.scaladsl.server.RequestContext
-
 trait ReleaseRepository {
   def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
   def notification(id: Long, user: User): Option[Notification]
@@ -24,7 +22,7 @@ trait ReleaseRepository {
   def release(id: Long, user: User): Option[Release]
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup]
-  def emailReleasesForDate(date: LocalDate): Seq[Release]
+  def getEmailReleasesForDate(date: LocalDate): Seq[Release]
 
   def deleteRelease(user: User, id: Long)(implicit au: AuditUser): Int
   def addRelease(user: User, release: ReleaseUpdate)(implicit au: AuditUser): Option[Release]

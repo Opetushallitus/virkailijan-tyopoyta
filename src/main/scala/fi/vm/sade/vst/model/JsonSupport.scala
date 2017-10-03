@@ -293,8 +293,10 @@ trait JsonSupport {
     val name = (jsonVal \ "name").asOpt[String]
     val data = jsonVal \ "data"
     (name, data) match {
-      case (Some(n), JsDefined(d)) => Some(TargetingGroupUpdate(n, d.toString()))
-      case _ => None
+      case (Some(n), JsDefined(d)) =>
+        Some(TargetingGroupUpdate(n, d.toString()))
+      case _ =>
+        None
     }
   }
 

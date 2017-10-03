@@ -52,7 +52,7 @@ class GeneralRoutes(val userService: UserService, releaseService: ReleaseService
   def userGroupsRoute: Route =
     path("usergroups") {
       get {
-        withUserOrUnauthorized { user =>
+        withUserOrUnauthorized { _ =>
           sendResponse(Future(userService.serviceUserGroups))
         }
       }

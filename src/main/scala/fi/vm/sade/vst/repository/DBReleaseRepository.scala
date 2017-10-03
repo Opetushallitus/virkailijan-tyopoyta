@@ -196,7 +196,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     withSQL(select.from(TagTable as t).where.isNotNull(t.tagType)).map(TagTable(t)).toList().apply()
   }
 
-  private def release(id: Long): Option[Release] = {
+  private def getRelease(id: Long): Option[Release] = {
     val release = findRelease(id)
     release.map(r => r.copy(
       notification = notificationForRelease(r.id),
@@ -520,7 +520,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   }
 
   override def release(id: Long, user: User): Option[Release] = {
-    release(id).filter(r => releaseTargetedForUser(r.categories, r.usergroups, user))
+    getRelease(id).filter(r => releaseTargetedForUser(r.categories, r.usergroups, user))
   }
 
   override def updateRelease(user: User, releaseUpdate: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
@@ -580,7 +580,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     count
   }
 
-  override def emailReleasesForDate(date: LocalDate): Seq[Release] = {
+  override def getEmailReleasesForDate(date: LocalDate): Seq[Release] = {
     val result = withSQL[Release] {
       select.from(ReleaseTable as r)
         .join(NotificationTable as n).on(r.id, n.releaseId)
@@ -590,7 +590,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     result.map(ReleaseTable(r))
       .list
       .apply()
-      .flatMap(r => release(r.id))
+      .flatMap(r => getRelease(r.id))
   }
 
   override def generateReleases(amount: Int, month: YearMonth, user: User)(implicit au: AuditUser): Seq[Release] = {
@@ -642,7 +642,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
     val notification = NotificationUpdate(releaseId, releaseId, startDate, Option(endDate), Map("fi" -> notificationContent), List.empty)
     addNotification(releaseId, user, notification)
     generateTimeLine(releaseId, startDate, endDate)
-    release(releaseId)
+    getRelease(releaseId)
   }
 
   private def generateTimeLine(releaseId: Long, startDate: LocalDate, endDate: LocalDate): Unit = {

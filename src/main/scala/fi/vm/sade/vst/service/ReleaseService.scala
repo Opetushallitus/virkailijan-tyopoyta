@@ -1,6 +1,6 @@
 package fi.vm.sade.vst.service
 
-import java.time.{LocalDate, YearMonth}
+import java.time.YearMonth
 
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
@@ -56,10 +56,6 @@ class ReleaseService(releaseRepository: ReleaseRepository) {
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup] = {
     releaseRepository.userGroupsForRelease(releaseId)
-  }
-
-  def emailReleasesForDate(date: LocalDate): Seq[Release] = {
-    releaseRepository.emailReleasesForDate(date)
   }
 
   def deleteRelease(user: User, id: Long)(implicit au: AuditUser): Int = {

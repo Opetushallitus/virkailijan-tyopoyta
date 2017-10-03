@@ -96,6 +96,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   }
 
   override def fetchDraft(userId: String): Option[Draft] = {
+    logger.info(s"Fetching draft for user $userId")
     withSQL[Draft] {
       select.from(DraftTable as d).where.eq(d.userId, userId)
     }.map(DraftTable(d)).single().apply()
@@ -118,10 +119,12 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   }
 
   override def deleteDraft(user: User): Int = {
+    logger.info(s"Deleting draft for user ${user.userId}")
     withSQL(delete.from(DraftTable as d).where.eq(d.userId, user.userId)).update().apply()
   }
 
   override def saveDraft(user: User, data: String): Int = {
+    logger.info(s"Saving draft for user ${user.userId}")
     val currentDraft = fetchDraft(user.userId)
     currentDraft match {
       case Some(_) =>

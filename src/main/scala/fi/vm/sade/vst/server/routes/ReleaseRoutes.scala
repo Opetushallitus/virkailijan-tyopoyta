@@ -72,14 +72,15 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
         entity(as[String]) { json =>
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
-              val release = parseReleaseUpdate(json)
-              release match {
-                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.addRelease(user, r).map(
-                  added => {
-                    userService.deleteDraft(user)
-                    added.id
-                  })))
-                case None => complete(StatusCodes.BadRequest)
+              parseReleaseUpdate(json) match {
+                case Some(r: ReleaseUpdate) if validateRelease(r) =>
+                  sendResponse(Future(releaseService.addRelease(user, r).map(
+                    added => {
+                      userService.deleteDraft(user)
+                      added.id
+                    })))
+                case None =>
+                  complete(StatusCodes.BadRequest)
               }
             }
           }
@@ -101,14 +102,15 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
         entity(as[String]) { json =>
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
-              val release = parseReleaseUpdate(json)
-              release match {
-                case Some(r: ReleaseUpdate) if validateRelease(r) => sendResponse(Future(releaseService.updateRelease(user, r).map(
-                  edited => {
-                    userService.deleteDraft(user)
-                    edited.id
-                  })))
-                case None => complete(StatusCodes.BadRequest)
+              parseReleaseUpdate(json) match {
+                case Some(r: ReleaseUpdate) if validateRelease(r) =>
+                  sendResponse(Future(releaseService.updateRelease(user, r).map(
+                    edited => {
+                      userService.deleteDraft(user)
+                      edited.id
+                    })))
+                case None =>
+                  complete(StatusCodes.BadRequest)
               }
             }
           }
@@ -132,8 +134,10 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
           withAuditUser(user) { implicit au =>
             val result = Future(releaseService.deleteRelease(user, id))
             onComplete(result) {
-              case Success(_) ⇒ sendResponse(result)
-              case Failure(e) ⇒ complete(StatusCodes.NotFound, e.getMessage)
+              case Success(_) ⇒
+                sendResponse(result)
+              case Failure(e) ⇒
+                complete(StatusCodes.NotFound, e.getMessage)
             }
           }
         }

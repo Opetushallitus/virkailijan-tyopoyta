@@ -2,12 +2,13 @@ package fi.vm.sade.vst.service
 
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
-import fi.vm.sade.vst.Configuration
-import fi.vm.sade.vst.model.{UserInformation, JsonSupport, EmailEvent, Release}
+import fi.vm.sade.vst.{Configuration, Logging}
+import fi.vm.sade.vst.model.{EmailEvent, Release, UserInformation}
 import fi.vm.sade.vst.module.RepositoryModule
-import fi.vm.sade.vst.security.{UserService, KayttooikeusService, RequestMethod, CasUtils}
+import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import java.time.LocalDate
+
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
 
@@ -18,7 +19,7 @@ class EmailService(casUtils: CasUtils,
   with GroupEmailComponent
   with Configuration
   with JsonFormats
-  with JsonSupport {
+  with Logging {
 
   sealed trait EmailEventType {
     val description: String
@@ -60,8 +61,11 @@ class EmailService(casUtils: CasUtils,
 
   private def parseUserOidsAndEmails(resp: Try[String]): Seq[UserInformation] = {
     resp match {
-      case Success(s) => parseUserInformationFromResponse(s)
-      case Failure(f) => Seq.empty
+      case Success(s) =>
+        parseUserInformationFromResponse(s)
+      case Failure(f) =>
+        logger.error("Failed to parse user oids and emails", f)
+        Seq.empty
     }
   }
 
@@ -86,6 +90,7 @@ class EmailService(casUtils: CasUtils,
       userInfo.map(_ -> release)
     }
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
+    logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleases.size} users")
     val result = userInfoToReleasesMap.flatMap {
       case (userInfo, releases) =>
         val recipients = List(formRecipient(userInfo.email))
@@ -99,8 +104,9 @@ class EmailService(casUtils: CasUtils,
 
   def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
     // TODO: Should this just take range of dates? At the moment it is easier to just get evets for current and previous date
-    val releases = releaseRepository.emailReleasesForDate(date)
-    val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
+    logger.info(s"Preparing to send emails for date $date")
+    val releases = releaseRepository.getEmailReleasesForDate(date)
+    val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
     sendEmails(releases ++ previousDateReleases, TimedEmail)
   }
 

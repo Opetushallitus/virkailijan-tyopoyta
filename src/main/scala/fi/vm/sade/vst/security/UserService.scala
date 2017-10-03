@@ -48,6 +48,7 @@ class UserService(casUtils: CasUtils,
       case Success(s) =>
         parseUserInitialsFromResponse(s)
       case Failure(f) =>
+        logger.error(s"Failed to get user initials for user $userOid", f)
         None
     }
   }

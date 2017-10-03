@@ -56,7 +56,7 @@ class TimelineRoutes(val userService: UserService, releaseService: ReleaseServic
   def deleteEventRoute: Route =
     path("timeline" / IntNumber) { id =>
       delete {
-        withUserOrUnauthorized { user =>
+        withUserOrUnauthorized { _ =>
           sendResponse(Future(releaseService.deleteTimelineItem(id)))
         }
       }

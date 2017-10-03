@@ -17,7 +17,8 @@ object ProcedureRunnerActor {
 
 class ProcedureRunnerActor(emailService: EmailService) extends Actor {
   override def receive: Receive = {
-    case DailyEmailReleaseCheck => emailReleases()
+    case DailyEmailReleaseCheck =>
+      emailReleases()
     case _ =>
   }
 

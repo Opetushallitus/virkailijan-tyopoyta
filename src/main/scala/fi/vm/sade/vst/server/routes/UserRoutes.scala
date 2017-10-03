@@ -47,12 +47,12 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
         entity(as[String]) { json =>
           withUserOrUnauthorized { user =>
             withAuditUser(user) { implicit au =>
-              val updateProfile = parseUserProfileUpdate(json)
-              updateProfile match {
+              parseUserProfileUpdate(json) match {
                 case Some(u) =>
                   sendResponse(Future(userService.setUserProfile(user, u)))
                 case None =>
-                  complete(StatusCodes.BadRequest)
+                  logger.error(s"Could not parse user profile JSON: $json")
+                  complete(StatusCodes.BadRequest, "Could not parse user profile JSON")
               }
             }
           }
@@ -69,7 +69,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
     path("userDetails") {
       get {
         withUserOrUnauthorized { user =>
-          logger.info(s"Responding with user details for ${user.userId}")
+          logger.debug(s"Responding with user details for ${user.userId}")
           sendResponse(Future(user))
         }
       }
@@ -134,12 +134,12 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
       post {
         entity(as[String]) { json =>
           withAdminUser { user =>
-            val targetingGroup = parseTargetingGroup(json)
-            targetingGroup match {
+            parseTargetingGroup(json) match {
               case Some(g) =>
                 sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
               case None =>
-                complete(StatusCodes.BadRequest)
+                logger.error(s"Could not parse targeting groups JSON: $json")
+                complete(StatusCodes.BadRequest, "Could not parse targeting groups JSON")
             }
           }
         }
