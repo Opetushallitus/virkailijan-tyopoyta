@@ -43,4 +43,21 @@
         <appender-ref ref="ROLLING" />
     </logger>
 
+    <!-- Access log -->
+    <appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.home}/logs/localhost_access_log.%d{yyyy-MM-dd}.txt</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+             <fileNamePattern>${user.home}/logs/localhost_access_log.%d{yyyy-MM-dd}.txt.gz</fileNamePattern>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="fi.vm.sade.vst.AccessLogger" level="INFO" additivity="false">
+        <appender-ref ref="ACCESS" />
+    </logger>
+
 </configuration>
