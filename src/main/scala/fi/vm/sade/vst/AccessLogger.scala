@@ -22,7 +22,7 @@ class AccessLogger() extends LazyLogging {
 
         val timestamp = ZonedDateTime.now().format(dft)
         val responseCode = res.status.intValue()
-        val request = s"${req.method.toString} ${req.uri.path} ${req.protocol.toString}"
+        val request = s"${req.method.value} ${req.uri.path} ${req.protocol.value}"
         val responseTime: Long = (System.nanoTime() - t0) / 1000
         val method = req.method.value
         val environment = System.getProperty("env.name", "unknown")
