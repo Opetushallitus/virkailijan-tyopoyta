@@ -5,8 +5,8 @@ import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.{Directives, Route}
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.vst.Logging
 import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
@@ -27,7 +27,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     with Directives
     with JsonSupport
     with ResponseUtils
-    with Logging {
+    with LazyLogging {
 
   private def validateRelease(release: ReleaseUpdate): Boolean = {
     val notificationValid: Boolean = release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))

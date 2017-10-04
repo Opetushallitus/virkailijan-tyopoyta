@@ -1,10 +1,11 @@
 package fi.vm.sade.vst.security
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
-import fi.vm.sade.vst.{Configuration, Logging}
+import fi.vm.sade.vst.Configuration
 import play.api.libs.json._
 
 import scala.collection.mutable
@@ -20,7 +21,7 @@ class UserService(casUtils: CasUtils,
                   kayttooikeusService: KayttooikeusService,
                   userRepository: UserRepository,
                   releaseRepository: ReleaseRepository)
-  extends Configuration with Logging {
+  extends Configuration with LazyLogging {
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 

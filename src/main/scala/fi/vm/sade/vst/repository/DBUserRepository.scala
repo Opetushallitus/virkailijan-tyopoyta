@@ -1,12 +1,14 @@
 package fi.vm.sade.vst.repository
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.vst.{DBConfig, Logging}
+import fi.vm.sade.vst.DBConfig
+import fi.vm.sade.vst.logging.AuditLogging
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.Tables.{DraftTable, TargetingGroupTable, UserCategoryTable, UserProfileTable}
 import scalikejdbc._
 
-class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo with Logging {
+class DBUserRepository(val config: DBConfig) extends UserRepository with SessionInfo with LazyLogging with AuditLogging {
 
   val (u, uc, d, tg) = (UserProfileTable.syntax, UserCategoryTable.syntax, DraftTable.syntax, TargetingGroupTable.syntax)
 

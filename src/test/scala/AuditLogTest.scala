@@ -1,7 +1,8 @@
 import java.time.LocalDate
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.Changes
-import fi.vm.sade.vst.Logging
+import fi.vm.sade.vst.logging.AuditLogging
 import fi.vm.sade.vst.model.{NotificationUpdate, ReleaseUpdate}
 import org.junit.runner.RunWith
 import org.specs2.mutable._
@@ -10,7 +11,7 @@ import play.api.libs.json.Json.toJson
 
 
 @RunWith(classOf[JUnitRunner])
-class AuditLogTest extends Specification with Logging {
+class AuditLogTest extends Specification with AuditLogging {
 
   "Logging" should {
     "correctly create Changes from newly created objects" in {

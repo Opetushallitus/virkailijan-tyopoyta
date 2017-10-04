@@ -2,15 +2,17 @@ package fi.vm.sade.vst.server
 
 import akka.Done
 import de.heikoseeberger.accessus.Accessus._
+import fi.vm.sade.vst.logging.AccessLogger
 
 import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.dispatch.MessageDispatcher
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import fi.vm.sade.vst.{AccessLogger, Logging, ServerConfig}
+import com.typesafe.scalalogging.LazyLogging
+import fi.vm.sade.vst.ServerConfig
 
-class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSystem) extends Logging {
+class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSystem) extends LazyLogging {
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 

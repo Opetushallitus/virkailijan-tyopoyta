@@ -7,7 +7,7 @@ import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.ContentTypes.{`application/json`, `text/html(UTF-8)`}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, Route}
-import fi.vm.sade.vst.Logging
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.vst.model.JsonSupport
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
@@ -26,7 +26,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     with AuditSupport
     with JsonSupport
     with ResponseUtils
-    with Logging {
+    with LazyLogging {
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {

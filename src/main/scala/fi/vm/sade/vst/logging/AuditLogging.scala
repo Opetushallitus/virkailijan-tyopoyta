@@ -1,21 +1,13 @@
-package fi.vm.sade.vst
+package fi.vm.sade.vst.logging
 
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{ApplicationType, Audit, Changes, Operation, Target, User => AuditUser}
 import fi.vm.sade.vst.model._
-import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.json.Json.toJson
+import play.api.libs.json.{JsObject, JsValue}
 
-trait Logging extends LazyLogging with JsonSupport {
-
-  object LoggerImpl extends fi.vm.sade.auditlog.Logger {
-    def log(var1: String): Unit = {
-        logger.info(var1)
-    }
-  }
-
-
-  private val audit = new Audit(LoggerImpl, "virkailijan-tyopoyta", ApplicationType.VIRKAILIJA)
+trait AuditLogging extends JsonSupport {
+  private val audit = AuditLogger.audit
 
   object AuditLog {
     object VirkailijanTyopoytaOperation extends Enumeration {
@@ -142,7 +134,7 @@ trait Logging extends LazyLogging with JsonSupport {
         .setField("type", AuditTarget.timeline.toString)
         .setField("id", timelineItem.id.toString)
         .build()
-    val operation: Operation = VIRKAILIJAN_TYOPOYTA_CREATE
+      val operation: Operation = VIRKAILIJAN_TYOPOYTA_CREATE
 
       audit.log(
         au,
@@ -239,7 +231,7 @@ trait Logging extends LazyLogging with JsonSupport {
     }
     newFields.foreach{ case (k,v) =>
       if (!oldFields.exists(_._1 == k)) {
-          builder.added(k, v.toString())
+        builder.added(k, v.toString())
       }
     }
     builder.build()
@@ -252,4 +244,14 @@ trait Logging extends LazyLogging with JsonSupport {
     }
     builder.build()
   }
+}
+
+private[logging] object AuditLogger extends LazyLogging  {
+  object LoggerImpl extends fi.vm.sade.auditlog.Logger {
+    def log(var1: String): Unit = {
+      logger.info(var1)
+    }
+  }
+
+  val audit = new Audit(LoggerImpl, "virkailijan-tyopoyta", ApplicationType.VIRKAILIJA)
 }

@@ -1,9 +1,11 @@
 package fi.vm.sade.vst.security
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.utils.cas.CasClient.{ServiceTicket, Username}
 import fi.vm.sade.utils.cas._
 import fi.vm.sade.vst.AuthenticationConfig
 import org.http4s._
+
 import scalaz.concurrent.Task
 import scala.util.{Failure, Success, Try}
 
@@ -12,7 +14,7 @@ object RequestMethod extends Enumeration {
   val GET, POST = Value
 }
 
-class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends Logging {
+class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyLogging {
   private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId + "/authenticate")
 
   def validateTicket(serviceTicket: ServiceTicket): Try[Username] = {

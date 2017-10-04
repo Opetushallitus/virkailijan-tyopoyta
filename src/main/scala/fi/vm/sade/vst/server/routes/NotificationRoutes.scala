@@ -4,7 +4,7 @@ import javax.ws.rs.Path
 
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
-import fi.vm.sade.vst.Logging
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.vst.model.{JsonSupport, Notification, NotificationList}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
@@ -22,7 +22,7 @@ class NotificationRoutes(val userService: UserService, releaseService: ReleaseSe
     with AuditSupport
     with JsonSupport
     with ResponseUtils
-    with Logging {
+    with LazyLogging {
 
   @ApiOperation(value = "Hakee tiedotteet", httpMethod = "GET", response = classOf[NotificationList])
   @ApiImplicitParams(Array(

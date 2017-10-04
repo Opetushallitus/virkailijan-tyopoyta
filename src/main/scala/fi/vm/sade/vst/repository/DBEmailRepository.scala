@@ -1,12 +1,14 @@
 package fi.vm.sade.vst.repository
 
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.vst.{DBConfig, Logging}
+import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model.EmailEvent
 import scalikejdbc._
 import Tables._
+import com.typesafe.scalalogging.LazyLogging
+import fi.vm.sade.vst.logging.AuditLogging
 
-class DBEmailRepository(val config: DBConfig) extends EmailRepository with SessionInfo with Logging {
+class DBEmailRepository(val config: DBConfig) extends EmailRepository with SessionInfo with LazyLogging with AuditLogging {
   private val email = EmailEventTable.syntax
   private val emailCol = EmailEventTable.column
 

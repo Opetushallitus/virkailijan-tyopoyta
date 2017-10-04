@@ -41,7 +41,7 @@
     </root>
 
     <!-- Auditlog -->
-    <logger name="fi.vm.sade.auditlog.Audit" level="INFO" additivity="false">
+    <logger name="fi.vm.sade.vst.logging.AuditLogger" level="INFO" additivity="false">
         <appender-ref ref="ROLLING" />
     </logger>
 
@@ -58,7 +58,7 @@
         </encoder>
     </appender>
 
-    <logger name="fi.vm.sade.vst.AccessLogger" level="INFO" additivity="false">
+    <logger name="fi.vm.sade.vst.logging.AccessLogger" level="INFO" additivity="false">
         <appender-ref ref="ACCESS" />
     </logger>
 

@@ -2,12 +2,14 @@ package fi.vm.sade.vst.service
 
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
-import fi.vm.sade.vst.{Configuration, Logging}
-import fi.vm.sade.vst.model.{EmailEvent, Release, UserInformation}
+import fi.vm.sade.vst.Configuration
+import fi.vm.sade.vst.model.{EmailEvent, JsonSupport, Release, UserInformation}
 import fi.vm.sade.vst.module.RepositoryModule
 import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import java.time.LocalDate
+
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
@@ -19,7 +21,8 @@ class EmailService(casUtils: CasUtils,
   with GroupEmailComponent
   with Configuration
   with JsonFormats
-  with Logging {
+  with LazyLogging
+  with JsonSupport {
 
   sealed trait EmailEventType {
     val description: String

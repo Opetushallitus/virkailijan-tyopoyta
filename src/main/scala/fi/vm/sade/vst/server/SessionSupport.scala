@@ -6,8 +6,9 @@ import akka.http.scaladsl.server._
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.vst.{Configuration, Logging}
+import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
 
@@ -16,7 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
   * Created by mty on 26/04/2017.
   */
-trait SessionSupport extends Directives with Configuration with Logging {
+trait SessionSupport extends Directives with Configuration with LazyLogging {
 
   val userService: UserService
 

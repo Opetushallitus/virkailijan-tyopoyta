@@ -1,15 +1,17 @@
 package fi.vm.sade.vst.repository
 
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.vst.{DBConfig, Logging}
+import fi.vm.sade.vst.DBConfig
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
 
 import scala.util.Random
 import scalikejdbc._
 import Tables._
+import com.typesafe.scalalogging.LazyLogging
+import fi.vm.sade.vst.logging.AuditLogging
 
-class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo with Logging {
+class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo with LazyLogging with AuditLogging {
 
   private val (r, n, c, nt, t, tg, tgc, tl, tc, cat, rc, ee, ug) = (
     ReleaseTable.syntax,
