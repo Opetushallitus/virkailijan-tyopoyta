@@ -3,7 +3,6 @@ import { render } from 'react-dom'
 
 import App from './components/App'
 import { initAppState, getController } from './appState.js'
-import './polyFills'
 
 const controller = getController()
 const appState = initAppState()
