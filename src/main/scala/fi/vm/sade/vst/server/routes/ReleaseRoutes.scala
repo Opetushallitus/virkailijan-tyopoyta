@@ -1,20 +1,18 @@
 package fi.vm.sade.vst.server.routes
 
-import java.net.{InetAddress, UnknownHostException}
 import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.{Directives, Route}
 import com.typesafe.scalalogging.LazyLogging
-import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model.{JsonSupport, Release, ReleaseUpdate}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import fi.vm.sade.vst.service.ReleaseService
 import io.swagger.annotations._
-import org.jsoup.Jsoup
-import org.jsoup.safety.Whitelist
+import org.jsoup.safety.{Cleaner, Whitelist}
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -29,15 +27,29 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     with ResponseUtils
     with LazyLogging {
 
-  private def validateRelease(release: ReleaseUpdate): Boolean = {
-    val notificationValid: Boolean = release.notification.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
-    val timelineValid: Boolean = release.timeline.forall(_.content.values.forall(content => Jsoup.isValid(content.text, Whitelist.basic())))
+  private val whitelist = Whitelist.basic()
 
-    if (!notificationValid || !timelineValid) {
-      logger.error("Invalid html content!")
+  private def releaseValidationErrors(release: ReleaseUpdate): List[String] = {
+    val cleaner = new Cleaner(whitelist)
+    val invalidElements = new mutable.ArrayBuffer[String]()
+
+    val notificationContent = release.notification.map(_.content.values.map(_.text)).getOrElse(Nil)
+    val timelineContent = release.timeline.flatMap(_.content.values.map(_.text))
+    val elements: Seq[String] = (notificationContent ++ timelineContent).toSeq
+
+    val areAllValid: Boolean = elements.forall{ text =>
+      val isValid = cleaner.isValidBodyHtml(text)
+      if (!isValid) {
+        invalidElements += text
+      }
+      isValid
     }
 
-    notificationValid && timelineValid
+    if (!areAllValid) {
+      logger.error(s"Invalid html content in release: $invalidElements")
+    }
+
+    invalidElements.toList
   }
 
 
@@ -73,14 +85,19 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
               parseReleaseUpdate(json) match {
-                case Some(r: ReleaseUpdate) if validateRelease(r) =>
-                  sendResponse(Future(releaseService.addRelease(user, r).map(
-                    added => {
-                      userService.deleteDraft(user)
-                      added.id
-                    })))
+                case Some(r: ReleaseUpdate) =>
+                  releaseValidationErrors(r) match {
+                    case Nil =>
+                      sendResponse(Future(releaseService.addRelease(user, r).map(
+                        added => {
+                          userService.deleteDraft(user)
+                          added.id
+                        })))
+                    case list =>
+                      complete(StatusCodes.BadRequest, s"Following release elements were not valid HTML: $list, please check it only contains the following tags: $whitelist")
+                  }
                 case None =>
-                  complete(StatusCodes.BadRequest)
+                  complete(StatusCodes.BadRequest, "Could not parse release JSON")
               }
             }
           }
@@ -103,14 +120,19 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
               parseReleaseUpdate(json) match {
-                case Some(r: ReleaseUpdate) if validateRelease(r) =>
-                  sendResponse(Future(releaseService.updateRelease(user, r).map(
-                    edited => {
-                      userService.deleteDraft(user)
-                      edited.id
-                    })))
+                case Some(r: ReleaseUpdate) =>
+                  releaseValidationErrors(r) match {
+                    case Nil =>
+                      sendResponse(Future(releaseService.updateRelease(user, r).map(
+                        edited => {
+                          userService.deleteDraft(user)
+                          edited.id
+                        })))
+                    case list =>
+                      complete(StatusCodes.BadRequest, s"Following release elements were not valid HTML: $list, please check it only contains the following tags: $whitelist")
+                  }
                 case None =>
-                  complete(StatusCodes.BadRequest)
+                  complete(StatusCodes.BadRequest, "Could not parse release JSON")
               }
             }
           }
