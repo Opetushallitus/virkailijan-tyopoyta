@@ -8,6 +8,8 @@ import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
 import fi.vm.sade.vst.Configuration
 import play.api.libs.json._
 
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.convert.decorateAsScala._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -31,7 +33,7 @@ class UserService(casUtils: CasUtils,
 
   val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
 
-  private val ticketUserMap = mutable.Map[String, String]()
+  private val ticketUserMap: mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
 
   private def oppijanumeroRekisteri = {
     casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
