@@ -10,6 +10,7 @@ import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import fi.vm.sade.vst.service.ReleaseService
 import io.swagger.annotations._
+import org.jsoup.Jsoup
 import org.jsoup.safety.{Cleaner, Whitelist}
 
 import scala.collection.mutable
@@ -38,7 +39,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     val elements: Seq[String] = (notificationContent ++ timelineContent).toSeq
 
     val areAllValid: Boolean = elements.forall{ text =>
-      val isValid = cleaner.isValidBodyHtml(text)
+      val isValid = cleaner.isValid(Jsoup.parse(text))
       if (!isValid) {
         invalidElements += text
       }
@@ -94,7 +95,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
                           added.id
                         })))
                     case list =>
-                      complete(StatusCodes.BadRequest, s"Following release elements were not valid HTML: $list, please check it only contains the following tags: $whitelist")
+                      complete(StatusCodes.BadRequest, s"Following release elements were not valid HTML: $list")
                   }
                 case None =>
                   complete(StatusCodes.BadRequest, "Could not parse release JSON")
@@ -129,7 +130,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
                           edited.id
                         })))
                     case list =>
-                      complete(StatusCodes.BadRequest, s"Following release elements were not valid HTML: $list, please check it only contains the following tags: $whitelist")
+                      complete(StatusCodes.BadRequest, s"Following release elements were not valid HTML: $list")
                   }
                 case None =>
                   complete(StatusCodes.BadRequest, "Could not parse release JSON")
