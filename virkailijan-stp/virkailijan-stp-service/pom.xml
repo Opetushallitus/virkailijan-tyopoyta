@@ -12,10 +12,6 @@
 
     <properties>
     	<organisaatio.api.version>2015-05</organisaatio.api.version>
-        <deploy.to.server>tomcat</deploy.to.server>
-        <webapp.port>8081</webapp.port>
-        <skipDbDiagramGenerate>false</skipDbDiagramGenerate>
-
         <!-- bamboo.data.home and sonar.jdbc.password must be given as env-properties. -->
         <clover.fullRunEvery>500</clover.fullRunEvery>
         <clover.generateHistorical>true</clover.generateHistorical>
@@ -26,63 +22,31 @@
         <clover.cloverDatabase>${clover.base}/db/clover.db</clover.cloverDatabase>
 
         <!-- Versions -->
-        <java.version>1.8</java.version>
-
-        <activemq-core.version>${activemq.version}</activemq-core.version>
-        <activemq-pool.version>${activemq.version}</activemq-pool.version>
-        <activemq.version>5.5.1</activemq.version>
-
         <aspectj.version>1.8.1</aspectj.version>
 
-        <aspectjrt.version>${aspectj.version}</aspectjrt.version>
-        <aspectjweaver.version>${aspectj.version}</aspectjweaver.version>
         <build-helper-maven-plugin.version>1.4</build-helper-maven-plugin.version>
 
-        <cas-client-support-distributed-ehcache.version>3.1.12</cas-client-support-distributed-ehcache.version>
-        <castor-xml.version>1.3.2</castor-xml.version>
-        <cglib.version>2.2.2</cglib.version>
-        <commons-configuration.version>1.9</commons-configuration.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
         <commons-io.version>1.3.2</commons-io.version>
-        <commons-lang.version>2.6</commons-lang.version>
         <cpdetector.version>1.0.7</cpdetector.version>
 
-        <cxf-api.version>${cxf.version}</cxf-api.version>
-        <cxf-codegen-plugin.version>${cxf.version}</cxf-codegen-plugin.version>
-        <cxf-rt-frontend-jaxrs.version>${cxf.version}</cxf-rt-frontend-jaxrs.version>
-        <cxf-rt-transports-jms.version>${cxf.version}</cxf-rt-transports-jms.version>
-        <cxf.version>2.5.1</cxf.version>
-
-        <dbunit.version>2.5.0</dbunit.version>
         <ehcache-core.version>2.5.0</ehcache-core.version>
         <ehcache-jgroupsreplication.version>1.5</ehcache-jgroupsreplication.version>
 
-        <dbunit-support.version>${generic.version}</dbunit-support.version>
         <dependencies-service.version>${generic.version}</dependencies-service.version>
         <generic-common.version>${generic.version}</generic-common.version>
         <generic-test-support.version>${generic.version}</generic-test-support.version>
         <log-client.version>8.0</log-client.version>
         <generic.version>9.1-SNAPSHOT</generic.version>
 
-        <hibernate-core.version>${hibernate.version}</hibernate-core.version>
-        <hibernate-ehcache.version>${hibernate.version}</hibernate-ehcache.version>
         <hibernate-validator.version>${hibernate.version}</hibernate-validator.version>
         <hibernate.version>4.1.0.Final</hibernate.version>
-
-        <hibernate4-maven-plugin.version>0.1.1</hibernate4-maven-plugin.version>
-        <hsqldb.version>2.0.0</hsqldb.version>
 
         <jackson-core-asl.version>${jackson.version}</jackson-core-asl.version>
         <jackson-jaxrs.version>${jackson.version}</jackson-jaxrs.version>
         <jackson-mapper-asl.version>${jackson.version}</jackson-mapper-asl.version>
         <jackson-xc.version>${jackson.version}</jackson-xc.version>
         <jackson.version>1.9.11</jackson.version>
-
-        <jasmine-maven-plugin.version>1.3.1.3</jasmine-maven-plugin.version>
-
-        <jaxb2-basics-runtime.version>${jaxb2_commons.version}</jaxb2-basics-runtime.version>
-        <jaxb2-basics.version>${jaxb2_commons.version}</jaxb2-basics.version>
-        <jaxb2_commons.version>0.6.4</jaxb2_commons.version>
 
         <jersey-core.version>${jersey.version}</jersey-core.version>
         <jersey-json.version>${jersey.version}</jersey-json.version>
@@ -92,30 +56,17 @@
         <jersey.version>1.9.1</jersey.version>
 
         <jgroups.version>2.10.0.GA</jgroups.version>
-        <jta.version>1.1</jta.version>
         <junit.version>4.10</junit.version>
-        <log4j.version>1.2.14</log4j.version>
-        <maven-apt-plugin.version>1.0</maven-apt-plugin.version>
         <mockito.version>1.9.0</mockito.version>
-        <phantomjs-maven-plugin.version>0.3</phantomjs-maven-plugin.version>
-        <phantomjs.version>1.9.2</phantomjs.version>
-        <poi.version>3.9</poi.version>
-
-        <querydsl-apt.version>${querydsl.version}</querydsl-apt.version>
-        <querydsl-jpa.version>${querydsl.version}</querydsl-jpa.version>
-        <querydsl.version>2.9.0</querydsl.version>
 
         <servlet.version>3.0.1</servlet.version>
 
-        <slf4j-api.version>${slf4j.version}</slf4j-api.version>
-        <slf4j-log4j12.version>${slf4j.version}</slf4j-log4j12.version>
         <slf4j.version>1.7.7</slf4j.version>
 
         <spring-aop.version>${spring.version}</spring-aop.version>
         <spring-aspects.version>${spring.version}</spring-aspects.version>
         <spring-beans.version>${spring.version}</spring-beans.version>
         <spring-context.version>${spring.version}</spring-context.version>
-        <spring-oxm.version>${spring.version}</spring-oxm.version>
         <spring-test.version>${spring.version}</spring-test.version>
         <spring-tx.version>${spring.version}</spring-tx.version>
         <spring-web.version>${spring.version}</spring-web.version>
@@ -126,15 +77,8 @@
         <spring-security-core.version>${spring.security.version}</spring-security-core.version>
         <spring-security-ldap.version>${spring.security.version}</spring-security-ldap.version>
         <spring-security-web.version>${spring.security.version}</spring-security-web.version>
-        <spring.asm.version>${spring.security.version}</spring.asm.version>
 
-        <springockito-annotations.version>${springockito.version}</springockito-annotations.version>
-        <springockito.version>1.0.9</springockito.version>
-
-        <sql-maven-plugin.version>1.5</sql-maven-plugin.version>
         <super-csv.version>2.0.1</super-csv.version>
-        <swagger-jaxrs_2.10.version>1.3.1</swagger-jaxrs_2.10.version>
-
     </properties>
     <dependencies>
         <dependency>
