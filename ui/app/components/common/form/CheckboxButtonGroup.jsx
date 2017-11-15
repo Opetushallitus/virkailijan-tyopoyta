@@ -42,7 +42,7 @@ function CheckboxButtonGroup (props) {
             disabled={disabled}
             onChange={onChange}
           />
-        )
+        ).sortBy(label)
       }
     </div>
   )
