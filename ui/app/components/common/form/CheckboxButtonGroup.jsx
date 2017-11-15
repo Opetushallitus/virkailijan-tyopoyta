@@ -32,7 +32,9 @@ function CheckboxButtonGroup (props) {
   return (
     <div>
       {
-        options.map((option, index) =>
+        options.sort((a, b) =>
+            translate(a.name) > translate(b.name)
+        ).map((option, index) =>
           <CheckboxButton
             key={htmlId + option.id}
             id={option.id}
@@ -42,7 +44,7 @@ function CheckboxButtonGroup (props) {
             disabled={disabled}
             onChange={onChange}
           />
-        ).sortBy(label)
+        )
       }
     </div>
   )
