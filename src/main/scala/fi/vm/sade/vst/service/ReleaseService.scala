@@ -40,6 +40,7 @@ class ReleaseService(releaseRepository: ReleaseRepository) {
 
   def tags(user: User): Seq[TagGroup] = {
     releaseRepository.tags(user)
+        .map(tg => tg.copy(tags = tg.tags.sortBy(_.name)))
   }
 
   def categories(user: User): Seq[Category] = {
