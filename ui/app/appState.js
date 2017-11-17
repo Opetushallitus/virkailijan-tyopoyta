@@ -61,6 +61,7 @@ export function appState () {
     [user.fetchBus], user.onReceived,
     [user.fetchFailedBus], user.onFetchFailed,
     [user.saveSendEmailFailedBus], user.onSaveSendEmailFailed,
+    [dispatcher.stream(events.user.saveSendEmail)], user.saveSendEmail
 
     // Translations
     [translations.fetchBus], translations.onReceived,

@@ -59,7 +59,7 @@ function onFetchFailed (state, error) {
   )(state)
 }
 
-function saveSendEmail (option) {
+function saveSendEmail (state, option) {
   console.log('Saving sendEmail setting', option)
 
   const options = {
@@ -77,7 +77,7 @@ function saveSendEmail (option) {
       body: JSON.stringify(options)
     },
     onError: error => saveSendEmailFailedBus.push(error)
-})
+  })
 }
 
 function onSaveSendEmailFailed (state) {

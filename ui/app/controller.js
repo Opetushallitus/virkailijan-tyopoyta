@@ -106,6 +106,10 @@ export function initController (dispatcher, events) {
     }
   }
 
+  const user = {
+    saveSendEmail: value => dispatcher.push(events.user.saveSendEmail, value)
+  }
+
   return {
     view: {
       toggleTab: view.toggleTab,
@@ -169,6 +173,10 @@ export function initController (dispatcher, events) {
         updateContent: editor.editNotification.updateContent,
         setAsDisruptionNotification: editor.editNotification.setAsDisruptionNotification
       }
+    },
+
+    user: {
+      saveSendEmail: user.saveSendEmail
     }
   }
 }
