@@ -24,7 +24,8 @@ const events = {
   unpublishedNotifications: unpublishedNotifications.events,
   notifications: notifications.events,
   timeline: timeline.events,
-  editor: editor.events
+  editor: editor.events,
+  user: user.events
 }
 
 const initialState = {

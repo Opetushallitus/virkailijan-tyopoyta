@@ -94,6 +94,11 @@ function onSaveSendEmailFailed (state) {
   return state
 }
 
+// Events for appState
+const events = {
+  saveSendEmail,
+  saveSendEmailFailed
+}
 
 const initialState = {
   targetingGroups: [],
@@ -103,6 +108,7 @@ const initialState = {
 }
 
 const user = {
+  events,
   initialState,
   fetchBus,
   fetchFailedBus,
