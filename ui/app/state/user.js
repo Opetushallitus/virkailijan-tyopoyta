@@ -63,7 +63,10 @@ function saveSendEmail (state, option) {
   console.log('Saving sendEmail setting', option)
 
   const options = {
-    email: option
+    id: state.user.userId,
+    categories: state.user.profile.categories,
+    email: option,
+    firstlogin: false
   }
 
   http({
