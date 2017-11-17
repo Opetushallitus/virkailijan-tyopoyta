@@ -78,6 +78,8 @@ function saveSendEmail (state, option) {
     },
     onError: error => saveSendEmailFailedBus.push(error)
   })
+
+  return state
 }
 
 function onSaveSendEmailFailed (state) {
