@@ -97,7 +97,7 @@ function onSaveSendEmailFailed (state) {
 // Events for appState
 const events = {
   saveSendEmail,
-  saveSendEmailFailed
+  onSaveSendEmailFailed
 }
 
 const initialState = {
