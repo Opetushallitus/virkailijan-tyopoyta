@@ -6,6 +6,7 @@ import Notifications from './notifications/Notifications'
 import UnpublishedNotifications from './unpublishedNotifications/UnpublishedNotifications'
 import Timeline from './timeline/Timeline'
 import Editor from './editor/Editor'
+import EmailSettings from './settings/EmailSettings'
 import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
@@ -182,6 +183,14 @@ class App extends React.Component {
                   ? <NotificationsMenu controller={controller} draft={state.draft} />
                   : null
               }
+
+              {/*Settings*/}
+              <div className="mt3">
+                <EmailSettings
+                  controller={controller}
+                  user={state.user}
+                />
+              </div>
 
               <div className="mt3">
                 <Notifications

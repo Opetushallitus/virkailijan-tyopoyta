@@ -883,6 +883,21 @@
   },
   {
     "locale": "fi",
+    "key": "enhaluasahkoposteja",
+    "value": "Älä lähetä minulle sähköposteja tiedotteista"
+  },
+  {
+    "locale": "fi",
+    "key": "sahkopostiasetuksentallennusepaonnistui",
+    "value": "Sähköpostiasetuksen tallennus käyttäjätietoihin epäonnistui"
+  },
+  {
+    "locale": "fi",
+    "key": "tallennasahkopostiasetusuudestaan",
+    "value": "Paina 'tallenna' uudestaan yrittääksesi uudelleen"
+  },
+  {
+    "locale": "fi",
     "key": "kategoriat",
     "value": "Kategoriat"
   },

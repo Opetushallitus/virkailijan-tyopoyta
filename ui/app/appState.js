@@ -60,6 +60,7 @@ export function appState () {
     // User
     [user.fetchBus], user.onReceived,
     [user.fetchFailedBus], user.onFetchFailed,
+    [user.saveSendEmailFailedBus], user.onSaveSendEmailFailed,
 
     // Translations
     [translations.fetchBus], translations.onReceived,
