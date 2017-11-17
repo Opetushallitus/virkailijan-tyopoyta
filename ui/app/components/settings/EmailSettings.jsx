@@ -21,7 +21,7 @@ function EmailSettings (props) {
 
   const handleEmailCheckboxChange = event => {
     const value = event.target.checked
-    controller.toggleSendEmail(value)
+    controller.saveSendEmail(value)
   }
 
   return (
