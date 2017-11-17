@@ -31,8 +31,8 @@ function EmailSettings (props) {
         <div className="col-12 sm-col-6 lg-col-4 sm-pr1">
           <Checkbox
             label={translate('enhaluasahkoposteja')}
-            checked={user.sendEmail}
-            value={user.sendEmail}
+            checked={user.profile.sendEmail}
+            value={user.profile.sendEmail}
             onChange={handleEmailCheckboxChange}
           />
         </div>
