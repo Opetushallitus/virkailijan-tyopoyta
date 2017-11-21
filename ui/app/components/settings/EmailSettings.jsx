@@ -13,32 +13,40 @@ const defaultProps = {
   checked: false
 }
 
-function EmailSettings (props) {
-  const {
-    controller,
-    user
-  } = props
+class EmailSettings extends React.Component {
+  constructor (props) {
+    super(props)
 
-  const handleEmailCheckboxChange = event => {
-    const value = event.target.checked
-    controller.saveSendEmail(value)
+    this.state = {
+      isChecked: props.user.profile.sendEmail
+    }
   }
 
-  return (
-    <div className="flex flex-wrap">
-      {/*Display error or checkbox depending on the result of the fetch*/}
-      {
-        <div className="col-12 sm-col-6 lg-col-4 sm-pr1">
+  render () {
+    const {
+      controller,
+      user
+    } = this.props
+
+    const handleEmailCheckboxChange = event => {
+      const value = event.target.checked
+      controller.saveSendEmail(value)
+    }
+
+    return (
+      <div className="flex flex-wrap">
+        {/*Display error or checkbox depending on the result of the fetch*/}
+        {
           <Checkbox
             label={translate('enhaluasahkoposteja')}
-            checked={user.profile.sendEmail}
+            checked={this.state.isChecked}
             value={user.profile.sendEmail}
             onChange={handleEmailCheckboxChange}
           />
-        </div>
-      }
-    </div>
-  )
+        }
+      </div>
+    )
+  }
 }
 
 EmailSettings.propTypes = propTypes
