@@ -188,6 +188,7 @@ class App extends React.Component {
               <div className="mt3">
                 <EmailSettings
                   controller={controller.user}
+                  user={state.user}
                 />
               </div>
 
