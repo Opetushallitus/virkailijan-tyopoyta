@@ -185,7 +185,7 @@ class App extends React.Component {
               }
 
               {/*Settings*/}
-              <div className="mt3">
+              <div className="mt2">
                 <EmailSettings
                   controller={controller.user}
                   user={state.user}
