@@ -29,9 +29,9 @@ class EmailSettings extends React.Component {
     } = this.props
 
     const handleEmailCheckboxChange = event => {
-      const value = event.target.checked
-      controller.saveSendEmail(value)
-      this.setState({ isChecked: value })
+      const sendEmail = !event.target.checked
+      controller.saveSendEmail(sendEmail)
+      this.setState({ isChecked: !sendEmail })
     }
 
     return (
