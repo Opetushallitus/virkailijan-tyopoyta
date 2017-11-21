@@ -18,14 +18,13 @@ class EmailSettings extends React.Component {
     super(props)
 
     this.state = {
-      isChecked: props.user.profile.sendEmail
+      isChecked: !props.user.profile.sendEmail
     }
   }
 
   render () {
     const {
-      controller,
-      user
+      controller
     } = this.props
 
     const handleEmailCheckboxChange = event => {
@@ -41,7 +40,7 @@ class EmailSettings extends React.Component {
           <Checkbox
             label={translate('enhaluasahkoposteja')}
             checked={this.state.isChecked}
-            value={user.profile.sendEmail}
+            value="sendEmail"
             onChange={handleEmailCheckboxChange}
           />
         }
