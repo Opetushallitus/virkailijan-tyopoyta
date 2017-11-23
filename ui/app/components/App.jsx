@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import 'babel-polyfill'
 
 // Components
 import NotificationsMenu from './notifications/NotificationsMenu'
