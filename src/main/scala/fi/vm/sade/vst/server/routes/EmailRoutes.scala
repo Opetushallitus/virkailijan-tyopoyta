@@ -2,14 +2,15 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
+import scala.concurrent.duration.DurationInt
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.ContentTypes.`text/html(UTF-8)`
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.ContentTypes.{`application/json`, `text/html(UTF-8)`}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, Route}
-import fi.vm.sade.vst.Logging
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.vst.model.JsonSupport
 import fi.vm.sade.vst.security.UserService
-import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import fi.vm.sade.vst.service.{EmailService, ReleaseService}
 import io.swagger.annotations._
 
@@ -19,12 +20,18 @@ import scala.util.{Failure, Success}
 
 @Api(value = "Sähköpostin lähetykseen liittyvät admin operaatiot", produces = "application/json")
 @Path("")
-class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService) extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging{
+class EmailRoutes(val userService: UserService, releaseService: ReleaseService, emailService: EmailService)
+  extends Directives
+    with SessionSupport
+    with AuditSupport
+    with JsonSupport
+    with ResponseUtils
+    with LazyLogging {
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {
       case Success(result) ⇒
-        complete{
+        complete {
           HttpResponse(entity = HttpEntity(`text/html(UTF-8)`, result.toString))
         }
       case Failure(e) ⇒
@@ -42,26 +49,28 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Käynnistettyjen lähetysjobien id:t", response = classOf[Array[String]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
-  def emailHtmlRoute: Route = withAdminUser { user =>
+  def emailHtmlRoute: Route =
     path("emailhtml") {
-      get{
+      get {
         parameters("year".as[Int].?, "month".as[Int].?, "day".as[Int].?) {
           (year, month, day) => {
-            sendHtml(Future {
-              val date = (for {
-                y <- year
-                m <- month
-                d <- day
-              } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
-              val releases = releaseService.emailReleasesForDate(date)
-              val previousDateReleases = releaseService.emailReleasesForDate(date.minusDays(1))
-              emailService.sendEmails(releases ++ previousDateReleases, emailService.TimedEmail)
-            })
+            withAdminUser { user =>
+              withAuditUser(user) { implicit au =>
+                sendHtml(Future {
+                  val date = (for {
+                    y <- year
+                    m <- month
+                    d <- day
+                  } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
+                  emailService.sendEmailsForDate(date)
+                })
+              }
+            }
           }
         }
       }
     }
-  }
+
 
   @ApiOperation(value = "Pakottaa sähköpostin lähetyksen annettua id:tä vastaavalle julkaisulle", httpMethod = "GET")
   @Path("/email/{id}")
@@ -70,17 +79,31 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Käynnistettyjen lähetysjobien määrä", response = classOf[Array[String]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
-  def sendEmailRoute: Route = withAdminUser { user =>
+  def sendEmailRoute: Route =
     path("email" / IntNumber) { releaseId =>
-      post{
-        val release = releaseService.release(releaseId, user)
-        release match{
-          case Some(r) => sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
-          case None => complete(StatusCodes.BadRequest)
+      withRequestTimeout(60.seconds, emailTimeoutHandler) {
+        post {
+          withAdminUser { user =>
+            withAuditUser(user) { implicit au =>
+              releaseService.getReleaseForUser(releaseId, user) match {
+                case Some(r) =>
+                  sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+                case None =>
+                  complete(StatusCodes.BadRequest)
+              }
+            }
+          }
         }
       }
     }
+
+  val emailTimeoutHandler: HttpRequest => HttpResponse = {
+    request =>
+      HttpResponse(
+        status = StatusCodes.RequestTimeout,
+        entity = HttpEntity.empty(`application/json`)
+      )
   }
 
-  val routes: Route =  emailHtmlRoute ~ sendEmailRoute
+  val routes: Route = emailHtmlRoute ~ sendEmailRoute
 }

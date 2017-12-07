@@ -4,16 +4,18 @@ import Bacon from 'baconjs'
 import translations from './translations'
 
 import http from './utils/http'
+import createAlert from './utils/createAlert'
 import urls from '../data/virkailijan-tyopoyta-urls.json'
 
 const fetchBus = new Bacon.Bus()
 const fetchFailedBus = new Bacon.Bus()
+const saveSendEmailFailedBus = new Bacon.Bus()
 
 function fetch () {
   console.log('Fetching user info')
 
   http({
-    url: urls.login,
+    url: urls.details,
     requestOptions: {
       mode: 'no-cors'
     },
@@ -48,13 +50,59 @@ function onFetchFailed (state, error) {
   if (error.toString().indexOf('SyntaxError') >= 0 && window.location.hostname !== 'localhost') {
     console.warn('Sign in to CAS first')
 
-    window.location.replace(urls['cas.login'])
+    //window.location.replace(urls['user.details'])
   }
 
   return R.compose(
     R.assocPath(['user', 'isLoading'], false),
     R.assocPath(['user', 'hasLoadingFailed'], true)
   )(state)
+}
+
+function saveSendEmail (state, option) {
+  console.log('Saving sendEmail setting', option)
+
+  const options = {
+    id: state.user.userId,
+    categories: state.user.profile.categories,
+    email: option,
+    firstlogin: false
+  }
+
+  http({
+    url: urls.user,
+    requestOptions: {
+      method: 'POST',
+      dataType: 'json',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(options)
+    },
+    onError: error => saveSendEmailFailedBus.push(error)
+  })
+
+  return state
+}
+
+function onSaveSendEmailFailed (state) {
+  console.error('Saving sendEmail failed')
+
+  const alert = createAlert({
+    variant: 'error',
+    titleKey: 'sahkopostiasetuksentallennusepaonnistui',
+    textKey: 'tallennasahkopostiasetusuudestaan'
+  })
+
+  view.alertsBus.push(alert)
+
+  return state
+}
+
+// Events for appState
+const events = {
+  saveSendEmail,
+  onSaveSendEmailFailed
 }
 
 const initialState = {
@@ -65,12 +113,16 @@ const initialState = {
 }
 
 const user = {
+  events,
   initialState,
   fetchBus,
   fetchFailedBus,
+  saveSendEmailFailedBus,
   fetch,
+  saveSendEmail,
   onReceived,
-  onFetchFailed
+  onFetchFailed,
+  onSaveSendEmailFailed
 }
 
 export default user

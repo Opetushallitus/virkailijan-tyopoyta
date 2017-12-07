@@ -4,13 +4,19 @@ import fi.vm.sade.vst.AuthenticationConfig
 import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
 import java.util.concurrent.atomic.AtomicReference
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.properties.OphProperties
 import fi.vm.sade.vst.repository.ReleaseRepository
 
 import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
-class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, releaseRepository: ReleaseRepository, urls: OphProperties) extends JsonSupport{
+class KayttooikeusService(casUtils: CasUtils,
+                          config: AuthenticationConfig,
+                          releaseRepository: ReleaseRepository,
+                          urls: OphProperties)
+  extends JsonSupport
+  with LazyLogging {
   private lazy val groups: AtomicReference[Seq[Kayttooikeusryhma]] = new AtomicReference[Seq[Kayttooikeusryhma]](sortedUserGroups)
   private val kayttooikeusClient = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
@@ -18,8 +24,11 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
 
   private def parseResponse(resp: Try[String], forUser: Boolean = false): Seq[Kayttooikeusryhma] = {
     resp match {
-      case Success(s) => parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
-      case Failure(e) => List.empty
+      case Success(s) =>
+        parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
+      case Failure(e) =>
+        logger.error("Failure parsing response from kayttooikeus-service", e)
+        List.empty
     }
   }
 
@@ -27,14 +36,17 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
     val body = Option(json)
 
-    val resp: Try[String] = kayttooikeusClient.authenticatedRequest( urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
-      RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
+    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(
+      urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
+      RequestMethod.POST,
+      mediaType = Option(org.http4s.MediaType.`application/json`),
+      body = body
+    )
 
     parseResponse(resp)
   }
 
   private def getServiceGroups: Seq[Kayttooikeusryhma] = {
-
     val appCategories = releaseRepository.serviceCategories
     val roles = List("CRUD", "MUUT", "2ASTE", "KK", "PERUS")
 
@@ -51,8 +63,9 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
   }
 
   def userGroupsForUser(oid: String, isAdmin: Boolean): Seq[Kayttooikeusryhma] = {
-
-    if(isAdmin) appGroups else {
+    if (isAdmin) {
+      appGroups
+    } else {
       val groupsResponse = kayttooikeusClient.authenticatedRequest(urls.url("kayttooikeus-service.userGroupsForUser", oid), RequestMethod.GET)
 
       val groupsForUser = parseResponse(groupsResponse, forUser = true)
@@ -61,7 +74,9 @@ class KayttooikeusService(casUtils: CasUtils, config: AuthenticationConfig, rele
     }
   }
 
-  def sortedUserGroups: Seq[Kayttooikeusryhma] = getServiceGroups.sortBy(_.id)
+  def sortedUserGroups: Seq[Kayttooikeusryhma] = {
+    getServiceGroups.sortBy(_.id)
+  }
 
   def updateApplicationGroups(): Unit = {
     groups.set(sortedUserGroups)

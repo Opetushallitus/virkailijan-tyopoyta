@@ -18,5 +18,7 @@ trait SessionInfo {
     config.dbPoolConfig.validationQuery)
   ConnectionPool.singleton(config.url, config.username, config.password, poolSettings)
 
-  def offset(page: Int) = math.max(page-1, 0) * pageLength
+  def offset(page: Int): Int = {
+    math.max(page - 1, 0) * pageLength
+  }
 }

@@ -10,13 +10,13 @@ object EmailHtmlService extends Configuration {
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
   // TODO: Email forming could be done using templates and TemplateProcessor, it was just easier to make if using pure scala for now
-  def htmlString(releases: Iterable[Release], language: String) = {
+  def htmlString(releases: Iterable[Release], language: String): String = {
     s"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-        |${htmlBasicFrame(releases, language)}
+       |${htmlBasicFrame(releases, language)}
      """.stripMargin
   }
 
-  def titleForRelease(release: Release, language: String) = {
+  def titleForRelease(release: Release, language: String): String = {
     val notificationContent = release.notification.map(_.content)
     // This defaults to Finnish content if no content is found on given language
     val releaseContent = notificationContent.flatMap(_.get(language)).orElse(notificationContent.flatMap(_.get("fi")))
@@ -24,7 +24,7 @@ object EmailHtmlService extends Configuration {
     title
   }
 
-  def htmlTitle(notifications: Iterable[Notification], language: String) = {
+  def htmlTitle(notifications: Iterable[Notification], language: String): Elem = {
     // Currently not in use. Native mail clients seem to take title as the first row of the message which messes up
     // the text lining.
     val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
@@ -36,26 +36,32 @@ object EmailHtmlService extends Configuration {
     val subjectDateString =
       if (minDate == maxDate) s"${minDate.format(formatter)}"
       else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
-    <title>{contentHeader} {subjectDateString}</title>
+    <title>
+      {contentHeader} {subjectDateString}
+    </title>
   }
 
-  def htmlHeader(date: LocalDate, language: String) = {
+  def htmlHeader(date: LocalDate, language: String): Elem = {
     val contentReleases = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentReleases, EmailTranslations.defaultEmailContentReleases)
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
     <div style="padding-bottom: 2em;">
       <div style="padding: 1em 2em 1em 2em;">
-        <h4>{date.format(formatter)} {contentReleases}:</h4>
+        <h4>
+          {date.format(formatter)} {contentReleases}:
+        </h4>
       </div>
     </div>
   }
 
-  def htmlFooter(language: String) = {
+  def htmlFooter(language: String): Elem = {
     val loginLink = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailFooterLink, EmailTranslations.defaultEmailFooterLink)
     <div style="background: #FFFFFF; padding: 1em 2em 1em 2em;">
       <table style="width: 100%">
         <tr>
           <td style="text-align: left">
-            <a href={loginPage}>{loginLink}</a>
+            <a href={loginPage}>
+              {loginLink}
+            </a>
           </td>
           <td style="text-align: right">
             <img src={ophLogoUrl} alt="Opetushallitus"/>
@@ -65,7 +71,7 @@ object EmailHtmlService extends Configuration {
     </div>
   }
 
-  def htmlReleaseBlock(release: Release, language: String) = {
+  def htmlReleaseBlock(release: Release, language: String): Elem = {
     val notificationContent = release.notification.map(_.content)
     // This defaults to Finnish content if no content is found on given language
     val releaseContent = notificationContent.flatMap(_.get(language)).orElse(notificationContent.flatMap(_.get("fi")))
@@ -90,7 +96,7 @@ object EmailHtmlService extends Configuration {
   def htmlBasicFrame(releases: Iterable[Release], language: String): Elem = {
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
       <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
       </head>
       <body style="background: #F6F4F0; font-family: arial;">
         <div style="padding-left: 4em; padding-right: 4em;">
@@ -168,5 +174,7 @@ private object EmailTranslations {
     "sv" -> sweTranslationsMap
   )
 
-  def translation(key: String): Map[TranslationKey, String] = translationMaps.getOrElse(key.toLowerCase, Map.empty)
+  def translation(key: String): Map[TranslationKey, String] = {
+    translationMaps.getOrElse(key.toLowerCase, Map.empty)
+  }
 }

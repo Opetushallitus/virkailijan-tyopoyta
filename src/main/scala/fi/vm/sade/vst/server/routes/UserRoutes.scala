@@ -3,10 +3,10 @@ package fi.vm.sade.vst.server.routes
 import javax.ws.rs.Path
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{Directives, Route}
+import akka.http.scaladsl.server.Route
 import fi.vm.sade.vst.model.{JsonSupport, TargetingGroup, UserProfile}
 import fi.vm.sade.vst.security.UserService
-import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
+import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import io.swagger.annotations._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,20 +14,23 @@ import scala.concurrent.Future
 
 @Api(value = "Käyttäjätietoihin liittyvät rajapinnat", produces = "application/json")
 @Path("")
-class UserRoutes(val userService: UserService) extends Directives with SessionSupport with JsonSupport with ResponseUtils{
+class UserRoutes(val userService: UserService) extends SessionSupport with AuditSupport with JsonSupport with ResponseUtils {
 
   @ApiOperation(value = "Hakee käyttäjäprofiilin", httpMethod = "GET")
   @Path("/user")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Kirjautuneen käyttäjän käyttäjäprofiili", response = classOf[UserProfile]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def userProfileRoute: Route = withUser { user =>
-    path("user"){
-      get{
-        sendResponse(Future(userService.userProfile(user.userId)))
+  def userProfileRoute: Route =
+    path("user") {
+      get {
+        withUserOrUnauthorized { user =>
+          withAuditUser(user) { implicit au =>
+            sendResponse(Future(userService.userProfile(user.userId)))
+          }
+        }
       }
     }
-  }
 
   @ApiOperation(value = "Tallentaa käyttäjäprofiilin", httpMethod = "POST")
   @Path("/user")
@@ -38,19 +41,39 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
     new ApiResponse(code = 200, message = "Tallennettu käyttäjäprofiili", response = classOf[UserProfile]),
     new ApiResponse(code = 400, message = "Käyttäjäprofiilin luku ei onnistunut"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def setUserProfileRoute: Route = withUser { user =>
-    path("user"){
-      post{
+  def setUserProfileRoute: Route =
+    path("user") {
+      post {
         entity(as[String]) { json =>
-          val updateProfile = parseUserProfileUpdate(json)
-          updateProfile match {
-            case Some(u) => sendResponse(Future(userService.setUserProfile(user,u)))
-            case None => complete(StatusCodes.BadRequest)
+          withUserOrUnauthorized { user =>
+            withAuditUser(user) { implicit au =>
+              parseUserProfileUpdate(json) match {
+                case Some(u) =>
+                  sendResponse(Future(userService.setUserProfile(user, u)))
+                case None =>
+                  logger.error(s"Could not parse user profile JSON: $json")
+                  complete(StatusCodes.BadRequest, "Could not parse user profile JSON")
+              }
+            }
           }
         }
       }
     }
-  }
+
+  @ApiOperation(value = "Hakee käyttäjän tallennetut tiedot", httpMethod = "GET")
+  @Path("/userDetails")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Kirjautuneen käyttäjän tiedot", response = classOf[UserProfile]),
+    new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
+  def userDetailsRoute: Route =
+    path("userDetails") {
+      get {
+        withUserOrUnauthorized { user =>
+          logger.debug(s"Responding with user details for ${user.userId}")
+          sendResponse(Future(user))
+        }
+      }
+    }
 
   @ApiOperation(value = "Tallentaa käyttäjän luonnoksen", httpMethod = "POST")
   @Path("/draft")
@@ -59,41 +82,44 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Tallennettujen luonnosten määrä (1 tai 0)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def saveDraftRoute: Route = withAdminUser { user =>
-    path("draft"){
-      post{
+  def saveDraftRoute: Route =
+    path("draft") {
+      post {
         entity(as[String]) { json =>
-          sendResponse(Future(userService.saveDraft(user, json)))
+          withAdminUser { user =>
+            sendResponse(Future(userService.saveDraft(user, json)))
+          }
         }
       }
     }
-  }
 
   @ApiOperation(value = "Poistaa käyttäjän luonnoksen", httpMethod = "DELETE")
   @Path("/draft")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen luonnosten määrä (1 tai 0)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def deleteDraftRoute: Route = withAdminUser { user =>
-    path("draft"){
-      delete{
-        sendResponse(Future(userService.deleteDraft(user)))
+  def deleteDraftRoute: Route =
+    path("draft") {
+      delete {
+        withAdminUser { user =>
+          sendResponse(Future(userService.deleteDraft(user)))
+        }
       }
     }
-  }
 
   @ApiOperation(value = "Hakee tallennetut kohdennusvalinnat", httpMethod = "GET")
   @Path("/targetingGroups")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Käyttäjälle tallennetut kohdennusvalinnat", response = classOf[Array[TargetingGroup]]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def getTargetingGroupRoute: Route = withAdminUser { user =>
+  def getTargetingGroupRoute: Route =
     path("targetingGroups") {
       get {
-        sendResponse(Future(userService.targetingGroups(user)))
+        withAdminUser { user =>
+          sendResponse(Future(userService.targetingGroups(user)))
+        }
       }
     }
-  }
 
   @ApiOperation(value = "Tallentaa kohdennusvalinnat", httpMethod = "POST")
   @Path("/targetingGroups")
@@ -103,19 +129,22 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
     new ApiResponse(code = 200, message = "Tallennetut kohdennusvalinnat", response = classOf[TargetingGroup]),
     new ApiResponse(code = 400, message = "Kohdennusvalintojen lukeminen ei onnistunut"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def saveTargetingGroupRoute: Route = withAdminUser { user =>
-    path("targetingGroups"){
+  def saveTargetingGroupRoute: Route =
+    path("targetingGroups") {
       post {
         entity(as[String]) { json =>
-          val targetingGroup = parseTargetingGroup(json)
-          targetingGroup match {
-            case Some(g) => sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
-            case None => complete(StatusCodes.BadRequest)
+          withAdminUser { user =>
+            parseTargetingGroup(json) match {
+              case Some(g) =>
+                sendResponse(Future(userService.saveTargetingGroup(user, g.name, g.data)))
+              case None =>
+                logger.error(s"Could not parse targeting groups JSON: $json")
+                complete(StatusCodes.BadRequest, "Could not parse targeting groups JSON")
+            }
           }
         }
       }
     }
-  }
 
   @ApiOperation(value = "Poistaa tallennetun kohdennuksen", httpMethod = "DELETE")
   @Path("/targetingGroups")
@@ -124,16 +153,23 @@ class UserRoutes(val userService: UserService) extends Directives with SessionSu
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen kohdennusvalintojen lukumäärä (0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def deleteTargetingGroupRoute: Route = withAdminUser { user =>
-    path("targetingGroups" / IntNumber){ id =>
+  def deleteTargetingGroupRoute: Route =
+    path("targetingGroups" / IntNumber) { id =>
       delete {
-        sendResponse(Future(userService.deleteTargetingGroup(user, id)))
+        withAdminUser { user =>
+          sendResponse(Future(userService.deleteTargetingGroup(user, id)))
+        }
       }
     }
-  }
 
-  val routes: Route = userProfileRoute ~ setUserProfileRoute ~
-    saveDraftRoute ~ deleteDraftRoute ~
-    getTargetingGroupRoute ~ saveTargetingGroupRoute ~ deleteTargetingGroupRoute
+  val routes: Route =
+      userProfileRoute ~
+      setUserProfileRoute ~
+      userDetailsRoute ~
+      saveDraftRoute ~
+      deleteDraftRoute ~
+      getTargetingGroupRoute ~
+      saveTargetingGroupRoute ~
+      deleteTargetingGroupRoute
 
 }

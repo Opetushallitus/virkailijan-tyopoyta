@@ -5,7 +5,7 @@ import javax.ws.rs.Path
 
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
-import fi.vm.sade.vst.Logging
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.vst.model.{JsonSupport, Timeline}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
@@ -17,8 +17,8 @@ import scala.concurrent.Future
 
 @Api(value = "Aikajanaan liittyvät rajapinnat", produces = "application/json")
 @Path("/timeline")
-class TimelineRoutes (val userService: UserService, releaseService: ReleaseService)
-  extends Directives with SessionSupport with JsonSupport with ResponseUtils with Logging{
+class TimelineRoutes(val userService: UserService, releaseService: ReleaseService)
+  extends Directives with SessionSupport with JsonSupport with ResponseUtils with LazyLogging {
 
   private def parseMonth(year: Option[Int], month: Option[Int]) = (year, month) match {
     case (Some(y), Some(m)) => YearMonth.of(y, m)
@@ -33,15 +33,18 @@ class TimelineRoutes (val userService: UserService, releaseService: ReleaseServi
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Kuukauden tapahtumat päivittäin jaoteltuna", response = classOf[Timeline]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def getTimelineRoute: Route = withUser { user =>
-    path("timeline"){
-      get{
+  def getTimelineRoute: Route =
+    path("timeline") {
+      get {
         parameters("categories".as(CsvSeq[Long]).?, "year".as[Int].?, "month".as[Int].?) {
-          (categories, year, month) => sendResponse(Future(releaseService.timeline(categories.getOrElse(Seq.empty), parseMonth(year, month), user)))
+          (categories, year, month) => {
+            withUserOrUnauthorized { user =>
+              sendResponse(Future(releaseService.timeline(categories.getOrElse(Seq.empty), parseMonth(year, month), user)))
+            }
+          }
         }
       }
     }
-  }
 
   @ApiOperation(value = "Poistaa tapahtuman", httpMethod = "DELETE")
   @Path("{id}")
@@ -50,13 +53,14 @@ class TimelineRoutes (val userService: UserService, releaseService: ReleaseServi
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Poistettujen tapahtumien lukumäärä (käytännössä 0 tai 1)", response = classOf[Int]),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
-  def deleteEventRoute: Route = withUser { user =>
-    path("timeline" / IntNumber){ id =>
-      delete{
-        sendResponse(Future(releaseService.deleteTimelineItem(id)))
+  def deleteEventRoute: Route =
+    path("timeline" / IntNumber) { id =>
+      delete {
+        withUserOrUnauthorized { _ =>
+          sendResponse(Future(releaseService.deleteTimelineItem(id)))
+        }
       }
     }
-  }
 
   val routes: Route = getTimelineRoute ~ deleteEventRoute
 }

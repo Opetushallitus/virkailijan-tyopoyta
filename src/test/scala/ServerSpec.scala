@@ -1,10 +1,13 @@
-import fi.vm.sade.vst.model.EmailEvent
+import java.net.InetAddress
 import java.time.LocalDate
+
+import fi.vm.sade.auditlog.{User => AuditUser}
+import fi.vm.sade.vst.model.EmailEvent
 import module.TestModule
 import org.junit.runner.RunWith
-import util.TestDBData
 import org.specs2.mutable._
 import org.specs2.runner.JUnitRunner
+import util.TestDBData
 
 @RunWith(classOf[JUnitRunner])
 class ServerSpec extends Specification with TestModule with TestDBData {
@@ -16,6 +19,8 @@ class ServerSpec extends Specification with TestModule with TestDBData {
    * but TestDBData trait should force this anyway. Sequential running is not required if each test uses own
    * db instance (different named db) but this would require some more complicated implementation.
    */
+  implicit val auditUser: AuditUser = new AuditUser(null, InetAddress.getLocalHost, null, null)
+
   "Test" should {
     "be ok" in new WithDefaultData {
       1 mustEqual 1

@@ -1,14 +1,14 @@
 package fi.vm.sade.vst.repository
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
 import java.time.{LocalDate, YearMonth}
 
-trait ReleaseRepository{
-
+trait ReleaseRepository {
   def notifications(categories: Seq[Long], tags: Seq[Long], page: Int, user: User): NotificationList
-  def notification(id: Long, user: User) : Option[Notification]
-  def specialNotifications(user: User) : Seq[Notification]
-  def deleteNotification(user: User, id: Long): Int
+  def notification(id: Long, user: User): Option[Notification]
+  def specialNotifications(user: User): Seq[Notification]
+  def deleteNotification(user: User, id: Long)(implicit au: AuditUser): Int
 
   def unpublishedNotifications(user: User): Seq[Notification]
 
@@ -19,14 +19,14 @@ trait ReleaseRepository{
   def categories(user: User): Seq[Category]
   def serviceCategories: Seq[Category]
 
-  def release(id: Long, user: User): Option[Release]
+  def getReleaseForUser(id: Long, user: User): Option[Release]
 
   def userGroupsForRelease(releaseId: Long): List[ReleaseUserGroup]
-  def emailReleasesForDate(date: LocalDate): Seq[Release]
+  def getEmailReleasesForDate(date: LocalDate): Seq[Release]
 
-  def deleteRelease(user: User, id: Long): Int
-  def addRelease(user: User, release: ReleaseUpdate): Option[Release]
-  def updateRelease(user: User, release: ReleaseUpdate): Option[Release]
+  def deleteRelease(user: User, id: Long)(implicit au: AuditUser): Int
+  def addRelease(user: User, release: ReleaseUpdate)(implicit au: AuditUser): Option[Release]
+  def updateRelease(user: User, release: ReleaseUpdate)(implicit au: AuditUser): Option[Release]
 
-  def generateReleases(amount: Int, month: YearMonth, user: User): Seq[Release]
+  def generateReleases(amount: Int, month: YearMonth, user: User)(implicit au: AuditUser): Seq[Release]
 }

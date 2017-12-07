@@ -35,11 +35,15 @@ trait Configuration {
     config.getString("virkailijan-tyopoyta.cas.service"),
     config.getString("virkailijan-tyopoyta.cas.user"),
     config.getString("virkailijan-tyopoyta.cas.password"),
-    10)
+    10
+  )
 
-  lazy val defaultCasConfig = CasConfig(config.getString("cas.url"), config.getString("virkailijan-tyopoyta.cas.user"), config.getString("virkailijan-tyopoyta.cas.password"))
-  lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(
-    urls.url("oppijanumerorekisteri.service"))
+  lazy val defaultCasConfig = CasConfig(
+    config.getString("cas.url"),
+    config.getString("virkailijan-tyopoyta.cas.user"),
+    config.getString("virkailijan-tyopoyta.cas.password")
+  )
+  lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(urls.url("oppijanumerorekisteri.service"))
 
   lazy val actorSystemConfig: Config = ConfigFactory.parseResources("conf/akka.conf")
 
@@ -47,8 +51,6 @@ trait Configuration {
 
   lazy val loginPage: String = config.getString("virkailijan-tyopoyta.login")
   lazy val ophLogoUrl: String = config.getString("oph.logo.url")
-
-  private lazy val referenceConfig = ConfigFactory.parseResources("conf/application.conf")
 
   lazy val config: Config = ConfigFactory.parseFile(confFile)
 
@@ -59,13 +61,15 @@ trait Configuration {
     config.getString(s"db.$dbType.password"),
     config.getInt(s"db.page.length"),
     dbType,
-    dbPoolConfig)
+    dbPoolConfig
+  )
 
   lazy val dbPoolConfig: DBPoolConfig = DBPoolConfig(
     config.getInt(s"db.pool.poolInitialSize"),
     config.getInt(s"db.pool.poolMaxSize"),
     config.getLong(s"db.pool.poolConnectionTimeoutMillis"),
-    config.getString(s"db.pool.poolValidationQuery"))
+    config.getString(s"db.pool.poolValidationQuery")
+  )
 
   lazy val dbType: String = config.getString("db.type")
 

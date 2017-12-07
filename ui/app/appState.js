@@ -24,7 +24,8 @@ const events = {
   unpublishedNotifications: unpublishedNotifications.events,
   notifications: notifications.events,
   timeline: timeline.events,
-  editor: editor.events
+  editor: editor.events,
+  user: user.events
 }
 
 const initialState = {
@@ -60,6 +61,8 @@ export function appState () {
     // User
     [user.fetchBus], user.onReceived,
     [user.fetchFailedBus], user.onFetchFailed,
+    [user.saveSendEmailFailedBus], user.onSaveSendEmailFailed,
+    [dispatcher.stream(events.user.saveSendEmail)], user.saveSendEmail,
 
     // Translations
     [translations.fetchBus], translations.onReceived,

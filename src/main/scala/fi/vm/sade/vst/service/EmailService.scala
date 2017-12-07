@@ -1,12 +1,16 @@
 package fi.vm.sade.vst.service
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
-import fi.vm.sade.vst.model.{UserInformation, JsonSupport, EmailEvent, Release}
+import fi.vm.sade.vst.model.{EmailEvent, JsonSupport, Release, UserInformation}
 import fi.vm.sade.vst.module.RepositoryModule
-import fi.vm.sade.vst.security.{UserService, KayttooikeusService, RequestMethod, CasUtils}
+import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import java.time.LocalDate
+
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
 
@@ -17,11 +21,21 @@ class EmailService(casUtils: CasUtils,
   with GroupEmailComponent
   with Configuration
   with JsonFormats
+  with LazyLogging
   with JsonSupport {
 
-  sealed trait EmailEventType { val description: String }
-  case object ImmediateEmail extends EmailEventType { val description = "Immediately sent email" }
-  case object TimedEmail extends EmailEventType { val description = "Normally timed email" }
+  sealed trait EmailEventType {
+    val description: String
+  }
+
+  case object ImmediateEmail extends EmailEventType {
+    val description = "Immediately sent email"
+  }
+
+  case object TimedEmail extends EmailEventType {
+    val description = "Normally timed email"
+  }
+
   sealed case class UserOidEmail(userOid: String, email: String)
   sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
 
@@ -39,7 +53,7 @@ class EmailService(casUtils: CasUtils,
   private def parseUserInformationFromResponse(response: String): Seq[UserInformation] = {
     val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
     val userInformation = json.flatMap(parseSingleUserInformation)
-    userInformation.toSeq
+    userInformation
   }
 
   private def parsePersonOidsFromResponse(response: String): Seq[String] = {
@@ -50,8 +64,11 @@ class EmailService(casUtils: CasUtils,
 
   private def parseUserOidsAndEmails(resp: Try[String]): Seq[UserInformation] = {
     resp match {
-      case Success(s) => parseUserInformationFromResponse(s)
-      case Failure(f) => Seq.empty
+      case Success(s) =>
+        parseUserInformationFromResponse(s)
+      case Failure(f) =>
+        logger.error("Failed to parse user oids and emails", f)
+        Seq.empty
     }
   }
 
@@ -61,14 +78,14 @@ class EmailService(casUtils: CasUtils,
     userInformation.filter { user =>
       val profile = userProfiles.get(user.userOid)
       val profileCategories = profile.map(_.categories).getOrElse(Seq.empty)
-      val allowedCategories = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
+      val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
 
-      val sendEmail = !profile.exists(!_.sendEmail)
-      sendEmail && allowedCategories
+      val sendEmail: Boolean = !profile.exists(!_.sendEmail)
+      sendEmail && hasAllowedCategories
     }
   }
 
-  def sendEmails(releases: Iterable[Release], eventType: EmailEventType): Iterable[String] = {
+  def sendEmails(releases: Iterable[Release], eventType: EmailEventType)(implicit au: AuditUser): Iterable[String] = {
     val userInfoToReleases = releases.flatMap { release =>
       val userGroups = userGroupIdsForRelease(release)
       val userInformation = basicUserInformationForUserGroups(userGroups)
@@ -76,10 +93,11 @@ class EmailService(casUtils: CasUtils,
       userInfo.map(_ -> release)
     }
     val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
+    logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleases.size} users")
     val result = userInfoToReleasesMap.flatMap {
-      case (userInfo, releases) =>
+      case (userInfo, releasesForUser) =>
         val recipients = List(formRecipient(userInfo.email))
-        val email = formEmail(userInfo, releases)
+        val email = formEmail(userInfo, releasesForUser)
         groupEmailService.sendMailWithoutTemplate(EmailData(email, recipients))
     }
 
@@ -87,10 +105,11 @@ class EmailService(casUtils: CasUtils,
     result
   }
 
-  def sendEmailsForDate(date: LocalDate): Unit = {
+  def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
     // TODO: Should this just take range of dates? At the moment it is easier to just get evets for current and previous date
-    val releases = releaseRepository.emailReleasesForDate(date)
-    val previousDateReleases = releaseRepository.emailReleasesForDate(date.minusDays(1))
+    logger.info(s"Preparing to send emails for date $date")
+    val releases = releaseRepository.getEmailReleasesForDate(date)
+    val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
     sendEmails(releases ++ previousDateReleases, TimedEmail)
   }
 
@@ -119,15 +138,18 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
-    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString),RequestMethod.GET)
+    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
     response match {
-      case Success(s) => parsePersonOidsFromResponse(s)
-      case Failure(f) => Seq.empty
+      case Success(s) =>
+        parsePersonOidsFromResponse(s)
+      case Failure(f) =>
+        logger.error(s"Failure parsing person oids from response $response", f)
+        Seq.empty
     }
   }
 
   private def userInformationByOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
-    val formattedOids = oids.map { oid => s""""$oid""""}
+    val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
     val body = Option(json)
 
@@ -145,7 +167,11 @@ class EmailService(casUtils: CasUtils,
     IterableUtils.mapToSplitted(450, personOids, userInformationByOids).toSeq
   }
 
-  private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
+  private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = {
+    EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
+  }
 
-  private def addEmailEvents(emailEvents: Iterable[EmailEvent]): Iterable[EmailEvent] = emailEvents.flatMap(emailRepository.addEvent)
+  private def addEmailEvents(emailEvents: Iterable[EmailEvent])(implicit au: AuditUser): Iterable[EmailEvent] = {
+    emailEvents.flatMap(emailRepository.addEvent(_))
+  }
 }

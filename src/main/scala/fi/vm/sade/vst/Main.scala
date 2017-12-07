@@ -1,9 +1,10 @@
 package fi.vm.sade.vst
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.vst.module.ServerModule
 import fi.vm.sade.vst.server.Server
 
-object Main extends App with ServerModule with Configuration with Logging {
+object Main extends App with ServerModule with Configuration with LazyLogging {
 
   import com.softwaremill.macwire._
 

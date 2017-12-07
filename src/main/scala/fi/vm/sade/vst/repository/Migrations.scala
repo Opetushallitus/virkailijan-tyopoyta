@@ -1,9 +1,10 @@
 package fi.vm.sade.vst.repository
 
-import fi.vm.sade.vst.{DBConfig, Logging}
+import com.typesafe.scalalogging.LazyLogging
+import fi.vm.sade.vst.DBConfig
 import org.flywaydb.core.Flyway
 
-class Migrations(dBConfig: DBConfig) extends Logging{
+class Migrations(dBConfig: DBConfig) extends LazyLogging {
   private val commonLocation: String = "classpath:/migration/common"
   private val h2Location: String = "classpath:/migration/h2"
   private val postgresqlLocation: String = "classpath:/migration/postgresql"
@@ -13,8 +14,11 @@ class Migrations(dBConfig: DBConfig) extends Logging{
 
   def run(): Unit = {
     val dbType = dBConfig.dbType.toLowerCase.equals("h2")
-    if (dbType) flyway.setLocations(commonLocation, h2Location)
-    else flyway.setLocations(commonLocation, postgresqlLocation)
+    if (dbType) {
+      flyway.setLocations(commonLocation, h2Location)
+    } else {
+      flyway.setLocations(commonLocation, postgresqlLocation)
+    }
 
     val migrations = flyway.migrate
     logger.info(s"Ran $migrations data migrations")

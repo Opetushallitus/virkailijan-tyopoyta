@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import 'babel-polyfill'
 
 // Components
 import NotificationsMenu from './notifications/NotificationsMenu'
@@ -6,6 +7,7 @@ import Notifications from './notifications/Notifications'
 import UnpublishedNotifications from './unpublishedNotifications/UnpublishedNotifications'
 import Timeline from './timeline/Timeline'
 import Editor from './editor/Editor'
+import EmailSettings from './settings/EmailSettings'
 import Tabs from './common/tabs/Tabs'
 import TabItem from './common/tabs/TabItem'
 import Alert from './common/Alert'
@@ -63,7 +65,7 @@ class App extends React.Component {
                 id={1}
                 variant="error"
                 titleKey="Käyttäjätietojen haku epäonnistui"
-                textKey="Kirjaudu aluksi luokalle ja päivitä sivu"
+                textKey="Kokeile päivittää sivu."
               />
             </div>
             : null
@@ -182,6 +184,14 @@ class App extends React.Component {
                   ? <NotificationsMenu controller={controller} draft={state.draft} />
                   : null
               }
+
+              {/*Settings*/}
+              <div className="mt2">
+                <EmailSettings
+                  controller={controller.user}
+                  user={state.user}
+                />
+              </div>
 
               <div className="mt3">
                 <Notifications

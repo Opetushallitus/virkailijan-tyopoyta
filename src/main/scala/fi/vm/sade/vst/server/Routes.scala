@@ -5,37 +5,31 @@ import fi.vm.sade.vst.server.routes._
 
 
 class Routes(generalRoutes: GeneralRoutes,
+             frontEndRoutes: FrontEndRoutes,
              releaseRoutes: ReleaseRoutes,
              notificationRoutes: NotificationRoutes,
              timelineRoutes: TimelineRoutes,
              userRoutes: UserRoutes,
              emailRoutes: EmailRoutes,
+             healthRoutes: HealthRoutes,
              loginRoutes: LoginRoutes,
              swaggerDocService: SwaggerDocService)
   extends Directives {
 
 
-  val apiRoutes: Route = pathPrefix("api"){
+  val apiRoutes: Route = pathPrefix("api") {
     releaseRoutes.routes ~
     notificationRoutes.routes ~
     timelineRoutes.routes ~
     userRoutes.routes ~
     generalRoutes.routes ~
-    emailRoutes.routes
-  }
-
-  val frontEndRoutes: Route = get {
-    pathEndOrSingleSlash {
-      getFromResource("ui/index.html")
-    } ~
-    encodeResponse {
-      getFromResourceDirectory("ui")
-    }
+    emailRoutes.routes ~
+    healthRoutes.routes
   }
 
   val routes: Route = {
     pathPrefix("virkailijan-tyopoyta") {
-     frontEndRoutes ~ loginRoutes.routes ~ apiRoutes ~ swaggerDocService.swaggerRoutes
+      frontEndRoutes.routes ~ loginRoutes.routes ~ apiRoutes ~ swaggerDocService.swaggerRoutes
     }
   }
 }

@@ -43,6 +43,7 @@ case class UserProfileUpdate(categories: Seq[Long] = Seq.empty,
 case class UserCategory(userId: String, categoryId: Long)
 
 case class ReleaseCategory(releaseId: Long, categoryId: Long)
+
 case class ReleaseUserGroup(releaseId: Long, usergroupId: Long)
 
 case class NotificationTags(notificationId: Long, tagId: Long)
@@ -57,7 +58,7 @@ case class TimelineItem(id: Long,
                         notificationId: Option[Long] = None)
 
 @ApiModel
-case class Timeline(month: Int, year: Int, days: Map[String,Seq[TimelineItem]] = Map.empty)
+case class Timeline(month: Int, year: Int, days: Map[String, Seq[TimelineItem]] = Map.empty)
 
 @ApiModel
 case class Release(id: Long,
@@ -89,19 +90,18 @@ case class Notification(id: Long,
 
 
 case class NotificationUpdate(id: Long,
-                        releaseId: Long,
-                        publishDate: LocalDate,
-                        expiryDate: Option[LocalDate],
-                        content: Map[String, NotificationContent] = Map.empty,
-                        tags: Seq[Long] = List.empty,
-                        sendEmail: Boolean = false)
+                              releaseId: Long,
+                              publishDate: LocalDate,
+                              expiryDate: Option[LocalDate],
+                              content: Map[String, NotificationContent] = Map.empty,
+                              tags: Seq[Long] = List.empty)
 
 @ApiModel
 case class ReleaseUpdate(id: Long,
                          notification: Option[NotificationUpdate] = None,
                          timeline: Seq[TimelineItem] = Nil,
                          categories: Seq[Long] = Seq.empty,
-                         usergroups: Seq[Long] = Seq.empty)
+                         userGroups: Seq[Long] = Seq.empty)
 
 
 case class TimelineItemUpdate(id: Long, releaseId: Long, date: LocalDate, content: Map[String, TimelineContent] = Map.empty)

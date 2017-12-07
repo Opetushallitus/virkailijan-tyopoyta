@@ -1,9 +1,10 @@
 package fi.vm.sade.vst.repository
 
+import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
 
 trait UserRepository {
-  def setUserProfile(user: User, userProfile: UserProfileUpdate): UserProfile
+  def setUserProfile(user: User, userProfile: UserProfileUpdate)(implicit au: AuditUser): UserProfile
   def userProfile(userId: String): UserProfile
   def userProfiles(userIds: Seq[String]): List[UserProfile]
 
