@@ -57,10 +57,10 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
       val user: User = User("userId", "lastname", "givennames", None, "fi", false, Seq.empty, Seq.empty)
 
       val expectedDatesAndIds: Seq[(LocalDate, Long)] = Seq(
-        (LocalDate.of(2016, 5, 23), 4l),
+        (LocalDate.of(2016, 12, 31), 5l),
         (LocalDate.of(2016, 12, 30), 3l),
         (LocalDate.of(2016, 12, 30), 2l),
-        (LocalDate.of(2016, 12, 31), 5l)
+        (LocalDate.of(2016, 5, 23), 4l)
       )
 
       val notifications: NotificationList = releaseRepository.notifications(categories, tags, page, user)
