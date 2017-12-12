@@ -151,7 +151,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
         _.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)
       }
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
-        .orderBy(n.publishDate).desc
+        .orderBy(n.publishDate, n.releaseId).desc
     }
     notificationsFromRS(sql, user).filter(n =>
       (tags.isEmpty || n.tags.intersect(tags).nonEmpty) &&
@@ -509,7 +509,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       notificationJoins
         .where.gt(n.publishDate, LocalDate.now())
         .and.eq(r.deleted, false).and.eq(n.deleted, false)
-        .orderBy(n.publishDate).desc
+        .orderBy(n.publishDate, n.releaseId).desc
     }
     notificationsFromRS(sql, user)
   }
