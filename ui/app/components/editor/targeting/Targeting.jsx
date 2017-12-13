@@ -93,7 +93,7 @@ function Targeting (props) {
       : userGroups
   }
 
-  const getUserGroupName = (id, groups) => {
+  const getUserGroupDescription = (id, groups) => {
     return R.find(R.propEq('id', id))(groups).description[user.lang.toUpperCase()]
   }
 
@@ -210,7 +210,7 @@ function Targeting (props) {
                 <UserGroupButton
                   key={`releaseUserGroup${group}`}
                   id={group}
-                  text={getUserGroupName(group, userGroupsWithAllItem)}
+                  text={getUserGroupDescription(group, userGroupsWithAllItem)}
                   onClick={controller.toggleUserGroup}
                 />
               )
