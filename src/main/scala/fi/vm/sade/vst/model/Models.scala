@@ -1,6 +1,6 @@
 package fi.vm.sade.vst.model
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 
 import io.swagger.annotations.ApiModel
 
@@ -83,7 +83,7 @@ case class Notification(id: Long,
                         categories: Seq[Long] = List.empty,
                         usergroups: Seq[Long] = List.empty,
                         createdBy: String,
-                        createdAt: LocalDate,
+                        createdAt: LocalDateTime,
                         modifiedBy: Option[String] = None,
                         modifiedAt: Option[LocalDate] = None,
                         deleted: Boolean = false)
