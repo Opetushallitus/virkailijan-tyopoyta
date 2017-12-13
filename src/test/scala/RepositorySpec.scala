@@ -2,7 +2,7 @@ import java.net.InetAddress
 import java.time.LocalDate
 
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.vst.model.EmailEvent
+import fi.vm.sade.vst.model._
 import module.TestModule
 import org.junit.runner.RunWith
 import org.specs2.mutable._
@@ -25,7 +25,7 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
   val testEvent: EmailEvent = EmailEvent(1l, LocalDate.now(), 1l, "testEvent")
   "EmailRepository" should {
     "not find event from empty table" in new WithDefaultData {
-      emailRepository.emailEvent(1l) mustEqual None
+      emailRepository.emailEvent(1l) must beNone
     }
 
     "should add new event" in new WithDefaultData {
@@ -33,7 +33,43 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
     }
 
     "not find event from empty table in different test" in new WithDefaultData {
-      emailRepository.emailEvent(1l) mustEqual None
+      emailRepository.emailEvent(1l) must beNone
+    }
+  }
+
+  "DBReleaseRepository" should {
+    val categories: Seq[Long] = Seq.empty
+    val tags: Seq[Long] = Seq.empty
+    val page: Int = 1
+    val user: User = User("userId", "lastname", "givennames", Some("GL"), "fi", false, Seq.empty, Seq.empty)
+
+    "find releases" in new WithDefaultData {
+      val notifications: NotificationList = releaseRepository.notifications(categories, tags, page, user)
+      notifications.notifications should not be empty
+
+    }
+
+    "return releases ordered by releaseId in a descending order if they have the same releaseDate" in new WithDefaultData {
+
+      val expectedDatesAndIds: Seq[(LocalDate, Long)] = Seq(
+        (LocalDate.of(2016, 12, 31), 5l),
+        (LocalDate.of(2016, 12, 30), 3l),
+        (LocalDate.of(2016, 12, 30), 2l),
+        (LocalDate.of(2016, 5, 23), 4l)
+      )
+
+      val notifications: NotificationList = releaseRepository.notifications(categories, tags, page, user)
+      val res: Seq[(LocalDate, Long)] = notifications.notifications.map((n) => (n.publishDate, n.releaseId))
+
+      res shouldEqual expectedDatesAndIds
+    }
+
+    "add new release" in new WithDefaultData {
+
+      val notificationUpdate = NotificationUpdate(123123l, 543l, LocalDate.now(), None)
+      val update = ReleaseUpdate(543l, Some(notificationUpdate))
+
+      releaseRepository.addRelease(user, update)
     }
   }
 }
