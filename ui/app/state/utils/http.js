@@ -38,7 +38,14 @@ export default function http (options) {
   })
 
   const request = window.fetch(urlWithParams, requestOptions)
-    .then(response => response.json())
+    .then(response => {
+      console.log(response);
+      let contentType = response.headers.get("content-type");
+      if(response.ok && contentType && contentType.includes("application/json")) {
+        return response.json();
+      }
+      throw new TypeError(response.statusText);
+    })
 
   // Return the request or timeout depending which resolves first
   return Promise

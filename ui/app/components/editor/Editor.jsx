@@ -311,6 +311,7 @@ function Editor (props) {
           text={isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
           hasSaveFailed={hasSaveFailed}
           onOutsidePopupClick={controller.toggleHasSaveFailed}
+          saveErrorMessage={controller.saveFailedMessage}
         />
       </div>
     </form>

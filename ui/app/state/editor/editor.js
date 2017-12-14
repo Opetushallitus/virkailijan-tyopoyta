@@ -123,7 +123,11 @@ function save (state, id) {
       )
     },
     onSuccess: releaseId => saveBus.push({ releaseId, savedRelease }),
-    onError: error => saveFailedBus.push(error)
+    onError: error => {
+      console.log("Saving failed");
+      console.error(error);
+      saveFailedBus.push(error)
+    }
   })
 
   return R.assocPath(['editor', 'isSavingRelease'], true, state)
@@ -219,8 +223,18 @@ function onSaveComplete (state, { releaseId, savedRelease }) {
   )(state)
 }
 
-function onSaveFailed (state) {
-  console.error('Saving release failed')
+function onSaveFailed (state, foo) {
+  console.error('Saving release failed');
+  console.error(state);
+  console.foo(state);
+
+  const alert = createAlert({
+      variant: 'error',
+      titleKey: 'Julkaisu epäonnistui',
+      textKey: 'Julkaisu epäonnistui'
+  })
+
+  view.alertsBus.push(alert);
 
   return R.compose(
     R.assocPath(['editor', 'hasSaveFailed'], true),
