@@ -39,7 +39,6 @@ export default function http (options) {
 
   const request = window.fetch(urlWithParams, requestOptions)
     .then(response => {
-      console.log(response);
       let contentType = response.headers.get("content-type");
       if(response.ok && contentType && contentType.includes("application/json")) {
         return response.json();
@@ -52,7 +51,6 @@ export default function http (options) {
     .race([timeout, request])
     .then(json => onSuccess(json))
     .catch(error => {
-      console.error(error)
       onError(error)
     })
 }

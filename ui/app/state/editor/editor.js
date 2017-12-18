@@ -223,22 +223,11 @@ function onSaveComplete (state, { releaseId, savedRelease }) {
   )(state)
 }
 
-function onSaveFailed (state, foo) {
-  console.error('Saving release failed');
-  console.error(state);
-  console.error(foo);
-
-  const alert = createAlert({
-      variant: 'error',
-      titleKey: 'Julkaisu epäonnistui',
-      textKey: 'Julkaisu epäonnistui'
-  })
-
-  view.alertsBus.push(alert);
-
+function onSaveFailed (state, error) {
   return R.compose(
     R.assocPath(['editor', 'hasSaveFailed'], true),
-    R.assocPath(['editor', 'isSavingRelease'], false)
+    R.assocPath(['editor', 'isSavingRelease'], false),
+    R.assocPath(['editor', 'saveErrorMessages'], error.message)
   )(state)
 }
 
@@ -457,7 +446,8 @@ function emptyEditor () {
     isPreviewed: false,
     isLoadingRelease: false,
     isSavingRelease: false,
-    hasSaveFailed: false
+    hasSaveFailed: false,
+    saveErrorMessages: []
   }
 }
 

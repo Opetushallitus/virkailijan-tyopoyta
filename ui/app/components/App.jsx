@@ -87,7 +87,7 @@ class App extends React.Component {
                 controller={controller.editor}
                 user={state.user}
                 dateFormat={state.dateFormat}
-                editor={state.editor}
+                editorState={state.editor}
                 userGroups={state.userGroups}
                 categories={state.categories}
                 tagGroups={state.tagGroups}
