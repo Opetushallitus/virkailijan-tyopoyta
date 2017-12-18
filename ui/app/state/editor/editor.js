@@ -226,7 +226,7 @@ function onSaveComplete (state, { releaseId, savedRelease }) {
 function onSaveFailed (state, foo) {
   console.error('Saving release failed');
   console.error(state);
-  console.foo(state);
+  console.error(foo);
 
   const alert = createAlert({
       variant: 'error',

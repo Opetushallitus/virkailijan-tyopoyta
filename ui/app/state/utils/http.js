@@ -44,7 +44,7 @@ export default function http (options) {
       if(response.ok && contentType && contentType.includes("application/json")) {
         return response.json();
       }
-      throw new TypeError(response.statusText);
+      throw new Error(response.statusText);
     })
 
   // Return the request or timeout depending which resolves first
@@ -53,7 +53,6 @@ export default function http (options) {
     .then(json => onSuccess(json))
     .catch(error => {
       console.error(error)
-
       onError(error)
     })
 }
