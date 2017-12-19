@@ -112,7 +112,7 @@ class TextEditor extends React.Component {
       const html = convertToHTML({
         entityToHTML: (entity, originalText) => {
           if (entity.type === 'LINK') {
-            return <a href={entity.data.url}>{originalText}</a>
+            return <a href={entity.data.url} target="_blank" rel="noopener noreferrer nofollow">{originalText}</a>
           }
           return originalText
         }

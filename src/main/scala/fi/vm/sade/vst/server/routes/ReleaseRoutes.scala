@@ -29,6 +29,7 @@ class ReleaseRoutes(val userService: UserService, releaseService: ReleaseService
     with LazyLogging {
 
   private val whitelist = Whitelist.basic()
+    .addAttributes("a", "target", "rel")
 
   private def releaseValidationErrors(release: ReleaseUpdate): List[String] = {
     val cleaner = new Cleaner(whitelist)
