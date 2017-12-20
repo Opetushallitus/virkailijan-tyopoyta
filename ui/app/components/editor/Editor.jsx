@@ -23,7 +23,7 @@ const propTypes = {
   controller: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   dateFormat: PropTypes.string.isRequired,
-  editor: PropTypes.object.isRequired,
+  editorState: PropTypes.object.isRequired,
   userGroups: PropTypes.object.isRequired,
   categories: PropTypes.object.isRequired,
   tagGroups: PropTypes.object.isRequired,
@@ -65,7 +65,7 @@ function Editor (props) {
     controller,
     user,
     dateFormat,
-    editor,
+    editorState,
     userGroups,
     categories,
     tagGroups,
@@ -81,7 +81,7 @@ function Editor (props) {
     isSavingRelease,
     hasSaveFailed,
     hasLoadingDependenciesFailed
-  } = editor
+  } = editorState
 
   const notification = editedRelease.notification
   const timeline = editedRelease.timeline
@@ -98,7 +98,6 @@ function Editor (props) {
 
     if (isPreviewed) {
       document.querySelector('#editor-button-save').setAttribute('disabled', true)
-
       controller.save(editedRelease.id)
     } else {
       controller.togglePreview(true)
@@ -311,6 +310,7 @@ function Editor (props) {
           text={isPreviewed ? translate('julkaise') : translate('esikatselejulkaise')}
           hasSaveFailed={hasSaveFailed}
           onOutsidePopupClick={controller.toggleHasSaveFailed}
+          saveErrorMessages={editorState.saveErrorMessages}
         />
       </div>
     </form>

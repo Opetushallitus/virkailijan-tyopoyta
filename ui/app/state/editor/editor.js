@@ -123,7 +123,11 @@ function save (state, id) {
       )
     },
     onSuccess: releaseId => saveBus.push({ releaseId, savedRelease }),
-    onError: error => saveFailedBus.push(error)
+    onError: error => {
+      console.log("Saving failed");
+      console.error(error);
+      saveFailedBus.push(error)
+    }
   })
 
   return R.assocPath(['editor', 'isSavingRelease'], true, state)
@@ -219,12 +223,11 @@ function onSaveComplete (state, { releaseId, savedRelease }) {
   )(state)
 }
 
-function onSaveFailed (state) {
-  console.error('Saving release failed')
-
+function onSaveFailed (state, error) {
   return R.compose(
     R.assocPath(['editor', 'hasSaveFailed'], true),
-    R.assocPath(['editor', 'isSavingRelease'], false)
+    R.assocPath(['editor', 'isSavingRelease'], false),
+    R.assocPath(['editor', 'saveErrorMessages'], [error.message])
   )(state)
 }
 
@@ -443,7 +446,8 @@ function emptyEditor () {
     isPreviewed: false,
     isLoadingRelease: false,
     isSavingRelease: false,
-    hasSaveFailed: false
+    hasSaveFailed: false,
+    saveErrorMessages: []
   }
 }
 

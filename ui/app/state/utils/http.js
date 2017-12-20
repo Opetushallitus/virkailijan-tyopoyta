@@ -38,15 +38,19 @@ export default function http (options) {
   })
 
   const request = window.fetch(urlWithParams, requestOptions)
-    .then(response => response.json())
+    .then(response => {
+      let contentType = response.headers.get("content-type");
+      if(response.ok && contentType && contentType.includes("application/json")) {
+        return response.json();
+      }
+      throw new Error(response.statusText);
+    })
 
   // Return the request or timeout depending which resolves first
   return Promise
     .race([timeout, request])
     .then(json => onSuccess(json))
     .catch(error => {
-      console.error(error)
-
       onError(error)
     })
 }

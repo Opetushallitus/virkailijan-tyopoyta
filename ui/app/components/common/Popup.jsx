@@ -9,6 +9,7 @@ const propTypes = {
   variant: PropTypes.oneOf(variants).isRequired,
   position: PropTypes.oneOf(positions).isRequired,
   title: PropTypes.string.isRequired,
+  text: PropTypes.string,
   children: PropTypes.node,
   onOutsideClick: PropTypes.func
 }
@@ -56,7 +57,8 @@ class Popup extends React.Component {
       variant,
       position,
       title,
-      children
+      children,
+      text
     } = this.props
 
     const node = target ? document.querySelector(target) : null
@@ -76,6 +78,7 @@ class Popup extends React.Component {
         <div className="oph-popup-arrow" />
 
         <div className="oph-popup-title">{title}</div>
+        <div className="oph-popup-title">{text}</div>
 
         {
           children

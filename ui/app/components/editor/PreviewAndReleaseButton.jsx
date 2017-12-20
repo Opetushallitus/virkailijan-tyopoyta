@@ -9,13 +9,15 @@ const propTypes = {
   isLoading: PropTypes.bool,
   text: PropTypes.string.isRequired,
   hasSaveFailed: PropTypes.bool,
-  onOutsidePopupClick: PropTypes.func.isRequired
+  onOutsidePopupClick: PropTypes.func.isRequired,
+  saveErrorMessages: PropTypes.arrayOf(PropTypes.string)
 }
 
 const defaultProps = {
   disabled: false,
   isLoading: false,
-  hasSaveFailed: false
+  hasSaveFailed: false,
+  saveErrorMessages: ['']
 }
 
 function PreviewAndReleaseButton (props) {
@@ -24,7 +26,8 @@ function PreviewAndReleaseButton (props) {
     isLoading,
     text,
     hasSaveFailed,
-    onOutsidePopupClick
+    onOutsidePopupClick,
+    saveErrorMessages
   } = props
 
   return (
@@ -46,7 +49,7 @@ function PreviewAndReleaseButton (props) {
             variant="error"
             position="right"
             title={translate('julkaisuepaonnistui')}
-            text={translate('kokeileuudestaan')}
+            text={saveErrorMessages.toString()}
             onOutsidePopupClick={onOutsidePopupClick}
           />
           : null
