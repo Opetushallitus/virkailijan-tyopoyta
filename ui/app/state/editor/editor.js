@@ -227,7 +227,7 @@ function onSaveFailed (state, error) {
   return R.compose(
     R.assocPath(['editor', 'hasSaveFailed'], true),
     R.assocPath(['editor', 'isSavingRelease'], false),
-    R.assocPath(['editor', 'saveErrorMessages'], error.message)
+    R.assocPath(['editor', 'saveErrorMessages'], [error.message])
   )(state)
 }
 
