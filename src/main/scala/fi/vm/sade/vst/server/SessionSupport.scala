@@ -1,16 +1,21 @@
 package fi.vm.sade.vst.server
 
-import org.ietf.jgss.Oid
-import akka.http.scaladsl.model.StatusCodes
+import java.net.InetAddress
+import java.util.Optional
+
+import akka.http.javadsl.model
+import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server._
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
+import fi.vm.sade.javautils.http.HttpServletRequestUtils
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
+import org.ietf.jgss.Oid
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -107,19 +112,31 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
 
 trait AuditSupport extends Directives {
   def withAuditUser(user: User): Directive1[AuditUser] = {
-    extractClientIP.flatMap {
-      ip =>
+    extractRequest.flatMap {
+      httpRequest: HttpRequest =>
         cookie("virkailijan-tyopoyta-session").flatMap {
           sessionCookie =>
             headerValueByName("User-Agent").map {
               userAgent => {
                 val oid = new Oid(user.userId)
-                val inetAddress = ip.toOption.get
+                val xRealIp = emptyHeaderValueIfEmpty(httpRequest, "X-Real-IP")
+                val xForwardedFor = emptyHeaderValueIfEmpty(httpRequest, "X-Forwarded-For")
+                val remoteAddress = emptyHeaderValueIfEmpty(httpRequest, "Remote-Address")
+                val inetAddress = InetAddress.getByName(HttpServletRequestUtils.getRemoteAddress(xRealIp, xForwardedFor, remoteAddress, httpRequest.uri.toString()))
                 val session: String = sessionCookie.value
                 new AuditUser(oid, inetAddress, session, userAgent)
               }
             }
         }
+    }
+  }
+
+  private def emptyHeaderValueIfEmpty(httpRequest: HttpRequest, headerName: String): String = {
+    val header: Optional[model.HttpHeader] = httpRequest.getHeader(headerName)
+    if (header.isPresent) {
+      header.get.value
+    } else {
+      ""
     }
   }
 }
