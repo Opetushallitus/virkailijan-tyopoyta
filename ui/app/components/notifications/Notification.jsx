@@ -116,7 +116,7 @@ class Notification extends React.Component {
     const content = notification.content[user.lang] || notification.content[defaultLocale]
 
     // Strip HTML tags from text
-    const parsedText = content.text.replace(/(<([^>]+)>)/ig, '')
+    const parsedText = content.text.replace(/(<([^>]+)>)/ig, '').trim().replace(/<p><\/p>/g, '')
 
     const excerptLength = 100
     const isExpandable = parsedText.length > excerptLength
@@ -240,7 +240,7 @@ class Notification extends React.Component {
           {/*Content*/}
           <div className="col-12">
             <div className={`mb2 ${isExpandable ? 'notification-content-expandable' : 'notification-content'}`}>
-              {renderHTML(content.text.trim())}
+              {renderHTML(content.text.trim().replace(/<p><\/p>/g, ''))}
             </div>
           </div>
 

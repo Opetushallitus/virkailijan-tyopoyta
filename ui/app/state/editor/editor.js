@@ -140,15 +140,19 @@ function cleanTimeline (timeline) {
     .map(item => R.assoc('content', R.pickBy(content => content.text !== '', item.content), item))
 }
 
-// Remove notification's language versions with no content
+// Remove notification's language versions with no content and trim empty <p> tags
 function cleanNotification (notification) {
+
+  let predicate = content => (content.text !== '' && content.title !== '');
+
   return notification.validationState === 'complete'
-    ? R.assoc(
-      'content',
-      R.pickBy(content => (content.text !== '' && content.title !== ''), notification.content),
-      notification
-    )
-    : null
+  ? R.assoc(
+    'content',
+    R.pickBy(predicate, notification.content)
+        .trim().replace(/<p><\/p>/g, ''),
+    notification
+  )
+  : null
 }
 
 function cleanUpRelease (release) {
