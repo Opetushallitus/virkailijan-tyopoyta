@@ -240,7 +240,7 @@ class Notification extends React.Component {
           {/*Content*/}
           <div className="col-12">
             <div className={`mb2 ${isExpandable ? 'notification-content-expandable' : 'notification-content'}`}>
-              {renderHTML(content.text)}
+              {renderHTML(content.text.trim())}
             </div>
           </div>
 
