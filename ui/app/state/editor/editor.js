@@ -145,14 +145,20 @@ function cleanNotification (notification) {
 
   let predicate = content => (content.text !== '' && content.title !== '');
 
-  return notification.validationState === 'complete'
+  let prunedNote = notification.validationState === 'complete'
   ? R.assoc(
     'content',
-    R.pickBy(predicate, notification.content)
-        .trim().replace(/<p><\/p>/g, ''),
+    R.pickBy(predicate, notification.content),
     notification
   )
   : null
+  if (prunedNote != null) {
+    return R.assocPath(
+        ['content','text'],
+        notification.content.text.trim().replace(/<p><\/p>/g, ''),
+        notification)
+  }
+  return prunedNote
 }
 
 function cleanUpRelease (release) {
