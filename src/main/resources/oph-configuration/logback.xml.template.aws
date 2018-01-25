@@ -23,7 +23,7 @@
         <file>${user.home}/logs/auditlog_virkailijan-tyopoyta.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>${user.home}/logs/auditlog_virkailijan-tyopoyta.%i.log.zip</fileNamePattern>
+            <fileNamePattern>${user.home}/logs/auditlog_virkailijan-tyopoyta.%i.log</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>10</maxIndex>
         </rollingPolicy>
@@ -50,8 +50,8 @@
         <file>${user.home}/logs/localhost_access_log.txt</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-             <fileNamePattern>${user.home}/logs/localhost_access_log.%d{yyyy-MM-dd}.txt.gz</fileNamePattern>
-            <maxHistory>14</maxHistory>
+             <fileNamePattern>${user.home}/logs/localhost_access_log.%d{yyyy-MM-dd}.txt</fileNamePattern>
+            <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%msg%n</pattern>
