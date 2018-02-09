@@ -130,9 +130,9 @@ class EmailService(casUtils: CasUtils,
 
     val longestLine: String = htmlString.split("\n").maxBy(_.length)
     val maxLineLength: Int = longestLine.length
-    val warnLimitLength: Int = 400
+    val warnLimitLength: Int = 500
     if (maxLineLength > warnLimitLength) {
-      logger.warn(s"Longest line was ${maxLineLength} characters, which is over the warning limit of ${warnLimitLength}, in email to user ${userInfo.userOid}. Offending line starts: ${longestLine.take(20)}...")
+      logger.error(s"Longest line was ${maxLineLength} characters, which is over the warning limit of ${warnLimitLength}, in email to user ${userInfo.userOid}. Offending line starts: ${longestLine.take(20)}...")
     }
 
     EmailMessage("virkailijan-tyopoyta", subject, htmlString, html = true)

@@ -129,7 +129,8 @@ object EmailHtmlService extends Configuration {
     // lines MUST be no more than 998 characters excluding the CRLF (RFC2822). Some email servers have a limit of 990.
     // Playing it safe with 500.
     val lineLengthLimit: Int = 500
-    val splitReleaseContent = releaseContent.grouped(lineLengthLimit).mkString("\n")
+    val splitLines = releaseContent.grouped(lineLengthLimit).toList
+    val splitReleaseContent = splitLines.mkString("\r\n")
 
     val wrappedReleaseContent =
       s"""
