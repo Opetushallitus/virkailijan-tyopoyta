@@ -126,15 +126,20 @@ object EmailHtmlService extends Configuration {
   }
 
   private def mainReleaseContent(releaseContent: String): Either[String, Elem] = {
+    // lines MUST be no more than 998 characters excluding the CRLF (RFC2822). Some email servers have a limit of 990.
+    // Playing it safe with 500.
+    val lineLengthLimit: Int = 500
+    val splitReleaseContent = releaseContent.grouped(lineLengthLimit).mkString("\n")
+
     val wrappedReleaseContent =
       s"""
          |<div>
-         |$releaseContent
+         |$splitReleaseContent
          |</div>
        """.stripMargin
-    Try(XML.loadString(wrappedReleaseContent))
-      .toOption
-      .toRight(wrappedReleaseContent)
+
+    val maybeElement: Option[Elem] = Try(XML.loadString(wrappedReleaseContent)).toOption
+    maybeElement.toRight(wrappedReleaseContent)
   }
 }
 

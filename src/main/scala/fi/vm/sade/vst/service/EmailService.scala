@@ -125,7 +125,17 @@ class EmailService(casUtils: CasUtils,
       if (minDate == maxDate) s"${minDate.format(formatter)}"
       else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
     val subject = s"$contentHeader $subjectDateString"
-    EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, language), html = true)
+
+    val htmlString: String = EmailHtmlService.htmlString(releases, language)
+
+    val longestLine: String = htmlString.split("\n").maxBy(_.length)
+    val maxLineLength: Int = longestLine.length
+    val warnLimitLength: Int = 400
+    if (maxLineLength > warnLimitLength) {
+      logger.warn(s"Longest line was ${maxLineLength} characters, which is over the warning limit of ${warnLimitLength}, in email to user ${userInfo.userOid}. Offending line starts: ${longestLine.take(20)}...")
+    }
+
+    EmailMessage("virkailijan-tyopoyta", subject, htmlString, html = true)
   }
 
   private def formRecipient(email: String): EmailRecipient = {
