@@ -18,7 +18,8 @@ class EmailSettings extends React.Component {
     super(props)
 
     this.state = {
-      isChecked: !props.user.profile.sendEmail
+      isDisabled: true,
+      isChecked: props.user && !props.user.profile.sendEmail
     }
   }
 
@@ -27,10 +28,17 @@ class EmailSettings extends React.Component {
       controller
     } = this.props
 
+    if (this.state.isDisabled && this.state.user && this.state.user.profile) {
+      this.setState({
+        isDisabled: false,
+        isChecked: !this.state.user.profile.sendEmail
+      })
+    }
+
     const handleEmailCheckboxChange = event => {
       const sendEmail = !event.target.checked
       controller.saveSendEmail(sendEmail)
-      this.setState({ isChecked: !sendEmail })
+      this.setState({isChecked: !sendEmail})
     }
 
     return (
@@ -39,6 +47,7 @@ class EmailSettings extends React.Component {
         {
           <Checkbox
             label={translate('enhaluasahkoposteja')}
+            disabled={this.state.isDisabled}
             checked={this.state.isChecked}
             value="sendEmail"
             onChange={handleEmailCheckboxChange}
