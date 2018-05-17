@@ -134,13 +134,13 @@
         <dependency>
             <groupId>org.specs2</groupId>
             <artifactId>specs2-core_2.11</artifactId>
-            <version>3.8.9</version>
+            <version>4.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.specs2</groupId>
             <artifactId>specs2-junit_2.11</artifactId>
-            <version>3.8.9</version>
+            <version>4.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
