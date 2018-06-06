@@ -158,7 +158,7 @@ trait JsonSupport {
 
   implicit val userProfileUpdateReads: Reads[UserProfileUpdate] = (
     (JsPath \ "categories").read[List[Long]] and
-      (JsPath \ "sendEmail").read[Boolean]
+      (JsPath \ "sendEmail").readNullable[Boolean]
     )(UserProfileUpdate.apply _)
 
   implicit val categoryWrites: Writes[Category] = Writes { category =>
@@ -238,7 +238,7 @@ trait JsonSupport {
 
   implicit val userProfileReads: Reads[UserProfileUpdate] = (
     (JsPath \ "categories").read[Seq[Long]] and
-      (JsPath \ "email").read[Boolean]
+      (JsPath \ "email").readNullable[Boolean]
     )(UserProfileUpdate.apply _)
 
   implicit val targetingGroupReads: Reads[TargetingGroupUpdate] = (

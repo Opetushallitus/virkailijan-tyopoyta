@@ -130,12 +130,6 @@ function edit (state, releaseId) {
 function saveCategories (options) {
   console.log('Saving selected categories', options)
 
-  /*
-    Always set the necessary email property for saving, since checkbox for sending email hasn't
-    been implemented in the UI yet
-   */
-  options.email = false
-
   http({
     url: urls.user,
     requestOptions: {
