@@ -85,21 +85,23 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  def sendEmails(releases: Iterable[Release], eventType: EmailEventType)(implicit au: AuditUser): Iterable[String] = {
-    val userInfoToReleases = releases.flatMap { release =>
+  def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
+    val userInfoToReleases: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
       val userGroups = userGroupIdsForRelease(release)
       val userInformation = basicUserInformationForUserGroups(userGroups)
       val userInfo = filterUserInformation(release, userInformation)
       userInfo.map(_ -> release)
     }
-    val userInfoToReleasesMap = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2))
+    val userInfoToReleasesMap: Map[BasicUserInformation, Set[Release]] = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2).toSet)
+
     logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleases.size} users")
+
     val result = userInfoToReleasesMap.flatMap {
       case (userInfo, releasesForUser) =>
         val recipients = List(formRecipient(userInfo.email))
-        val email = formEmail(userInfo, releasesForUser)
-        groupEmailService.sendMailWithoutTemplate(EmailData(email, recipients))
-    }
+        val emailMessage = formEmail(userInfo, releasesForUser)
+        groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, recipients))
+    }.toSeq
 
     addEmailEvents(releases.map(releaseToEmailEvent(_, eventType)))
     result
@@ -113,7 +115,7 @@ class EmailService(casUtils: CasUtils,
     sendEmails(releases ++ previousDateReleases, TimedEmail)
   }
 
-  private def formEmail(userInfo: BasicUserInformation, releases: Iterable[Release]): EmailMessage = {
+  private def formEmail(userInfo: BasicUserInformation, releases: Set[Release]): EmailMessage = {
     val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
     val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
     val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
@@ -171,7 +173,7 @@ class EmailService(casUtils: CasUtils,
     EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
   }
 
-  private def addEmailEvents(emailEvents: Iterable[EmailEvent])(implicit au: AuditUser): Iterable[EmailEvent] = {
+  private def addEmailEvents(emailEvents: Seq[EmailEvent])(implicit au: AuditUser): Seq[EmailEvent] = {
     emailEvents.flatMap(emailRepository.addEvent(_))
   }
 }
