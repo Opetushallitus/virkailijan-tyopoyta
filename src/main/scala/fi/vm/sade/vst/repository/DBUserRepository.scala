@@ -31,11 +31,11 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
       withSQL {
         insert.into(UserProfileTable).namedValues(
           uc.userId -> userId,
-          uc.sendEmail -> userProfileUpdate.sendEmail)
+          uc.sendEmail -> userProfileUpdate.sendEmail.getOrElse(true))
       }.update().apply()
       userProfileUpdate.categories.foreach(insertUserCategory(userId, _))
     }
-    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail, firstLogin = true)
+    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail.getOrElse(true), firstLogin = true)
   }
 
   private def insertUserCategory(userId: String, categoryId: Long)(implicit session: DBSession): Int = {
@@ -64,18 +64,20 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
 
   private def updateUserProfile(userId: String, existingProfile: UserProfile, userProfileUpdate: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
     DB localTx { implicit session =>
-      val sql = withSQL(update(UserProfileTable as u).set(UserProfileTable.column.sendEmail -> userProfileUpdate.sendEmail).where.eq(u.userId, userId))
-      sql.update().apply()
+      if(userProfileUpdate.sendEmail.isDefined) {
+        val sql = withSQL(update(UserProfileTable as u).set(UserProfileTable.column.sendEmail -> userProfileUpdate.sendEmail.get).where.eq(u.userId, userId))
+        sql.update().apply()
+      }
       updateUserCategories(userId, userProfileUpdate.categories)
     }
 
     val oldProfile: UserProfileUpdate = UserProfileUpdate(
       categories =  existingProfile.categories,
-      sendEmail = existingProfile.sendEmail
+      sendEmail = Some(existingProfile.sendEmail)
     )
 
     AuditLog.auditUpdateUserProfile(userId, oldProfile, userProfileUpdate)
-    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail)
+    UserProfile(userId, userProfileUpdate.categories, userProfileUpdate.sendEmail.getOrElse(existingProfile.sendEmail))
   }
 
   override def setUserProfile(user: User, userProfileData: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {

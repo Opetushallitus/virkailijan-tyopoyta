@@ -38,7 +38,7 @@ case class UserProfile(userId: String,
 
 @ApiModel
 case class UserProfileUpdate(categories: Seq[Long] = Seq.empty,
-                             sendEmail: Boolean = true)
+                             sendEmail: Option[Boolean] = None)
 
 case class UserCategory(userId: String, categoryId: Long)
 
