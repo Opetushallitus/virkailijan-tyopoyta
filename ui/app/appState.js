@@ -177,7 +177,9 @@ export function getStateData (state) {
   categories.fetch()
   userGroups.fetch()
   tagGroups.fetch()
-  targetingGroups.fetch()
+  if (state.user.isAdmin) {
+    targetingGroups.fetch()
+  }
 
   specialNotifications.fetch()
 
