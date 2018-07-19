@@ -46,12 +46,7 @@ function onReceived (state, user) {
 function onFetchFailed (state, error) {
   console.error('Fetching user info failed')
 
-  // Redirect to login page on test/QA/production environment, display error on localhost if response is not JSON
-  if (error.toString().indexOf('SyntaxError') >= 0 && window.location.hostname !== 'localhost') {
-    console.warn('Sign in to CAS first')
-
-    //window.location.replace(urls['user.details'])
-  }
+  window.location.replace(urls['login']);
 
   return R.compose(
     R.assocPath(['user', 'isLoading'], false),
