@@ -50,7 +50,7 @@ function onFetchFailed (state, error) {
   if (error.toString().indexOf('SyntaxError') >= 0 && window.location.hostname !== 'localhost') {
     console.warn('Sign in to CAS first')
 
-    //window.location.replace(urls['user.details'])
+    window.location.replace(urls['cas.login'])
   }
 
   return R.compose(
@@ -84,7 +84,7 @@ function saveSendEmail (state, option) {
 
   return state
 }
-
+props.user &&
 function onSaveSendEmailFailed (state) {
   console.error('Saving sendEmail failed')
 
