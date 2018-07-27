@@ -73,45 +73,64 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def filterUserInformation(release: Release, userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
-    val userOidsToProfiles = userService.userProfiles(userInformation.map(_.userOid)).map(profile => profile.userId -> profile).toMap
-
-    userInformation.filter { user =>
-      val profile: Option[UserProfile] = userOidsToProfiles.get(user.userOid)
-
-      val profileCategories = profile.map(_.categories).getOrElse(Seq.empty)
-      val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
-
-      val sendEmail: Boolean = profile.map(_.sendEmail).getOrElse(true)
-      sendEmail && hasAllowedCategories
-    }
-  }
-
   def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
-    val userInfoToReleasesMap: Map[BasicUserInformation, Set[Release]] = getUsersToReleases(releases)
+    val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
-    logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleasesMap.size} users")
+    logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
 
-    val result = userInfoToReleasesMap.flatMap {
+    val result = releaseSetsForUsers.flatMap {
       case (userInfo, releasesForUser) =>
         val recipients = List(formRecipient(userInfo.email))
         val emailMessage = formEmail(userInfo, releasesForUser)
         groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, recipients))
-    }.toSeq
+    }
 
     addEmailEvents(releases.map(releaseToEmailEvent(_, eventType)))
     result
   }
 
-  private def getUsersToReleases(releases: Seq[Release]): Map[BasicUserInformation, Set[Release]] = {
-    val userInfoToReleases: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
+  private def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
+    val userReleasePairs: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
       val userGroups: Set[Long] = userGroupIdsForRelease(release)
-      val userInformation: Seq[BasicUserInformation] = basicUserInformationForUserGroups(userGroups)
-      val userInfo: Seq[BasicUserInformation] = filterUserInformation(release, userInformation)
-      userInfo.map(_ -> release)
+      val users: Seq[BasicUserInformation] = getUserInformationsForGroups(userGroups)
+      val filteredUsers: Seq[BasicUserInformation] = filterUsersForReleases(release, users)
+      filteredUsers.map(_ -> release)
     }
-    val userInfoToReleasesMap: Map[BasicUserInformation, Set[Release]] = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2).toSet)
-    userInfoToReleasesMap
+    userReleasePairs.groupBy(_._1)
+      .mapValues(_.map(_._2).toSet)
+      .toSeq
+  }
+
+  private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
+    val userOidsToProfiles = userService.userProfiles(users.map(_.userOid)).map(profile => profile.userId -> profile).toMap
+
+    val includedUsers: Seq[BasicUserInformation] = users.filter { user =>
+      val profileOpt: Option[UserProfile] = userOidsToProfiles.get(user.userOid)
+      profileOpt match {
+        case None =>
+          logger.warn(s"Profile for user ${user.userOid} was not found in user repository, sending email anyway")
+          true
+        case Some(profile) =>
+          val profileCategories = profile.categories
+          val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
+
+          val sendEmail: Boolean = profile.sendEmail
+          val isIncluded = sendEmail && hasAllowedCategories
+          if (!isIncluded) {
+            val msg = s"Not including user ${user.userOid} in emails because: " +
+              (if (!sendEmail) "sendEmail for user is false. " else "") +
+              (if (!hasAllowedCategories) "user has none of the included categories." else "")
+            logger.warn(msg)
+          }
+          isIncluded
+      }
+    }
+
+    if (users.size != includedUsers.size) {
+      logger.warn(s"Filtered ${users.size} down users to ${includedUsers.size} users to be included in emails")
+    }
+
+    includedUsers
   }
 
   def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
@@ -120,10 +139,11 @@ class EmailService(casUtils: CasUtils,
     val releases = releaseRepository.getEmailReleasesForDate(date)
     val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
     val results: Seq[String] = sendEmails(releases ++ previousDateReleases, TimedEmail)
+    logger.info("sendEmailsForDate result: " + results.mkString(", "))
   }
 
-  private def formEmail(userInfo: BasicUserInformation, releases: Set[Release]): EmailMessage = {
-    val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
+  private def formEmail(user: BasicUserInformation, releases: Set[Release]): EmailMessage = {
+    val language = user.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
 
     val translationsMap = EmailTranslations.translation(language)
     val contentHeader = translationsMap.getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
@@ -147,6 +167,11 @@ class EmailService(casUtils: CasUtils,
     virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
   }
 
+  private def getUserInformationsForGroups(userGroups: Set[Long]): Seq[BasicUserInformation] = {
+    val personOids = userGroups.flatMap(personOidsForUserGroup)
+    IterableUtils.mapToSplitted(450, personOids, getUserInformationsForOids).toSeq
+  }
+
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
     val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
     response match {
@@ -158,7 +183,7 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def userInformationByOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
+  private def getUserInformationsForOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
     val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
     val body = Option(json)
@@ -171,11 +196,6 @@ class EmailService(casUtils: CasUtils,
       contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
       contactInfo <- contactGroups.yhteystieto.filter(_.yhteystietoTyyppi == contactTypeFilter)
     } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
-  }
-
-  private def basicUserInformationForUserGroups(userGroups: Set[Long]): Seq[BasicUserInformation] = {
-    val personOids = userGroups.flatMap(personOidsForUserGroup)
-    IterableUtils.mapToSplitted(450, personOids, userInformationByOids).toSeq
   }
 
   private def releaseToEmailEvent(release: Release, eventType: EmailEventType): EmailEvent = {
