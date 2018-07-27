@@ -3,11 +3,12 @@ package fi.vm.sade.vst.service
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
-import fi.vm.sade.vst.model.{EmailEvent, JsonSupport, Release, UserInformation}
+import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
 import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -36,7 +37,6 @@ class EmailService(casUtils: CasUtils,
     val description = "Normally timed email"
   }
 
-  sealed case class UserOidEmail(userOid: String, email: String)
   sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
 
   val groupTypeFilter = "yhteystietotyyppi2"
@@ -49,6 +49,7 @@ class EmailService(casUtils: CasUtils,
   private def userAccessService = casUtils.serviceClient(urls.url("kayttooikeus-service.url"))
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
+  private val dateTimeFormat: DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
   private def parseUserInformationFromResponse(response: String): Seq[UserInformation] = {
     val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
@@ -73,28 +74,23 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def filterUserInformation(release: Release, userInformation: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
-    val userProfiles = userService.userProfiles(userInformation.map(_.userOid)).map(profile => profile.userId -> profile).toMap
+    val userOidsToProfiles = userService.userProfiles(userInformation.map(_.userOid)).map(profile => profile.userId -> profile).toMap
 
     userInformation.filter { user =>
-      val profile = userProfiles.get(user.userOid)
+      val profile: Option[UserProfile] = userOidsToProfiles.get(user.userOid)
+
       val profileCategories = profile.map(_.categories).getOrElse(Seq.empty)
       val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
 
-      val sendEmail: Boolean = !profile.exists(!_.sendEmail)
+      val sendEmail: Boolean = profile.map(_.sendEmail).getOrElse(true)
       sendEmail && hasAllowedCategories
     }
   }
 
   def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
-    val userInfoToReleases: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
-      val userGroups = userGroupIdsForRelease(release)
-      val userInformation = basicUserInformationForUserGroups(userGroups)
-      val userInfo = filterUserInformation(release, userInformation)
-      userInfo.map(_ -> release)
-    }
-    val userInfoToReleasesMap: Map[BasicUserInformation, Set[Release]] = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2).toSet)
+    val userInfoToReleasesMap: Map[BasicUserInformation, Set[Release]] = getUsersToReleases(releases)
 
-    logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleases.size} users")
+    logger.info(s"Sending emails on ${releases.size} releases to ${userInfoToReleasesMap.size} users")
 
     val result = userInfoToReleasesMap.flatMap {
       case (userInfo, releasesForUser) =>
@@ -107,25 +103,36 @@ class EmailService(casUtils: CasUtils,
     result
   }
 
+  private def getUsersToReleases(releases: Seq[Release]): Map[BasicUserInformation, Set[Release]] = {
+    val userInfoToReleases: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
+      val userGroups: Set[Long] = userGroupIdsForRelease(release)
+      val userInformation: Seq[BasicUserInformation] = basicUserInformationForUserGroups(userGroups)
+      val userInfo: Seq[BasicUserInformation] = filterUserInformation(release, userInformation)
+      userInfo.map(_ -> release)
+    }
+    val userInfoToReleasesMap: Map[BasicUserInformation, Set[Release]] = userInfoToReleases.groupBy(_._1).mapValues(_.map(_._2).toSet)
+    userInfoToReleasesMap
+  }
+
   def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
     // TODO: Should this just take range of dates? At the moment it is easier to just get evets for current and previous date
     logger.info(s"Preparing to send emails for date $date")
     val releases = releaseRepository.getEmailReleasesForDate(date)
     val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
-    sendEmails(releases ++ previousDateReleases, TimedEmail)
+    val results: Seq[String] = sendEmails(releases ++ previousDateReleases, TimedEmail)
   }
 
   private def formEmail(userInfo: BasicUserInformation, releases: Set[Release]): EmailMessage = {
     val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
-    val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
-    val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
+
+    val translationsMap = EmailTranslations.translation(language)
+    val contentHeader = translationsMap.getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
+    val contentBetween = translationsMap.getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
     val dates = releases.flatMap(_.notification.map(_.publishDate))
-    val minDate = dates.min
-    val maxDate = dates.max
-    val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    val (minDate, maxDate) = (dates.min, dates.max)
     val subjectDateString =
-      if (minDate == maxDate) s"${minDate.format(formatter)}"
-      else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
+      if (minDate == maxDate) s"${minDate.format(dateTimeFormat)}"
+      else s"$contentBetween ${minDate.format(dateTimeFormat)} - ${maxDate.format(dateTimeFormat)}"
     val subject = s"$contentHeader $subjectDateString"
     EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, language), html = true)
   }
@@ -134,9 +141,10 @@ class EmailService(casUtils: CasUtils,
     EmailRecipient(email)
   }
 
-  private def userGroupIdsForRelease(release: Release): Seq[Long] = {
-    val userGroups = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
-    accessService.appGroups.filter(appGroup => userGroups.contains(appGroup.id)).map(_.id)
+  private def userGroupIdsForRelease(release: Release): Set[Long] = {
+    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
+    val virkailijanTyopoytaRoles: Seq[Long] = accessService.appGroups.map(_.id)
+    virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
   }
 
   private def personOidsForUserGroup(groupOid: Long): Seq[String] = {
@@ -155,8 +163,9 @@ class EmailService(casUtils: CasUtils,
     val json = s"""[${formattedOids.mkString(",")}]"""
     val body = Option(json)
 
-    val response = oppijanumeroRekisteri.authenticatedRequest(s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList", RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
-    val userInformation = parseUserOidsAndEmails(response)
+    val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList"
+    val response = oppijanumeroRekisteri.authenticatedRequest(url, RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
+    val userInformation: Seq[UserInformation] = parseUserOidsAndEmails(response)
     for {
       userInfo <- userInformation
       contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
@@ -164,8 +173,8 @@ class EmailService(casUtils: CasUtils,
     } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
   }
 
-  private def basicUserInformationForUserGroups(userGroups: Seq[Long]): Seq[BasicUserInformation] = {
-    val personOids = userGroups.flatMap(personOidsForUserGroup).distinct
+  private def basicUserInformationForUserGroups(userGroups: Set[Long]): Seq[BasicUserInformation] = {
+    val personOids = userGroups.flatMap(personOidsForUserGroup)
     IterableUtils.mapToSplitted(450, personOids, userInformationByOids).toSeq
   }
 
