@@ -16,31 +16,6 @@ object EmailHtmlService extends Configuration {
      """.stripMargin
   }
 
-  def titleForRelease(release: Release, language: String): String = {
-    val notificationContent = release.notification.map(_.content)
-    // This defaults to Finnish content if no content is found on given language
-    val releaseContent = notificationContent.flatMap(_.get(language)).orElse(notificationContent.flatMap(_.get("fi")))
-    val title = releaseContent.map(_.title).getOrElse("No title")
-    title
-  }
-
-  def htmlTitle(notifications: Iterable[Notification], language: String): Elem = {
-    // Currently not in use. Native mail clients seem to take title as the first row of the message which messes up
-    // the text lining.
-    val contentHeader = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
-    val contentBetween = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
-    val dates = notifications.map(_.publishDate)
-    val minDate = dates.min
-    val maxDate = dates.max
-    val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
-    val subjectDateString =
-      if (minDate == maxDate) s"${minDate.format(formatter)}"
-      else s"$contentBetween ${minDate.format(formatter)} - ${maxDate.format(formatter)}"
-    <title>
-      {contentHeader} {subjectDateString}
-    </title>
-  }
-
   def htmlHeader(date: LocalDate, language: String): Elem = {
     val contentReleases = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailContentReleases, EmailTranslations.defaultEmailContentReleases)
     val formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
