@@ -19,7 +19,7 @@ class EmailSettings extends React.Component {
 
     this.state = {
       isDisabled: true,
-      isChecked: props.user && !props.user.profile.sendEmail
+      isChecked: props.user && props.user.profile && !props.user.profile.sendEmail
     }
   }
 
