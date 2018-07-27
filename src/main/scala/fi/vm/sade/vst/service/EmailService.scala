@@ -64,24 +64,31 @@ class EmailService(casUtils: CasUtils,
   def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
     val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
-    logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-
-    val result = releaseSetsForUsers.flatMap {
-      case (userInfo, releasesForUser) =>
-        val recipient = EmailRecipient(userInfo.email)
-        val emailMessage = formEmail(userInfo, releasesForUser)
-        groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
+    if (releaseSetsForUsers.isEmpty) {
+      logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
+      Seq.empty
+    } else {
+      logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
+      val result = releaseSetsForUsers.flatMap {
+        case (userInfo, releasesForUser) =>
+          val recipient = EmailRecipient(userInfo.email)
+          val emailMessage = formEmail(userInfo, releasesForUser)
+          groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
+      }
+      addEmailEvents(releases, eventType)
+      result
     }
-
-    addEmailEvents(releases, eventType)
-    result
   }
 
 
   private def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
     val userReleasePairs: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
       val userGroups: Set[Long] = userGroupIdsForRelease(release)
+      logger.info(s"Groups for release ${release.id}: ${userGroups.mkString(", ")}")
       val usersForGroups: Seq[BasicUserInformation] = getUserInformationsForGroups(userGroups)
+      if (usersForGroups.isEmpty) {
+        logger.warn(s"No users found in groups for release ${release.id}")
+      }
       val filteredUsers: Seq[BasicUserInformation] = filterUsersForReleases(release, usersForGroups)
       filteredUsers.map(_ -> release)
     }
@@ -167,9 +174,7 @@ class EmailService(casUtils: CasUtils,
       }
     }
 
-    if (users.size != includedUsers.size) {
-      logger.warn(s"Filtered ${users.size} down users to ${includedUsers.size} users to be included in emails")
-    }
+    logger.warn(s"Filtered ${users.size} down users to ${includedUsers.size} users to be included in emails")
 
     includedUsers
   }
