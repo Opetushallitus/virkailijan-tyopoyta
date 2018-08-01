@@ -16,12 +16,9 @@ const defaultProps = {
 class EmailSettings extends React.Component {
   constructor (props) {
     super(props)
-    var checked = false;
-    if (props.user && props.user.profile) {
-      checked = !props.user.profile.sendEmail;
-    } else {
-      console.warn('props.user or props.user.profile was not defined in EmailSettings.constructor - using fallback');
-    }
+
+    let checked = props.user && props.user.profile && !props.user.profile.sendEmail
+
     this.state = {
       isDisabled: true,
       isChecked: checked
