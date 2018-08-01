@@ -64,7 +64,7 @@ class EmailService(casUtils: CasUtils,
   def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
     val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
-    if (releaseSetsForUsers.nonEmpty) {
+    if (releaseSetsForUsers.isEmpty) {
       logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
       Seq.empty
     } else {
