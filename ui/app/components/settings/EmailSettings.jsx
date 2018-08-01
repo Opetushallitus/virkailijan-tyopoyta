@@ -17,17 +17,18 @@ class EmailSettings extends React.Component {
   constructor (props) {
     super(props)
 
-    var checked = false
-
-    if (props.user && props.user.profile) {
-      checked =  !props.user.profile.sendEmail
-    } else {
-      console.warn('props.user or props.user.profile was not defined in EmailSettings.constructor - using fallback')
-    }
-
     this.state = {
       isDisabled: true,
-      isChecked: checked
+      isChecked: this.getChecked(props)
+    }
+  }
+
+  getChecked (props) {
+    if (props.user && props.user.profile) {
+      return !props.user.profile.sendEmail
+    } else {
+      console.warn('props.user or props.user.profile was not defined in EmailSettings.constructor - using fallback')
+      return false
     }
   }
 
