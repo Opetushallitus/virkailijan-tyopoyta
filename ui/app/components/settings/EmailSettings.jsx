@@ -33,10 +33,10 @@ class EmailSettings extends React.Component {
       controller
     } = this.props
 
-    if (this.state.isDisabled && this.state.user && this.state.user.profile) {
+    if (this.state.isDisabled && this.props.user && this.props.user.profile) {
       this.setState({
         isDisabled: false,
-        isChecked: !this.state.user.profile.sendEmail
+        isChecked: !this.props.user.profile.sendEmail
       })
     }
 
