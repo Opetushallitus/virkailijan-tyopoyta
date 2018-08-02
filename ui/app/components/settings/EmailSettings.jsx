@@ -18,7 +18,7 @@ class EmailSettings extends React.Component {
     super(props)
 
     !(props.user) && console.warn('props.user is not defined in EmailSettings.constructor')
-    !(props.user.profile && props.user.profile) && console.warn('props.user is not defined in EmailSettings.constructor')
+    !(props.user && props.user.profile) && console.warn('props.user.profile is not defined in EmailSettings.constructor')
 
     this.state = {
       isDisabled: true,
