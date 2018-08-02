@@ -180,7 +180,7 @@ class EmailService(casUtils: CasUtils,
       }
     }
 
-    logger.warn(s"Filtered ${users.size} down users to ${includedUsers.size} users to be included in emails")
+    logger.warn(s"Filtered ${users.size} down to ${includedUsers.size} users to be included in emails")
 
     includedUsers
   }
