@@ -69,12 +69,20 @@ class EmailService(casUtils: CasUtils,
       Seq.empty
     } else {
       logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-      val result = releaseSetsForUsers.flatMap {
+
+      val result: Seq[String] = releaseSetsForUsers.flatMap {
         case (userInfo, releasesForUser) =>
           val recipient = EmailRecipient(userInfo.email)
           val emailMessage = formEmail(userInfo, releasesForUser)
-          groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
-      }
+          val emailData = EmailData(emailMessage, List(recipient))
+          Try(groupEmailService.sendMailWithoutTemplate(emailData))
+            .recoverWith {
+              case e: Throwable =>
+                logger.error(s"Error sending email to user ${userInfo.email}", e)
+                Failure(e)
+            }.toOption
+      }.flatten
+
       addEmailEvents(releases, eventType)
       result
     }
