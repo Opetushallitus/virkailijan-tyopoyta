@@ -162,8 +162,8 @@ class EmailService(casUtils: CasUtils,
       val profileOpt: Option[UserProfile] = userOidsToProfiles.get(user.userOid)
       profileOpt match {
         case None =>
-          logger.warn(s"Profile for user ${user.userOid} was not found in user repository, sending email anyway")
-          true
+          logger.warn(s"Profile for user ${user.userOid} was not found in user repository, skipping email sending")
+          false
         case Some(profile) =>
           val profileCategories = profile.categories
           val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
