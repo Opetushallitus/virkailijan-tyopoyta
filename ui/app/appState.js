@@ -182,10 +182,15 @@ export function getStateData (state) {
   }
 
   specialNotifications.fetch()
-
+  var cats = []
+  if (state.user && state.user.profile) {
+    cats = state.user.profile.categories;
+  } else {
+    console.warn('state.user or state.user.profile was not defined in getStateData - using empty categories fallback');
+  }
   notifications.fetch({
     page: 1,
-    categories: state.user.profile.categories
+    categories: cats
   })
 
   timeline.fetch({

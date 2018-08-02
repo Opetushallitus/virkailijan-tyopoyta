@@ -17,6 +17,9 @@ class EmailSettings extends React.Component {
   constructor (props) {
     super(props)
 
+    !(props.user) && console.warn('props.user is not defined in EmailSettings.constructor')
+    !(props.user && props.user.profile) && console.warn('props.user.profile is not defined in EmailSettings.constructor')
+
     this.state = {
       isDisabled: true,
       isChecked: props.user && props.user.profile && !props.user.profile.sendEmail
@@ -28,10 +31,10 @@ class EmailSettings extends React.Component {
       controller
     } = this.props
 
-    if (this.state.isDisabled && this.state.user && this.state.user.profile) {
+    if (this.state.isDisabled && this.props.user && this.props.user.profile) {
       this.setState({
         isDisabled: false,
-        isChecked: !this.state.user.profile.sendEmail
+        isChecked: !this.props.user.profile.sendEmail
       })
     }
 
