@@ -76,7 +76,7 @@ function toggleTargetingGroup (state, id) {
 }
 
 // Remove selected tags from tag groups which aren't linked to selected categories
-function removeSelectedTags (state, categoryId) {
+function removeSelectedTags (state) {
   const editedRelease = state.editor.editedRelease
   const selectedTags = editedRelease.notification.tags
   const selectedCategories = editedRelease.categories
@@ -90,7 +90,7 @@ function removeSelectedTags (state, categoryId) {
    Always allow tags in state.tagGroups.specialTags
    */
   const allowedTags = R.pluck('id', R.flatten(R.pluck('tags',
-    R.filter(group => R.length(R.intersection(group.categories, selectedCategories)), state.tagGroups.items)
+    R.filter(group => !R.isEmpty(R.intersection(group.categories, selectedCategories)), state.tagGroups.items)
   ))).concat(R.pluck('id', state.tagGroups.specialTags))
 
   const newSelectedTags = R.filter(tag => R.contains(tag, allowedTags), selectedTags)
@@ -114,10 +114,34 @@ function toggleCategory (state, category) {
     ? R.reject(id => id === category, categories)
     : R.append(category, categories)
 
+  removeSelectedGroups(state, newCategories)
+
   return removeSelectedTags(
     R.assocPath(['editor', 'editedRelease', 'categories'], newCategories, state),
     category
   )
+}
+
+// Remove selected user groups from tag groups which aren't linked to selected categories
+function removeSelectedGroups (state, newCategories) {
+  const editedRelease = state.editor.editedRelease
+  const selectedGroups = editedRelease.userGroups
+
+  if (selectedGroups.length === 0 || newCategories.length == 0) {
+    return
+  }
+
+  const allowedGroups = R.pluck('id', R.flatten(
+    R.filter(group => !R.isEmpty(R.intersection(group.categories, newCategories)), state.userGroups.items)
+  )).concat([-1])
+
+  const newSelectedGroups = R.filter(group => R.contains(group, allowedGroups), selectedGroups)
+
+  if (selectedGroups.length != newSelectedGroups.length) {
+    console.log('removed ' + (selectedGroups.length - newSelectedGroups.length) + ' selected group that were not in categories')
+  }
+
+  editedRelease.userGroups = newSelectedGroups
 }
 
 function toggleUserGroup (state, value) {
