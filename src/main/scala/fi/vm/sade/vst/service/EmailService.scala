@@ -101,9 +101,8 @@ class EmailService(casUtils: CasUtils,
     val virkailijanTyopoytaRoles: Seq[Long] = accessService.appGroups.map(_.id)
     val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
 
-    val allUsersGroupId: Long = -1L
-    if (userGroupsForRelease.contains(allUsersGroupId)) {
-      logger.info(s"Special user group $allUsersGroupId in release so selecting all user groups")
+    if (userGroupsForRelease.isEmpty) {
+      logger.info(s"User groups for release is empty, selecting all groups")
       virkailijanTyopoytaRoles.toSet
     } else {
       virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
