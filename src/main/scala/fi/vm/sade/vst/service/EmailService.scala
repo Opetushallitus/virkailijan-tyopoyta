@@ -98,9 +98,16 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def userGroupIdsForRelease(release: Release): Set[Long] = {
-    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
     val virkailijanTyopoytaRoles: Seq[Long] = accessService.appGroups.map(_.id)
-    virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
+    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
+
+    val allUsersGroupId: Long = -1L
+    if (userGroupsForRelease.contains(allUsersGroupId)) {
+      logger.info(s"Special user group $allUsersGroupId in release so selecting all user groups")
+      virkailijanTyopoytaRoles.toSet
+    } else {
+      virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
+    }
   }
 
   private def getUserInformationsForGroups(userGroups: Set[Long]): Seq[BasicUserInformation] = {
