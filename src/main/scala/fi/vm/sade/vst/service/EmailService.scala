@@ -64,11 +64,12 @@ class EmailService(casUtils: CasUtils,
   def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
     val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
+    val emailsCount = releaseSetsForUsers.size
     if (releaseSetsForUsers.isEmpty) {
-      logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
+      logger.info(s"Skipping sending emails on ${releases.size} releases because only $emailsCount users found")
       Seq.empty
     } else {
-      logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
+      logger.info(s"Sending emails on ${releases.size} releases to $emailsCount users")
 
       val result: Seq[String] = releaseSetsForUsers.flatMap {
         case (userInfo, releasesForUser) =>
@@ -82,6 +83,12 @@ class EmailService(casUtils: CasUtils,
                 Failure(e)
             }.toOption
       }.flatten
+
+      val failedCount = emailsCount - result.size
+      if (failedCount > 0) {
+        logger.error(s"Failed to send $failedCount of $emailsCount emails")
+      }
+
 
       addEmailEvents(releases, eventType)
       result
