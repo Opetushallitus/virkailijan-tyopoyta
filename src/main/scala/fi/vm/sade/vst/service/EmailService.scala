@@ -157,13 +157,19 @@ class EmailService(casUtils: CasUtils,
 
   private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
     val userOidsToProfiles = userService.userProfiles(users.map(_.userOid)).map(profile => profile.userId -> profile).toMap
+    val sendToPersonsWithNoProfile: Boolean = true
 
     val includedUsers: Seq[BasicUserInformation] = users.filter { user =>
       val profileOpt: Option[UserProfile] = userOidsToProfiles.get(user.userOid)
       profileOpt match {
         case None =>
-          logger.warn(s"Profile for user ${user.userOid} was not found in user repository, skipping email sending")
-          false
+          if (sendToPersonsWithNoProfile) {
+            logger.warn(s"Profile for user ${user.userOid} was not found in user repository, sending email anyway")
+            true
+          } else {
+            logger.warn(s"Profile for user ${user.userOid} was not found in user repository, skipping email sending")
+            false
+          }
         case Some(profile) =>
           val profileCategories = profile.categories
           val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
