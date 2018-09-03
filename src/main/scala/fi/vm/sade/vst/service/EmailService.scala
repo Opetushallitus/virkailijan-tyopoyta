@@ -89,7 +89,7 @@ class EmailService(casUtils: CasUtils,
       if (usersForGroups.isEmpty) {
         logger.warn(s"No users found in groups for release ${release.id}")
       }
-      val filteredUsers: Seq[BasicUserInformation] = filterUsersForReleases(release, usersForGroups)
+      val filteredUsers: Set[BasicUserInformation] = filterUsersForReleases(release, usersForGroups)
       filteredUsers.map(_ -> release)
     }
     userReleasePairs.groupBy(_._1)
@@ -155,11 +155,11 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Seq[BasicUserInformation] = {
+  private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Set[BasicUserInformation] = {
     val userOidsToProfiles = userService.userProfiles(users.map(_.userOid)).map(profile => profile.userId -> profile).toMap
     val sendToPersonsWithNoProfile: Boolean = true
 
-    val includedUsers: Seq[BasicUserInformation] = users.filter { user =>
+    val includedUsers: Set[BasicUserInformation] = users.filter { user =>
       val profileOpt: Option[UserProfile] = userOidsToProfiles.get(user.userOid)
       profileOpt match {
         case None =>
@@ -184,7 +184,7 @@ class EmailService(casUtils: CasUtils,
           }
           isIncluded
       }
-    }
+    }.toSet
 
     logger.warn(s"Filtered ${users.size} down to ${includedUsers.size} users to be included in emails")
 
