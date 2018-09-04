@@ -106,7 +106,7 @@ class DBUserRepository(val config: DBConfig) extends UserRepository with Session
   }
 
   override def fetchDraft(userId: String): Option[Draft] = {
-    logger.info(s"Fetching draft for user $userId")
+    logger.debug(s"Fetching draft for user $userId")
     withSQL[Draft] {
       select.from(DraftTable as d).where.eq(d.userId, userId)
     }.map(DraftTable(d)).single().apply()

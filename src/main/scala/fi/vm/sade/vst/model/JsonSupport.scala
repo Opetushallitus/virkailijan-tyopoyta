@@ -262,7 +262,13 @@ trait JsonSupport {
 
   implicit val userInformationReads: Reads[UserInformation] = Json.reads[UserInformation]
 
-  def parseSingleUserInformation(jsonVal: JsValue): Option[UserInformation] = Json.fromJson(jsonVal)(userInformationReads).asOpt
+  def parseUserInformationFromEmailResponse(response: String): Seq[UserInformation] = {
+    val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
+    val userInformation = json.flatMap(parseSingleUserInformation)
+    userInformation
+  }
+
+  private def parseSingleUserInformation(jsonVal: JsValue): Option[UserInformation] = Json.fromJson(jsonVal)(userInformationReads).asOpt
 
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] = {
     val jsonVal = Json.parse(jsString)
