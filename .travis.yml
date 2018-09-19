@@ -1,0 +1,34 @@
+sudo: required
+language: scala
+jdk:
+- oraclejdk8
+services:
+- docker
+
+env:
+  global:
+  # AWS_ACCESS_KEY_ID
+  - secure: "HltoQINxio2wjoTqEk5lPZSMHDrEuVs76Yvi3DabUgPeMhBsyatIwY9wj2+o/uc1pXLDdYhdnN5iwxXbEp8MocJKI2JUjnIf3oXLt7BzpJ+Be9dONV1shb4DDG6aLy2HbQHdj2AXUXzdciEUall9gMVMikIeeyUF1hAWA2l2X7t+94l0hN1KkK55A0Z5Dt2aghw5mlt9nXipjFsZH93VNAV/8AClrORU8thISIwrJLSrdmTsdGYaKjwTaovZR/sGI90KpWWvwFLlpzPBRr1vqDl1WAp1k9rUoZyGy2TdH07ME7X5BUsYIIDy36o+asTRF5QczpRa+EbgFBclAau+4aGcrGrX1A7xkVi4P/1oBqbmQSupxG2vW/yhHxoVbwzoOu8z8ZJptlnoH0Omo3fBmJGwUMs/v2/Lb1b0AuNC002AkacRcBjMEQxUrllXdjmGYulCkbhpBtm35UDDFUU+jv6pmdB2fwTWBeNyV5G80sAlPmyF0x/M5QU3sjWwhIouvkmO6Wa06HHeaW3jT5qz/T/qGUsh/SBYbsq/NVXA/3EP70qZVkZ/kTtaPoFmKPoDl+sPI42vYN+SlRkQYJe+09H18HRB9ykjahjx/GUvsGracsBHnyWbZT/gfgki4Nt7dQd5CnG5NPCHyXhspDzRQ+rwcPZ3q8d9PFP4Ntyx4Iw="
+  # AWS_SECRET_ACCESS_KEY
+  - secure: "MGOClxUMQnmG9NJ60EKD1YkpCSWr4Xk6aKl1RrdhPNZUyMI9UL/CRluiPMakMb87lbJmjuUoer9GDfk0d/qGUNGraCat1s2zwNBwHl3iz3rai/reYR6NrUoVQR86gLCCvCao5Gxl2E+HxoPpHOt2Y8M6KBBtCiYBf1MeSnMot1GdiSf40XoSqJtQRxs0SA8u6BLPiNlF64wbjNUtdI8LSllkOecMGjMQgIFCnc2kJ/e8rnNfnECQ6SntjSn+OLkEGnJq9bwHwqAjfMgC/DGmAT3UufVb9sLw8ZxxzsMeecLqUf80XwNNwMqUqtukPDfb4/FBArK13c0gBgGT46F1I5mr4Y4B3bC3vbPM1+m0Gxtoqz+U7NiPnV1QAXyMgfenZqKOFml8kqdTu3pieT7OHlwNb64waYAgrhocwWaihkX7pkffuo3jjs5u4MBd+cRfQ9vv84V7tYcK4DEWhi5Lk0xbX0JULP+7jbDw45aSFKlnTBql/YX7o/1bqx7/6SnEetchi3RyHe8QBpOjrmkANEnkASlfcW95KPOrjRb5SSdJuI6/qBlCf7TYbw7oXa9yJPBLqSXD3x7etCBEOIlsGYJsK4Y+LBtoeIOI0wqhOH5GscjFISbMMzTkDkSiHv1DKPSYqMAPLX/iaHp1BejTrRBN7ojUWv35tiL2na86HSw="
+
+install:
+- git clone https://github.com/Opetushallitus/ci-tools.git
+- source ci-tools/common/setup-tools.sh
+- export ARTIFACT_NAME="virkailijan-tyopoyta"
+
+script:
+- mvn clean install -B -Dbranch=${TRAVIS_BRANCH} -Drevision=${TRAVIS_COMMIT} -DbuildNumber=${TRAVIS_BUILD_NUMBER}
+
+- mv target/virkailijan-tyopoyta-*.jar $DOCKER_BUILD_DIR/artifact/${ARTIFACT_NAME}.jar
+- cp -vr src/main/resources/* $DOCKER_BUILD_DIR/config/
+
+- export BASE_IMAGE="base-legacy:0.1"
+- ./ci-tools/common/pull-image.sh
+- ./ci-tools/build/build-fatjar.sh $ARTIFACT_NAME
+
+deploy:
+  provider: script
+  script: ./ci-tools/build/upload-image.sh $ARTIFACT_NAME
+  on:
+    all_branches: true
