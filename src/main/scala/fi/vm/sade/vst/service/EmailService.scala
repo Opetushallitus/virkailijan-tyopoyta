@@ -103,9 +103,14 @@ class EmailService(casUtils: CasUtils,
 
     if (userGroupsForRelease.isEmpty) {
       val releaseCategoryIds = release.categories
-      logger.info(s"User groups for release is empty, selecting all groups in categories ${releaseCategoryIds.mkString(",")}")
-      val rolesInReleaseCategories = virkailijanTyopoytaRoles.filter(_.categories.intersect(releaseCategoryIds).nonEmpty)
-      rolesInReleaseCategories.map(_.id).toSet
+      if (releaseCategoryIds.isEmpty) {
+        logger.info(s"User groups and categories for release are empty, selecting all user groups")
+        virkailijanTyopoytaRoles.map(_.id).toSet
+      } else {
+        logger.info(s"User groups for release is empty, selecting all groups in categories ${releaseCategoryIds.mkString(",")}")
+        val rolesInReleaseCategories = virkailijanTyopoytaRoles.filter(_.categories.intersect(releaseCategoryIds).nonEmpty)
+        rolesInReleaseCategories.map(_.id).toSet
+      }
     } else {
       virkailijanTyopoytaRoles.map(_.id).intersect(userGroupsForRelease).toSet
     }
