@@ -7,7 +7,8 @@ const PATHS = require('./paths.js')
 
 module.exports = merge(baseConfig, {
   output: {
-    path: PATHS.build
+    path: PATHS.build,
+    sourceMapFilename: 'bundle.map'
   },
 
   plugins: [
@@ -16,7 +17,7 @@ module.exports = merge(baseConfig, {
         warnings: false
       },
       comments: false,
-      sourceMap: false
+      sourceMap: true
     }),
     new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()
