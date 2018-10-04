@@ -98,14 +98,16 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def userGroupIdsForRelease(release: Release): Set[Long] = {
-    val virkailijanTyopoytaRoles: Seq[Long] = accessService.appGroups.map(_.id)
+    val virkailijanTyopoytaRoles: Seq[Kayttooikeusryhma] = accessService.appGroups
     val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
 
     if (userGroupsForRelease.isEmpty) {
-      logger.info(s"User groups for release is empty, selecting all groups")
-      virkailijanTyopoytaRoles.toSet
+      val releaseCategoryIds = release.categories
+      logger.info(s"User groups for release is empty, selecting all groups in categories ${releaseCategoryIds.mkString(",")}")
+      val rolesInReleaseCategories = virkailijanTyopoytaRoles.filter(_.categories.intersect(releaseCategoryIds).nonEmpty)
+      rolesInReleaseCategories.map(_.id).toSet
     } else {
-      virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
+      virkailijanTyopoytaRoles.map(_.id).intersect(userGroupsForRelease).toSet
     }
   }
 
