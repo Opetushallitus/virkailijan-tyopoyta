@@ -22,5 +22,7 @@ module.exports = merge(baseConfig, {
     new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()
     })
-  ]
+  ],
+
+  devtool: 'source-map'
 })
