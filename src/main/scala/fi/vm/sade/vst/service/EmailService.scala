@@ -140,26 +140,23 @@ class EmailService(casUtils: CasUtils,
   private def getUserInformationsForOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
     val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
-    val body = Option(json)
+    val body = Some(json)
 
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList"
-    val response = oppijanumeroRekisteri.authenticatedRequest(url, RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
-    val userInformation: Seq[UserInformation] = parseUserOidsAndEmails(response)
+    val response = oppijanumeroRekisteri.authenticatedRequest(url, RequestMethod.POST, mediaType = Some(org.http4s.MediaType.`application/json`), body = body)
+    val userInformation: Seq[UserInformation] = response match {
+      case Success(s) =>
+        parseUserInformationFromEmailResponse(s)
+      case Failure(t) =>
+        val msg = "Failed to fetch user oids and email addresses"
+        logger.error(msg, t)
+        throw new RuntimeException(msg, t)
+    }
     for {
       userInfo <- userInformation
       contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
       contactInfo <- contactGroups.yhteystieto.filter(_.yhteystietoTyyppi == contactTypeFilter)
     } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
-  }
-
-  private def parseUserOidsAndEmails(resp: Try[String]): Seq[UserInformation] = {
-    resp match {
-      case Success(s) =>
-        parseUserInformationFromEmailResponse(s)
-      case Failure(f) =>
-        logger.error("Failed to parse user oids and emails", f)
-        Seq.empty
-    }
   }
 
   private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Set[BasicUserInformation] = {
