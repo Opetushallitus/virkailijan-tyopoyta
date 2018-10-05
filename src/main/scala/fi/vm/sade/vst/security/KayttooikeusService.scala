@@ -34,14 +34,9 @@ class KayttooikeusService(casUtils: CasUtils,
 
   private def getGroupsWithRole(role: String): Seq[Kayttooikeusryhma] = {
     val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
-    val body = Option(json)
 
-    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(
-      urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
-      RequestMethod.POST,
-      mediaType = Option(org.http4s.MediaType.`application/json`),
-      body = body
-    )
+    val url = urls.url("kayttooikeus-service.ryhmasByKayttooikeus")
+    val resp: Try[String] = kayttooikeusClient.authenticatedJsonPost(url, json)
 
     parseResponse(resp)
   }

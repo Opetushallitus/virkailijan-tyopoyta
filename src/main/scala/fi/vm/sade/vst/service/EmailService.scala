@@ -140,10 +140,9 @@ class EmailService(casUtils: CasUtils,
   private def getUserInformationsForOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
     val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
-    val body = Some(json)
-
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList"
-    val response = oppijanumeroRekisteri.authenticatedRequest(url, RequestMethod.POST, mediaType = Some(org.http4s.MediaType.`application/json`), body = body)
+    val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
+
     val userInformation: Seq[UserInformation] = response match {
       case Success(s) =>
         parseUserInformationFromEmailResponse(s)
@@ -152,6 +151,7 @@ class EmailService(casUtils: CasUtils,
         logger.error(msg, t)
         throw new RuntimeException(msg, t)
     }
+
     for {
       userInfo <- userInformation
       contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)

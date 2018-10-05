@@ -41,6 +41,11 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
       }
     }
 
+    def authenticatedJsonPost[A](url: String, json: String): Try[String] = {
+      val body = Some(json)
+      authenticatedRequest(url, RequestMethod.POST, mediaType = Some(org.http4s.MediaType.`application/json`), body = body)
+    }
+
     def authenticatedRequest[A](uri: String,
                                 method: RequestMethod.Value,
                                 headers: Headers = Headers.empty,
