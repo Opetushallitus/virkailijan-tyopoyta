@@ -26,9 +26,10 @@ class KayttooikeusService(casUtils: CasUtils,
     resp match {
       case Success(s) =>
         parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
-      case Failure(e) =>
-        logger.error("Failure parsing response from kayttooikeus-service", e)
-        List.empty
+      case Failure(t) =>
+        val msg = "Failure parsing response from kayttooikeus-service"
+        logger.error(msg, t)
+        throw new RuntimeException(msg, t)
     }
   }
 

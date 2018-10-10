@@ -174,19 +174,11 @@ class EmailService(casUtils: CasUtils,
             logger.warn(s"Profile for user ${user.userOid} was not found in user repository, skipping email sending")
             false
           }
+        case Some(profile) if !profile.sendEmail =>
+            logger.warn(s"Not including user ${user.userOid} in emails because sendEmail for user is false.")
+            false
         case Some(profile) =>
-          val profileCategories = profile.categories
-          val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
-
-          val sendEmail: Boolean = profile.sendEmail
-          val isIncluded = sendEmail && hasAllowedCategories
-          if (!isIncluded) {
-            val msg = s"Not including user ${user.userOid} in emails because: " +
-              (if (!sendEmail) "sendEmail for user is false. " else "") +
-              (if (!hasAllowedCategories) "user has none of the included categories." else "")
-            logger.warn(msg)
-          }
-          isIncluded
+            true
       }
     }.toSet
 
