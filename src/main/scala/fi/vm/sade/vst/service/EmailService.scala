@@ -98,22 +98,37 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def userGroupIdsForRelease(release: Release): Set[Long] = {
-    val virkailijanTyopoytaRoles: Seq[Kayttooikeusryhma] = accessService.appGroups
-    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
+    val virkailijanTyopoytaRoles: Set[Kayttooikeusryhma] = accessService.appGroups.toSet
+    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId).toSet
 
-    if (userGroupsForRelease.isEmpty) {
+    val matchingGroupIds = if (userGroupsForRelease.isEmpty) {
       val releaseCategoryIds = release.categories
       if (releaseCategoryIds.isEmpty) {
         logger.info(s"User groups and categories for release are empty, selecting all user groups")
-        virkailijanTyopoytaRoles.filter(_.categories.nonEmpty).map(_.id).toSet
+        virkailijanTyopoytaRoles.filter(_.categories.nonEmpty).map(_.id)
       } else {
         logger.info(s"User groups for release is empty, selecting all groups in categories ${releaseCategoryIds.mkString(",")}")
         val rolesInReleaseCategories = virkailijanTyopoytaRoles.filter(_.categories.intersect(releaseCategoryIds).nonEmpty)
-        rolesInReleaseCategories.map(_.id).toSet
+        rolesInReleaseCategories.map(_.id)
       }
     } else {
-      virkailijanTyopoytaRoles.map(_.id).intersect(userGroupsForRelease).toSet
+      logger.info(s"User groups for release are ${userGroupsForRelease.mkString(",")}, filtering down to found" +
+        s"virkailijan työpöytä roles")
+      virkailijanTyopoytaRoles.map(_.id).intersect(userGroupsForRelease)
     }
+
+    logger.info(s"${matchingGroupIds.size}/${userGroupsForRelease.size} user groups for release ${release.id} were" +
+      s"found in KayttooikeusService. " +
+      s"The following groups were not found: ${userGroupsForRelease.diff(matchingGroupIds).mkString(",")}.")
+
+    if (matchingGroupIds.isEmpty) {
+      val msg = "Error: none of the release's user groups were not found in KayttooikeusService cache. " +
+        s"Is the service responding? release id: ${release.id}, release groups: ${userGroupsForRelease.mkString(",").}"
+      logger.error(msg)
+      throw new RuntimeException(msg)
+    }
+
+    matchingGroupIds
   }
 
   private def getUserInformationsForGroups(userGroups: Set[Long]): Seq[BasicUserInformation] = {
