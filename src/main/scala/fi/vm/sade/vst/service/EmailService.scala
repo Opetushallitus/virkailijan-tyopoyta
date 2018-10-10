@@ -71,6 +71,8 @@ class EmailService(casUtils: CasUtils,
       logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
       val result = releaseSetsForUsers.flatMap {
         case (userInfo, releasesForUser) =>
+          logger.info(s"Sending email to user ${userInfo.userOid} with the address ${userInfo.email} " +
+            s"on the following ${releasesForUser.size} releases: ${releasesForUser.map(_.id).mkString(",")}.")
           val recipient = EmailRecipient(userInfo.email)
           val emailMessage = formEmail(userInfo, releasesForUser)
           groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
@@ -123,7 +125,7 @@ class EmailService(casUtils: CasUtils,
 
     if (matchingGroupIds.isEmpty) {
       val msg = "Error: none of the release's user groups were not found in KayttooikeusService cache. " +
-        s"Is the service responding? release id: ${release.id}, release groups: ${userGroupsForRelease.mkString(",").}"
+        s"Is the service responding? release id: ${release.id}, release groups: ${userGroupsForRelease.mkString(",")}."
       logger.error(msg)
       throw new RuntimeException(msg)
     }
@@ -222,6 +224,7 @@ class EmailService(casUtils: CasUtils,
   private def addEmailEvents(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[EmailEvent] = {
     def releaseToEmailEvent(release: Release) = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
 
+    logger.info(s"Adding ${releases.length} email events of type '${eventType.description}' to database")
     val emailEvents = releases.map(releaseToEmailEvent)
     emailEvents.flatMap(emailRepository.addEvent(_))
   }
