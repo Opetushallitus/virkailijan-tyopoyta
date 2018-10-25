@@ -276,7 +276,7 @@ trait JsonSupport {
       case JsSuccess(userInfo, _) =>
         userInfo
       case JsError(errors) =>
-        throw new RuntimeException(s"could not parse UserInformation from JSON: $jsonVal, errors: $errors")
+        throw new RuntimeException(s"could not parse UserInformation from JSON: $jsonVal, errors: ${errors.mkString(", \n")}")
     }
   }
 
