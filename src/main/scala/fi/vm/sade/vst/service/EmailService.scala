@@ -179,11 +179,26 @@ class EmailService(casUtils: CasUtils,
       logger.warn(s"the following oids were not in the response oidHenkilos: ${oidsNotInResponse.mkString(", ")}.")
     }
 
-    val basicUserInformations: Seq[BasicUserInformation] = for {
-      userInfo <- userInformations
-      contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
-      contactInfo <- contactGroups.yhteystieto.filter(_.yhteystietoTyyppi == contactTypeFilter)
-    } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
+    val basicUserInformations: Seq[BasicUserInformation] = userInformations.flatMap { userInfo =>
+      userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter) match {
+        case contactGroups if contactGroups.nonEmpty =>
+          contactGroups.flatMap(_.yhteystieto).filter(_.yhteystietoTyyppi == contactTypeFilter) match {
+            case contactInfos if contactInfos.nonEmpty =>
+              if (contactInfos.length > 1) {
+                logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had multiple (${contactInfos.length}) suitable email addresses.")
+              }
+              contactInfos.map(contactInfo =>
+                BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
+              )
+            case _ =>
+              logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had no yhteystietos with yhteystietotyyppi ${contactTypeFilter} with ryhmakuvaus ${groupTypeFilter}")
+              Nil
+          }
+        case _ =>
+          logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had no yhteystiedotRyhmas with ryhmakuvaus ${groupTypeFilter}")
+          Nil
+      }
+    }
 
     logger.info(s"converted ${userInformations.size} userInformations to ${basicUserInformations.size} basicUserInformations with oids: ${basicUserInformations.map(_.userOid).mkString(", ")}.")
     basicUserInformations
