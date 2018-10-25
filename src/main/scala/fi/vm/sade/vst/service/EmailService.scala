@@ -147,7 +147,9 @@ class EmailService(casUtils: CasUtils,
     val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
     response match {
       case Success(s) =>
-        parsePersonOidsFromResponse(s)
+        val oids: Seq[String] = parsePersonOidsFromResponse(s)
+        logger.info(s"kayttooikeus-service returned ${oids.size} personOids for user group $groupOid")
+        oids
       case Failure(f) =>
         logger.error(s"Failure parsing person oids from response $response", f)
         Seq.empty
@@ -158,9 +160,10 @@ class EmailService(casUtils: CasUtils,
     val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList"
+    logger.info(s"getting persons from oppijanumerorekisteri for ${oids.size} oids: $json")
     val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
 
-    val userInformation: Seq[UserInformation] = response match {
+    val userInformations: Seq[UserInformation] = response match {
       case Success(s) =>
         parseUserInformationFromEmailResponse(s)
       case Failure(t) =>
@@ -169,11 +172,21 @@ class EmailService(casUtils: CasUtils,
         throw new RuntimeException(msg, t)
     }
 
-    for {
-      userInfo <- userInformation
+    val oidsInResponse = userInformations.map(_.oidHenkilo)
+    logger.info(s"oppijanumerorekisteri returned ${userInformations.size} userInformations (of which ${oidsInResponse.toSet.size} have unique oidHenkilos).")
+    val oidsNotInResponse = oids.toSet.diff(oidsInResponse.toSet)
+    if (oidsNotInResponse.nonEmpty) {
+      logger.warn(s"the following oids were not in the response oidHenkilos: ${oidsNotInResponse.mkString(", ")}.")
+    }
+
+    val basicUserInformations: Seq[BasicUserInformation] = for {
+      userInfo <- userInformations
       contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
       contactInfo <- contactGroups.yhteystieto.filter(_.yhteystietoTyyppi == contactTypeFilter)
     } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
+
+    logger.info(s"converted ${userInformations.size} userInformations to ${basicUserInformations.size} basicUserInformations with oids: ${basicUserInformations.map(_.userOid).mkString(", ")}.")
+    basicUserInformations
   }
 
   private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Set[BasicUserInformation] = {
