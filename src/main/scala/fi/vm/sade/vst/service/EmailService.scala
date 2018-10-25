@@ -189,7 +189,8 @@ class EmailService(casUtils: CasUtils,
               }
               contactInfos.map { contactInfo =>
                 val email = contactInfo.yhteystietoArvo.getOrElse(throw new RuntimeException("email was null in yhteystieto " + contactInfo))
-                BasicUserInformation(userInfo.oidHenkilo, email, Seq(userInfo.asiointiKieli.kieliKoodi))
+                val kieliKoodi = userInfo.asiointiKieli.map(_.kieliKoodi).getOrElse("fi")
+                BasicUserInformation(userInfo.oidHenkilo, email, Seq(kieliKoodi))
               }
             case _ =>
               logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had no yhteystietos with yhteystietotyyppi ${contactTypeFilter} with ryhmakuvaus ${groupTypeFilter}")

@@ -132,4 +132,4 @@ case class UserContactInformation(yhteystietoTyyppi: String, yhteystietoArvo: Op
 
 case class UserContactInformationGroup(id: Long, ryhmaKuvaus: String, yhteystieto: Seq[UserContactInformation])
 
-case class UserInformation(oidHenkilo: String, asiointiKieli: UserLanguage, yhteystiedotRyhma: Seq[UserContactInformationGroup])
+case class UserInformation(oidHenkilo: String, asiointiKieli: Option[UserLanguage], yhteystiedotRyhma: Seq[UserContactInformationGroup])
