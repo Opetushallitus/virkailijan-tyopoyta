@@ -205,7 +205,11 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Set[BasicUserInformation] = {
-    val userOidsToProfiles = userService.userProfiles(users.map(_.userOid)).map(profile => profile.userId -> profile).toMap
+    val userOids = users.map(_.userOid)
+    val userProfiles = userService.userProfiles(userOids)
+    logger.info(s"user repository returned ${userProfiles.size} user profiles for ${users.size} userOids (of which ${userOids.toSet.size} were unique oids)")
+
+    val userOidsToProfiles: Map[String, UserProfile] = userProfiles.map(profile => profile.userId -> profile).toMap
     val sendToPersonsWithNoProfile: Boolean = true
 
     val includedUsers: Set[BasicUserInformation] = users.filter { user =>
@@ -227,7 +231,7 @@ class EmailService(casUtils: CasUtils,
       }
     }.toSet
 
-    logger.warn(s"Filtered ${users.size} down to ${includedUsers.size} users to be included in emails")
+    logger.warn(s"Filtered ${users.size} down to ${includedUsers.size} profiles to be included in emails")
 
     includedUsers
   }
