@@ -2,7 +2,7 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.ContentTypes.{`application/json`, `text/html(UTF-8)`}
 import akka.http.scaladsl.model._
@@ -27,6 +27,8 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     with JsonSupport
     with ResponseUtils
     with LazyLogging {
+
+  val emailTimeout: FiniteDuration = 60.seconds
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {
@@ -81,14 +83,16 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
   def sendEmailRoute: Route =
     path("email" / IntNumber) { releaseId =>
-      withRequestTimeout(60.seconds, emailTimeoutHandler) {
+      withRequestTimeout(emailTimeout, emailTimeoutHandler) {
         post {
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
               releaseService.getReleaseForUser(releaseId, user) match {
                 case Some(r) =>
+                  logger.info(s"send email immediately for release ${releaseId} for user ${user.userId}")
                   sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
                 case None =>
+                  logger.error(s"send email immediately failed because no release found for user ${user.userId}")
                   complete(StatusCodes.BadRequest)
               }
             }
@@ -99,6 +103,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
 
   val emailTimeoutHandler: HttpRequest => HttpResponse = {
     request =>
+      logger.error(s"email sending timeout: ${request.uri} took longer than ${emailTimeout}.")
       HttpResponse(
         status = StatusCodes.RequestTimeout,
         entity = HttpEntity.empty(`application/json`)
