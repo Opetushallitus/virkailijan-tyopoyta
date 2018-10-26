@@ -28,7 +28,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     with ResponseUtils
     with LazyLogging {
 
-  val emailTimeout: FiniteDuration = 5.seconds
+  val emailTimeout: FiniteDuration = 600.seconds
 
   private def sendHtml[T](eventualResult: Future[T]): Route = {
     onComplete(eventualResult) {
