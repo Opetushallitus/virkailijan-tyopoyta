@@ -74,7 +74,8 @@ class EmailService(casUtils: CasUtils,
           logger.info(s"Sending email to user ${userInfo.userOid} with the address ${userInfo.email} " +
             s"on the following ${releasesForUser.size} releases: ${releasesForUser.map(_.id).mkString(",")}.")
           val recipient = EmailRecipient(userInfo.email)
-          val emailMessage = formEmail(userInfo, releasesForUser)
+          val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
+          val emailMessage = formEmail(language, releasesForUser)
           groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
       }
       addEmailEvents(releases, eventType)
@@ -239,9 +240,7 @@ class EmailService(casUtils: CasUtils,
   }
 
 
-  private def formEmail(user: BasicUserInformation, releases: Set[Release]): EmailMessage = {
-    val language = user.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
-
+  private def formEmail(language: String, releases: Set[Release]): EmailMessage = {
     val translationsMap = EmailTranslations.translation(language)
     val contentHeader = translationsMap.getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
     val contentBetween = translationsMap.getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
