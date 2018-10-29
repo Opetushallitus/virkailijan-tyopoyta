@@ -38,6 +38,7 @@ class EmailService(casUtils: CasUtils,
   }
 
   sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
+  sealed case class UniqueMessage(language: String, releases: Set[Release])
 
   val groupTypeFilter = "yhteystietotyyppi2"
   val contactTypeFilter = "YHTEYSTIETO_SAHKOPOSTI"
@@ -68,21 +69,19 @@ class EmailService(casUtils: CasUtils,
       logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
       Seq.empty
     } else {
-      logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-      val result = releaseSetsForUsers.flatMap {
-        case (userInfo, releasesForUser) =>
-          logger.info(s"Sending email to user ${userInfo.userOid} with the address ${userInfo.email} " +
-            s"on the following ${releasesForUser.size} releases: ${releasesForUser.map(_.id).mkString(",")}.")
-          val recipient = EmailRecipient(userInfo.email)
-          val language = userInfo.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
-          val emailMessage = formEmail(language, releasesForUser)
-          groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
+      logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
+      val emailDatas = getEmailDatas(releaseSetsForUsers)
+
+      logger.info(s"Sending ${emailDatas.size} unique emails")
+      val result: Seq[String] = emailDatas.flatMap { data =>
+        logger.info(s"Sending email to ${data.recipient.size} recipients")
+        groupEmailService.sendMailWithoutTemplate(data)
       }
+      logger.info(s"Finished sending emails")
       addEmailEvents(releases, eventType)
       result
     }
   }
-
 
   private def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
     val userReleasePairs: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
@@ -239,6 +238,26 @@ class EmailService(casUtils: CasUtils,
     includedUsers
   }
 
+  private def getEmailDatas(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])]): Seq[EmailData]  = {
+    val usersToUniqueMessages: Map[BasicUserInformation, UniqueMessage] = releaseSetsForUsers.map{case (u, r) =>
+      val language = u.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
+      (u, UniqueMessage(language, r))
+    }.toMap
+
+    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = usersToUniqueMessages.values.toSet.map{um: UniqueMessage =>
+      (um, formEmail(um.language, um.releases))
+    }.toMap
+
+    val usersToEmails: Map[BasicUserInformation, EmailMessage] = usersToUniqueMessages.mapValues{uniqueMessage =>
+      uniqueMessagesToEmails.apply(uniqueMessage)
+    }
+
+    val emailsToRecipients: Map[EmailMessage, Set[BasicUserInformation]] = usersToEmails.groupBy(_._2).mapValues(_.keys.toSet)
+    emailsToRecipients.map{ p =>
+      val recipients = p._2.map(user => EmailRecipient(user.email)).toList
+      EmailData(p._1, recipients)
+    }.toSeq
+  }
 
   private def formEmail(language: String, releases: Set[Release]): EmailMessage = {
     val translationsMap = EmailTranslations.translation(language)
