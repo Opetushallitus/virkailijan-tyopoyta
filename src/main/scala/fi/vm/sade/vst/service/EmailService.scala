@@ -275,8 +275,10 @@ class EmailService(casUtils: CasUtils,
     }
 
     emailsToRecipients.map{ p =>
-      val recipients = p._2.map(user => EmailRecipient(user.email)).toList
-      EmailData(p._1, recipients)
+      val users: Set[BasicUserInformation] = p._2
+      val recipients: Set[EmailRecipient] = users.map(user => EmailRecipient(user.email))
+      logger.info(s"recipients for email: ${users.size} users with ${recipients.size} unique email addresses")
+      EmailData(p._1, recipients.toList)
     }.toSeq
   }
 
