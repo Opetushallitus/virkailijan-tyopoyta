@@ -15,6 +15,8 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
 
+import scala.collection.immutable
+
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,
                    val userService: UserService)
@@ -240,27 +242,30 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def getEmailDatas(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])]): Seq[EmailData]  = {
-    val recipientsToUniqueMessages: Map[EmailRecipient, UniqueMessage] = releaseSetsForUsers.map{case (u, r) =>
+    val addressesToUniqueMessages: Seq[(String, UniqueMessage)] = releaseSetsForUsers.map{case (u, r) =>
       val language = u.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
-      (EmailRecipient(u.email), UniqueMessage(language, r))
-    }.toMap
-    logger.info(s"recipients count: ${recipientsToUniqueMessages.size}")
-    val recipients: Seq[EmailRecipient] = recipientsToUniqueMessages.keys.toSeq
-    val duplicates = recipients.map(r => recipients.count(_ == r)).filter(_ > 1).toSet
+      (u.email, UniqueMessage(language, r))
+    }
+    logger.info(s"email addresses count: ${addressesToUniqueMessages.size}")
+    val recipientsToMessages: Map[String, Seq[UniqueMessage]] = addressesToUniqueMessages.groupBy(_._1).mapValues(_.map(_._2)) // toMap would overwrite duplicate keys (addresses) whereas we want to merge them
+
+    val nonUniqueAddresses: Seq[String] = releaseSetsForUsers.map(_._1.email)
+    val duplicates = nonUniqueAddresses.map(r => (r, nonUniqueAddresses.count(_ == r))).filter(_._2 > 1).map(_._1).toSet
     if (duplicates.nonEmpty) {
-      logger.info(s"the following email addresses appeared more than once: ${duplicates.mkString(" ")}")
+      logger.info(s"the following ${duplicates.size} email addresses appeared more than once: ${duplicates.mkString(" ")}")
+      logger.info(s"unique email addresses count: ${nonUniqueAddresses.toSet.size}")
     }
 
-    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = recipientsToUniqueMessages.values.toSet.map{um: UniqueMessage =>
+    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = recipientsToMessages.values.flatten.toSet.map{ um: UniqueMessage =>
       (um, formEmail(um.language, um.releases))
     }.toMap
-    logger.info(s"unique messages count: ${uniqueMessagesToEmails.size}")
 
-    val recipientsToEmails: Map[EmailRecipient, EmailMessage] = recipientsToUniqueMessages.map{p =>
-      (p._1, uniqueMessagesToEmails.apply(p._2))
-    }
+    val recipientsToEmails: Seq[(EmailRecipient, EmailMessage)] = recipientsToMessages.map{case (k,v) =>
+      val recipient = EmailRecipient(k)
+      v.map(email => (recipient, uniqueMessagesToEmails.apply(email)))
+    }.flatten.toSeq
 
-    val emailsToRecipients: Map[EmailMessage, Set[EmailRecipient]] = recipientsToEmails.groupBy(_._2).mapValues(_.keys.toSet)
+    val emailsToRecipients: Map[EmailMessage, Set[EmailRecipient]] = recipientsToEmails.groupBy(_._2).mapValues(_.map(_._1).toSet)
 
     emailsToRecipients.map{ p =>
       val recipients: Set[EmailRecipient] = p._2
