@@ -240,44 +240,30 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def getEmailDatas(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])]): Seq[EmailData]  = {
-    val usersToUniqueMessages: Map[BasicUserInformation, UniqueMessage] = releaseSetsForUsers.map{case (u, r) =>
+    val recipientsToUniqueMessages: Map[EmailRecipient, UniqueMessage] = releaseSetsForUsers.map{case (u, r) =>
       val language = u.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
-      (u, UniqueMessage(language, r))
+      (EmailRecipient(u.email), UniqueMessage(language, r))
     }.toMap
-    logger.info(s"usersToUniqueMessages count: ${usersToUniqueMessages.size}")
-    val initialOids = releaseSetsForUsers.map(_._1.userOid).toSet
-    val oidsNotInUsersToUniqueMessages = initialOids.diff(usersToUniqueMessages.keys.map(_.userOid).toSet)
-    if (oidsNotInUsersToUniqueMessages.nonEmpty) {
-      logger.warn(s"oids in releaseSetsForUsers but not in usersToUniqueMessages: ${oidsNotInUsersToUniqueMessages.mkString(", ")}")
+    logger.info(s"recipients count: ${recipientsToUniqueMessages.size}")
+    val recipients: Seq[EmailRecipient] = recipientsToUniqueMessages.keys.toSeq
+    val duplicates = recipients.map(r => recipients.count(_ == r)).filter(_ > 1).toSet
+    if (duplicates.nonEmpty) {
+      logger.info(s"the following email addresses appeared more than once: ${duplicates.mkString(" ")}")
     }
 
-    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = usersToUniqueMessages.values.toSet.map{um: UniqueMessage =>
+    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = recipientsToUniqueMessages.values.toSet.map{um: UniqueMessage =>
       (um, formEmail(um.language, um.releases))
     }.toMap
-    logger.info(s"uniqueMessagesToEmails count: ${uniqueMessagesToEmails.size}")
+    logger.info(s"unique messages count: ${uniqueMessagesToEmails.size}")
 
-    val usersToEmails: Set[(BasicUserInformation, EmailMessage)] = usersToUniqueMessages.map{p =>
+    val recipientsToEmails: Map[EmailRecipient, EmailMessage] = recipientsToUniqueMessages.map{p =>
       (p._1, uniqueMessagesToEmails.apply(p._2))
-    }.toSet
-    logger.info(s"usersToEmails count: ${usersToEmails.size}")
-    val oidsNotInUsersToEmails = initialOids.diff(usersToEmails.map(_._1.userOid))
-    if (oidsNotInUsersToEmails.nonEmpty) {
-      logger.warn(s"oids in releaseSetsForUsers but not in usersToEmails: ${oidsNotInUsersToEmails.mkString(", ")}")
     }
 
-    val emailsToRecipients: Map[EmailMessage, Set[BasicUserInformation]] = usersToEmails.groupBy(_._2).mapValues(_.map(_._1))
-    logger.info(s"emailsToRecipients count: ${emailsToRecipients.size}")
-    val oidsInRecipients = emailsToRecipients.values.flatten.map(_.userOid).toSet
-    logger.info(s"${oidsInRecipients.size} oids in recipients: ${oidsInRecipients.mkString(", ")}")
-    val oidsNotInRecipients = initialOids.diff(oidsInRecipients)
-    if (oidsNotInRecipients.nonEmpty) {
-      logger.warn(s"oids in releaseSetsForUsers but not in emailsToRecipients: ${oidsNotInRecipients.mkString(", ")}")
-    }
+    val emailsToRecipients: Map[EmailMessage, Set[EmailRecipient]] = recipientsToEmails.groupBy(_._2).mapValues(_.keys.toSet)
 
     emailsToRecipients.map{ p =>
-      val users: Set[BasicUserInformation] = p._2
-      val recipients: Set[EmailRecipient] = users.map(user => EmailRecipient(user.email))
-      logger.info(s"recipients for email: ${users.size} users with ${recipients.size} unique email addresses")
+      val recipients: Set[EmailRecipient] = p._2
       EmailData(p._1, recipients.toList)
     }.toSeq
   }
