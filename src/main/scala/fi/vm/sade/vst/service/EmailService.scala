@@ -248,7 +248,7 @@ class EmailService(casUtils: CasUtils,
     val initialOids = releaseSetsForUsers.map(_._1.userOid).toSet
     val oidsNotInUsersToUniqueMessages = initialOids.diff(usersToUniqueMessages.keys.map(_.userOid).toSet)
     if (oidsNotInUsersToUniqueMessages.nonEmpty) {
-      logger.warn(s"oids in releaseSetsForUsers but not in usersToUniqueMessages: ${oidsNotInUsersToUniqueMessages.mkString(",")}")
+      logger.warn(s"oids in releaseSetsForUsers but not in usersToUniqueMessages: ${oidsNotInUsersToUniqueMessages.mkString(", ")}")
     }
 
     val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = usersToUniqueMessages.values.toSet.map{um: UniqueMessage =>
@@ -256,20 +256,22 @@ class EmailService(casUtils: CasUtils,
     }.toMap
     logger.info(s"uniqueMessagesToEmails count: ${uniqueMessagesToEmails.size}")
 
-    val usersToEmails: Map[BasicUserInformation, EmailMessage] = usersToUniqueMessages.mapValues{uniqueMessage =>
-      uniqueMessagesToEmails.apply(uniqueMessage)
-    }
+    val usersToEmails: Set[(BasicUserInformation, EmailMessage)] = usersToUniqueMessages.map{p =>
+      (p._1, uniqueMessagesToEmails.apply(p._2))
+    }.toSet
     logger.info(s"usersToEmails count: ${usersToEmails.size}")
-    val difoidsNotInUsersToEmails = initialOids.diff(usersToEmails.keys.map(_.userOid).toSet)
-    if (difoidsNotInUsersToEmails.nonEmpty) {
-      logger.warn(s"oids in releaseSetsForUsers but not in usersToEmails: ${difoidsNotInUsersToEmails.mkString(",")}")
+    val oidsNotInUsersToEmails = initialOids.diff(usersToEmails.map(_._1.userOid))
+    if (oidsNotInUsersToEmails.nonEmpty) {
+      logger.warn(s"oids in releaseSetsForUsers but not in usersToEmails: ${oidsNotInUsersToEmails.mkString(", ")}")
     }
 
-    val emailsToRecipients: Map[EmailMessage, Set[BasicUserInformation]] = usersToEmails.groupBy(_._2).mapValues(_.keys.toSet)
+    val emailsToRecipients: Map[EmailMessage, Set[BasicUserInformation]] = usersToEmails.groupBy(_._2).mapValues(_.map(_._1))
     logger.info(s"emailsToRecipients count: ${emailsToRecipients.size}")
-    val oidsNotInRecipients = initialOids.diff(emailsToRecipients.values.flatten.map(_.userOid).toSet)
+    val oidsInRecipients = emailsToRecipients.values.flatten.map(_.userOid).toSet
+    logger.info(s"${oidsInRecipients.size} oids in recipients: ${oidsInRecipients.mkString(", ")}")
+    val oidsNotInRecipients = initialOids.diff(oidsInRecipients)
     if (oidsNotInRecipients.nonEmpty) {
-      logger.warn(s"oids in releaseSetsForUsers but not in emailsToRecipients: ${oidsNotInRecipients.mkString(",")}")
+      logger.warn(s"oids in releaseSetsForUsers but not in emailsToRecipients: ${oidsNotInRecipients.mkString(", ")}")
     }
 
     emailsToRecipients.map{ p =>
