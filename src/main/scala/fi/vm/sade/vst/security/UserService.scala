@@ -41,12 +41,8 @@ class UserService(casUtils: CasUtils,
 
   private def userInitials(userOid: String): Option[String] = {
     val json = s"""["$userOid"]"""
-    val body = Option(json)
-    val response = oppijanumeroRekisteri.authenticatedRequest(
-      s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList",
-      RequestMethod.POST,
-      mediaType = Option(org.http4s.MediaType.`application/json`),
-      body = body)
+    val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList"
+    val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
     response match {
       case Success(s) =>
         parseUserInitialsFromResponse(s)

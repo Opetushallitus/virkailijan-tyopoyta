@@ -128,8 +128,8 @@ case class TargetingGroupUpdate(name: String, data: String)
 
 case class UserLanguage(kieliKoodi: String, kieliTyyppi: String)
 
-case class UserContactInformation(yhteystietoTyyppi: String, yhteystietoArvo: String)
+case class UserContactInformation(yhteystietoTyyppi: String, yhteystietoArvo: Option[String])
 
 case class UserContactInformationGroup(id: Long, ryhmaKuvaus: String, yhteystieto: Seq[UserContactInformation])
 
-case class UserInformation(oidHenkilo: String, asiointiKieli: UserLanguage, yhteystiedotRyhma: Seq[UserContactInformationGroup])
+case class UserInformation(oidHenkilo: String, asiointiKieli: Option[UserLanguage], yhteystiedotRyhma: Seq[UserContactInformationGroup])

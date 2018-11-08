@@ -15,7 +15,7 @@ export default function http (options) {
   const {
     url,
     searchParams = null,
-    maxRequestTime = minute,
+    maxRequestTime = 11 * minute,
     requestOptions = {},
     onSuccess = () => {},
     onError = () => {}

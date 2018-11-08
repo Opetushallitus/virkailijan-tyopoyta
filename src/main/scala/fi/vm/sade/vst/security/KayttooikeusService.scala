@@ -26,22 +26,18 @@ class KayttooikeusService(casUtils: CasUtils,
     resp match {
       case Success(s) =>
         parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
-      case Failure(e) =>
-        logger.error("Failure parsing response from kayttooikeus-service", e)
-        List.empty
+      case Failure(t) =>
+        val msg = "Failure parsing response from kayttooikeus-service"
+        logger.error(msg, t)
+        throw new RuntimeException(msg, t)
     }
   }
 
   private def getGroupsWithRole(role: String): Seq[Kayttooikeusryhma] = {
     val json = s"""{"VIRKAILIJANTYOPOYTA": "$role"}"""
-    val body = Option(json)
 
-    val resp: Try[String] = kayttooikeusClient.authenticatedRequest(
-      urls.url("kayttooikeus-service.ryhmasByKayttooikeus"),
-      RequestMethod.POST,
-      mediaType = Option(org.http4s.MediaType.`application/json`),
-      body = body
-    )
+    val url = urls.url("kayttooikeus-service.ryhmasByKayttooikeus")
+    val resp: Try[String] = kayttooikeusClient.authenticatedJsonPost(url, json)
 
     parseResponse(resp)
   }

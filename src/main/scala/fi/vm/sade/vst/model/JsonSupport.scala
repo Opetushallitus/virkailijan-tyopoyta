@@ -263,12 +263,22 @@ trait JsonSupport {
   implicit val userInformationReads: Reads[UserInformation] = Json.reads[UserInformation]
 
   def parseUserInformationFromEmailResponse(response: String): Seq[UserInformation] = {
-    val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
-    val userInformation = json.flatMap(parseSingleUserInformation)
+    val array = Json.parse(response).asOpt[JsArray].getOrElse(
+      throw new RuntimeException("could not parse array from response JSON: " + response)
+    )
+    val userInformation = array.value.map(parseSingleUserInformation)
     userInformation
   }
 
-  private def parseSingleUserInformation(jsonVal: JsValue): Option[UserInformation] = Json.fromJson(jsonVal)(userInformationReads).asOpt
+  private def parseSingleUserInformation(jsonVal: JsValue): UserInformation = {
+    val jsResult: JsResult[UserInformation] = Json.fromJson(jsonVal)(userInformationReads)
+    jsResult match {
+      case JsSuccess(userInfo, _) =>
+        userInfo
+      case JsError(errors) =>
+        throw new RuntimeException(s"could not parse UserInformation from JSON: $jsonVal, errors: ${errors.mkString(", \n")}")
+    }
+  }
 
   def parseReleaseUpdate(jsString: String): Option[ReleaseUpdate] = {
     val jsonVal = Json.parse(jsString)

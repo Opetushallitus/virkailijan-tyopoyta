@@ -15,6 +15,8 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
 
+import scala.collection.immutable
+
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,
                    val userService: UserService)
@@ -38,6 +40,7 @@ class EmailService(casUtils: CasUtils,
   }
 
   sealed case class BasicUserInformation(userOid: String, email: String, languages: Seq[String])
+  sealed case class UniqueMessage(language: String, releases: Set[Release])
 
   val groupTypeFilter = "yhteystietotyyppi2"
   val contactTypeFilter = "YHTEYSTIETO_SAHKOPOSTI"
@@ -68,18 +71,19 @@ class EmailService(casUtils: CasUtils,
       logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
       Seq.empty
     } else {
-      logger.info(s"Sending emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-      val result = releaseSetsForUsers.flatMap {
-        case (userInfo, releasesForUser) =>
-          val recipient = EmailRecipient(userInfo.email)
-          val emailMessage = formEmail(userInfo, releasesForUser)
-          groupEmailService.sendMailWithoutTemplate(EmailData(emailMessage, List(recipient)))
+      logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
+      val emailDatas = getEmailDatas(releaseSetsForUsers)
+
+      logger.info(s"Sending ${emailDatas.size} unique emails")
+      val result: Seq[String] = emailDatas.flatMap { data =>
+        logger.info(s"Sending email to ${data.recipient.size} recipients")
+        groupEmailService.sendMailWithoutTemplate(data)
       }
+      logger.info(s"Finished sending emails")
       addEmailEvents(releases, eventType)
       result
     }
   }
-
 
   private def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
     val userReleasePairs: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
@@ -98,15 +102,37 @@ class EmailService(casUtils: CasUtils,
   }
 
   private def userGroupIdsForRelease(release: Release): Set[Long] = {
-    val virkailijanTyopoytaRoles: Seq[Long] = accessService.appGroups.map(_.id)
-    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId)
+    val virkailijanTyopoytaRoles: Set[Kayttooikeusryhma] = accessService.appGroups.toSet
+    val userGroupsForRelease = releaseRepository.userGroupsForRelease(release.id).map(_.usergroupId).toSet
 
-    if (userGroupsForRelease.isEmpty) {
-      logger.info(s"User groups for release is empty, selecting all groups")
-      virkailijanTyopoytaRoles.toSet
+    val matchingGroupIds = if (userGroupsForRelease.isEmpty) {
+      val releaseCategoryIds = release.categories
+      if (releaseCategoryIds.isEmpty) {
+        logger.info(s"User groups and categories for release are empty, selecting all user groups")
+        virkailijanTyopoytaRoles.filter(_.categories.nonEmpty).map(_.id)
+      } else {
+        logger.info(s"User groups for release is empty, selecting all groups in categories ${releaseCategoryIds.mkString(",")}")
+        val rolesInReleaseCategories = virkailijanTyopoytaRoles.filter(_.categories.intersect(releaseCategoryIds).nonEmpty)
+        rolesInReleaseCategories.map(_.id)
+      }
     } else {
-      virkailijanTyopoytaRoles.intersect(userGroupsForRelease).toSet
+      logger.info(s"User groups for release are ${userGroupsForRelease.mkString(",")}, filtering down to found" +
+        s"virkailijan työpöytä roles")
+      virkailijanTyopoytaRoles.map(_.id).intersect(userGroupsForRelease)
     }
+
+    logger.info(s"${matchingGroupIds.size}/${userGroupsForRelease.size} user groups for release ${release.id} were" +
+      s"found in KayttooikeusService. " +
+      s"The following groups were not found: ${userGroupsForRelease.diff(matchingGroupIds).mkString(",")}.")
+
+    if (matchingGroupIds.isEmpty) {
+      val msg = "Error: none of the release's user groups were not found in KayttooikeusService cache. " +
+        s"Is the service responding? release id: ${release.id}, release groups: ${userGroupsForRelease.mkString(",")}."
+      logger.error(msg)
+      throw new RuntimeException(msg)
+    }
+
+    matchingGroupIds
   }
 
   private def getUserInformationsForGroups(userGroups: Set[Long]): Seq[BasicUserInformation] = {
@@ -123,7 +149,9 @@ class EmailService(casUtils: CasUtils,
     val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
     response match {
       case Success(s) =>
-        parsePersonOidsFromResponse(s)
+        val oids: Seq[String] = parsePersonOidsFromResponse(s)
+        logger.info(s"kayttooikeus-service returned ${oids.size} personOids for user group $groupOid")
+        oids
       case Failure(f) =>
         logger.error(s"Failure parsing person oids from response $response", f)
         Seq.empty
@@ -133,30 +161,59 @@ class EmailService(casUtils: CasUtils,
   private def getUserInformationsForOids(oids: Iterable[String]): Iterable[BasicUserInformation] = {
     val formattedOids = oids.map { oid => s""""$oid"""" }
     val json = s"""[${formattedOids.mkString(",")}]"""
-    val body = Option(json)
-
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkilotByHenkiloOidList"
-    val response = oppijanumeroRekisteri.authenticatedRequest(url, RequestMethod.POST, mediaType = Option(org.http4s.MediaType.`application/json`), body = body)
-    val userInformation: Seq[UserInformation] = parseUserOidsAndEmails(response)
-    for {
-      userInfo <- userInformation
-      contactGroups <- userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter)
-      contactInfo <- contactGroups.yhteystieto.filter(_.yhteystietoTyyppi == contactTypeFilter)
-    } yield BasicUserInformation(userInfo.oidHenkilo, contactInfo.yhteystietoArvo, Seq(userInfo.asiointiKieli.kieliKoodi))
-  }
+    logger.info(s"getting persons from oppijanumerorekisteri for ${oids.size} oids: $json")
+    val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
 
-  private def parseUserOidsAndEmails(resp: Try[String]): Seq[UserInformation] = {
-    resp match {
+    val userInformations: Seq[UserInformation] = response match {
       case Success(s) =>
         parseUserInformationFromEmailResponse(s)
-      case Failure(f) =>
-        logger.error("Failed to parse user oids and emails", f)
-        Seq.empty
+      case Failure(t) =>
+        val msg = "Failed to fetch user oids and email addresses"
+        logger.error(msg, t)
+        throw new RuntimeException(msg, t)
     }
+
+    val oidsInResponse = userInformations.map(_.oidHenkilo)
+    logger.info(s"oppijanumerorekisteri returned ${userInformations.size} userInformations (of which ${oidsInResponse.toSet.size} have unique oidHenkilos).")
+    val oidsNotInResponse = oids.toSet.diff(oidsInResponse.toSet)
+    if (oidsNotInResponse.nonEmpty) {
+      logger.warn(s"the following oids were not in the response oidHenkilos: ${oidsNotInResponse.mkString(", ")}.")
+    }
+
+    val basicUserInformations: Seq[BasicUserInformation] = userInformations.flatMap { userInfo =>
+      userInfo.yhteystiedotRyhma.filter(_.ryhmaKuvaus == groupTypeFilter) match {
+        case contactGroups if contactGroups.nonEmpty =>
+          contactGroups.flatMap(_.yhteystieto).filter(_.yhteystietoTyyppi == contactTypeFilter) match {
+            case contactInfos if contactInfos.nonEmpty =>
+              if (contactInfos.length > 1) {
+                logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had multiple (${contactInfos.length}) suitable email addresses.")
+              }
+              contactInfos.map { contactInfo =>
+                val email = contactInfo.yhteystietoArvo.getOrElse(throw new RuntimeException("email was null in yhteystieto " + contactInfo))
+                val kieliKoodi = userInfo.asiointiKieli.map(_.kieliKoodi).getOrElse("fi")
+                BasicUserInformation(userInfo.oidHenkilo, email, Seq(kieliKoodi))
+              }
+            case _ =>
+              logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had no yhteystietos with yhteystietotyyppi ${contactTypeFilter} with ryhmakuvaus ${groupTypeFilter}")
+              Nil
+          }
+        case _ =>
+          logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had no yhteystiedotRyhmas with ryhmakuvaus ${groupTypeFilter}")
+          Nil
+      }
+    }
+
+    logger.info(s"converted ${userInformations.size} userInformations to ${basicUserInformations.size} basicUserInformations with oids: ${basicUserInformations.map(_.userOid).mkString(", ")}.")
+    basicUserInformations
   }
 
   private def filterUsersForReleases(release: Release, users: Seq[BasicUserInformation]): Set[BasicUserInformation] = {
-    val userOidsToProfiles = userService.userProfiles(users.map(_.userOid)).map(profile => profile.userId -> profile).toMap
+    val userOids = users.map(_.userOid)
+    val userProfiles = userService.userProfiles(userOids)
+    logger.info(s"user repository returned ${userProfiles.size} user profiles for ${users.size} userOids (of which ${userOids.toSet.size} were unique oids)")
+
+    val userOidsToProfiles: Map[String, UserProfile] = userProfiles.map(profile => profile.userId -> profile).toMap
     val sendToPersonsWithNoProfile: Boolean = true
 
     val includedUsers: Set[BasicUserInformation] = users.filter { user =>
@@ -170,31 +227,53 @@ class EmailService(casUtils: CasUtils,
             logger.warn(s"Profile for user ${user.userOid} was not found in user repository, skipping email sending")
             false
           }
+        case Some(profile) if !profile.sendEmail =>
+            logger.warn(s"Not including user ${user.userOid} in emails because sendEmail for user is false.")
+            false
         case Some(profile) =>
-          val profileCategories = profile.categories
-          val hasAllowedCategories: Boolean = release.categories.isEmpty || profileCategories.isEmpty || profileCategories.intersect(release.categories).nonEmpty
-
-          val sendEmail: Boolean = profile.sendEmail
-          val isIncluded = sendEmail && hasAllowedCategories
-          if (!isIncluded) {
-            val msg = s"Not including user ${user.userOid} in emails because: " +
-              (if (!sendEmail) "sendEmail for user is false. " else "") +
-              (if (!hasAllowedCategories) "user has none of the included categories." else "")
-            logger.warn(msg)
-          }
-          isIncluded
+            true
       }
     }.toSet
 
-    logger.warn(s"Filtered ${users.size} down to ${includedUsers.size} users to be included in emails")
+    logger.warn(s"Filtered ${users.size} down to ${includedUsers.size} profiles to be included in emails " +
+      s"(with ${includedUsers.map(_.userOid)} unique userOids)")
 
     includedUsers
   }
 
+  private def getEmailDatas(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])]): Seq[EmailData]  = {
+    val addressesToUniqueMessages: Seq[(String, UniqueMessage)] = releaseSetsForUsers.map{case (u, r) =>
+      val language = u.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
+      (u.email, UniqueMessage(language, r))
+    }
+    logger.info(s"email addresses count: ${addressesToUniqueMessages.size}")
+    val recipientsToMessages: Map[String, Seq[UniqueMessage]] = addressesToUniqueMessages.groupBy(_._1).mapValues(_.map(_._2)) // toMap would overwrite duplicate keys (addresses) whereas we want to merge them
 
-  private def formEmail(user: BasicUserInformation, releases: Set[Release]): EmailMessage = {
-    val language = user.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
+    val nonUniqueAddresses: Seq[String] = releaseSetsForUsers.map(_._1.email)
+    val duplicates = nonUniqueAddresses.map(r => (r, nonUniqueAddresses.count(_ == r))).filter(_._2 > 1).map(_._1).toSet
+    if (duplicates.nonEmpty) {
+      logger.info(s"the following ${duplicates.size} email addresses appeared more than once: ${duplicates.mkString(" ")}")
+      logger.info(s"unique email addresses count: ${nonUniqueAddresses.toSet.size}")
+    }
 
+    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = recipientsToMessages.values.flatten.toSet.map{ um: UniqueMessage =>
+      (um, formEmail(um.language, um.releases))
+    }.toMap
+
+    val recipientsToEmails: Seq[(EmailRecipient, EmailMessage)] = recipientsToMessages.map{case (k,v) =>
+      val recipient = EmailRecipient(k)
+      v.map(email => (recipient, uniqueMessagesToEmails.apply(email)))
+    }.flatten.toSeq
+
+    val emailsToRecipients: Map[EmailMessage, Set[EmailRecipient]] = recipientsToEmails.groupBy(_._2).mapValues(_.map(_._1).toSet)
+
+    emailsToRecipients.map{ p =>
+      val recipients: Set[EmailRecipient] = p._2
+      EmailData(p._1, recipients.toList)
+    }.toSeq
+  }
+
+  private def formEmail(language: String, releases: Set[Release]): EmailMessage = {
     val translationsMap = EmailTranslations.translation(language)
     val contentHeader = translationsMap.getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
     val contentBetween = translationsMap.getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
@@ -211,6 +290,7 @@ class EmailService(casUtils: CasUtils,
   private def addEmailEvents(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[EmailEvent] = {
     def releaseToEmailEvent(release: Release) = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)
 
+    logger.info(s"Adding ${releases.length} email events of type '${eventType.description}' to database")
     val emailEvents = releases.map(releaseToEmailEvent)
     emailEvents.flatMap(emailRepository.addEvent(_))
   }

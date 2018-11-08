@@ -60,6 +60,22 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
       }
     }
 
+  @ApiOperation(value = "Hakee minkä tahansa käyttäjän profiilin", httpMethod = "GET")
+  @Path("/user/{id}")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id", required = true, dataType = "string", paramType = "path", value = "haettavan käyttäjän oid")))
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Annetun käyttäjän tiedot", response = classOf[UserProfile]),
+    new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
+  def otherUserProfileRoute: Route =
+    path("user" / Segment) { otherUserOid: String =>
+      get {
+        withAdminUser { currentUser =>
+          sendResponse(Future(userService.userProfile(otherUserOid)))
+          }
+        }
+      }
+
   @ApiOperation(value = "Hakee käyttäjän tallennetut tiedot", httpMethod = "GET")
   @Path("/userDetails")
   @ApiResponses(Array(
@@ -71,6 +87,29 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
         withUserOrUnauthorized { user =>
           logger.debug(s"Responding with user details for ${user.userId}")
           sendResponse(Future(user))
+        }
+      }
+    }
+
+  @ApiOperation(value = "Hakee minkä tahansa käyttäjän tallennetut tiedot", httpMethod = "GET")
+  @Path("/userDetails/{id}")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id", required = true, dataType = "string", paramType = "path", value = "haettavan käyttäjän käyttäjänimi")))
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Annetun käyttäjän tiedot", response = classOf[UserProfile]),
+    new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
+  def otherUserDetailsRoute: Route =
+    path("userDetails" / Segment) { otherUserId: String =>
+      get {
+        withAdminUser { currentUser =>
+          userService.findUser(otherUserId).toOption match {
+            case Some(user) =>
+              logger.debug(s"Responding with user details on user ${otherUserId} for admin user ${currentUser.userId}")
+              sendResponse(Future(user))
+            case None =>
+              logger.info(s"otherUserDetailsRoute failed: No user found for user id $otherUserId")
+              complete(StatusCodes.Unauthorized, s"No user found for user id $otherUserId")
+          }
         }
       }
     }
@@ -165,7 +204,9 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
   val routes: Route =
       userProfileRoute ~
       setUserProfileRoute ~
+      otherUserProfileRoute ~
       userDetailsRoute ~
+      otherUserDetailsRoute ~
       saveDraftRoute ~
       deleteDraftRoute ~
       getTargetingGroupRoute ~
