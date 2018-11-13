@@ -64,6 +64,8 @@ function Preview (props) {
                     <div className="mb2">
                       <span className="italic">{translate('otsikko')}: </span>
                       {notification.content[locale].title || translate('tyhja')}
+                      <span className="italic">{translate('otsikko')}: </span>
+                      {notification.content[locale].title || translate('tyhja')}
                     </div>
 
                     <div className="mb2">
