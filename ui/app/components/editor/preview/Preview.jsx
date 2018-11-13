@@ -9,8 +9,7 @@ import getTimelineItems from '../getTimelineItems'
 import getItemsForIDs from '../../utils/getItemsForIDs'
 
 const propTypes = {
-  localeFI: "fi",
-  localeSV: "sv",
+  locale: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
   userGroups: PropTypes.array.isRequired,
   tagGroups: PropTypes.array.isRequired,
@@ -19,14 +18,15 @@ const propTypes = {
 
 function Preview (props) {
   const {
-    localeFI,
-    localeSV,
+    locale,
     categories,
     userGroups,
     tagGroups,
     release
   } = props
 
+  var localeFI = 'fi'
+  var localeSV = 'sv'
   const notification = release.notification
   const timeline = release.timeline
   const previewedTimelineItems = getTimelineItems(['incomplete', 'complete'], timeline)
@@ -67,13 +67,17 @@ function Preview (props) {
                       <span className="italic">{translate('otsikko')}: </span>
                       {notification.content[localeFI].title || translate('tyhja')}
                       <span className="italic">{translate('otsikko')}: </span>
-                        {notification.content[localeSV].title || translate('tyhja')}
-                        </div>
+                      {notification.content[localeSV].title || translate('tyhja')}
+                    </div>
 
                     <div className="mb2">
                       <span className="italic">{translate('tiedote')}: </span>
                       {renderHTML(notification.content[localeFI].text) || translate('tyhja')}
-                        {renderHTML(notification.content[localeSV].text) || translate('tyhja')}
+
+                    </div>
+                    <div className="mb2">
+                      <span className="italic">{translate('tiedote')}: </span>
+                      {renderHTML(notification.content[localeSV].text) || translate('tyhja')}
                     </div>
 
                     <div className="flex flex-wrap">
@@ -98,7 +102,7 @@ function Preview (props) {
                   {previewedTimelineItems.map((item) =>
                     <div key={`timelineItem${item.id}`} className="mb2">
                       <div className="italic">{item.date ? item.date : translate('eiasetettu')}: </div>
-                      {renderHTML(item.content[localeFI].text) || translate('tyhja')}
+                      {renderHTML(item.content[locale].text) || translate('tyhja')}
                     </div>
                   )}
 
