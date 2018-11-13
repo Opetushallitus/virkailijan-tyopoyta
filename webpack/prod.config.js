@@ -12,13 +12,13 @@ module.exports = merge(baseConfig, {
   },
 
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({
+    /*new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
       },
       comments: false,
       sourceMap: true
-    }),
+    }),*/
     new CleanWebpackPlugin([PATHS.build], {
       root: process.cwd()
     })
