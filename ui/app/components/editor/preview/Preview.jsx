@@ -24,7 +24,6 @@ function Preview (props) {
     tagGroups,
     release
   } = props
-
   const notification = release.notification
   const timeline = release.timeline
   const previewedTimelineItems = getTimelineItems(['incomplete', 'complete'], timeline)
@@ -63,12 +62,20 @@ function Preview (props) {
                   : <div className="editor-preview-notification">
                     <div className="mb2">
                       <span className="italic">{translate('otsikko')}: </span>
-                      {notification.content[locale].title || translate('tyhja')}
+                      {notification.content['fi'].title || translate('tyhja')}
                     </div>
-
                     <div className="mb2">
-                      <span className="italic">{translate('tiedote')}: </span>
-                      {renderHTML(notification.content[locale].text) || translate('tyhja')}
+                      <span className="italic">{translate('otsikkoSV')}: </span>
+                      {notification.content['sv'].title || translate('tyhja')}
+                    </div>
+                    <div className="mb2">
+                      <span className="italic">{translate('kuvaus')}: </span>
+                      {renderHTML(notification.content['fi'].text) || translate('tyhja')}
+
+                    </div>
+                    <div className="mb2">
+                      <span className="italic">{translate('kuvausSV')}: </span>
+                      {renderHTML(notification.content['sv'].text) || translate('tyhja')}
                     </div>
 
                     <div className="flex flex-wrap">
