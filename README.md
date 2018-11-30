@@ -76,10 +76,8 @@ Service - Palvelukerros: Käyttäjään, julkaisuihin ja sähköposteihin liitty
 CAS 
 - Käyttäjän autentikointi ja autentikoidut kutsut muihin järjestelmiin
 
-LDAP 
-- Autentikoidun käyttäjän tietojen haku
-
 Käyttöoikeuspalvelu 
+- Autentikoidun käyttäjän tietojen haku
 - Työpöytään liitettyjen käyttöoikeusryhmien haku
 - Käyttäjän käyttöoikeusryhmien haku
 - Käyttöoikeusryhmien jäsenten haku sähköpostin lähetystä varten

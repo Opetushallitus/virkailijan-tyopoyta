@@ -41,7 +41,7 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
     val categories: Seq[Long] = Seq.empty
     val tags: Seq[Long] = Seq.empty
     val page: Int = 1
-    val user: User = User("userId", "lastname", "givennames", Some("GL"), "fi", false, Seq.empty, Seq.empty)
+    val user: User = User("userId", Some("GL"), "fi", false, Seq.empty, Seq.empty)
 
     "find releases" in new WithDefaultData {
       val notifications: NotificationList = releaseRepository.notifications(categories, tags, page, user)

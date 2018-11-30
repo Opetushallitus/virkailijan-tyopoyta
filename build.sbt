@@ -32,7 +32,7 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "fi.vm.sade" %% "scala-cas" % "0.4.0-SNAPSHOT",
   "fi.vm.sade" %% "scala-group-emailer" % "0.3.0-SNAPSHOT",
-  "fi.vm.sade" %% "scala-ldap-client" % "1.0.0-SNAPSHOT",
+  "fi.vm.sade" %% "scala-user-details" % "0.0.1-SNAPSHOT",
   "fi.vm.sade" % "auditlogger" % "8.0.0-SNAPSHOT",
   "fi.vm.sade" %% "scala-properties" % "0.0.1-SNAPSHOT"
 )
