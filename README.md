@@ -27,7 +27,7 @@ Ensimmäisellä kerralla:
 - Kopioi `virkailijan-tyopoyta.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
 
 Jatkossa:
-- `sbt run`
+- `Käynnistä fi.vm.sade.vst.Main luokka`
 - toisessa terminaalissa/välilehdellä `npm run start-dev` 
 - avaa selaimessa URL `localhost:{määritelty portti}/virkailijan-tyopoyta`
 
