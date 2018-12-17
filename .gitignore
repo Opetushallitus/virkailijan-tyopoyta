@@ -29,3 +29,5 @@ ui/app/resources/test/nightwatch/reports/
 ui/app/resources/test/nightwatch/environments.js
 *.iml
 /logs
+package-lock.json
+project
