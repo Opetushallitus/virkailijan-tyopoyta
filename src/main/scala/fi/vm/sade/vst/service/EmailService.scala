@@ -189,11 +189,16 @@ class EmailService(casUtils: CasUtils,
               if (contactInfos.length > 1) {
                 logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had multiple (${contactInfos.length}) suitable email addresses.")
               }
-              contactInfos.map { contactInfo =>
-                val email = contactInfo.yhteystietoArvo.getOrElse(throw new RuntimeException("email was null in yhteystieto " + contactInfo))
-                val kieliKoodi = userInfo.asiointiKieli.map(_.kieliKoodi).getOrElse("fi")
-                BasicUserInformation(userInfo.oidHenkilo, email, Seq(kieliKoodi))
-              }
+              contactInfos.flatMap {
+                  _.yhteystietoArvo match {
+                    case None =>
+                      logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} has yhteystieto with null email in yhteystieto ${contactInfos}")
+                      None
+                    case Some(email) =>
+                      val kieliKoodi = userInfo.asiointiKieli.map(_.kieliKoodi).getOrElse("fi")
+                      Some(BasicUserInformation(userInfo.oidHenkilo, email, Seq(kieliKoodi)))
+                  }
+                }
             case _ =>
               logger.warn(s"userInfo with oid ${userInfo.oidHenkilo} had no yhteystietos with yhteystietotyyppi ${contactTypeFilter} with ryhmakuvaus ${groupTypeFilter}")
               Nil
