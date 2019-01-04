@@ -27,7 +27,7 @@ Ensimmäisellä kerralla:
 - Kopioi `virkailijan-tyopoyta.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
 
 Jatkossa:
-- `sbt run`
+- `Käynnistä fi.vm.sade.vst.Main luokka`
 - toisessa terminaalissa/välilehdellä `npm run start-dev` 
 - avaa selaimessa URL `localhost:{määritelty portti}/virkailijan-tyopoyta`
 
@@ -76,10 +76,8 @@ Service - Palvelukerros: Käyttäjään, julkaisuihin ja sähköposteihin liitty
 CAS 
 - Käyttäjän autentikointi ja autentikoidut kutsut muihin järjestelmiin
 
-LDAP 
-- Autentikoidun käyttäjän tietojen haku
-
 Käyttöoikeuspalvelu 
+- Autentikoidun käyttäjän tietojen haku
 - Työpöytään liitettyjen käyttöoikeusryhmien haku
 - Käyttäjän käyttöoikeusryhmien haku
 - Käyttöoikeusryhmien jäsenten haku sähköpostin lähetystä varten

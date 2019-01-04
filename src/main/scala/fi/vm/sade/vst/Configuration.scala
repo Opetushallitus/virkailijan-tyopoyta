@@ -6,7 +6,6 @@ import java.nio.file.Paths
 import com.softwaremill.session.SessionConfig
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import fi.vm.sade.properties.OphProperties
-import fi.vm.sade.security.ldap.LdapConfig
 
 case class AuthenticationConfig(serviceId: String, casUsername: String, casPassword: String, memoizeDuration: Int)
 case class ServerConfig(port: Int, actorSystemConfig: Config)
@@ -24,12 +23,7 @@ trait Configuration {
     .addFiles("/virkailjian-tyopoyta-oph.properties")
     .addOptionalFiles(s"$homeDir/oph-configuration/common.properties")
     .addDefault("baseUrl", config.getString("baseUrl"))
-
-  lazy val ldapConfig = LdapConfig(
-    config.getString("ldap.server.host"),
-    config.getString("ldap.user.dn"),
-    config.getString("ldap.user.password"))
-
+    .addDefault("host.alb", config.getString("host.alb"))
 
   lazy val authenticationConfig = AuthenticationConfig(
     config.getString("virkailijan-tyopoyta.cas.service"),

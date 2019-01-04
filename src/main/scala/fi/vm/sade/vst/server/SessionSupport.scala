@@ -68,7 +68,7 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
               case Some(user) =>
                 provide(user)
               case None =>
-                logger.info(s"withUserOrUnauthorized failed: found user id for session but no user data for id")
+                logger.info(s"withUserOrUnauthorized failed: found user id $uid for sessionticket $ticket but no user data for id")
                 complete(StatusCodes.Unauthorized, s"No user found for user id $uid")
             }
           case None =>
@@ -102,9 +102,11 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
   }
 
   def removeTicket(ticket: String): Unit = {
-    logger.info(s"Removing sessions for $ticket")
+    logger.info(s"Removing sessions for ticket: $ticket belonging to user oid: ${userService.getUserIdForTicket(ticket).getOrElse("not found in ticketmap")}")
+
     refreshTokenStorage.removeForTicket(ticket)
     refreshTokenManager.removeToken(ticket)
+
     userService.removeTicket(ticket)
   }
 }

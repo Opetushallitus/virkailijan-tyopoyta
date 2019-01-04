@@ -2,13 +2,14 @@ package fi.vm.sade.vst.security
 
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.security.ldap.{LdapClient, LdapUser}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
 import fi.vm.sade.vst.Configuration
 import play.api.libs.json._
-
 import java.util.concurrent.ConcurrentHashMap
+
+import fi.vm.sade.utils.kayttooikeus.{KayttooikeusUserDetails, KayttooikeusUserDetailsService}
+
 import scala.collection.convert.decorateAsScala._
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -19,7 +20,7 @@ import scalacache.guava.GuavaCache
 import scalacache.memoization._
 
 class UserService(casUtils: CasUtils,
-                  ldapClient: LdapClient,
+                  userDetailsService: KayttooikeusUserDetailsService,
                   kayttooikeusService: KayttooikeusService,
                   userRepository: UserRepository,
                   releaseRepository: ReleaseRepository)
@@ -62,22 +63,23 @@ class UserService(casUtils: CasUtils,
     callingNames.headOption
   }
 
-  private def createUser(ldapUser: LdapUser): User = {
-    val lang = ldapUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
-    val isAdmin = ldapUser.roles.contains(adminRole)
-    val groups = kayttooikeusService.userGroupsForUser(ldapUser.oid, isAdmin)
-    val initials = if (isAdmin) userInitials(ldapUser.oid) else None
+  private def createUser(koUser: KayttooikeusUserDetails): User = {
+    val lang = koUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
+    val isAdmin = koUser.roles.contains(adminRole)
+    val groups = kayttooikeusService.userGroupsForUser(koUser.oid, isAdmin)
+    val initials = if (isAdmin) userInitials(koUser.oid) else None
 
-    val user = User(ldapUser.oid, ldapUser.lastName, ldapUser.givenNames, initials, lang.getOrElse("fi"), isAdmin, groups, ldapUser.roles)
+    val user = User(koUser.oid, initials, lang.getOrElse("fi"), isAdmin, groups, koUser.roles)
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
   }
 
   private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(authenticationConfig.memoizeDuration minutes) {
-    ldapClient.findUser(uid) match {
-      case Some(ldapUser) =>
-        Success(createUser(ldapUser))
-      case None =>
-        Failure(new IllegalStateException(s"User $uid not found in LDAP"))
+    userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
+      case Right(koUser) =>
+        Success(createUser(koUser))
+      case Left(error) =>
+        logger.error(s"User $uid role query error", error)
+        Failure(new IllegalStateException(s"User $uid role query error"))
     }
   }
 
@@ -90,7 +92,7 @@ class UserService(casUtils: CasUtils,
           profile = Some(userRepository.userProfile(u.userId)),
           draft = userRepository.fetchDraft(u.userId)))
       case Failure(e) =>
-        logger.debug(s"LDAP call failed for uid $uid : ${e.getMessage}")
+        logger.debug(s"User call failed for uid $uid : ${e.getMessage}")
         user
     }
   }
