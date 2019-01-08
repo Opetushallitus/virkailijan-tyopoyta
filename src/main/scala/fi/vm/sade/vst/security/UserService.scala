@@ -40,36 +40,41 @@ class UserService(casUtils: CasUtils,
     casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
   }
 
-  private def userInitials(userOid: String): Option[String] = {
+  private def userInitialsAndLang(userOid: String): (Option[String], String) = {
     val json = s"""["$userOid"]"""
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList"
     val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
     response match {
       case Success(s) =>
-        parseUserInitialsFromResponse(s)
+        parseUserInitialsAndLangFromResponse(s)
       case Failure(f) =>
         logger.error(s"Failed to get user initials for user $userOid", f)
-        None
+        (None, "fi")
     }
   }
 
-  private def parseUserInitialsFromResponse(response: String): Option[String] = {
+  private def parseUserInitialsAndLangFromResponse(response: String): (Option[String], String) = {
     val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
     val callingNames = json.map { value =>
       val callingName = (value \ "kutsumanimi").as[String].take(1).toUpperCase
       val lastName = (value \ "sukunimi").as[String].take(1).toUpperCase
       s"$callingName$lastName"
     }
-    callingNames.headOption
+    val lang = json.map { value =>
+      (value \ "asiointiKieli" \ "kieliKoodi").as[String]
+    }
+    (callingNames.headOption, lang.headOption.getOrElse("fi"))
   }
 
   private def createUser(koUser: KayttooikeusUserDetails): User = {
-    val lang = koUser.roles.find(r => r.startsWith("LANG_")).map(_.substring(5))
     val isAdmin = koUser.roles.contains(adminRole)
     val groups = kayttooikeusService.userGroupsForUser(koUser.oid, isAdmin)
-    val initials = if (isAdmin) userInitials(koUser.oid) else None
 
-    val user = User(koUser.oid, initials, lang.getOrElse("fi"), isAdmin, groups, koUser.roles)
+    val (initials, lang) = userInitialsAndLang(koUser.oid)
+    val initialsToShow = if (isAdmin) {
+      initials
+    } else None
+    val user = User(koUser.oid, initialsToShow, lang, isAdmin, groups, koUser.roles)
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
   }
 
