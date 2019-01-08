@@ -12,7 +12,6 @@ import fi.vm.sade.utils.kayttooikeus.{KayttooikeusUserDetails, KayttooikeusUserD
 
 import scala.collection.convert.decorateAsScala._
 import scala.collection.mutable
-import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 import scalacache.ScalaCache
@@ -40,7 +39,7 @@ class UserService(casUtils: CasUtils,
     casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
   }
 
-  private def userInitialsAndLang(userOid: String): (Option[String], String) = {
+  private def userInitialsAndLang(userOid: String): (Option[String], Option[String]) = {
     val json = s"""["$userOid"]"""
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList"
     val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
@@ -49,11 +48,11 @@ class UserService(casUtils: CasUtils,
         parseUserInitialsAndLangFromResponse(s)
       case Failure(f) =>
         logger.error(s"Failed to get user initials for user $userOid", f)
-        (None, "fi")
+        (None, None)
     }
   }
 
-  private def parseUserInitialsAndLangFromResponse(response: String): (Option[String], String) = {
+  private def parseUserInitialsAndLangFromResponse(response: String): (Option[String], Option[String]) = {
     val json = Json.parse(response).asOpt[JsArray].map(_.value).getOrElse(Seq.empty)
     val callingNames = json.map { value =>
       val callingName = (value \ "kutsumanimi").as[String].take(1).toUpperCase
@@ -63,28 +62,30 @@ class UserService(casUtils: CasUtils,
     val lang = json.map { value =>
       (value \ "asiointiKieli" \ "kieliKoodi").as[String]
     }
-    (callingNames.headOption, lang.headOption.getOrElse("fi"))
+    (callingNames.headOption, lang.headOption)
   }
 
   private def createUser(koUser: KayttooikeusUserDetails): User = {
     val isAdmin = koUser.roles.contains(adminRole)
     val groups = kayttooikeusService.userGroupsForUser(koUser.oid, isAdmin)
 
-    val (initials, lang) = userInitialsAndLang(koUser.oid)
+    val (initials, langOpt) = userInitialsAndLang(koUser.oid)
     val initialsToShow = if (isAdmin) {
       initials
     } else None
-    val user = User(koUser.oid, initialsToShow, lang, isAdmin, groups, koUser.roles)
+    val user = User(koUser.oid, initialsToShow, langOpt.getOrElse("fi"), isAdmin, groups, koUser.roles)
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
   }
 
-  private def fetchCacheableUserData(uid: String): Try[User] = memoizeSync(authenticationConfig.memoizeDuration minutes) {
-    userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
-      case Right(koUser) =>
-        Success(createUser(koUser))
-      case Left(error) =>
-        logger.error(s"User $uid role query error", error)
-        Failure(new IllegalStateException(s"User $uid role query error"))
+  private def fetchCacheableUserData(uid: String): Try[User] = {
+    memoizeSync(authenticationConfig.memoizeDuration) {
+      userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
+        case Right(koUser) =>
+          Success(createUser(koUser))
+        case Left(error) =>
+          logger.error(s"User $uid role query error", error)
+          Failure(new IllegalStateException(s"User $uid role query error"))
+      }
     }
   }
 
