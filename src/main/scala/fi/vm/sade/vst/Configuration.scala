@@ -7,7 +7,9 @@ import com.softwaremill.session.SessionConfig
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import fi.vm.sade.properties.OphProperties
 
-case class AuthenticationConfig(serviceId: String, casUsername: String, casPassword: String, memoizeDuration: Int)
+import scala.concurrent.duration._
+
+case class AuthenticationConfig(serviceId: String, casUsername: String, casPassword: String, memoizeDuration: Duration)
 case class ServerConfig(port: Int, actorSystemConfig: Config)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
@@ -29,7 +31,7 @@ trait Configuration {
     config.getString("virkailijan-tyopoyta.cas.service"),
     config.getString("virkailijan-tyopoyta.cas.user"),
     config.getString("virkailijan-tyopoyta.cas.password"),
-    10
+    10.minutes
   )
 
   lazy val defaultCasConfig = CasConfig(
