@@ -8,7 +8,7 @@ import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server._
 import com.softwaremill.session.SessionDirectives.{optionalSession, invalidateSession}
 import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
-import com.softwaremill.session.{SessionManager, InMemoryRefreshTokenStorage, RefreshTokenManager}
+import com.softwaremill.session.SessionManager
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.javautils.http.HttpServletRequestUtils
@@ -27,20 +27,6 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
   val userService: UserService
 
   implicit val sessionManager: SessionManager[String] = new SessionManager[String](sessionConfig)
-
-  implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[String] {
-    override def log(msg: String): Unit = logger.info(msg)
-
-    def removeForTicket(ticket: String): Unit = {
-      store.foreach { case (selector, storedSession) =>
-        if (storedSession.session == ticket) {
-          this.remove(selector)
-        }
-      }
-    }
-  }
-
-  val refreshTokenManager: RefreshTokenManager[String] = sessionManager.createRefreshTokenManager(refreshTokenStorage)
 
   def extractTicketOption: Directive1[Option[String]] = {
     extractRequest.map { request =>
@@ -105,8 +91,6 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
     logger.info(s"Removing sessions for ticket: $ticket belonging to user oid: ${userService.getUserIdForTicket(ticket).getOrElse("not found in ticketmap")}")
 
     invalidateSession(oneOff, usingCookies)
-    refreshTokenStorage.removeForTicket(ticket)
-    refreshTokenManager.removeToken(ticket)
 
     userService.removeTicket(ticket)
   }
