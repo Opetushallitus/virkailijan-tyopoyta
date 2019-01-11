@@ -103,7 +103,8 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
 
   def removeTicket(ticket: String): Unit = {
     logger.info(s"Removing sessions for ticket: $ticket belonging to user oid: ${userService.getUserIdForTicket(ticket).getOrElse("not found in ticketmap")}")
-
+    
+    invalidateSession(refreshable, usingCookies)
     refreshTokenStorage.removeForTicket(ticket)
     refreshTokenManager.removeToken(ticket)
 
