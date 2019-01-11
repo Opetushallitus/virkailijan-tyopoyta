@@ -60,7 +60,7 @@ class UserService(casUtils: CasUtils,
       s"$callingName$lastName"
     }
     val lang = json.map { value =>
-      (value \ "asiointiKieli" \ "kieliKoodi").as[String]
+      (value \ "asiointiKieli" \ "kieliKoodi").getOrElse(JsString("fi")).as[String]
     }
     (callingNames.headOption, lang.headOption)
   }
