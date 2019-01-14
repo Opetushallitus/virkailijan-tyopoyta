@@ -94,7 +94,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
         val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
         val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
         removeTicket(ticket)
-        redirect(userService.loginUrl, StatusCodes.Found)
+        complete(StatusCodes.OK)
       }
     }
   }
