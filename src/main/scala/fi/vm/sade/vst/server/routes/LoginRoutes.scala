@@ -86,16 +86,27 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   @ApiOperation(value = "CAS backchannel logout", httpMethod = "POST")
   @Path("/authenticate")
   @ApiResponses(Array(
-    new ApiResponse(code = 302, message = "")))
+    new ApiResponse(code = 200, message = "")))
   def casRoute: Route = path("authenticate") {
-    post {
-      formFieldMap { formFields =>
-        logger.info(s"Got CAS backchannel logout request, form: $formFields")
-        val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
-        val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
-        removeTicket(ticket)
-        complete(StatusCodes.OK)
-      }
+    backChannelLogoutRoute
+  }
+
+  @ApiOperation(value = "CAS backchannel logout (root)", httpMethod = "POST")
+  @Path("")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "")))
+  def casRouteRoot: Route = pathEndOrSingleSlash {
+    // TODO: remove this redundant logout path when BUG-1890 is fixed and virkailija-raamit no longer sets the root as service url
+    backChannelLogoutRoute
+  }
+
+  private def backChannelLogoutRoute: Route = post {
+    formFieldMap { formFields =>
+      logger.info(s"Got CAS backchannel logout request, form: $formFields")
+      val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
+      val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
+      removeTicket(ticket)
+      complete(StatusCodes.OK)
     }
   }
 
@@ -117,6 +128,6 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     }
   }
 
-  val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ logoutRoute
+  val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ casRouteRoot ~ logoutRoute
 }
 
