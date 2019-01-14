@@ -174,7 +174,16 @@ class UserService(casUtils: CasUtils,
   }
 
   def removeTicket(ticket: String): Unit = {
-    ticketUserMap.remove(ticket)
+    ticketUserMap.remove(ticket) match {
+      case Some(user) =>
+        logger.info(s"Removed ticket $ticket for user $user")
+        val usersOtherTickets = ticketUserMap.filter(_._2 == user).keys
+        if (usersOtherTickets.nonEmpty) {
+          logger.warn(s"User $user still has the following tickets active: ${usersOtherTickets.mkString(" ")}")
+        }
+      case None =>
+        throw new NoSuchElementException(s"Tried to remove ticket but no such ticket found: $ticket")
+    }
   }
 
 }
