@@ -25,8 +25,6 @@ class Timeline extends React.Component {
   }
 
   componentDidMount () {
-    const body = document.body
-
     // Fetch next or previous month when scrolling the timeline
     Bacon
       .fromEvent(this.timelineViewport, 'scroll')
@@ -46,25 +44,6 @@ class Timeline extends React.Component {
       .fromEvent(window, 'scroll')
       .debounce(100)
       .onValue(() => this.moveTimeline())
-
-    //  If page has a scrollbar, hide/display it when mousing over the timeline
-    Bacon
-      .fromEvent(this.timelineViewport, 'mouseenter')
-      .onValue(() => {
-        const scrollBarWidth = window.innerWidth - document.body.clientWidth
-
-        if (scrollBarWidth) {
-          body.classList.add('overflow-hidden')
-          body.style.marginRight = `${scrollBarWidth}px`
-        }
-      })
-
-    Bacon
-      .fromEvent(this.timelineViewport, 'mouseleave')
-      .onValue(() => {
-        body.classList.remove('overflow-hidden')
-        body.style.marginRight = 0
-      })
   }
 
   // Only update if timeline items have changed or fetch has failed
