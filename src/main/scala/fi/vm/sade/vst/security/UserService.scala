@@ -182,7 +182,7 @@ class UserService(casUtils: CasUtils,
           logger.warn(s"User $user still has the following tickets active: ${usersOtherTickets.mkString(" ")}")
         }
       case None =>
-        throw new NoSuchElementException(s"Tried to remove ticket but no such ticket found: $ticket")
+        logger.warn(s"Tried to remove ticket but no such ticket found: $ticket")
     }
   }
 
