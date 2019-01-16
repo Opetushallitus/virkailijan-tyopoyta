@@ -23,14 +23,14 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   private val serviceRoot: String = "/virkailijan-tyopoyta/"
 
   private def authenticateUser(ticket: String): Route = {
-    logger.info("Validating CAS ticket")
+    logger.info(s"Validating CAS ticket $ticket")
     userService.validateTicket(ticket) match {
       case Success(uid) =>
         storeTicket(ticket, uid)
         userService.findUser(uid) match {
           case Success(user) =>
             setSession(oneOff, usingCookies, ticket) {
-              logger.info(s"Successfully validated CAS ticket and logged in $uid")
+              logger.info(s"Successfully validated CAS ticket $ticket and logged in $uid")
               redirect(serviceRoot, StatusCodes.Found)
             }
           case Failure(t) =>
