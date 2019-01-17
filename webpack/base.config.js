@@ -9,7 +9,8 @@ const PATHS = require('./paths.js')
 const config = {
   entry: {
     app: PATHS.app,
-    style: PATHS.style
+    style: PATHS.style,
+    chat: PATHS.chat
   },
 
   output: {

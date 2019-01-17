@@ -4,6 +4,7 @@ module.exports = {
   dev: path.join(__dirname, '../target/scala-2.11/classes/ui'),
   build: path.join(__dirname, '../src/main/resources/ui'),
   app: path.join(__dirname, '../ui/app'),
+  chat: path.join(__dirname, '../ui/app/apply-chat'),
   style: path.join(__dirname, '../ui/app/resources/styles/app.css'),
   images: path.join(__dirname, '../ui/app/resources/img'),
   fonts: path.join(__dirname, '../ui/app/resources/fonts')
