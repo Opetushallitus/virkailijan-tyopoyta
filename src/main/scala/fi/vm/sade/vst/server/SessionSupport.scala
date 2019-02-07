@@ -6,9 +6,9 @@ import java.util.Optional
 import akka.http.javadsl.model
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server._
-import com.softwaremill.session.SessionDirectives._
-import com.softwaremill.session.SessionOptions._
-import com.softwaremill.session._
+import com.softwaremill.session.SessionDirectives.{optionalSession, invalidateSession}
+import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
+import com.softwaremill.session.SessionManager
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.javautils.http.HttpServletRequestUtils
@@ -28,20 +28,6 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
 
   implicit val sessionManager: SessionManager[String] = new SessionManager[String](sessionConfig)
 
-  implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[String] {
-    override def log(msg: String): Unit = logger.info(msg)
-
-    def removeForTicket(ticket: String): Unit = {
-      store.foreach { case (selector, storedSession) =>
-        if (storedSession.session == ticket) {
-          this.remove(selector)
-        }
-      }
-    }
-  }
-
-  val refreshTokenManager: RefreshTokenManager[String] = sessionManager.createRefreshTokenManager(refreshTokenStorage)
-
   def extractTicketOption: Directive1[Option[String]] = {
     extractRequest.map { request =>
       request.uri.query().get("ticket")
@@ -49,7 +35,7 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
   }
 
   def withSession: Directive1[Option[User]] = {
-    optionalSession(refreshable, usingCookies).map {
+    optionalSession(oneOff, usingCookies).map {
       case Some(ticket) =>
         logger.info(s"withSession found ticket, attempting to find user")
         userService.findUserForTicket(ticket)
@@ -60,7 +46,7 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
   }
 
   def withUserOrUnauthorized: Directive1[User] = {
-    optionalSession(refreshable, usingCookies).flatMap {
+    optionalSession(oneOff, usingCookies).flatMap {
       case Some(ticket) =>
         getUserIdForTicket(ticket) match {
           case Some(uid) =>
@@ -104,8 +90,7 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
   def removeTicket(ticket: String): Unit = {
     logger.info(s"Removing sessions for ticket: $ticket belonging to user oid: ${userService.getUserIdForTicket(ticket).getOrElse("not found in ticketmap")}")
 
-    refreshTokenStorage.removeForTicket(ticket)
-    refreshTokenManager.removeToken(ticket)
+    invalidateSession(oneOff, usingCookies)
 
     userService.removeTicket(ticket)
   }

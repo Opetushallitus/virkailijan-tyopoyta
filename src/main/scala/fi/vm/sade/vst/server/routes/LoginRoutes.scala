@@ -6,7 +6,7 @@ import fi.vm.sade.utils.cas.CasLogout
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession, setSession}
-import com.softwaremill.session.SessionOptions.{refreshable, usingCookies}
+import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
 import fi.vm.sade.vst.model.{JsonSupport, User}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
@@ -23,14 +23,14 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   private val serviceRoot: String = "/virkailijan-tyopoyta/"
 
   private def authenticateUser(ticket: String): Route = {
-    logger.info("Validating CAS ticket")
+    logger.info(s"Validating CAS ticket $ticket")
     userService.validateTicket(ticket) match {
       case Success(uid) =>
         storeTicket(ticket, uid)
         userService.findUser(uid) match {
           case Success(user) =>
-            setSession(refreshable, usingCookies, ticket) {
-              logger.info(s"Successfully validated CAS ticket and logged in $uid")
+            setSession(oneOff, usingCookies, ticket) {
+              logger.info(s"Successfully validated CAS ticket $ticket and logged in $uid")
               redirect(serviceRoot, StatusCodes.Found)
             }
           case Failure(t) =>
@@ -51,9 +51,9 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   def loginRoute: Route = path("login") {
     get {
       logger.info(s"/login reached, redirecting to CAS login")
-      optionalSession(refreshable, usingCookies) {
+      optionalSession(oneOff, usingCookies) {
         case Some(_) =>
-          invalidateSession(refreshable, usingCookies)
+          invalidateSession(oneOff, usingCookies)
           redirect(userService.loginUrl, StatusCodes.Found)
         case None =>
           redirect(userService.loginUrl, StatusCodes.Found)
@@ -86,16 +86,27 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
   @ApiOperation(value = "CAS backchannel logout", httpMethod = "POST")
   @Path("/authenticate")
   @ApiResponses(Array(
-    new ApiResponse(code = 302, message = "")))
+    new ApiResponse(code = 200, message = "")))
   def casRoute: Route = path("authenticate") {
-    post {
-      formFieldMap { formFields =>
-        logger.info(s"Got CAS backchannel logout request, form: $formFields")
-        val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
-        val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
-        removeTicket(ticket)
-        redirect(userService.loginUrl, StatusCodes.Found)
-      }
+    backChannelLogoutRoute
+  }
+
+  @ApiOperation(value = "CAS backchannel logout (root)", httpMethod = "POST")
+  @Path("")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "")))
+  def casRouteRoot: Route = pathEndOrSingleSlash {
+    // TODO: remove this redundant logout path when BUG-1890 is fixed and virkailija-raamit no longer sets the root as service url
+    backChannelLogoutRoute
+  }
+
+  private def backChannelLogoutRoute: Route = post {
+    formFieldMap { formFields =>
+      logger.info(s"Got CAS backchannel logout request, form: $formFields")
+      val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
+      val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
+      removeTicket(ticket)
+      complete(StatusCodes.OK)
     }
   }
 
@@ -105,7 +116,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     new ApiResponse(code = 302, message = "")))
   def logoutRoute: Route = path("logout") {
     get {
-      optionalSession(refreshable, usingCookies) {
+      optionalSession(oneOff, usingCookies) {
         case Some(ticket) =>
           logger.info(s"Got manual logout request for ticket $ticket")
           removeTicket(ticket)
@@ -117,6 +128,6 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     }
   }
 
-  val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ logoutRoute
+  val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ casRouteRoot ~ logoutRoute
 }
 
