@@ -65,23 +65,28 @@ class EmailService(casUtils: CasUtils,
   }
 
   def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
-    val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
+    if (!emailSendingDisabled) {
+      val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
-    if (releaseSetsForUsers.isEmpty) {
-      logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
-      Seq.empty
-    } else {
-      logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-      val emailDatas = getEmailDatas(releaseSetsForUsers)
+      if (releaseSetsForUsers.isEmpty) {
+        logger.info(s"Skipping sending emails on ${releases.size} releases because only ${releaseSetsForUsers.size} users found")
+        Seq.empty
+      } else {
+        logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
+        val emailDatas = getEmailDatas(releaseSetsForUsers)
 
-      logger.info(s"Sending ${emailDatas.size} unique emails")
-      val result: Seq[String] = emailDatas.flatMap { data =>
-        logger.info(s"Sending email to ${data.recipient.size} recipients")
-        groupEmailService.sendMailWithoutTemplate(data)
+        logger.info(s"Sending ${emailDatas.size} unique emails")
+        val result: Seq[String] = emailDatas.flatMap { data =>
+          logger.info(s"Sending email to ${data.recipient.size} recipients")
+          groupEmailService.sendMailWithoutTemplate(data)
+        }
+        logger.info(s"Finished sending emails")
+        addEmailEvents(releases, eventType)
+        result
       }
-      logger.info(s"Finished sending emails")
-      addEmailEvents(releases, eventType)
-      result
+    } else {
+      logger.warn(s"Was going to send emails for ${releases.size} releases, but email-sending has been disabled by env parameter (virkailijan_tyopoyta_emails_disabled = true). Nothing was sent.")
+      Seq.empty
     }
   }
 

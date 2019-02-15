@@ -41,6 +41,8 @@ trait Configuration {
   )
   lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(urls.url("oppijanumerorekisteri.service"))
 
+  lazy val emailSendingDisabled: Boolean = config.getString("tyopoyta.emails.disabled").toBoolean
+
   lazy val actorSystemConfig: Config = ConfigFactory.parseResources("conf/akka.conf")
 
   lazy val serverConfig = ServerConfig(config.getInt("server.port"), actorSystemConfig)
