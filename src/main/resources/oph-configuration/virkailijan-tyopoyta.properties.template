@@ -38,6 +38,8 @@ cas.url=https://{{host_virkailija}}/cas
 virkailijan-tyopoyta.login="{baseUrl}/cas/login?service={virkailijan-tyopoyta.cas.service}"
 oph.logo.url = http://www.oph.fi/instancedata/prime_product_julkaisu/oph/pics/opetushallitus2.gif
 
+tyopoyta.emails.disabled={{ virkailijan_tyopoyta_emails_disabled | default('false') }}
+
 # Quartz settings
 akka.quartz.schedules.AutomatedReleasesEmail.description = Daily check to see if new automated release emails should be sent
 akka.quartz.schedules.AutomatedReleasesEmail.expression = 0 0 2 1/1 * ? *
