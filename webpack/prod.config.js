@@ -11,6 +11,8 @@ module.exports = merge(baseConfig, {
     sourceMapFilename: 'bundle.map'
   },
 
+  bail: true,
+
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       compress: {
