@@ -18,7 +18,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
   private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId + "/authenticate")
 
   def validateTicket(serviceTicket: ServiceTicket): Try[Username] = {
-    Try(validateTicketTask(serviceTicket).unsafePerformSync).recoverWith({
+    Try(validateTicketTask(serviceTicket).run).recoverWith({
       case t =>
         Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
     })
@@ -30,10 +30,10 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
     private lazy val casParams = CasParams(service, config.casUsername, config.casPassword)
 
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
-      casParams, client.blaze.defaultClient, "virkailijan-tyopoyta")
+      casParams, client.blaze.defaultClient, Some("virkailijan-tyopoyta"), "JSESSIONID")
 
     private def handleResponse(response: Response): Try[String] = {
-      lazy val body = EntityDecoder.decodeString(response).unsafePerformSync
+      lazy val body = EntityDecoder.decodeString(response).run
       if (response.status.isSuccess) {
         Success(body)
       } else {
@@ -79,7 +79,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
         authenticatingClient.httpClient.toHttpService.run(finalRequest)
       }
 
-      Try(send.unsafePerformSync).flatMap(handleResponse)
+      Try(send.run).flatMap(handleResponse)
     }
   }
 
