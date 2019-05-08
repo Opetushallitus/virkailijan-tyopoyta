@@ -44,7 +44,7 @@ class KayttooikeusService(casUtils: CasUtils,
 
   private def getServiceGroups: Seq[Kayttooikeusryhma] = {
     val appCategories = releaseRepository.serviceCategories
-    val roles = List("CRUD", "MUUT", "2ASTE", "KK", "PERUS")
+    val roles = List("CRUD", "MUUT", "2ASTE", "KK", "PERUS", "VARDA")
 
     val roleMap: Map[String, Seq[Kayttooikeusryhma]] = roles.map(role => (s"APP_VIRKAILIJANTYOPOYTA_$role", getGroupsWithRole(role))).toMap
     val groups: Seq[Kayttooikeusryhma] = roleMap.values.flatten.toSet.toList
