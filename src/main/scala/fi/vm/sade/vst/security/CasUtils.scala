@@ -30,9 +30,10 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
     private lazy val casParams = CasParams(service, config.casUsername, config.casPassword)
 
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
-      casParams, client.blaze.defaultClient, "virkailijan-tyopoyta")
+      casParams, client.blaze.defaultClient, "virkailijan-tyopoyta", "JSESSIONID")
 
-    private def handleResponse(response: Response): Try[String] = {
+    private def handleResponse(maybeResponse: MaybeResponse): Try[String] = {
+      val response = maybeResponse.orNotFound
       lazy val body = EntityDecoder.decodeString(response).unsafePerformSync
       if (response.status.isSuccess) {
         Success(body)
