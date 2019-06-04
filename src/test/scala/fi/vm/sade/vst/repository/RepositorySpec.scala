@@ -1,19 +1,21 @@
+package fi.vm.sade.vst.repository
+
 import java.net.InetAddress
 import java.time.LocalDate
 
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
-import module.TestModule
+import fi.vm.sade.vst.module.TestModule
+import fi.vm.sade.vst.util.TestDBData
 import org.junit.runner.RunWith
-import org.specs2.mutable._
+import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import util.TestDBData
 
 @RunWith(classOf[JUnitRunner])
 class RepositorySpec extends Specification with TestModule with TestDBData {
   /*
    * Note:
-   * These current tests in RepositorySpec and ServerSpec are simply made to demonstrate the usage of WithDefaultData.
+   * These current tests in fi.vm.sade.vst.repository.RepositorySpec and ServerSpec are simply made to demonstrate the usage of WithDefaultData.
    * They are only currently testing that the WithDefaultData actually works as intended so that the h2 db is cleared
    * on every test and are independent of specs. Only requirement is that tests are run in sequential order
    * but TestDBData trait should force this anyway. Sequential running is not required if each test uses own

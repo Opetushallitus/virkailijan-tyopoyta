@@ -1,4 +1,4 @@
-package util
+package fi.vm.sade.vst.util
 
 import java.nio.file.Paths
 
