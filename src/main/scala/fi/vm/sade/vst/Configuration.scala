@@ -22,7 +22,7 @@ trait Configuration {
   private lazy val confFile: File = Paths.get(homeDir, "/oph-configuration/common.properties").toFile
 
   lazy val urls: OphProperties = new fi.vm.sade.scalaproperties.OphProperties()
-    .addFiles("/virkailjian-tyopoyta-oph.properties")
+    .addFiles("/virkailijan-tyopoyta-oph.properties")
     .addOptionalFiles(s"$homeDir/oph-configuration/common.properties")
     .addDefault("baseUrl", config.getString("baseUrl"))
     .addDefault("host.alb", config.getString("host.alb"))
