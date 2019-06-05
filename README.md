@@ -22,7 +22,6 @@ Asenna käyttöliittymän kehitystä varten selaimellesi React Developer Tools -
 ### Rakentaminen
 
 Ensimmäisellä kerralla:
-- kloonaa repositorysta `uusi-tyopoyta`-branch
 - `npm install` ja `npm run build` juuressa
 - Kopioi `virkailijan-tyopoyta.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
 
