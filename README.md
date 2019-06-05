@@ -23,7 +23,7 @@ Asenna käyttöliittymän kehitystä varten selaimellesi React Developer Tools -
 
 Ensimmäisellä kerralla:
 - `npm install` ja `npm run build` juuressa
-- Kopioi `virkailijan-tyopoyta.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
+- Kopioi `common.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
 
 Jatkossa:
 - `Käynnistä fi.vm.sade.vst.Main luokka`
