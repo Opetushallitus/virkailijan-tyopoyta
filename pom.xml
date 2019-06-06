@@ -272,6 +272,12 @@
             <groupId>fi.vm.sade</groupId>
             <artifactId>scala-group-emailer_2.11</artifactId>
             <version>0.6.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>fi.vm.sade</groupId>
