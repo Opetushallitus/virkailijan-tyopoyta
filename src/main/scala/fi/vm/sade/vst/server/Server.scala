@@ -25,6 +25,7 @@ class Server(routes: Routes, config: ServerConfig, implicit val system: ActorSys
   private val route: Handler[Future[Done]] = routes.routes.withAccessLog(accessLogger())
 
   def start(): Unit = {
+    System.setProperty("logback.debug", "true")
     val handler = Http().bindAndHandle(route, "0.0.0.0", port)
     logger.info(s"Starting server on port $port")
     handler.failed.foreach { case ex: Exception => logger.error("Failed to bind to port", ex) }
