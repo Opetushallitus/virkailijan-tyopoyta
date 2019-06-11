@@ -1,5 +1,9 @@
 package fi.vm.sade.vst.service
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
@@ -7,15 +11,9 @@ import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
 import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
 import fi.vm.sade.vst.util.IterableUtils
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-
-import com.typesafe.scalalogging.LazyLogging
-
-import scala.util.{Failure, Success, Try}
 import play.api.libs.json._
 
-import scala.collection.immutable
+import scala.util.{Failure, Success}
 
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,

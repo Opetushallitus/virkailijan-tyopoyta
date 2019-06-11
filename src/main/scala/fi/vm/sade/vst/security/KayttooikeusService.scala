@@ -22,12 +22,12 @@ class KayttooikeusService(casUtils: CasUtils,
 
   def appGroups: Seq[Kayttooikeusryhma] = groups.get
 
-  private def parseResponse(resp: Try[String], forUser: Boolean = false): Seq[Kayttooikeusryhma] = {
+  private def parseResponse(resp: Try[String], url: String, forUser: Boolean = false): Seq[Kayttooikeusryhma] = {
     resp match {
       case Success(s) =>
         parseKayttooikeusryhmat(s, forUser).getOrElse(List.empty)
       case Failure(t) =>
-        val msg = "Failure parsing response from kayttooikeus-service"
+        val msg = s"Failure parsing response from kayttooikeus-service url '$url'"
         logger.error(msg, t)
         throw new RuntimeException(msg, t)
     }
@@ -39,7 +39,7 @@ class KayttooikeusService(casUtils: CasUtils,
     val url = urls.url("kayttooikeus-service.ryhmasByKayttooikeus")
     val resp: Try[String] = kayttooikeusClient.authenticatedJsonPost(url, json)
 
-    parseResponse(resp)
+    parseResponse(resp, url)
   }
 
   private def getServiceGroups: Seq[Kayttooikeusryhma] = {
@@ -62,9 +62,10 @@ class KayttooikeusService(casUtils: CasUtils,
     if (isAdmin) {
       appGroups
     } else {
-      val groupsResponse = kayttooikeusClient.authenticatedRequest(urls.url("kayttooikeus-service.userGroupsForUser", oid), RequestMethod.GET)
+      val url: String = urls.url("kayttooikeus-service.userGroupsForUser", oid)
+      val groupsResponse = kayttooikeusClient.authenticatedRequest(url, RequestMethod.GET)
 
-      val groupsForUser = parseResponse(groupsResponse, forUser = true)
+      val groupsForUser = parseResponse(groupsResponse, url, forUser = true)
 
       appGroups.filter(g => groupsForUser.map(_.id).contains(g.id))
     }

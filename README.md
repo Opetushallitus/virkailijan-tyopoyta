@@ -1,7 +1,7 @@
 # Virkailijan työpöytä
 
-Virkailijan työpöytä on React/Scala-sovellus, jossa kentän virkailijat ja OPH:n työntekijät
-voivat katsella ja julkaista tiedotteita sekä tapahtumia.
+Virkailijan työpöytä ("virkailijan sähköinen työpöytä", "VST") on React/Scala-sovellus,
+jossa kentän virkailijat ja OPH:n työntekijät voivat katsella ja julkaista tiedotteita sekä tapahtumia.
 
 Käyttöliittymän dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
 
@@ -22,12 +22,13 @@ Asenna käyttöliittymän kehitystä varten selaimellesi React Developer Tools -
 ### Rakentaminen
 
 Ensimmäisellä kerralla:
-- kloonaa repositorysta `uusi-tyopoyta`-branch
 - `npm install` ja `npm run build` juuressa
-- Kopioi `virkailijan-tyopoyta.properties.template` arvot `~/oph-properties/common.properties` tiedostoon
+- Tee `common.properties.template` -tiedoston pohjalta jonnekin tiedosto `oph-properties/common.properties`
+  ja syötä sinne sopivat arvot. Tai voit kopioida tiedoston pohjaksi palvelinympäristön palvelimelta.
 
 Jatkossa:
-- `Käynnistä fi.vm.sade.vst.Main luokka`
+- Käynnistä `fi.vm.sade.vst.Main` -luokka, ja laita JVM:n ajoparametriksi VST:n `oph-configuration` sisältämän
+  hakemisto käyttäjän kotihakemistoksi, esim `-Duser.home=/home/thrantal/oph-confs/virkailijan-tyopoyta-hahtuva`
 - toisessa terminaalissa/välilehdellä `npm run start-dev` 
 - avaa selaimessa URL `localhost:{määritelty portti}/virkailijan-tyopoyta`
 

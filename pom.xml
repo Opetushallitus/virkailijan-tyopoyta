@@ -12,22 +12,201 @@
         <scala.version>2.11.8</scala.version>
         <akkahttp.version>10.0.5</akkahttp.version>
         <circe.version>0.6.1</circe.version>
+        <http4s.version>0.16.6a</http4s.version>
+        <jackson.version>2.9.8</jackson.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-stream_2.11</artifactId>
+                <version>2.5.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.http4s</groupId>
+                <artifactId>http4s-core_2.11</artifactId>
+                <version>${http4s.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.http4s</groupId>
+                <artifactId>http4s-client_2.11</artifactId>
+                <version>${http4s.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.http4s</groupId>
+                <artifactId>http4s-blaze-client_2.11</artifactId>
+                <version>${http4s.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-http_2.11</artifactId>
+                <version>${akkahttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-actor_2.11</artifactId>
+                <version>2.5.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>27.0-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-scala_2.11</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang.modules</groupId>
+                <artifactId>scala-xml_2.11</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>1.3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json4s</groupId>
+                <artifactId>json4s-native_2.11</artifactId>
+                <version>3.5.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>1.5.17</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>1.5.17</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.17</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalaz</groupId>
+                <artifactId>scalaz-core_2.11</artifactId>
+                <version>7.2.17</version>
+            </dependency>
+            <dependency>
+                <groupId>fi.vm.sade</groupId>
+                <artifactId>scala-utils_2.11</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.log4s</groupId>
+                <artifactId>log4s_2.11</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cb372</groupId>
+                <artifactId>scalacache-guava_2.11</artifactId>
+                <version>0.9.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.24.1-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.8.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.10.3</version>
+            </dependency>
+            <dependency>
+                <groupId>fi.vm.sade</groupId>
+                <artifactId>scala-logging_2.11</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang.modules</groupId>
+                <artifactId>scala-java8-compat_2.11</artifactId>
+                <version>0.8.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_2.11</artifactId>
-            <version>${akkahttp.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>1.3.1</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
@@ -42,7 +221,7 @@
         <dependency>
             <groupId>fi.vm.sade</groupId>
             <artifactId>scala-user-details_2.11</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>fi.vm.sade</groupId>
@@ -63,7 +242,6 @@
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-native_2.11</artifactId>
-            <version>3.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.scalikejdbc</groupId>
@@ -93,12 +271,17 @@
         <dependency>
             <groupId>fi.vm.sade</groupId>
             <artifactId>scala-group-emailer_2.11</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.6.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>fi.vm.sade</groupId>
             <artifactId>scala-utils_2.11</artifactId>
-            <version>0.3.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -118,7 +301,6 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.swagger-akka-http</groupId>
@@ -128,8 +310,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.specs2</groupId>
@@ -162,7 +342,7 @@
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging_2.11</artifactId>
-            <version>3.5.0</version>
+            <version>3.9.2</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -279,6 +459,28 @@
                         <exclude>**/*Spec.java</exclude>
                     </includes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M2</version>
+                <configuration>
+                    <rules>
+                        <requireJavaVersion>
+                            <version>1.8</version>
+                        </requireJavaVersion>
+                        <dependencyConvergence/>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

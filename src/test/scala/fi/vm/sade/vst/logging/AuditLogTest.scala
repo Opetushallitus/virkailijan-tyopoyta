@@ -1,8 +1,8 @@
+package fi.vm.sade.vst.logging
+
 import java.time.LocalDate
 
-import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.Changes
-import fi.vm.sade.vst.logging.AuditLogging
 import fi.vm.sade.vst.model.{NotificationUpdate, ReleaseUpdate}
 import org.junit.runner.RunWith
 import org.specs2.mutable._

@@ -30,7 +30,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
     private lazy val casParams = CasParams(service, config.casUsername, config.casPassword)
 
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
-      casParams, client.blaze.defaultClient, "virkailijan-tyopoyta", "JSESSIONID")
+      casParams, client.blaze.defaultClient, "1.2.246.562.10.00000000001.virkailijan-tyopoyta", "JSESSIONID")
 
     private def handleResponse(maybeResponse: MaybeResponse): Try[String] = {
       val response = maybeResponse.orNotFound
