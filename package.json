@@ -10,7 +10,9 @@
     "start": "webpack-dev-server",
     "start-dev": "NODE_ENV=development webpack --config webpack/dev.config.js --watch",
     "e2e-setup": "selenium-standalone install",
-    "e2e-smoketests": "nightwatch ui/app/resources/test/nightwatch/smoketests"
+    "e2e-smoketests": "nightwatch ui/app/resources/test/nightwatch/smoketests",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "keywords": [],
   "author": "",
@@ -78,6 +80,8 @@
     "react-dom": "15.4.2",
     "react-render-html": "0.1.6",
     "semantic-ui-css": "2.2.4",
-    "semantic-ui-react": "0.68.2"
-  }
+    "semantic-ui-react": "0.68.2",
+    "snyk": "^1.190.0"
+  },
+  "snyk": true
 }
