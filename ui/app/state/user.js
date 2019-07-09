@@ -16,9 +16,6 @@ function fetch () {
 
   http({
     url: urls.details,
-    requestOptions: {
-      mode: 'no-cors'
-    },
     onSuccess: user => fetchBus.push(user),
     onError: error => fetchFailedBus.push(error)
   })
