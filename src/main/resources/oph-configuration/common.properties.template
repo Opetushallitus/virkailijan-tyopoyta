@@ -16,8 +16,8 @@ kayttooikeus.url=https://{{host_virkailija}}/kayttooikeus-service
 db.type=postgresql
 db.postgresql.driver=org.postgresql.Driver
 db.postgresql.uri={{virkailijan_tyopoyta_db_uri}}
-db.postgresql.username={{virkailijan_tyopoyta_db_username}}
-db.postgresql.password={{virkailijan_tyopoyta_db_password}}
+db.postgresql.username={{postgres_app_user}}
+db.postgresql.password={{virkailijan_tyopoyta_db_app_password}}
 
 db.pool.poolInitialSize=5
 db.pool.poolMaxSize=7
