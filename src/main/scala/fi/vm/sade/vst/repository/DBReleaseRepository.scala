@@ -556,6 +556,7 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       releaseId
     }
     AuditLog.auditCreateRelease(user, releaseUpdate)
+    logger.info(s"Added release for user ${user.userId}")
     getReleaseForUser(id, user)
   }
 

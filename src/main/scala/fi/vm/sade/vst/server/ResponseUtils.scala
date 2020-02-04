@@ -19,7 +19,6 @@ trait ResponseUtils extends Directives with LazyLogging {
   def sendResponse[T](eventualResult: Future[T])(implicit writes: Writes[T]): Route = {
     onComplete(eventualResult) {
       case Success(result) ⇒
-        logger.info(s"Successfully handled route with result ${result.toString}")
         complete {
           HttpResponse(entity = HttpEntity(`application/json`, Json.toJson(result).toString()))
         }
