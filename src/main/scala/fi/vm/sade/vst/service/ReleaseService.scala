@@ -64,7 +64,6 @@ class ReleaseService(releaseRepository: ReleaseRepository) {
   }
 
   def addRelease(user: User, release: ReleaseUpdate)(implicit au: AuditUser): Option[Release] = {
-
     releaseRepository.addRelease(user, release)
   }
 
