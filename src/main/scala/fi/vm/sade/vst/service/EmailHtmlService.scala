@@ -30,7 +30,6 @@ object EmailHtmlService extends Configuration {
 
   def htmlFooter(language: String): Elem = {
     val loginLink = EmailTranslations.translation(language).getOrElse(EmailTranslations.EmailFooterLink, EmailTranslations.defaultEmailFooterLink)
-    println(s"loginPage: ${loginPage}")
     <div style="background: #FFFFFF; padding: 1em 2em 1em 2em;">
       <table style="width: 100%">
         <tr>
