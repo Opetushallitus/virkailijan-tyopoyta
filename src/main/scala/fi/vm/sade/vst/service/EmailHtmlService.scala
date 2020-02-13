@@ -39,7 +39,7 @@ object EmailHtmlService extends Configuration {
             </a>
           </td>
           <td style="text-align: right">
-            <img src={ophLogoUrl} style="width: 250px;" alt="Opetushallitus"/>
+            <img src={ophLogoUrl} alt="Opetushallitus"/>
           </td>
         </tr>
       </table>
