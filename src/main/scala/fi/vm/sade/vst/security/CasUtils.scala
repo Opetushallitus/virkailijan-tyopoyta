@@ -3,10 +3,10 @@ package fi.vm.sade.vst.security
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.utils.cas.CasClient.{ServiceTicket, Username}
 import fi.vm.sade.utils.cas._
-import fi.vm.sade.vst.AuthenticationConfig
+import fi.vm.sade.vst.{AuthenticationConfig, Configuration}
 import org.http4s._
-
 import scalaz.concurrent.Task
+
 import scala.util.{Failure, Success, Try}
 
 
@@ -14,7 +14,7 @@ object RequestMethod extends Enumeration {
   val GET, POST = Value
 }
 
-class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyLogging {
+class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyLogging with Configuration {
   private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicket(config.serviceId + "/authenticate")
 
   def validateTicket(serviceTicket: ServiceTicket): Try[Username] = {
@@ -30,7 +30,7 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
     private lazy val casParams = CasParams(service, config.casUsername, config.casPassword)
 
     private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
-      casParams, client.blaze.defaultClient, "1.2.246.562.10.00000000001.virkailijan-tyopoyta", "JSESSIONID")
+      casParams, client.blaze.defaultClient, callerId, "JSESSIONID")
 
     private def handleResponse(maybeResponse: MaybeResponse): Try[String] = {
       val response = maybeResponse.orNotFound

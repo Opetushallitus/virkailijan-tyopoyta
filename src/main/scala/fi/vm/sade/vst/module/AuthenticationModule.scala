@@ -10,7 +10,7 @@ trait AuthenticationModule extends Configuration {
 
   import com.softwaremill.macwire._
 
-  lazy val casClient = new CasClient(urls.url("cas.url"), client.blaze.defaultClient)
+  lazy val casClient = new CasClient(urls.url("cas.url"), client.blaze.defaultClient, callerId)
 
   lazy val casUtils: CasUtils = wire[CasUtils]
   lazy val userDetailsService: KayttooikeusUserDetailsService = wire[KayttooikeusUserDetailsService]

@@ -28,7 +28,7 @@ export default function http (options) {
   // Don't cache responses, since IE11 always returns the cached response
   requestOptions.headers['Cache-Control'] = 'no-store'
   requestOptions.headers['Pragma'] = 'no-cache'
-  requestOptions.headers['Caller-Id'] = 'virkailijan-tyopoyta'
+  requestOptions.headers['Caller-Id'] = '1.2.246.562.10.00000000001.virkailijan-tyopoyta.frontend'
 
   // Set credentials: same-origin to allow sending cookies
   requestOptions.credentials = 'same-origin'
