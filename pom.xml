@@ -216,7 +216,7 @@
         <dependency>
             <groupId>com.softwaremill.akka-http-session</groupId>
             <artifactId>core_2.11</artifactId>
-            <version>0.3.0</version>
+            <version>0.5.11</version>
         </dependency>
         <dependency>
             <groupId>fi.vm.sade</groupId>
