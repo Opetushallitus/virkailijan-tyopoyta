@@ -13,7 +13,7 @@
         <akkahttp.version>10.0.5</akkahttp.version>
         <circe.version>0.6.1</circe.version>
         <http4s.version>0.16.6a</http4s.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
     </properties>
     <dependencyManagement>
         <dependencies>
