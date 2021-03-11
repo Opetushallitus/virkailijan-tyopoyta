@@ -30,6 +30,16 @@ export default function http (options) {
   requestOptions.headers['Pragma'] = 'no-cache'
   requestOptions.headers['Caller-Id'] = '1.2.246.562.10.00000000001.virkailijan-tyopoyta.frontend'
 
+  function getCSRF() {
+    const val = document.cookie.match("(^|;)\\s*CSRF\\s*=\\s*([^;]+)")
+    return val ? val.pop() : ""
+  }
+
+  const CSRF_VALUE = "" + getCSRF()
+  if (CSRF_VALUE !== "") {
+    requestOptions.headers['CSRF'] = CSRF_VALUE
+  }
+
   // Set credentials: same-origin to allow sending cookies
   requestOptions.credentials = 'same-origin'
 
