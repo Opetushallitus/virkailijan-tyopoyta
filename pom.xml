@@ -404,6 +404,7 @@
                             <npmVersion>3.8.9</npmVersion>
                         </configuration>
                     </execution>
+
                     <execution>
                         <id>npm install</id>
                         <goals>
