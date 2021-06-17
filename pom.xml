@@ -333,7 +333,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.193</version>
+            <version>1.4.200</version>
         </dependency>
         <dependency>
             <groupId>com.enragedginger</groupId>
@@ -390,7 +390,7 @@
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging_2.11</artifactId>
-            <version>3.9.3</version>
+            <version>3.9.4</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
