@@ -1,19 +1,17 @@
 package fi.vm.sade.vst.server.routes
 
-import javax.ws.rs.Path
-
-import fi.vm.sade.utils.cas.CasLogout
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession, setSession}
 import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
+import fi.vm.sade.utils.cas.CasLogout
 import fi.vm.sade.vst.model.{JsonSupport, User}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
 import io.swagger.annotations._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Success, Failure}
+import javax.ws.rs.Path
+import scala.util.{Failure, Success}
 
 
 @Api(value = "Kirjautumiseen liittyvät rajapinnat", produces = "application/json")
@@ -24,7 +22,7 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
 
   private def authenticateUser(ticket: String): Route = {
     logger.info(s"Validating CAS ticket $ticket")
-    userService.validateTicket(ticket) match {
+    userService.validateTicket(serviceRoot, ticket) match {
       case Success(uid) =>
         storeTicket(ticket, uid)
         userService.findUser(uid) match {

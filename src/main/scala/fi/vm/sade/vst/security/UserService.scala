@@ -2,21 +2,22 @@ package fi.vm.sade.vst.security
 
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
+import fi.vm.sade.utils.kayttooikeus.{KayttooikeusUserDetails, KayttooikeusUserDetailsService}
+import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
-import fi.vm.sade.vst.Configuration
 import play.api.libs.json._
-import java.util.concurrent.ConcurrentHashMap
-
-import fi.vm.sade.utils.kayttooikeus.{KayttooikeusUserDetails, KayttooikeusUserDetailsService}
-
-import scala.collection.convert.decorateAsScala._
-import scala.collection.mutable
-import scala.language.postfixOps
-import scala.util.{Failure, Success, Try}
 import scalacache.ScalaCache
 import scalacache.guava.GuavaCache
 import scalacache.memoization._
+
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.convert.decorateAsScala._
+import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
+
 
 class UserService(casUtils: CasUtils,
                   userDetailsService: KayttooikeusUserDetailsService,
@@ -27,7 +28,7 @@ class UserService(casUtils: CasUtils,
 
   implicit val scalaCache = ScalaCache(GuavaCache())
 
-  private lazy val servicePart = s"${authenticationConfig.serviceId}/authenticate"
+  private lazy val servicePart = s"${config.getString("virkailijan-tyopoyta.cas.service")}/authenticate"
 
   lazy val loginUrl: String = urls.url("cas.login", servicePart)
 
@@ -78,7 +79,7 @@ class UserService(casUtils: CasUtils,
   }
 
   private def fetchCacheableUserData(uid: String): Try[User] = {
-    memoizeSync(authenticationConfig.memoizeDuration) {
+    memoizeSync(10.minutes) {
       userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
         case Right(koUser) =>
           Success(createUser(koUser))
@@ -139,12 +140,12 @@ class UserService(casUtils: CasUtils,
     userRepository.deleteDraft(user)
   }
 
-  def validateTicket(ticket: String): Try[String] = {
-    casUtils.validateTicket(ticket)
+  def validateTicket(service: String, ticket: String): Try[String] = {
+    casUtils.validateTicket(service, ticket)
   }
 
-  def authenticate(ticket: String): Option[(String, User)] = {
-    val uid = casUtils.validateTicket(ticket)
+  def authenticate(service: String, ticket: String): Option[(String, User)] = {
+    val uid = casUtils.validateTicket(service, ticket)
     val user = uid.flatMap(findUser)
 
     (uid, user) match {

@@ -1,19 +1,17 @@
 package fi.vm.sade.vst
 
-import java.io.File
-import java.nio.file.Paths
-
 import com.softwaremill.session.SessionConfig
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import fi.vm.sade.properties.OphProperties
 
-import scala.concurrent.duration._
+import java.io.File
+import java.nio.file.Paths
 
-case class AuthenticationConfig(serviceId: String, casUsername: String, casPassword: String, memoizeDuration: Duration)
+//case class AuthenticationConfig(serviceId: String, casUsername: String, casPassword: String, memoizeDuration: Duration)
 case class ServerConfig(port: Int, actorSystemConfig: Config)
 case class DBConfig(url: String, driver: String, username: String, password: String, pageLength: Int, dbType: String, dbPoolConfig: DBPoolConfig)
 case class DBPoolConfig(initialiSize: Int, maxSize: Int, connectionTimeoutMillis: Long, validationQuery: String)
-case class CasConfig(casUrl: String, casUsername: String, casPassword: String)
+//case class DefaultCasConfig(casUrl: String)
 case class OppijanumeroRekisteriConfig(serviceAddress: String)
 
 trait Configuration {
@@ -27,18 +25,30 @@ trait Configuration {
     .addDefault("baseUrl", config.getString("baseUrl"))
     .addDefault("host.alb", config.getString("host.alb"))
 
-  lazy val authenticationConfig = AuthenticationConfig(
-    config.getString("virkailijan-tyopoyta.cas.service"),
-    config.getString("virkailijan-tyopoyta.cas.user"),
-    config.getString("virkailijan-tyopoyta.cas.password"),
-    10.minutes
-  )
-
-  lazy val defaultCasConfig = CasConfig(
-    config.getString("cas.url"),
-    config.getString("virkailijan-tyopoyta.cas.user"),
-    config.getString("virkailijan-tyopoyta.cas.password")
-  )
+//  lazy val casConfig = new CasConfig(
+//    config.getString("virkailijan-tyopoyta.cas.user"),
+//    config.getString("virkailijan-tyopoyta.cas.password"),
+//    config.getString("virkailijan-tyopoyta.cas.url"),
+//    config.getString("virkailijan-tyopoyta.cas.service"),
+//    "CSRF",
+//    "1.2.246.562.10.00000000001.virkailijan-tyopoyta.backend",
+//    "JSESSIONID",
+//    "/j_spring_cas_security_check",
+//    null
+//  )
+//
+//  lazy val authenticationConfig = AuthenticationConfig(
+//    config.getString("virkailijan-tyopoyta.cas.service"),
+//    config.getString("virkailijan-tyopoyta.cas.user"),
+//    config.getString("virkailijan-tyopoyta.cas.password"),
+//    10.minutes
+//  )
+//
+//  lazy val defaultCasConfig = CasConfig(
+//    config.getString("cas.url"),
+//    config.getString("virkailijan-tyopoyta.cas.user"),
+//    config.getString("virkailijan-tyopoyta.cas.password")
+//  )
   lazy val oppijanumeroRekisteriConfig = OppijanumeroRekisteriConfig(urls.url("oppijanumerorekisteri.service"))
 
   lazy val emailSendingDisabled: Boolean = config.getString("tyopoyta.emails.disabled").toBoolean
@@ -79,5 +89,5 @@ trait Configuration {
   lazy val sessionConfig: SessionConfig = SessionConfig.fromConfig(sessionConf)
 
   val callerId: String = "1.2.246.562.10.00000000001.virkailijan-tyopoyta.backend"
-
+  val csrf: String = "CSRF"
 }

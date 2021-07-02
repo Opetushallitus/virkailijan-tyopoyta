@@ -8,6 +8,7 @@ virkailijan-tyopoyta.session.secret={{virkailijan_tyopoyta_session_secret}}
 virkailijan-tyopoyta.cas.service=https://{{host_virkailija}}/virkailijan-tyopoyta
 virkailijan-tyopoyta.cas.user={{virkailijan_tyopoyta_cas_user}}
 virkailijan-tyopoyta.cas.password={{virkailijan_tyopoyta_cas_password}}
+virkailijan-tyopoyta.cas.url=https://{{host_virkailija}}/cas
 
 #Käyttöoikeuspalvelu
 kayttooikeus.url=https://{{host_virkailija}}/kayttooikeus-service
@@ -34,7 +35,6 @@ ryhmasahkoposti.service.email.url = https://{{host_virkailija}}/ryhmasahkoposti-
 ryhmasahkoposti.service.batch.size = 500
 ryhmasahkoposti.rest.url=https://{{host_virkailija}}/ryhmasahkoposti-service/email
 
-cas.url = https://{{host_virkailija}}/cas
 virkailijan-tyopoyta.login = https://{{host_virkailija}}/cas/login?service=https://{{host_virkailija}}/virkailijan-tyopoyta
 oph.logo.url = {{opintopolku_baseurl}}/static/OPH_Su_Ru_vaaka_RGB.png
 

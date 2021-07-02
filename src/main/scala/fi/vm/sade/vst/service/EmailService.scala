@@ -1,18 +1,17 @@
 package fi.vm.sade.vst.service
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
-import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
+import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import play.api.libs.json._
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.util.{Failure, Success}
 
 class EmailService(casUtils: CasUtils,
@@ -149,7 +148,7 @@ class EmailService(casUtils: CasUtils,
       personOids
     }
 
-    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
+    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), "GET")
     response match {
       case Success(s) =>
         val oids: Seq[String] = parsePersonOidsFromResponse(s)
