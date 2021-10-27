@@ -94,16 +94,21 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
       .innerJoin(NotificationTable as n).on(r.id, n.releaseId)
       .leftJoin(NotificationContentTable as c).on(n.id, c.notificationId)
       .leftJoin(NotificationTagTable as nt).on(n.id, nt.notificationId)
+
   }
 
 
   private def timelineJoins: scalikejdbc.SelectSQLBuilder[Release] = {
     select
       .from(ReleaseTable as r)
+
       .leftJoin(ReleaseCategoryTable as rc).on(r.id, rc.releaseId)
+
       .leftJoin(ReleaseUserGroupTable as ug).on(r.id, ug.releaseId)
       .join(TimelineTable as tl).on(r.id, tl.releaseId)
+
       .leftJoin(NotificationTable as n)
+
       .on(sqls.eq(r.id, n.releaseId)
         .and(sqls.le(n.publishDate, LocalDate.now()))
         .and(sqls.eq(n.deleted, false)))
@@ -143,6 +148,20 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
 
   private def listNotifications(selectedCategories: Seq[Long], tags: Seq[Long], page: Int, user: User): Seq[Notification] = {
     val cats: Seq[Long] = if (selectedCategories.nonEmpty) selectedCategories else user.allowedCategories
+
+    logger.error("cats: " + cats)
+    logger.error("selectedCategories: " + selectedCategories)
+    logger.error("tags: " + tags)
+
+//    val sql: SQL[Release, NoExtractor] = withSQL[Release] {
+//      notificationJoins
+//        .where.not.gt(n.publishDate, LocalDate.now())
+//        .and.withRoundBracket {
+//        _.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)
+//      }
+//        .and.eq(r.deleted, false).and.eq(n.deleted, false)
+//        .orderBy(sqls"(notification.publish_date, notification.created_at, notification.release_id)").desc
+//    }
 
     var sqlString = sqls"select distinct release.id as i_on_release, " +
       "release.deleted as d_on_release, " +
