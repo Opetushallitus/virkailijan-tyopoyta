@@ -40,7 +40,6 @@ VALUES (4, 'fi', 'HÄIRIÖ');
 INSERT INTO notification_tag(notification_id, tag_id)
 VALUES (6, 1);
 
-
 INSERT INTO release (id, deleted)
 VALUES (7, FALSE);
 

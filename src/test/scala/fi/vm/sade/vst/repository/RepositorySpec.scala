@@ -53,35 +53,23 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
 
     "find releases with tag id" in new WithDefaultData {
       val notifications: NotificationList = releaseRepository.notifications(categories, Seq(1), page, user)
-      System.out.println("--------")
-      System.out.println(notifications)
-      System.out.println("--------")
       notifications.notifications.size shouldEqual 1
       notifications.notifications(0).id shouldEqual 6
     }
 
     "find releases with category id" in new WithDefaultData {
-      val userWithKayttooikeusryhma: User = User("userId", Some("GL"), "fi", false, Seq(Kayttooikeusryhma(1,Map.empty , Seq("1"), Seq(1))), Seq.empty, Seq(1))
+      val userWithKayttooikeusryhma: User = User("userId", Some("GL"), "fi", false, Seq(Kayttooikeusryhma(1, Map.empty, Seq("1"), Seq(1))), Seq.empty, Seq(1))
       val notifications: NotificationList = releaseRepository.notifications(Seq(1), tags, page, userWithKayttooikeusryhma)
-      System.out.println("--------")
-      System.out.println(notifications)
-      System.out.println("--------")
       notifications.notifications.size shouldEqual 6
       notifications.notifications(0).id shouldEqual 7
     }
 
     "not find releases with category id with no kayttöoikeusryhmä" in new WithDefaultData {
-      val userWithKayttooikeusryhma: User = User("userId", Some("GL"), "fi", false, Seq(Kayttooikeusryhma(1,Map.empty , Seq("2"), Seq(1))), Seq.empty, Seq(1))
+      val userWithKayttooikeusryhma: User = User("userId", Some("GL"), "fi", false, Seq(Kayttooikeusryhma(1, Map.empty, Seq("2"), Seq(1))), Seq.empty, Seq(1))
       val notifications: NotificationList = releaseRepository.notifications(Seq(2), tags, page, userWithKayttooikeusryhma)
-      System.out.println("--------")
-      System.out.println(notifications)
-      System.out.println("--------")
       notifications.notifications.size shouldEqual 5
-
       notifications.notifications(0).id shouldEqual 6
     }
-
-
 
     "return releases ordered by releaseId in a descending order if they have the same releaseDate" in new WithDefaultData {
 
