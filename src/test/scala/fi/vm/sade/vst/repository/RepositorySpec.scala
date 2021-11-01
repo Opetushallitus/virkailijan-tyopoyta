@@ -1,8 +1,5 @@
 package fi.vm.sade.vst.repository
 
-import java.net.InetAddress
-import java.time.LocalDate
-
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.TestModule
@@ -10,6 +7,9 @@ import fi.vm.sade.vst.util.TestDBData
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+
+import java.net.InetAddress
+import java.time.LocalDate
 
 @RunWith(classOf[JUnitRunner])
 class RepositorySpec extends Specification with TestModule with TestDBData {
@@ -51,9 +51,30 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
 
     }
 
+    "find releases with tag id" in new WithDefaultData {
+      val notifications: NotificationList = releaseRepository.notifications(categories, Seq(1), page, user)
+      notifications.notifications.size shouldEqual 1
+      notifications.notifications(0).id shouldEqual 6
+    }
+
+    "find releases with category id" in new WithDefaultData {
+      val userWithKayttooikeusryhma: User = User("userId", Some("GL"), "fi", false, Seq(Kayttooikeusryhma(1, Map.empty, Seq("1"), Seq(1))), Seq.empty, Seq(1))
+      val notifications: NotificationList = releaseRepository.notifications(Seq(1), tags, page, userWithKayttooikeusryhma)
+      notifications.notifications.size shouldEqual 6
+      notifications.notifications(0).id shouldEqual 7
+    }
+
+    "not find releases with category id with no kayttöoikeusryhmä" in new WithDefaultData {
+      val userWithKayttooikeusryhma: User = User("userId", Some("GL"), "fi", false, Seq(Kayttooikeusryhma(1, Map.empty, Seq("2"), Seq(1))), Seq.empty, Seq(1))
+      val notifications: NotificationList = releaseRepository.notifications(Seq(2), tags, page, userWithKayttooikeusryhma)
+      notifications.notifications.size shouldEqual 5
+      notifications.notifications(0).id shouldEqual 6
+    }
+
     "return releases ordered by releaseId in a descending order if they have the same releaseDate" in new WithDefaultData {
 
       val expectedDatesAndIds: Seq[(LocalDate, Long)] = Seq(
+        (LocalDate.of(2021, 10, 22), 6l),
         (LocalDate.of(2016, 12, 31), 5l),
         (LocalDate.of(2016, 12, 30), 3l),
         (LocalDate.of(2016, 12, 30), 2l),

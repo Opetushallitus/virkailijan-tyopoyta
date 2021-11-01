@@ -1,15 +1,15 @@
 package fi.vm.sade.vst.repository
 
+import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.DBConfig
-import fi.vm.sade.vst.model._
-import java.time.{LocalDate, LocalDateTime, YearMonth}
-
-import scala.util.Random
-import scalikejdbc._
-import Tables._
-import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.vst.logging.AuditLogging
+import fi.vm.sade.vst.model._
+import fi.vm.sade.vst.repository.Tables._
+import scalikejdbc._
+
+import java.time.{LocalDate, LocalDateTime, YearMonth}
+import scala.util.Random
 
 class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with SessionInfo with LazyLogging with AuditLogging {
 
@@ -144,15 +144,51 @@ class DBReleaseRepository(val config: DBConfig) extends ReleaseRepository with S
   private def listNotifications(selectedCategories: Seq[Long], tags: Seq[Long], page: Int, user: User): Seq[Notification] = {
     val cats: Seq[Long] = if (selectedCategories.nonEmpty) selectedCategories else user.allowedCategories
 
-    val sql: SQL[Release, NoExtractor] = withSQL[Release] {
-      notificationJoins
-        .where.not.gt(n.publishDate, LocalDate.now())
-        .and.withRoundBracket {
-        _.gt(n.expiryDate, LocalDate.now()).or.isNull(n.expiryDate)
-      }
-        .and.eq(r.deleted, false).and.eq(n.deleted, false)
-        .orderBy(sqls"(notification.publish_date, notification.created_at, notification.release_id)").desc
+    var sqlString = sqls"select distinct release.id as i_on_release, " +
+      "release.deleted as d_on_release, " +
+      "release_category.release_id as ri_on_release_category, "
+    if (cats.nonEmpty) {
+      sqlString += "release_category.category_id as ci_on_release_category, "
+    } else {
+      sqlString += "null as ci_on_release_category, "
     }
+    sqlString += "release_usergroup.release_id as ri_on_release_usergroup, " +
+      "release_usergroup.usergroup_id as ui_on_release_usergroup, " +
+      "notification.id as i_on_notification, " +
+      "notification.release_id as ri_on_notification, " +
+      "notification.publish_date as pd_on_notification, " +
+      "notification.expiry_date as ed_on_notification, " +
+      "notification.created_by as cb_on_notification, " +
+      "notification.created_at as ca_on_notification, " +
+      "notification.modified_by as mb_on_notification, " +
+      "notification.modified_at as ma_on_notification, " +
+      "notification.deleted as d_on_notification, " +
+      "notification_content.notification_id as ni_on_notification_content, " +
+      "notification_content.language as l_on_notification_content, " +
+      "notification_content.text as t1_on_notification_content, " +
+      "notification_content.title as t2_on_notification_content, " +
+      "notification_tag.notification_id as ni_on_notification_tag, "
+    if (tags.nonEmpty) {
+      sqlString += "notification_tag.tag_id as ti_on_notification_tag "
+    } else {
+      sqlString += "null as ti_on_notification_tag "
+    }
+    sqlString += "from release " +
+      "left join release_category on release.id = release_category.release_id " +
+      "left join release_usergroup on release.id = release_usergroup.release_id " +
+      "inner join notification on release.id = notification.release_id " +
+      "left join notification_content on notification.id = notification_content.notification_id " +
+      "left join notification_tag on notification.id = notification_tag.notification_id " +
+      "where not notification.publish_date > '" + LocalDate.now() + "' " +
+      "and (notification.expiry_date > '" + LocalDate.now() + "' or notification.expiry_date is null) " +
+      "and release.deleted = false " +
+      "and notification.deleted = false " +
+      "order by notification.publish_date desc, notification.created_at desc, notification.release_id desc"
+
+    val sql = SQL[Release] {
+      sqlString
+    }
+
     notificationsFromRS(sql, user).filter(n =>
       (tags.isEmpty || n.tags.intersect(tags).nonEmpty) &&
         (n.categories.isEmpty || n.categories.intersect(cats).nonEmpty))
