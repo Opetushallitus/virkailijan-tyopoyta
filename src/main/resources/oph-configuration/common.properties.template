@@ -19,8 +19,8 @@ db.postgresql.uri={{virkailijan_tyopoyta_db_uri}}
 db.postgresql.username={{postgres_app_user}}
 db.postgresql.password={{virkailijan_tyopoyta_db_app_password}}
 
-db.pool.poolInitialSize=5
-db.pool.poolMaxSize=7
+db.pool.poolInitialSize=20
+db.pool.poolMaxSize=50
 db.pool.poolConnectionTimeoutMillis=1000
 db.pool.poolValidationQuery=select 1 as one
 
