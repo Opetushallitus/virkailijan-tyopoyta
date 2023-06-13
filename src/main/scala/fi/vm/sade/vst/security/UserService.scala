@@ -78,14 +78,12 @@ class UserService(casUtils: CasUtils,
   }
 
   private def fetchCacheableUserData(uid: String): Try[User] = {
-    memoizeSync(authenticationConfig.memoizeDuration) {
-      userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
-        case Right(koUser) =>
-          Success(createUser(koUser))
-        case Left(error) =>
-          logger.error(s"User $uid role query error", error)
-          Failure(new IllegalStateException(s"User $uid role query error"))
-      }
+    userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
+      case Right(koUser) =>
+        Success(createUser(koUser))
+      case Left(error) =>
+        logger.error(s"User $uid role query error", error)
+        Failure(new IllegalStateException(s"User $uid role query error"))
     }
   }
 
