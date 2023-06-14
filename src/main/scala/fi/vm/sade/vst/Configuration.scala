@@ -31,7 +31,7 @@ trait Configuration {
     config.getString("virkailijan-tyopoyta.cas.service"),
     config.getString("virkailijan-tyopoyta.cas.user"),
     config.getString("virkailijan-tyopoyta.cas.password"),
-    10.minutes
+    60.minutes
   )
 
   lazy val defaultCasConfig = CasConfig(
