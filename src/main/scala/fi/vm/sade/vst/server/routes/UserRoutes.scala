@@ -80,14 +80,18 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
   @Path("/userDetails")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Kirjautuneen käyttäjän tiedot", response = classOf[UserProfile]),
+    new ApiResponse(code = 302, message = "Uudelleenohjaus CASsille, service-parametrina /authenticate endpoint"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def userDetailsRoute: Route =
     path("userDetails") {
       get {
-        withUserOrUnauthorized { user =>
+        redirect(userService.loginUrl, StatusCodes.Found)
+/*
+        withUserOrUnauthorized { user: User =>
           logger.debug(s"Responding with user details for ${user.userId}")
           sendResponse(Future(user))
         }
+*/
       }
     }
 
