@@ -1,10 +1,9 @@
 package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
-
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
-import fi.vm.sade.vst.model.{JsonSupport, TargetingGroup, UserProfile}
+import fi.vm.sade.vst.model.{JsonSupport, TargetingGroup, User, UserProfile}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import io.swagger.annotations._
@@ -80,18 +79,14 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
   @Path("/userDetails")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Kirjautuneen käyttäjän tiedot", response = classOf[UserProfile]),
-    new ApiResponse(code = 302, message = "Uudelleenohjaus CASsille, service-parametrina /authenticate endpoint"),
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole voimassa olevaa sessiota")))
   def userDetailsRoute: Route =
     path("userDetails") {
       get {
-        redirect(userService.loginUrl, StatusCodes.Found)
-/*
         withUserOrUnauthorized { user: User =>
           logger.debug(s"Responding with user details for ${user.userId}")
           sendResponse(Future(user))
         }
-*/
       }
     }
 
