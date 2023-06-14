@@ -15,5 +15,6 @@
   "categories": "/virkailijan-tyopoyta/api/categories",
   "tags": "/virkailijan-tyopoyta/api/tags",
   "user.groups": "/virkailijan-tyopoyta/api/usergroups",
-  "timeline": "/virkailijan-tyopoyta/api/timeline"
+  "timeline": "/virkailijan-tyopoyta/api/timeline",
+  "loopStopper": "/virkailija-raamit/"
 }

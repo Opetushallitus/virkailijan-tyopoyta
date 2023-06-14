@@ -43,7 +43,12 @@ function onReceived (state, user) {
 function onFetchFailed (state, error) {
   console.error('Fetching user info failed')
 
-  window.location.replace(urls['login']);
+
+  if (user['hasLoadingFailed']) {
+    window.location.replace(urls['loopStopper'])
+  } else {
+    window.location.replace(urls['login']);
+  }
 
   return R.compose(
     R.assocPath(['user', 'isLoading'], false),
