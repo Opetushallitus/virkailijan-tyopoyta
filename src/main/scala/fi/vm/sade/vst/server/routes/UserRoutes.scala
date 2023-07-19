@@ -1,10 +1,9 @@
 package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
-
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
-import fi.vm.sade.vst.model.{JsonSupport, TargetingGroup, UserProfile}
+import fi.vm.sade.vst.model.{JsonSupport, TargetingGroup, User, UserProfile}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{AuditSupport, ResponseUtils, SessionSupport}
 import io.swagger.annotations._
@@ -84,7 +83,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
   def userDetailsRoute: Route =
     path("userDetails") {
       get {
-        withUserOrUnauthorized { user =>
+        withUserOrUnauthorized { user: User =>
           logger.debug(s"Responding with user details for ${user.userId}")
           sendResponse(Future(user))
         }
