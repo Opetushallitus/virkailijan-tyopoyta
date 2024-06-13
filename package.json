@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-core": "6.3.26",
+    "babel-core": "6.26.3",
     "babel-eslint": "7.1.1",
     "babel-loader": "6.2.0",
     "babel-plugin-transform-object-rest-spread": "6.8.0",
@@ -55,7 +55,7 @@
     "webpack-livereload-plugin": "0.8.1",
     "webpack-merge": "4.1.0",
     "webpack-uglify-js-plugin": "1.1.9",
-    "webpack-validator": "3.0.0"
+    "webpack-validator": "3.0.1"
   },
   "dependencies": {
     "baconjs": "0.7.59",
