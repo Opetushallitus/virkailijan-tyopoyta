@@ -31,7 +31,7 @@ jobs:
           java-version: '8'
           distribution: 'corretto'
 
-      - uses: szenius/set-timezone@v1.2
+      - uses: szenius/set-timezone@v2.0
         with:
           timezoneLinux: "Europe/Helsinki"
 
@@ -54,6 +54,6 @@ jobs:
       application: virkailijan-tyopoyta
       base-image: baseimage-fatjar-openjdk8:master
       configfolder: src/main/resources/*
-      jarfile: virkailijan-tyopoyta-*.jar
+      jarfile: virkailijan-tyopoyta-*
     secrets:
       AWS_UTILITY_ROLE_ARN: ${{ secrets.AWS_OPH_UTILITY_ROLE_ARN }}
