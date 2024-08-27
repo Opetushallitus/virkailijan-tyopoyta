@@ -50,7 +50,7 @@
     "selenium-standalone": "6.2.0",
     "standard": "8.6.0",
     "style-loader": "0.13.0",
-    "webpack": "1.13.1",
+    "webpack": "5.94.0",
     "webpack-dev-server": "1.14.1",
     "webpack-livereload-plugin": "0.8.1",
     "webpack-merge": "4.1.0",
