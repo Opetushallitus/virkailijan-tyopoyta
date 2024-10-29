@@ -71,7 +71,7 @@ class EmailService(casUtils: CasUtils,
         Seq.empty
       } else {
         logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-        val emailDatas: Seq[EmailData] = getEmailDatas(releaseSetsForUsers)
+        val emailDatas = getEmailDatas(releaseSetsForUsers)
 
         logger.info(s"Sending ${emailDatas.size} unique emails")
         val result: Seq[String] = emailDatas.flatMap { data =>
