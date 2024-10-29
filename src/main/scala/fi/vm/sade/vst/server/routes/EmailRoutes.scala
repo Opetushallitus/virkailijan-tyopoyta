@@ -83,18 +83,16 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
     new ApiResponse(code = 401, message = "Käyttäjällä ei ole muokkausoikeuksia tai voimassa olevaa sessiota")))
   def sendEmailRoute: Route =
     path("email" / IntNumber) { releaseId =>
-      withRequestTimeout(emailTimeout, emailTimeoutHandler) {
-        post {
-          withAdminUser { user =>
-            withAuditUser(user) { implicit au =>
-              releaseService.getReleaseForUser(releaseId, user) match {
-                case Some(r) =>
-                  logger.info(s"send email immediately for release ${releaseId} for user ${user.userId}")
-                  sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
-                case None =>
-                  logger.error(s"send email immediately failed because no release found for user ${user.userId}")
-                  complete(StatusCodes.BadRequest)
-              }
+      post {
+        withAdminUser { user =>
+          withAuditUser(user) { implicit au =>
+            releaseService.getReleaseForUser(releaseId, user) match {
+              case Some(r) =>
+                logger.info(s"send email immediately for release ${releaseId} for user ${user.userId}")
+                sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+              case None =>
+                logger.error(s"send email immediately failed because no release found for user ${user.userId}")
+                complete(StatusCodes.BadRequest)
             }
           }
         }
