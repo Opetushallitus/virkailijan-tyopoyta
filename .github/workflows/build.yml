@@ -52,7 +52,7 @@ jobs:
     uses: Opetushallitus/.github/.github/workflows/push-scan-java-ecr.yml@main
     with:
       application: virkailijan-tyopoyta
-      base-image: baseimage-fatjar-openjdk8:master
+      base-image: baseimage-fatjar-openjdk17:master
       configfolder: src/main/resources/*
       jarfile: virkailijan-tyopoyta-*
     secrets:
