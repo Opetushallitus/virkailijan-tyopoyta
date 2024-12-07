@@ -220,6 +220,13 @@
             <groupId>fi.oph.viestinvalitys</groupId>
             <artifactId>kirjasto</artifactId>
             <version>0.1-SNAPSHOT</version>
+            <exclusions>
+                <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -305,17 +312,6 @@
         </dependency>
         <dependency>
             <groupId>fi.vm.sade</groupId>
-            <artifactId>scala-group-emailer_2.11</artifactId>
-            <version>0.9.3-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>fi.vm.sade</groupId>
             <artifactId>scala-utils_2.11</artifactId>
         </dependency>
         <dependency>
@@ -356,6 +352,12 @@
             <groupId>org.specs2</groupId>
             <artifactId>specs2-junit_2.11</artifactId>
             <version>3.8.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatestplus</groupId>
+            <artifactId>mockito-5-12_2.11</artifactId>
+            <version>3.2.19.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

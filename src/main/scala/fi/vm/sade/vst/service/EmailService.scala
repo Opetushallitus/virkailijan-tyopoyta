@@ -6,7 +6,6 @@ import com.typesafe.scalalogging.LazyLogging
 import fi.oph.viestinvalitys.{ViestinvalitysClient, ViestinvalitysClientException}
 import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti}
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
@@ -22,9 +21,7 @@ class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,
                    val userService: UserService)
   extends RepositoryModule
-    with GroupEmailComponent
     with Configuration
-    with JsonFormats
     with LazyLogging
     with JsonSupport {
 
@@ -46,12 +43,10 @@ class EmailService(casUtils: CasUtils,
   val groupTypeFilter = "yhteystietotyyppi2"
   val contactTypeFilter = "YHTEYSTIETO_SAHKOPOSTI"
 
-  lazy val emailConfiguration = new GroupEmailerSettings(config)
-  lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
 
   lazy val viestinvalitysClient =
     ViestinvalitysClient.builder()
-      .withEndpoint("https://viestinvalitys.hahtuvaopintopolku.fi")
+      .withEndpoint(config.getString("viestinvalityspalvelu.rest.url"))
       .withUsername(config.getString("virkailijan-tyopoyta.cas.user"))
       .withPassword(config.getString("virkailijan-tyopoyta.cas.password"))
       .withCasEndpoint(config.getString("cas.url"))
@@ -85,8 +80,9 @@ class EmailService(casUtils: CasUtils,
         logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
 
         try {
+          // lähetykselle geneerinen otsikko aikaleimalla, koska kerralla lähetetään useita viestejä
           val luoLahetysResponse = viestinvalitysClient.luoLahetys(Lahetys.builder()
-            .withOtsikko("Virkailijan Työpöytä Tiedotteet")
+            .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY hh:mm")))
             .withLahettavaPalvelu("virkailijantyopoyta")
             .withLahettaja(Optional.empty.asInstanceOf[Optional[String]], "noreply@opintopolku.fi")
             .withNormaaliPrioriteetti()
