@@ -1,6 +1,6 @@
 package fi.vm.sade.vst.service
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import com.typesafe.scalalogging.LazyLogging
 import fi.oph.viestinvalitys.{ViestinvalitysClient, ViestinvalitysClientException}
@@ -82,7 +82,7 @@ class EmailService(casUtils: CasUtils,
         try {
           // lähetykselle geneerinen otsikko aikaleimalla, koska kerralla lähetetään useita viestejä
           val luoLahetysResponse = viestinvalitysClient.luoLahetys(Lahetys.builder()
-            .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY hh:mm")))
+            .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY hh:mm")))
             .withLahettavaPalvelu("virkailijantyopoyta")
             .withLahettaja(Optional.empty.asInstanceOf[Optional[String]], "noreply@opintopolku.fi")
             .withNormaaliPrioriteetti()
