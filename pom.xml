@@ -227,7 +227,7 @@
         <dependency>
             <groupId>fi.oph.viestinvalitys</groupId>
             <artifactId>kirjasto</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
             <exclusions>
                 <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
                 <exclusion>
