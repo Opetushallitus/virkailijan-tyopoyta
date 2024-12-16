@@ -4,7 +4,7 @@ import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import com.typesafe.scalalogging.LazyLogging
 import fi.oph.viestinvalitys.{ViestinvalitysClient, ViestinvalitysClientException}
-import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti}
+import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, KayttooikeusImpl, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti}
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
@@ -19,7 +19,8 @@ import collection.JavaConverters._
 
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,
-                   val userService: UserService)
+                   val userService: UserService,
+                   val emailHtmlService: HtmlService = EmailHtmlService)
   extends RepositoryModule
     with Configuration
     with LazyLogging
@@ -60,8 +61,7 @@ class EmailService(casUtils: CasUtils,
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
   private val dateTimeFormat: DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-  def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
-    // TODO: Should this just take range of dates? At the moment it is easier to just get evets for current and previous date
+  def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser, adminUserOid: Option[String]): Unit = {
     logger.info(s"Preparing to send emails for date $date")
     val releases = releaseRepository.getEmailReleasesForDate(date)
     val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
@@ -69,7 +69,7 @@ class EmailService(casUtils: CasUtils,
     logger.info("sendEmailsForDate result: " + results.map(r => r.getViestiTunniste).mkString(", "))
   }
 
-  def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[LuoViestiSuccessResponse] = {
+  def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser, adminUserOid: Option[String]): Seq[LuoViestiSuccessResponse] = {
     if (!emailSendingDisabled) {
       val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
@@ -80,13 +80,14 @@ class EmailService(casUtils: CasUtils,
         logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
 
         try {
-          // lähetykselle geneerinen otsikko aikaleimalla, koska kerralla lähetetään useita viestejä
+          // lähetykselle geneerinen otsikko aikaleimalla, ei kieliversioitu
           val luoLahetysResponse = viestinvalitysClient.luoLahetys(Lahetys.builder()
-            .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY hh:mm")))
+            .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm")))
             .withLahettavaPalvelu("virkailijantyopoyta")
             .withLahettaja(Optional.empty.asInstanceOf[Optional[String]], "noreply@opintopolku.fi")
             .withNormaaliPrioriteetti()
             .withSailytysaika(365)
+            .withLahettavanVirkailijanOid(adminUserOid.getOrElse(null))
             .build())
           val viestit = getViestit(releaseSetsForUsers, luoLahetysResponse.getLahetysTunniste)
 
@@ -113,7 +114,7 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
+  def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
     val userReleasePairs: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
       val userGroups: Set[Long] = userGroupIdsForRelease(release)
       logger.info(s"Groups for release ${release.id}: ${userGroups.mkString(", ")}")
@@ -287,6 +288,10 @@ class EmailService(casUtils: CasUtils,
       .groupBy(setsPerRecipient => setsPerRecipient._2)
       .map(setsPerSet => setsPerSet._1 -> setsPerSet._2.map(r => r._1).toSet)
 
+    // lähetettävän viesti kättöoikeusrajoitukset, virkailijan työpöydältä lähteviä saa katsoa OPH rekisterinpitäjä
+    val kayttooikeusList = Seq(
+      new KayttooikeusImpl(Optional.of("APP_VIESTINVALITYS_OPH_PAAKAYTTAJA"), Optional.of("1.2.246.562.10.00000000001"))
+    )
     val viestit = recipientsByLocalizedReleaseSet.map{ case (releaseSet, recipients) => {
       val releases = releaseSet.ids.map(id => releasesById.get(id).get)
 
@@ -294,10 +299,11 @@ class EmailService(casUtils: CasUtils,
         .grouped(2048)
         .map(recipients => Viesti.builder()
           .withOtsikko(getSubject(releases, releaseSet.language))
-          .withHtmlSisalto(EmailHtmlService.htmlString(releases, releaseSet.language))
+          .withHtmlSisalto(emailHtmlService.htmlString(releases, releaseSet.language))
           .withKielet(releaseSet.language)
           .withVastaanottajat(recipients.foldLeft(Vastaanottajat.builder)((builder, recipient) =>
             builder.withVastaanottaja(Optional.empty.asInstanceOf[Optional[String]], recipient)).build())
+          .withKayttooikeusRajoitukset(kayttooikeusList: _*)
           .withLahetysTunniste(lahetysTunniste.toString)
           .build())
     }}.flatten.toSeq

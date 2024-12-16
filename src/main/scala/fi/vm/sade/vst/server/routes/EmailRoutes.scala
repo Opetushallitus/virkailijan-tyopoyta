@@ -58,6 +58,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
           (year, month, day) => {
             withAdminUser { user =>
               withAuditUser(user) { implicit au =>
+                implicit val adminUserOid: Option[String] = Option.apply(user.userId)
                 sendHtml(Future {
                   val date = (for {
                     y <- year
@@ -87,6 +88,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
         post {
           withAdminUser { user =>
             withAuditUser(user) { implicit au =>
+              implicit val adminUserOid: Option[String] = Option.apply(user.userId)
               releaseService.getReleaseForUser(releaseId, user) match {
                 case Some(r) =>
                   logger.info(s"send email immediately for release ${releaseId} for user ${user.userId}")
