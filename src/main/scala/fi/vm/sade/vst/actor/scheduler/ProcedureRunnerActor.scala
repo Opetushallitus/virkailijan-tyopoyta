@@ -23,7 +23,7 @@ class ProcedureRunnerActor(emailService: EmailService) extends Actor {
 
   private def emailReleases(): Unit = {
     val date = LocalDate.now
-    emailService.sendEmailsForDate(date)(procedureRunnerAuditUser, None)
+    emailService.sendEmailsForDate(date, None)(procedureRunnerAuditUser)
   }
 
   val procedureRunnerAuditUser: AuditUser = {

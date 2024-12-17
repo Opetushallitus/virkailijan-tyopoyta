@@ -45,7 +45,7 @@ class EmailServiceSpec extends Specification with TestDBData with ShouldMatchers
   }
 
   implicit val auditUser: AuditUser = new AuditUser(null, InetAddress.getLocalHost, null, null)
-  implicit val adminUserOid: Option[String] = Some("1.2.3.8")
+  val adminUserOid: Option[String] = Some("1.2.3.8")
 
   val release1 = FakeReleaseData.generateRelease
   val release2 = FakeReleaseData.generateRelease
@@ -78,7 +78,7 @@ class EmailServiceSpec extends Specification with TestDBData with ShouldMatchers
       val mockViestiResponse = mock[LuoViestiSuccessResponse]
       when(mockViestinvalitysClient.luoViesti(any[Viesti])).thenReturn(mockViestiResponse)
 
-      val result = emailService.sendEmails(Seq.empty, emailService.ImmediateEmail)
+      val result = emailService.sendEmails(Seq.empty, emailService.ImmediateEmail, adminUserOid)
 
       // Viestinvälityspalvelun lähetyksen ja viestin luonti meni odotetuilla kutsuilla
       val lahetysCaptor: ArgumentCaptor[Lahetys] = ArgumentCaptor.forClass(classOf[Lahetys])
@@ -92,7 +92,7 @@ class EmailServiceSpec extends Specification with TestDBData with ShouldMatchers
       capturedLahetys.getLahettaja.isPresent must beTrue
       capturedLahetys.getLahettaja.get().getSahkopostiOsoite shouldEqual Optional.of("noreply@opintopolku.fi")
       capturedLahetys.getLahettavanVirkailijanOid.isPresent must beTrue
-      capturedLahetys.getLahettavanVirkailijanOid shouldEqual Optional.of("1.2.3.8")
+      capturedLahetys.getLahettavanVirkailijanOid shouldEqual Optional.of(adminUserOid.get)
       capturedLahetys.getLahettavaPalvelu shouldEqual Optional.of("virkailijantyopoyta")
       capturedLahetys.getSailytysaika shouldEqual Optional.of(365)
       capturedLahetys.getPrioriteetti shouldEqual Optional.of("normaali")

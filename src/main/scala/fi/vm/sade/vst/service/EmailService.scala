@@ -62,15 +62,15 @@ class EmailService(casUtils: CasUtils,
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
   private val dateTimeFormat: DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-  def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser, adminUserOid: Option[String]): Unit = {
+  def sendEmailsForDate(date: LocalDate, adminUserOid: Option[String])(implicit au: AuditUser): Unit = {
     logger.info(s"Preparing to send emails for date $date")
     val releases = releaseRepository.getEmailReleasesForDate(date)
     val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
-    val results: Seq[LuoViestiSuccessResponse] = sendEmails(releases ++ previousDateReleases, TimedEmail)
+    val results: Seq[LuoViestiSuccessResponse] = sendEmails(releases ++ previousDateReleases, TimedEmail, adminUserOid)
     logger.info("sendEmailsForDate result: " + results.map(r => r.getViestiTunniste).mkString(", "))
   }
 
-  def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser, adminUserOid: Option[String]): Seq[LuoViestiSuccessResponse] = {
+  def sendEmails(releases: Seq[Release], eventType: EmailEventType, adminUserOid: Option[String])(implicit au: AuditUser): Seq[LuoViestiSuccessResponse] = {
     if (!emailSendingDisabled) {
       val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
