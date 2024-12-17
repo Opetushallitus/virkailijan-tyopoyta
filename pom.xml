@@ -227,7 +227,7 @@
         <dependency>
             <groupId>fi.oph.viestinvalitys</groupId>
             <artifactId>kirjasto</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.0.6-SNAPSHOT</version>
             <exclusions>
                 <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
                 <exclusion>
@@ -419,7 +419,8 @@
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>4.8.1</version>
                 <configuration>
-                    <addScalacArgs>-target:jvm-1.8</addScalacArgs>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
                 <executions>
                     <execution>

@@ -3,8 +3,8 @@ package fi.vm.sade.vst.service
 import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import com.typesafe.scalalogging.LazyLogging
-import fi.oph.viestinvalitys.{ViestinvalitysClient, ViestinvalitysClientException}
-import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, KayttooikeusImpl, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti}
+import fi.oph.viestinvalitys.{ClientBuilder, ViestinvalitysClientException}
+import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti, ViestinvalitysBuilder}
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
@@ -43,10 +43,11 @@ class EmailService(casUtils: CasUtils,
 
   val groupTypeFilter = "yhteystietotyyppi2"
   val contactTypeFilter = "YHTEYSTIETO_SAHKOPOSTI"
-
+  val OPH_PAAKAYTTAJA = "APP_VIESTINVALITYS_OPH_PAAKAYTTAJA"
+  val OPH_ORGANISAATIO_OID = "1.2.246.562.10.00000000001"
 
   lazy val viestinvalitysClient =
-    ViestinvalitysClient.builder()
+    ClientBuilder.viestinvalitysClientBuilder()
       .withEndpoint(config.getString("viestinvalityspalvelu.rest.url"))
       .withUsername(config.getString("virkailijan-tyopoyta.cas.user"))
       .withPassword(config.getString("virkailijan-tyopoyta.cas.password"))
@@ -81,7 +82,8 @@ class EmailService(casUtils: CasUtils,
 
         try {
           // lähetykselle geneerinen otsikko aikaleimalla, ei kieliversioitu
-          val luoLahetysResponse = viestinvalitysClient.luoLahetys(Lahetys.builder()
+          val luoLahetysResponse = viestinvalitysClient.luoLahetys(
+            ViestinvalitysBuilder.lahetysBuilder()
             .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm")))
             .withLahettavaPalvelu("virkailijantyopoyta")
             .withLahettaja(Optional.empty.asInstanceOf[Optional[String]], "noreply@opintopolku.fi")
@@ -288,22 +290,20 @@ class EmailService(casUtils: CasUtils,
       .groupBy(setsPerRecipient => setsPerRecipient._2)
       .map(setsPerSet => setsPerSet._1 -> setsPerSet._2.map(r => r._1).toSet)
 
-    // lähetettävän viesti kättöoikeusrajoitukset, virkailijan työpöydältä lähteviä saa katsoa OPH rekisterinpitäjä
-    val kayttooikeusList = Seq(
-      new KayttooikeusImpl(Optional.of("APP_VIESTINVALITYS_OPH_PAAKAYTTAJA"), Optional.of("1.2.246.562.10.00000000001"))
-    )
     val viestit = recipientsByLocalizedReleaseSet.map{ case (releaseSet, recipients) => {
       val releases = releaseSet.ids.map(id => releasesById.get(id).get)
 
       recipients
         .grouped(2048)
-        .map(recipients => Viesti.builder()
+        .map(recipients => ViestinvalitysBuilder.viestiBuilder()
           .withOtsikko(getSubject(releases, releaseSet.language))
           .withHtmlSisalto(emailHtmlService.htmlString(releases, releaseSet.language))
           .withKielet(releaseSet.language)
-          .withVastaanottajat(recipients.foldLeft(Vastaanottajat.builder)((builder, recipient) =>
+          .withVastaanottajat(recipients.foldLeft(ViestinvalitysBuilder.vastaanottajatBuilder())((builder, recipient) =>
             builder.withVastaanottaja(Optional.empty.asInstanceOf[Optional[String]], recipient)).build())
-          .withKayttooikeusRajoitukset(kayttooikeusList: _*)
+          .withKayttooikeusRajoitukset(ViestinvalitysBuilder.kayttooikeusrajoituksetBuilder()
+            .withKayttooikeus(OPH_PAAKAYTTAJA, OPH_ORGANISAATIO_OID)
+            .build())
           .withLahetysTunniste(lahetysTunniste.toString)
           .build())
     }}.flatten.toSeq

@@ -11,6 +11,7 @@ import org.specs2.runner.JUnitRunner
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.Release
+import fi.vm.sade.vst.module.ServiceModule
 import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, UserService}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify, when}
@@ -136,7 +137,11 @@ class EmailServiceSpec extends Specification with TestDBData with ShouldMatchers
       }.toList
       vastaanottajaEmailit must contain("user1@example.com")
       vastaanottajaEmailit must contain("user2@example.com")
-      // TODO käyttöoikeusrajoitukset
+      capturedViesti.getKayttooikeusRajoitukset.isPresent must beTrue
+      capturedViesti.getKayttooikeusRajoitukset.get.size() shouldEqual 1
+      val capturedKayttooikeudet = capturedViesti.getKayttooikeusRajoitukset.get.asScala.head
+      capturedKayttooikeudet.getOikeus.get() shouldEqual emailService.OPH_PAAKAYTTAJA
+      capturedKayttooikeudet.getOrganisaatio.get() shouldEqual emailService.OPH_ORGANISAATIO_OID
       verify(mockHtmlService).htmlString(releases, "fi")
       result should have size 2
       result.head shouldEqual mockViestiResponse
