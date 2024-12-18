@@ -87,5 +87,5 @@ Oppijanumerorekisteri
 - Käyttäjän kutsumanimen haku (tiedotteen laatijan nimikirjaimet)
 - Käyttäjien yhteystietojen haku sähköposteihin
 
-Ryhmäsähköpostipalvelu 
+Viestinvälityspalvelu 
 - Sähköpostien lähetys

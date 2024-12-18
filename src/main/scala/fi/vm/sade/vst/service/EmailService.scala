@@ -82,15 +82,17 @@ class EmailService(casUtils: CasUtils,
 
         try {
           // lähetykselle geneerinen otsikko aikaleimalla, ei kieliversioitu
-          val luoLahetysResponse = viestinvalitysClient.luoLahetys(
-            ViestinvalitysBuilder.lahetysBuilder()
+          val lahetysBuilder = ViestinvalitysBuilder.lahetysBuilder()
             .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm")))
             .withLahettavaPalvelu("virkailijantyopoyta")
             .withLahettaja(Optional.empty.asInstanceOf[Optional[String]], "noreply@opintopolku.fi")
             .withNormaaliPrioriteetti()
             .withSailytysaika(365)
-            .withLahettavanVirkailijanOid(adminUserOid.getOrElse(null))
-            .build())
+          // Lisätään lähettävän virkailijan oid vain jos se on saatavilla (ei-ajastetut lähetykset)
+          if(adminUserOid.isDefined)
+            lahetysBuilder.withLahettavanVirkailijanOid(adminUserOid.get)
+
+          val luoLahetysResponse = viestinvalitysClient.luoLahetys(lahetysBuilder.build())
           val viestit = getViestit(releaseSetsForUsers, luoLahetysResponse.getLahetysTunniste)
 
           logger.info(s"Sending ${viestit.size} unique emails")
