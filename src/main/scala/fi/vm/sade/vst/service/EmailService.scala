@@ -89,10 +89,11 @@ class EmailService(casUtils: CasUtils,
             .withNormaaliPrioriteetti()
             .withSailytysaika(365)
           // Lisätään lähettävän virkailijan oid vain jos se on saatavilla (ei-ajastetut lähetykset)
-          if(adminUserOid.isDefined)
-            lahetysBuilder.withLahettavanVirkailijanOid(adminUserOid.get)
-
-          val luoLahetysResponse = viestinvalitysClient.luoLahetys(lahetysBuilder.build())
+          val luoLahetysResponse =
+            if(adminUserOid.isDefined)
+              viestinvalitysClient.luoLahetys(lahetysBuilder.withLahettavanVirkailijanOid(adminUserOid.get).build())
+            else
+              viestinvalitysClient.luoLahetys(lahetysBuilder.build())
           val viestit = getViestit(releaseSetsForUsers, luoLahetysResponse.getLahetysTunniste)
 
           logger.info(s"Sending ${viestit.size} unique emails")

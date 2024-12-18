@@ -14,7 +14,7 @@ import fi.vm.sade.vst.model.Release
 import fi.vm.sade.vst.module.ServiceModule
 import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, UserService}
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
 
@@ -77,7 +77,6 @@ class EmailServiceSpec extends Specification with TestDBData with ShouldMatchers
       // Stub viestinvalitysClient.luoViesti
       val mockViestiResponse = mock[LuoViestiSuccessResponse]
       when(mockViestinvalitysClient.luoViesti(any[Viesti])).thenReturn(mockViestiResponse)
-
       val result = emailService.sendEmails(Seq.empty, emailService.ImmediateEmail, adminUserOid)
 
       // Viestinvälityspalvelun lähetyksen ja viestin luonti meni odotetuilla kutsuilla
@@ -145,6 +144,29 @@ class EmailServiceSpec extends Specification with TestDBData with ShouldMatchers
       verify(mockHtmlService).htmlString(releases, "fi")
       result should have size 2
       result.head shouldEqual mockViestiResponse
+    }
+    "call viestinvalitysClient.luoLahetys without lahettavanVirkailijanOid if none is present" in {
+      reset(mockViestinvalitysClient)
+      // Mockataan html-tiedotepohjan generointi
+      when(mockHtmlService.htmlString(any[Iterable[Release]], any[String])).thenReturn(mockHtmlString(releases, "fi"))
+
+      // Stub viestinvalitysClient.luoLahetys
+      val mockLahetysResponse = mock[LuoLahetysSuccessResponse]
+      when(mockLahetysResponse.getLahetysTunniste).thenReturn(UUID.randomUUID())
+      when(mockViestinvalitysClient.luoLahetys(any[Lahetys])).thenReturn(mockLahetysResponse)
+
+      // Stub viestinvalitysClient.luoViesti
+      val mockViestiResponse = mock[LuoViestiSuccessResponse]
+      when(mockViestinvalitysClient.luoViesti(any[Viesti])).thenReturn(mockViestiResponse)
+
+      val result = emailService.sendEmails(Seq.empty, emailService.ImmediateEmail, None)
+
+      // Viestinvälityspalvelun lähetyksen ja viestin luonti meni odotetuilla kutsuilla
+      val lahetysCaptor: ArgumentCaptor[Lahetys] = ArgumentCaptor.forClass(classOf[Lahetys])
+
+      verify(mockViestinvalitysClient).luoLahetys(lahetysCaptor.capture())
+      val capturedLahetys = lahetysCaptor.getValue
+      capturedLahetys.getLahettavanVirkailijanOid.isPresent must beFalse
     }
   }
 }
