@@ -1,12 +1,11 @@
 package fi.vm.sade.vst.actor.scheduler
 
 import java.net.InetAddress
-
 import fi.vm.sade.auditlog.{User => AuditUser}
 import akka.actor.{Actor, Props}
 import fi.vm.sade.vst.service.EmailService
-import java.time.LocalDate
 
+import java.time.LocalDate
 import ProcedureRunnerActor._
 
 object ProcedureRunnerActor {
@@ -24,7 +23,7 @@ class ProcedureRunnerActor(emailService: EmailService) extends Actor {
 
   private def emailReleases(): Unit = {
     val date = LocalDate.now
-    emailService.sendEmailsForDate(date)(procedureRunnerAuditUser)
+    emailService.sendEmailsForDate(date, None)(procedureRunnerAuditUser)
   }
 
   val procedureRunnerAuditUser: AuditUser = {

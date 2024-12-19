@@ -25,10 +25,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-  
 
-      - name: Set up JDK 8
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
+          java-version: '17'
           distribution: 'corretto'
 
       - uses: szenius/set-timezone@v2.0
@@ -52,7 +52,7 @@ jobs:
     uses: Opetushallitus/.github/.github/workflows/push-scan-java-ecr.yml@main
     with:
       application: virkailijan-tyopoyta
-      base-image: baseimage-fatjar-openjdk8:master
+      base-image: baseimage-fatjar-openjdk17:master
       configfolder: src/main/resources/*
       jarfile: virkailijan-tyopoyta-*
     secrets:

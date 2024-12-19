@@ -1,11 +1,11 @@
 package fi.vm.sade.vst.service
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
-
 import com.typesafe.scalalogging.LazyLogging
+import fi.oph.viestinvalitys.{ClientBuilder, ViestinvalitysClientException}
+import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti, ViestinvalitysBuilder}
 import fi.vm.sade.auditlog.{User => AuditUser}
-import fi.vm.sade.groupemailer._
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
@@ -13,15 +13,16 @@ import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, Us
 import fi.vm.sade.vst.util.IterableUtils
 import play.api.libs.json._
 
+import java.util.{Optional, UUID}
 import scala.util.{Failure, Success}
+import collection.JavaConverters._
 
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,
-                   val userService: UserService)
+                   val userService: UserService,
+                   val emailHtmlService: HtmlService = EmailHtmlService)
   extends RepositoryModule
-    with GroupEmailComponent
     with Configuration
-    with JsonFormats
     with LazyLogging
     with JsonSupport {
 
@@ -42,9 +43,17 @@ class EmailService(casUtils: CasUtils,
 
   val groupTypeFilter = "yhteystietotyyppi2"
   val contactTypeFilter = "YHTEYSTIETO_SAHKOPOSTI"
+  val OPH_PAAKAYTTAJA = "APP_VIESTINVALITYS_OPH_PAAKAYTTAJA"
+  val OPH_ORGANISAATIO_OID = "1.2.246.562.10.00000000001"
 
-  lazy val emailConfiguration = new GroupEmailerSettings(config)
-  lazy val groupEmailService: GroupEmailService = new RemoteGroupEmailService(emailConfiguration, "virkailijan-tyopoyta-emailer")
+  lazy val viestinvalitysClient =
+    ClientBuilder.viestinvalitysClientBuilder()
+      .withEndpoint(config.getString("viestinvalityspalvelu.rest.url"))
+      .withUsername(config.getString("virkailijan-tyopoyta.cas.user"))
+      .withPassword(config.getString("virkailijan-tyopoyta.cas.password"))
+      .withCasEndpoint(config.getString("cas.url"))
+      .withCallerId(this.callerId)
+      .build()
 
   private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
 
@@ -53,16 +62,15 @@ class EmailService(casUtils: CasUtils,
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
   private val dateTimeFormat: DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-  def sendEmailsForDate(date: LocalDate)(implicit au: AuditUser): Unit = {
-    // TODO: Should this just take range of dates? At the moment it is easier to just get evets for current and previous date
+  def sendEmailsForDate(date: LocalDate, adminUserOid: Option[String])(implicit au: AuditUser): Unit = {
     logger.info(s"Preparing to send emails for date $date")
     val releases = releaseRepository.getEmailReleasesForDate(date)
     val previousDateReleases = releaseRepository.getEmailReleasesForDate(date.minusDays(1))
-    val results: Seq[String] = sendEmails(releases ++ previousDateReleases, TimedEmail)
-    logger.info("sendEmailsForDate result: " + results.mkString(", "))
+    val results: Seq[LuoViestiSuccessResponse] = sendEmails(releases ++ previousDateReleases, TimedEmail, adminUserOid)
+    logger.info("sendEmailsForDate result: " + results.map(r => r.getViestiTunniste).mkString(", "))
   }
 
-  def sendEmails(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[String] = {
+  def sendEmails(releases: Seq[Release], eventType: EmailEventType, adminUserOid: Option[String])(implicit au: AuditUser): Seq[LuoViestiSuccessResponse] = {
     if (!emailSendingDisabled) {
       val releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])] = getUsersToReleaseSets(releases)
 
@@ -71,16 +79,39 @@ class EmailService(casUtils: CasUtils,
         Seq.empty
       } else {
         logger.info(s"Forming emails on ${releases.size} releases to ${releaseSetsForUsers.size} users")
-        val emailDatas = getEmailDatas(releaseSetsForUsers)
 
-        logger.info(s"Sending ${emailDatas.size} unique emails")
-        val result: Seq[String] = emailDatas.flatMap { data =>
-          logger.info(s"Sending email to ${data.recipient.size} recipients")
-          groupEmailService.sendMailWithoutTemplate(data)
+        try {
+          // lähetykselle geneerinen otsikko aikaleimalla, ei kieliversioitu
+          val lahetysBuilder = ViestinvalitysBuilder.lahetysBuilder()
+            .withOtsikko("Virkailijan työpöydän tiedotteet " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm")))
+            .withLahettavaPalvelu("virkailijantyopoyta")
+            .withLahettaja(Optional.empty.asInstanceOf[Optional[String]], "noreply@opintopolku.fi")
+            .withNormaaliPrioriteetti()
+            .withSailytysaika(365)
+          // Lisätään lähettävän virkailijan oid vain jos se on saatavilla (ei-ajastetut lähetykset)
+          val luoLahetysResponse =
+            if(adminUserOid.isDefined)
+              viestinvalitysClient.luoLahetys(lahetysBuilder.withLahettavanVirkailijanOid(adminUserOid.get).build())
+            else
+              viestinvalitysClient.luoLahetys(lahetysBuilder.build())
+          val viestit = getViestit(releaseSetsForUsers, luoLahetysResponse.getLahetysTunniste)
+
+          logger.info(s"Sending ${viestit.size} unique emails")
+          val result = viestit.map { viesti =>
+            logger.info(s"Sending email to ${viesti.getVastaanottajat.get.size} recipients")
+            viestinvalitysClient.luoViesti(viesti)
+          }
+          logger.info(s"Finished sending emails")
+          addEmailEvents(releases, eventType)
+          result
+        } catch {
+          case e: BuilderException =>
+            logger.warn("Failed to build emails, errors: " + e.getVirheet.asScala.mkString(", "))
+            Seq.empty
+          case e: ViestinvalitysClientException =>
+            logger.warn("Failed to send emails, errors: " + e.getVirheet.asScala.mkString(", "))
+            Seq.empty
         }
-        logger.info(s"Finished sending emails")
-        addEmailEvents(releases, eventType)
-        result
       }
     } else {
       logger.warn(s"Was going to send emails for ${releases.size} releases, but email-sending has been disabled by env parameter (virkailijan_tyopoyta_emails_disabled = true). Nothing was sent.")
@@ -88,7 +119,7 @@ class EmailService(casUtils: CasUtils,
     }
   }
 
-  private def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
+  def getUsersToReleaseSets(releases: Seq[Release]): Seq[(BasicUserInformation, Set[Release])] = {
     val userReleasePairs: Seq[(BasicUserInformation, Release)] = releases.flatMap { release =>
       val userGroups: Set[Long] = userGroupIdsForRelease(release)
       logger.info(s"Groups for release ${release.id}: ${userGroups.mkString(", ")}")
@@ -249,39 +280,41 @@ class EmailService(casUtils: CasUtils,
     includedUsers
   }
 
-  private def getEmailDatas(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])]): Seq[EmailData]  = {
-    val addressesToUniqueMessages: Seq[(String, UniqueMessage)] = releaseSetsForUsers.map{case (u, r) =>
-      val language = u.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
-      (u.email, UniqueMessage(language, r))
-    }
-    logger.info(s"email addresses count: ${addressesToUniqueMessages.size}")
-    val recipientsToMessages: Map[String, Seq[UniqueMessage]] = addressesToUniqueMessages.groupBy(_._1).mapValues(_.map(_._2)) // toMap would overwrite duplicate keys (addresses) whereas we want to merge them
-
-    val nonUniqueAddresses: Seq[String] = releaseSetsForUsers.map(_._1.email)
-    val duplicates = nonUniqueAddresses.map(r => (r, nonUniqueAddresses.count(_ == r))).filter(_._2 > 1).map(_._1).toSet
-    if (duplicates.nonEmpty) {
-      logger.info(s"the following ${duplicates.size} email addresses appeared more than once: ${duplicates.mkString(" ")}")
-      logger.info(s"unique email addresses count: ${nonUniqueAddresses.toSet.size}")
-    }
-
-    val uniqueMessagesToEmails: Map[UniqueMessage, EmailMessage] = recipientsToMessages.values.flatten.toSet.map{ um: UniqueMessage =>
-      (um, formEmail(um.language, um.releases))
-    }.toMap
-
-    val recipientsToEmails: Seq[(EmailRecipient, EmailMessage)] = recipientsToMessages.map{case (k,v) =>
-      val recipient = EmailRecipient(k)
-      v.map(email => (recipient, uniqueMessagesToEmails.apply(email)))
-    }.flatten.toSeq
-
-    val emailsToRecipients: Map[EmailMessage, Set[EmailRecipient]] = recipientsToEmails.groupBy(_._2).mapValues(_.map(_._1).toSet)
-
-    emailsToRecipients.map{ p =>
-      val recipients: Set[EmailRecipient] = p._2
-      EmailData(p._1, recipients.toList)
-    }.toSeq
+  private def getLanguage(basicUserInformation: BasicUserInformation): String = {
+    basicUserInformation.languages.headOption.getOrElse("fi") // Defaults to fi if no language is found
   }
 
-  private def formEmail(language: String, releases: Set[Release]): EmailMessage = {
+  case class ReleaseSet(language: String, ids: Set[Long])
+
+  private def getViestit(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])], lahetysTunniste: UUID): Seq[Viesti]  = {
+    val releasesById = releaseSetsForUsers.map{case (user, releases) => releases}.flatten.map(r => r.id -> r).toMap
+    val recipientsByLocalizedReleaseSet = releaseSetsForUsers
+      .map{case (user, releases) => (user.email, ReleaseSet(getLanguage(user), releases.map(r => r.id)))}
+      .groupBy(setsPerRecipient => setsPerRecipient._2)
+      .map(setsPerSet => setsPerSet._1 -> setsPerSet._2.map(r => r._1).toSet)
+
+    val viestit = recipientsByLocalizedReleaseSet.map{ case (releaseSet, recipients) => {
+      val releases = releaseSet.ids.map(id => releasesById.get(id).get)
+
+      recipients
+        .grouped(2048)
+        .map(recipients => ViestinvalitysBuilder.viestiBuilder()
+          .withOtsikko(getSubject(releases, releaseSet.language))
+          .withHtmlSisalto(emailHtmlService.htmlString(releases, releaseSet.language))
+          .withKielet(releaseSet.language)
+          .withVastaanottajat(recipients.foldLeft(ViestinvalitysBuilder.vastaanottajatBuilder())((builder, recipient) =>
+            builder.withVastaanottaja(Optional.empty.asInstanceOf[Optional[String]], recipient)).build())
+          .withKayttooikeusRajoitukset(ViestinvalitysBuilder.kayttooikeusrajoituksetBuilder()
+            .withKayttooikeus(OPH_PAAKAYTTAJA, OPH_ORGANISAATIO_OID)
+            .build())
+          .withLahetysTunniste(lahetysTunniste.toString)
+          .build())
+    }}.flatten.toSeq
+
+    viestit
+  }
+
+  private def getSubject(releases: Set[Release], language: String): String = {
     val translationsMap = EmailTranslations.translation(language)
     val contentHeader = translationsMap.getOrElse(EmailTranslations.EmailHeader, EmailTranslations.defaultEmailHeader)
     val contentBetween = translationsMap.getOrElse(EmailTranslations.EmailContentBetween, EmailTranslations.defaultEmailContentBetween)
@@ -290,10 +323,8 @@ class EmailService(casUtils: CasUtils,
     val subjectDateString =
       if (minDate == maxDate) s"${minDate.format(dateTimeFormat)}"
       else s"$contentBetween ${minDate.format(dateTimeFormat)} - ${maxDate.format(dateTimeFormat)}"
-    val subject = s"$contentHeader $subjectDateString"
-    EmailMessage("virkailijan-tyopoyta", subject, EmailHtmlService.htmlString(releases, language), html = true)
+    s"$contentHeader $subjectDateString"
   }
-
 
   private def addEmailEvents(releases: Seq[Release], eventType: EmailEventType)(implicit au: AuditUser): Seq[EmailEvent] = {
     def releaseToEmailEvent(release: Release) = EmailEvent(0l, java.time.LocalDate.now(), release.id, eventType.description)

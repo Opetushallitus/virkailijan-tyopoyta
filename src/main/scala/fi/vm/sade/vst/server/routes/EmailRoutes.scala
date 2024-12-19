@@ -64,7 +64,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
                     m <- month
                     d <- day
                   } yield java.time.LocalDate.of(y, m, d)).getOrElse(java.time.LocalDate.now)
-                  emailService.sendEmailsForDate(date)
+                  emailService.sendEmailsForDate(date, Option.apply(user.userId))
                 })
               }
             }
@@ -90,7 +90,7 @@ class EmailRoutes(val userService: UserService, releaseService: ReleaseService, 
               releaseService.getReleaseForUser(releaseId, user) match {
                 case Some(r) =>
                   logger.info(s"send email immediately for release ${releaseId} for user ${user.userId}")
-                  sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail).size))
+                  sendResponse(Future(emailService.sendEmails(Vector(r), emailService.ImmediateEmail, Option.apply(user.userId)).size))
                 case None =>
                   logger.error(s"send email immediately failed because no release found for user ${user.userId}")
                   complete(StatusCodes.BadRequest)

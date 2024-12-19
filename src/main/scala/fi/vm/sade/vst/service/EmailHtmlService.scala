@@ -6,7 +6,12 @@ import java.time.LocalDate
 import scala.util.Try
 import scala.xml.{Elem, XML}
 
-object EmailHtmlService extends Configuration {
+// wrapperi testimockeja varten
+trait HtmlService {
+  def htmlString(releases: Iterable[Release], language: String): String
+}
+
+object EmailHtmlService extends HtmlService with Configuration {
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
   // TODO: Email forming could be done using templates and TemplateProcessor, it was just easier to make if using pure scala for now
