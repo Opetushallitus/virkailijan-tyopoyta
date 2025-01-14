@@ -106,10 +106,10 @@ class EmailService(casUtils: CasUtils,
           result
         } catch {
           case e: BuilderException =>
-            logger.warn("Failed to build emails, errors: " + e.getVirheet.asScala.mkString(", "))
+            logger.error("Failed to build emails, errors: " + e.getVirheet.asScala.mkString(", "))
             Seq.empty
           case e: ViestinvalitysClientException =>
-            logger.warn("Failed to send emails, errors: " + e.getVirheet.asScala.mkString(", "))
+            logger.error("Failed to send emails, errors: " + e.getVirheet.asScala.mkString(", "))
             Seq.empty
         }
       }
