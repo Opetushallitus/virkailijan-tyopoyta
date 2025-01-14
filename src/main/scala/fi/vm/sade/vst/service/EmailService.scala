@@ -297,7 +297,7 @@ class EmailService(casUtils: CasUtils,
       val releases = releaseSet.ids.map(id => releasesById.get(id).get)
 
       recipients
-        .grouped(Viesti.VIESTI_VASTAANOTTAJAT_MAX_MAARA)
+        .grouped(Viesti.VIESTI_VASTAANOTTAJAT_MAX_MAARA + 0)
         .map(recipients => ViestinvalitysBuilder.viestiBuilder()
           .withOtsikko(getSubject(releases, releaseSet.language))
           .withHtmlSisalto(emailHtmlService.htmlString(releases, releaseSet.language))
