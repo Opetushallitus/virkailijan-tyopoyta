@@ -106,10 +106,10 @@ class EmailService(casUtils: CasUtils,
           result
         } catch {
           case e: BuilderException =>
-            logger.warn("Failed to build emails, errors: " + e.getVirheet.asScala.mkString(", "))
+            logger.error("Failed to build emails, errors: " + e.getVirheet.asScala.mkString(", "))
             Seq.empty
           case e: ViestinvalitysClientException =>
-            logger.warn("Failed to send emails, errors: " + e.getVirheet.asScala.mkString(", "))
+            logger.error("Failed to send emails, errors: " + e.getVirheet.asScala.mkString(", "))
             Seq.empty
         }
       }
@@ -297,7 +297,7 @@ class EmailService(casUtils: CasUtils,
       val releases = releaseSet.ids.map(id => releasesById.get(id).get)
 
       recipients
-        .grouped(2048)
+        .grouped(Viesti.VIESTI_VASTAANOTTAJAT_MAX_MAARA)
         .map(recipients => ViestinvalitysBuilder.viestiBuilder()
           .withOtsikko(getSubject(releases, releaseSet.language))
           .withHtmlSisalto(emailHtmlService.htmlString(releases, releaseSet.language))
