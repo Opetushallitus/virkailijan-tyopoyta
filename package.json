@@ -58,7 +58,7 @@
     "webpack-validator": "3.0.0"
   },
   "dependencies": {
-    "baconjs": "0.7.59",
+    "baconjs": "0.7.95",
     "basscss": "8.0.3",
     "basscss-responsive-layout": "1.0.1",
     "basscss-responsive-margin": "1.1.0",
