@@ -12,7 +12,7 @@ class UserServiceSpec extends Specification with ShouldMatchers {
     "be able to use KayttooikeusUserDetailsService" in {
       val detailsService: KayttooikeusUserDetailsService = new KayttooikeusUserDetailsService()
 
-      detailsService.getUserByUsername("lol-user", "caller-id", "userdetaulsurl") should beLeft
+      detailsService.getUserByUsername("lol-user", "caller-id", "userdetailsurl") should beLeft
     }
   }
 }
