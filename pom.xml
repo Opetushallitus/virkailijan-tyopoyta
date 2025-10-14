@@ -226,21 +226,27 @@
                 <artifactId>scala-java8-compat_2.11</artifactId>
                 <version>0.8.0</version>
             </dependency>
+            <dependency>
+                <groupId>opiskelijavalinnat-utils.viestinvalitys</groupId>
+                <artifactId>kirjasto</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>org.slf4j</groupId>-->
+<!--                        <artifactId>slf4j-simple</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+<!--                <exclusions>-->
+<!--                    &lt;!&ndash; riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa &ndash;&gt;-->
+<!--                    <exclusion>-->
+<!--                        <groupId>commons-logging</groupId>-->
+<!--                        <artifactId>commons-logging</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>fi.oph.viestinvalitys</groupId>
-            <artifactId>kirjasto</artifactId>
-            <version>1.1.6-SNAPSHOT</version>
-            <exclusions>
-                <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
@@ -389,6 +395,23 @@
                     <artifactId>java-cas</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>opiskelijavalinnat-utils.viestinvalitys</groupId>
+            <artifactId>kirjasto</artifactId>
+            <!--                <exclusions>-->
+            <!--                    <exclusion>-->
+            <!--                        <groupId>org.slf4j</groupId>-->
+            <!--                        <artifactId>slf4j-simple</artifactId>-->
+            <!--                    </exclusion>-->
+            <!--                </exclusions>-->
+                            <exclusions>
+                                <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
+                                <exclusion>
+                                    <groupId>commons-logging</groupId>
+                                    <artifactId>commons-logging</artifactId>
+                                </exclusion>
+                            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
