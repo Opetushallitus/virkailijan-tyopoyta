@@ -16,13 +16,19 @@ trait TestDBData extends Configuration {
   override lazy val config: Config = ConfigFactory.parseFile(Paths.get("src/test/resources/oph-configuration/common.properties").toFile);
 
   override lazy val dbType: String = "h2"
-  private val commonLocation: String = "classpath:/migration/common"
-  private val h2Location: String = "classpath:/migration/h2"
-  private val flyway = new Flyway()
+  private val commonLocation = "classpath:/migration/common"
+  private val h2Location = "classpath:/migration/h2"
+
+  private def newFlywayInstance(): Flyway =
+    Flyway
+      .configure()
+      .dataSource(dBConfig.url, dBConfig.username, dBConfig.password)
+      .locations(commonLocation, h2Location)
+      .cleanDisabled(false)
+      .load()
 
   private def cleanDb(): Unit = {
-    flyway.setDataSource(dBConfig.url, dBConfig.username, dBConfig.password)
-    flyway.setLocations(commonLocation, h2Location)
+    val flyway = newFlywayInstance()
     flyway.clean()
     flyway.migrate()
   }
