@@ -10,7 +10,7 @@
     </organization>
     <properties>
         <scala.version>2.11.12</scala.version>
-        <akkahttp.version>10.0.5</akkahttp.version>
+        <akkahttp.version>10.0.6</akkahttp.version>
         <circe.version>0.6.1</circe.version>
         <http4s.version>0.16.6a</http4s.version>
         <jackson.version>2.18.2</jackson.version>
@@ -41,6 +41,11 @@
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-compiler</artifactId>
                 <version>${scala.version}</version>
             </dependency>
             <dependency>
@@ -165,18 +170,6 @@
                 <version>7.2.17</version>
             </dependency>
             <dependency>
-                <groupId>fi.vm.sade</groupId>
-                <artifactId>scala-utils_2.11</artifactId>
-                <version>1.3.1-SNAPSHOT</version>
-                <exclusions>
-                    <!-- epäyhteensopiva lokituskirjasto josta valuu tietoturvahaavoittuvuus -->
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>3.0.2</version>
@@ -230,19 +223,6 @@
                 <groupId>opiskelijavalinnat-utils.viestinvalitys</groupId>
                 <artifactId>kirjasto</artifactId>
                 <version>1.2.2-SNAPSHOT</version>
-<!--                <exclusions>-->
-<!--                    <exclusion>-->
-<!--                        <groupId>org.slf4j</groupId>-->
-<!--                        <artifactId>slf4j-simple</artifactId>-->
-<!--                    </exclusion>-->
-<!--                </exclusions>-->
-<!--                <exclusions>-->
-<!--                    &lt;!&ndash; riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa &ndash;&gt;-->
-<!--                    <exclusion>-->
-<!--                        <groupId>commons-logging</groupId>-->
-<!--                        <artifactId>commons-logging</artifactId>-->
-<!--                    </exclusion>-->
-<!--                </exclusions>-->
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -328,10 +308,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>11.8.0</version>
-        </dependency>
-        <dependency>
-            <groupId>fi.vm.sade</groupId>
-            <artifactId>scala-utils_2.11</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -485,8 +461,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v12.16.1</nodeVersion>
-                            <npmVersion>6.13.4</npmVersion>
+                            <nodeVersion>v22.20.0</nodeVersion>
+                            <npmVersion>10.9.3</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -495,7 +471,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
+                            <arguments>ci</arguments>
                         </configuration>
                     </execution>
                     <execution>
