@@ -203,7 +203,7 @@
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.10.3</version>
+                <version>1.14.2</version>
             </dependency>
             <dependency>
                 <groupId>fi.vm.sade</groupId>
@@ -214,6 +214,13 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>annotations</artifactId>
                 <version>3.0.1</version>
+            </dependency>
+            <!-- transitiivinen riippuvuus scala-user-detailsista -->
+            <!-- voi poistaa kun otettu käyttöön uusi käyttäjätietojen välitystapa cas tokenista -->
+            <dependency>
+                <groupId>com.hubspot.jinjava</groupId>
+                <artifactId>jinjava</artifactId>
+                <version>2.7.5</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang.modules</groupId>
@@ -395,19 +402,13 @@
         <dependency>
             <groupId>opiskelijavalinnat-utils.viestinvalitys</groupId>
             <artifactId>kirjasto</artifactId>
-            <!--                <exclusions>-->
-            <!--                    <exclusion>-->
-            <!--                        <groupId>org.slf4j</groupId>-->
-            <!--                        <artifactId>slf4j-simple</artifactId>-->
-            <!--                    </exclusion>-->
-            <!--                </exclusions>-->
-                            <exclusions>
-                                <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
-                                <exclusion>
-                                    <groupId>commons-logging</groupId>
-                                    <artifactId>commons-logging</artifactId>
-                                </exclusion>
-                            </exclusions>
+            <exclusions>
+                <!-- riippuvuuden riippuvuutena tulee uudempi versio kuin muissa kirjastoissa -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
