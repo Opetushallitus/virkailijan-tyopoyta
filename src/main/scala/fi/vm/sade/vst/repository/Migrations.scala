@@ -18,6 +18,7 @@ class Migrations(dBConfig: DBConfig) extends LazyLogging {
 
     val flyway = Flyway
       .configure()
+      .table("schema_version")
       .dataSource(dBConfig.url, dBConfig.username, dBConfig.password)
       .locations(locations: _*)
       .load()
