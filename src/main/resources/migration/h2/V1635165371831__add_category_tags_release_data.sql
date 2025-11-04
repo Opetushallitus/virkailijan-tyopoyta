@@ -1,3 +1,12 @@
+-- after version upgrade h2 doesn't automatically update id sequence
+-- after hard-coded ids in initial base data inserts
+ALTER TABLE release ALTER COLUMN id RESTART WITH 8;
+ALTER TABLE notification ALTER COLUMN id RESTART WITH 8;
+ALTER TABLE timeline_item ALTER COLUMN id RESTART WITH 6;
+ALTER TABLE tag_group ALTER COLUMN id RESTART WITH 5;
+ALTER TABLE tag ALTER COLUMN id RESTART WITH 33;
+ALTER TABLE category ALTER COLUMN id RESTART WITH 10;
+
 INSERT INTO category(name, role)
 VALUES ('Perusopetus', 'APP_VIRKAILIJANTYOPOYTA_PERUS');
 
