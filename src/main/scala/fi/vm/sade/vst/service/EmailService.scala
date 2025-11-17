@@ -1,21 +1,21 @@
 package fi.vm.sade.vst.service
 
-import java.time.{LocalDate, LocalDateTime}
-import java.time.format.DateTimeFormatter
 import com.typesafe.scalalogging.LazyLogging
+import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, LuoViestiSuccessResponse, Viesti, ViestinvalitysBuilder}
 import fi.oph.viestinvalitys.{ClientBuilder, ViestinvalitysClientException}
-import fi.oph.viestinvalitys.vastaanotto.model.{BuilderException, Lahetys, LuoViestiSuccessResponse, Vastaanottajat, Viesti, ViestinvalitysBuilder}
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
-import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, RequestMethod, UserService}
+import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import play.api.libs.json._
 
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
 import java.util.{Optional, UUID}
+import scala.collection.JavaConverters._
 import scala.util.{Failure, Success}
-import collection.JavaConverters._
 
 class EmailService(casUtils: CasUtils,
                    val accessService: KayttooikeusService,
@@ -180,7 +180,7 @@ class EmailService(casUtils: CasUtils,
       personOids
     }
 
-    val response = userAccessService.authenticatedRequest(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString), RequestMethod.GET)
+    val response = userAccessService.authenticatedGet(urls.url("kayttooikeus-service.personOidsForUserGroup", groupOid.toString))
     response match {
       case Success(s) =>
         val oids: Seq[String] = parsePersonOidsFromResponse(s)

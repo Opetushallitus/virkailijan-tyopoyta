@@ -1,24 +1,21 @@
 package fi.vm.sade.vst.security
 
 import com.typesafe.scalalogging.LazyLogging
-import fi.vm.sade.utils.cas.CasClient.{ServiceTicket, Username}
-import fi.vm.sade.utils.cas._
+import fi.vm.sade.javautils.nio.cas.CasConfig.CasConfigBuilder
+import fi.vm.sade.javautils.nio.cas.{CasClient, CasClientBuilder, CasConfig, UserDetails}
 import fi.vm.sade.vst.{AuthenticationConfig, Configuration}
-import org.http4s._
-import scalaz.concurrent.Task
+import org.asynchttpclient.Dsl.asyncHttpClient
+import org.asynchttpclient.{AsyncHttpClient, DefaultAsyncHttpClientConfig, Request, RequestBuilder}
 
+import java.time.Duration
 import scala.util.{Failure, Success, Try}
 
+class CasUtils(ticketValidationClient: CasClient, config: AuthenticationConfig) extends LazyLogging with Configuration {
+  private val validateTicketTask: String => UserDetails =
+    ticketValidationClient.validateServiceTicketWithVirkailijaUserDetailsBlocking(config.serviceId + "/authenticate", _)
 
-object RequestMethod extends Enumeration {
-  val GET, POST = Value
-}
-
-class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyLogging with Configuration {
-  private val validateTicketTask: (ServiceTicket) => Task[Username] = casClient.validateServiceTicketWithVirkailijaUsername(config.serviceId + "/authenticate")
-
-  def validateTicket(serviceTicket: ServiceTicket): Try[Username] = {
-    Try(validateTicketTask(serviceTicket).unsafePerformSync).recoverWith({
+  def validateTicket(serviceTicket: String): Try[UserDetails] = {
+    Try(validateTicketTask(serviceTicket)).recoverWith({
       case t =>
         Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
     })
@@ -27,61 +24,51 @@ class CasUtils(casClient: CasClient, config: AuthenticationConfig) extends LazyL
   def serviceClient(service: String) = new CasServiceClient(service)
 
   class CasServiceClient(service: String) {
-    private lazy val casParams = CasParams(service, config.casUsername, config.casPassword)
+    private lazy val httpConfig = new DefaultAsyncHttpClientConfig.Builder().setRequestTimeout(Duration.ofSeconds(60))
+    private lazy val httpClient: AsyncHttpClient = asyncHttpClient(httpConfig)
 
-    private lazy val authenticatingClient = new CasAuthenticatingClient(casClient,
-      casParams, client.blaze.defaultClient, callerId, "JSESSIONID")
+    private lazy val casConfig: CasConfig =
+      new CasConfigBuilder(
+        config.casUsername,
+        config.casPassword,
+        urls.url("cas.url"),
+        service,
+        config.serviceId,
+        config.serviceId,
+        "j_spring_cas_security_check"
+      ).setJsessionName("JSESSIONID").build()
 
-    private def handleResponse(maybeResponse: MaybeResponse): Try[String] = {
-      val response = maybeResponse.orNotFound
-      lazy val body = EntityDecoder.decodeString(response).unsafePerformSync
-      if (response.status.isSuccess) {
-        Success(body)
-      } else {
-        Failure(new RuntimeException(body))
+    private lazy val serviceClient = CasClientBuilder.buildFromConfigAndHttpClient(casConfig, httpClient)
+
+    def authenticatedJsonPost(url: String, json: String): Try[String] = {
+      {
+        val request = new RequestBuilder()
+          .setMethod("POST")
+          .setUrl(url)
+          .setHeader("Content-Type", "application/json")
+          .setBody(json)
+          .build()
+        authenticatedRequest(request)
       }
     }
 
-    def authenticatedJsonPost[A](url: String, json: String): Try[String] = {
-      val body = Some(json)
-      authenticatedRequest(url, RequestMethod.POST, mediaType = Some(org.http4s.MediaType.`application/json`), body = body)
+    def authenticatedGet(uri: String): Try[String] = {
+      val request = new RequestBuilder()
+        .setMethod("GET")
+        .setUrl(uri)
+        .build()
+      authenticatedRequest(request)
     }
 
-    def authenticatedRequest[A](uri: String,
-                                method: RequestMethod.Value,
-                                headers: Headers = Headers.empty,
-                                mediaType: Option[MediaType] = None,
-                                body: Option[A] = None,
-                                encoder: EntityEncoder[A] = EntityEncoder.stringEncoder): Try[String] = {
-
-      val http4sMethod = method match {
-        case RequestMethod.GET => Method.GET
-        case RequestMethod.POST => Method.POST
+    private def authenticatedRequest(request: Request): Try[String] =
+      Try(serviceClient.execute(request).get()).flatMap {
+        case r if r.getStatusCode == 200 =>
+          Success(r.getResponseBody())
+        case r =>
+          val response = r.getResponseBody
+          val url = request.getUrl
+          val status = r.getStatusCode
+          Failure(new RuntimeException(s"Call to $url failed with status $status and response $response"))
       }
-
-      val uriOption = Uri.fromString(uri).toOption
-
-      uriOption match {
-        case Some(u) =>
-          u
-        case None =>
-          logger.error(s"Failed parsing uri: $uri")
-          None
-      }
-
-      val request = Request(method = http4sMethod, uri = Uri.fromString(uri).toOption.get, headers = headers) //, body = requestBody)
-
-      val send = body.map({ body =>
-        val task = request.withBody(body)(encoder)
-        val taskWithMediaType = mediaType.map(mediaType => task.map(_.withType(mediaType))).getOrElse(task)
-        taskWithMediaType.flatMap(request => authenticatingClient.httpClient.toHttpService.run(request))
-      }).getOrElse {
-        val finalRequest = mediaType.map(request.withType).getOrElse(request)
-        authenticatingClient.httpClient.toHttpService.run(finalRequest)
-      }
-
-      Try(send.unsafePerformSync).flatMap(handleResponse)
-    }
   }
-
 }

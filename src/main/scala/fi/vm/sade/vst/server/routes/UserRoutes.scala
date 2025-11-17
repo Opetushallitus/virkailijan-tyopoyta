@@ -91,7 +91,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
       }
     }
 
-  @ApiOperation(value = "Hakee minkä tahansa käyttäjän tallennetut tiedot", httpMethod = "GET")
+  @ApiOperation(value = "Hakee minkä tahansa kirjautuneen käyttäjän tallennetut tiedot", httpMethod = "GET")
   @Path("/userDetails/{id}")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id", required = true, dataType = "string", paramType = "path", value = "haettavan käyttäjän käyttäjänimi")))
@@ -102,7 +102,7 @@ class UserRoutes(val userService: UserService) extends SessionSupport with Audit
     path("userDetails" / Segment) { otherUserId: String =>
       get {
         withAdminUser { currentUser =>
-          userService.findUser(otherUserId).toOption match {
+          userService.findCachedUser(otherUserId) match {
             case Some(user) =>
               logger.debug(s"Responding with user details on user ${otherUserId} for admin user ${currentUser.userId}")
               sendResponse(Future(user))
