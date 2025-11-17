@@ -1,27 +1,23 @@
 package fi.vm.sade.vst.server
 
-import java.net.InetAddress
-import java.util.Optional
-
 import akka.http.javadsl.model
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.server._
-import com.softwaremill.session.SessionDirectives.{optionalSession, invalidateSession}
-import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
+import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession}
 import com.softwaremill.session.SessionManager
+import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.javautils.http.HttpServletRequestUtils
+import fi.vm.sade.javautils.nio.cas.UserDetails
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model.User
 import fi.vm.sade.vst.security.UserService
 import org.ietf.jgss.Oid
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.net.InetAddress
+import java.util.Optional
 
-/**
-  * Created by mty on 26/04/2017.
-  */
 trait SessionSupport extends Directives with Configuration with LazyLogging {
 
   val userService: UserService
@@ -48,15 +44,9 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
   def withUserOrUnauthorized: Directive1[User] = {
     optionalSession(oneOff, usingCookies).flatMap {
       case Some(ticket) =>
-        getUserIdForTicket(ticket) match {
+        getUserDetailsForTicket(ticket) match {
           case Some(uid) =>
-            userService.findUser(uid).toOption match {
-              case Some(user) =>
-                provide(user)
-              case None =>
-                logger.info(s"withUserOrUnauthorized failed: found user id $uid for sessionticket $ticket but no user data for id")
-                complete(StatusCodes.Unauthorized, s"No user found for user id $uid")
-            }
+            provide(userService.findUser(uid))
           case None =>
             logger.info(s"withUserOrUnauthorized failed: no user id found for $ticket")
             complete(StatusCodes.Unauthorized, s"No user id found for ticket $ticket")
@@ -77,18 +67,17 @@ trait SessionSupport extends Directives with Configuration with LazyLogging {
     }
   }
 
-
-
-  protected def getUserIdForTicket(ticket: String): Option[String] = {
-    userService.getUserIdForTicket(ticket)
+  protected def getUserDetailsForTicket(ticket: String): Option[UserDetails] = {
+    userService.getUserDetailsForTicket(ticket)
   }
 
-  protected def storeTicket(ticket: String, uid: String): Unit = {
-    userService.storeTicket(ticket, uid)
+  protected def storeTicket(ticket: String, userDetails: UserDetails): Unit = {
+    userService.storeTicket(ticket, userDetails)
   }
 
   def removeTicket(ticket: String): Unit = {
-    logger.info(s"Removing sessions for ticket: $ticket belonging to user oid: ${userService.getUserIdForTicket(ticket).getOrElse("not found in ticketmap")}")
+    val oid = userService.getUserDetailsForTicket(ticket).map(_.getHenkiloOid).getOrElse("not found in ticketmap")
+    logger.info(s"Removing sessions for ticket: $ticket belonging to user oid: $oid")
 
     invalidateSession(oneOff, usingCookies)
 
