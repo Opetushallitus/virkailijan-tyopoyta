@@ -35,7 +35,7 @@ class CasUtils(ticketValidationClient: CasClient, config: AuthenticationConfig) 
         service,
         config.serviceId,
         config.serviceId,
-        "j_spring_cas_security_check"
+        "/j_spring_cas_security_check"
       ).setJsessionName("JSESSIONID").build()
 
     private lazy val serviceClient = CasClientBuilder.buildFromConfigAndHttpClient(casConfig, httpClient)
