@@ -5,6 +5,7 @@ import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.TestModule
 import fi.vm.sade.vst.util.TestDBData
 import org.junit.runner.RunWith
+import org.scalatestplus.mockito.MockitoSugar
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
@@ -15,7 +16,7 @@ import java.time.LocalDate
 class RepositorySpec extends Specification with TestModule with TestDBData {
   /*
    * Note:
-   * These current tests in fi.vm.sade.vst.repository.RepositorySpec and ServerSpec are simply made to demonstrate the usage of WithDefaultData.
+   * These current tests in fi.vm.sade.vst.repository.RepositorySpec are simply made to demonstrate the usage of WithDefaultData.
    * They are only currently testing that the WithDefaultData actually works as intended so that the h2 db is cleared
    * on every test and are independent of specs. Only requirement is that tests are run in sequential order
    * but TestDBData trait should force this anyway. Sequential running is not required if each test uses own
@@ -96,4 +97,3 @@ class RepositorySpec extends Specification with TestModule with TestDBData {
     }
   }
 }
-

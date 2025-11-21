@@ -2,18 +2,17 @@ package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
 
-import fi.vm.sade.utils.cas.CasLogout
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession, setSession}
 import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
+import fi.vm.sade.javautils.nio.cas.CasLogout
 import fi.vm.sade.vst.model.{JsonSupport, User}
 import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
 import io.swagger.annotations._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 
 @Api(value = "Kirjautumiseen liittyvät rajapinnat", produces = "application/json")
@@ -21,20 +20,22 @@ import scala.util.{Success, Failure}
 class LoginRoutes(val userService: UserService) extends SessionSupport with JsonSupport with ResponseUtils {
 
   private val serviceRoot: String = "/virkailijan-tyopoyta/"
+  private val casLogout = new CasLogout()
 
   private def authenticateUser(ticket: String): Route = {
     logger.info(s"Validating CAS ticket $ticket")
     userService.validateTicket(ticket) match {
-      case Success(uid) =>
-        storeTicket(ticket, uid)
-        userService.findUser(uid) match {
-          case Success(user) =>
+      case Success(userDetails) =>
+        storeTicket(ticket, userDetails)
+        val uid = userDetails.getUser
+        Try(userService.findUser(userDetails)) match {
+          case Success(_) =>
             setSession(oneOff, usingCookies, ticket) {
               logger.info(s"Successfully validated CAS ticket $ticket and logged in $uid")
               redirect(serviceRoot, StatusCodes.Found)
             }
           case Failure(t) =>
-            logger.info(s"CAS ticket validated but no user data found for ${uid}: ${t.getMessage}")
+            logger.info(s"CAS ticket validated but no user data found for $uid: ${t.getMessage}")
             complete(StatusCodes.Unauthorized, s"Could not find user data for user id $uid: ${t.getMessage}")
         }
       case Failure(t) =>
@@ -104,7 +105,8 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
     formFieldMap { formFields =>
       logger.info(s"Got CAS backchannel logout request, form: $formFields")
       val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
-      val ticket = CasLogout.parseTicketFromLogoutRequest(param).getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
+      val ticket = casLogout.parseTicketFromLogoutRequest(param)
+        .orElse(throw new RuntimeException(s"Could not parse ticket from $param"))
       removeTicket(ticket)
       complete(StatusCodes.OK)
     }
@@ -130,4 +132,3 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
 
   val routes: Route = loginRoute ~ authenticationRoute ~ casRoute ~ casRouteRoot ~ logoutRoute
 }
-

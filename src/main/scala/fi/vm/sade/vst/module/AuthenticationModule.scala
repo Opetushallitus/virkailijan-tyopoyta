@@ -1,22 +1,34 @@
 package fi.vm.sade.vst.module
 
-import fi.vm.sade.utils.cas._
-import fi.vm.sade.utils.kayttooikeus.KayttooikeusUserDetailsService
+import fi.vm.sade.javautils.nio.cas.CasConfig.CasConfigBuilder
+import fi.vm.sade.javautils.nio.cas.{CasClient, CasClientBuilder, CasConfig}
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.security.CasUtils
-import org.http4s.client.blaze.{BlazeClient, BlazeClientConfig, SimpleHttp1Client}
+import org.asynchttpclient.Dsl.asyncHttpClient
+import org.asynchttpclient.{AsyncHttpClient, DefaultAsyncHttpClientConfig}
 
-import scala.concurrent.duration.DurationInt
+import java.time.Duration
 
 trait AuthenticationModule extends Configuration {
 
   import com.softwaremill.macwire._
 
-  lazy val httpConfig = BlazeClientConfig.defaultConfig.copy(responseHeaderTimeout = 60.seconds)
-  lazy val httpClient = SimpleHttp1Client(httpConfig)
+  private lazy val httpConfig = new DefaultAsyncHttpClientConfig.Builder().setRequestTimeout(Duration.ofSeconds(60))
+  private lazy val httpClient: AsyncHttpClient = asyncHttpClient(httpConfig)
 
-  lazy val casClient = new CasClient(urls.url("cas.url"), httpClient, callerId)
+  private lazy val casConfig: CasConfig =
+    new CasConfigBuilder(
+      authenticationConfig.casUsername,
+      authenticationConfig.casPassword,
+      urls.url("cas.url"),
+      "",
+      authenticationConfig.serviceId,
+      authenticationConfig.serviceId,
+      ""
+    ).build()
+
+  /** CAS Client for validating tickets. */
+  lazy val ticketValidationClient: CasClient = CasClientBuilder.buildFromConfigAndHttpClient(casConfig, httpClient)
 
   lazy val casUtils: CasUtils = wire[CasUtils]
-  lazy val userDetailsService: KayttooikeusUserDetailsService = wire[KayttooikeusUserDetailsService]
 }
