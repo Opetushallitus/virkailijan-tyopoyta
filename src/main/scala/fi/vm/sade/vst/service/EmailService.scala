@@ -287,14 +287,15 @@ class EmailService(casUtils: CasUtils,
   case class ReleaseSet(language: String, ids: Set[Long])
 
   private def getViestit(releaseSetsForUsers: Seq[(BasicUserInformation, Set[Release])], lahetysTunniste: UUID): Seq[Viesti]  = {
-    val releasesById = releaseSetsForUsers.map{case (user, releases) => releases}.flatten.map(r => r.id -> r).toMap
+    val releasesById = releaseSetsForUsers.flatMap { case (user, releases) => releases }.map(r => r.id -> r).toMap
     val recipientsByLocalizedReleaseSet = releaseSetsForUsers
+      .filter{case (user, releases) => user.email.trim.nonEmpty}
       .map{case (user, releases) => (user.email, ReleaseSet(getLanguage(user), releases.map(r => r.id)))}
       .groupBy(setsPerRecipient => setsPerRecipient._2)
       .map(setsPerSet => setsPerSet._1 -> setsPerSet._2.map(r => r._1).toSet)
 
-    val viestit = recipientsByLocalizedReleaseSet.map{ case (releaseSet, recipients) => {
-      val releases = releaseSet.ids.map(id => releasesById.get(id).get)
+    val viestit = recipientsByLocalizedReleaseSet.flatMap { case (releaseSet, recipients) => {
+      val releases = releaseSet.ids.map(id => releasesById(id))
 
       recipients
         .grouped(Viesti.VIESTI_VASTAANOTTAJAT_MAX_MAARA)
@@ -309,7 +310,8 @@ class EmailService(casUtils: CasUtils,
             .build())
           .withLahetysTunniste(lahetysTunniste.toString)
           .build())
-    }}.flatten.toSeq
+    }
+    }.toSeq
 
     viestit
   }
