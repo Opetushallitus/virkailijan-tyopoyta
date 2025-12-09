@@ -65,7 +65,9 @@ class UserService(casUtils: CasUtils,
   }
 
   private def createUser(userDetails: UserDetails): User = {
+    logger.info(s"Temp log Roles: ${userDetails.getRoles}")
     val isAdmin = userDetails.getRoles.contains(adminRole)
+    logger.info(s"Temp log isAdmin: $isAdmin")
     val oid = userDetails.getHenkiloOid
     val groups = kayttooikeusService.userGroupsForUser(oid, isAdmin)
 
