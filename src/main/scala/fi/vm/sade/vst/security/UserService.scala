@@ -30,7 +30,7 @@ class UserService(casUtils: CasUtils,
 
   lazy val loginUrl: String = urls.url("cas.login", servicePart)
 
-  private val adminRole = "ROLE_APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
+  private val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
 
   private val ticketUserMap: mutable.Map[String, UserDetails] = new ConcurrentHashMap[String, UserDetails]().asScala
 

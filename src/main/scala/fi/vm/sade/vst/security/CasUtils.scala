@@ -8,6 +8,7 @@ import org.asynchttpclient.Dsl.asyncHttpClient
 import org.asynchttpclient.{AsyncHttpClient, DefaultAsyncHttpClientConfig, Request, RequestBuilder}
 
 import java.time.Duration
+import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
 class CasUtils(ticketValidationClient: CasClient, config: AuthenticationConfig) extends LazyLogging with Configuration {
@@ -15,13 +16,23 @@ class CasUtils(ticketValidationClient: CasClient, config: AuthenticationConfig) 
     ticketValidationClient.validateServiceTicketWithVirkailijaUserDetailsBlocking(config.serviceId + "/authenticate", _)
 
   def validateTicket(serviceTicket: String): Try[UserDetails] = {
-    Try(validateTicketTask(serviceTicket)).recoverWith({
-      case t =>
-        Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
-    })
+    Try(validateTicketTask(serviceTicket))
+      .map(mapRolesInUserDetails)
+      .recoverWith({
+        case t =>
+          Failure(new IllegalArgumentException(s"Cas ticket $serviceTicket rejected : ${t.getMessage}", t))
+      })
   }
 
   def serviceClient(service: String) = new CasServiceClient(service)
+
+  private def mapRolesInUserDetails(details: UserDetails) =
+    new UserDetails(
+      details.getUser,
+      details.getHenkiloOid,
+      details.getKayttajaTyyppi,
+      details.getIdpEntityId,
+      details.getRoles.map(_.replace("ROLE_", "")))
 
   class CasServiceClient(service: String) {
     private lazy val httpConfig = new DefaultAsyncHttpClientConfig.Builder().setRequestTimeout(Duration.ofSeconds(60))
