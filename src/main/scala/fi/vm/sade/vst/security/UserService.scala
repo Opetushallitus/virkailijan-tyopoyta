@@ -2,44 +2,43 @@ package fi.vm.sade.vst.security
 
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.auditlog.{User => AuditUser}
+import fi.vm.sade.javautils.nio.cas.UserDetails
+import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.repository.{ReleaseRepository, UserRepository}
-import fi.vm.sade.vst.Configuration
 import play.api.libs.json._
+import scalacache.ScalaCache
+import scalacache.guava.GuavaCache
+import scalacache.memoization._
+import scalacache.serialization.InMemoryRepr
+
 import java.util.concurrent.ConcurrentHashMap
-
-import fi.vm.sade.utils.kayttooikeus.{KayttooikeusUserDetails, KayttooikeusUserDetailsService}
-
 import scala.collection.convert.decorateAsScala._
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
-import scalacache.ScalaCache
-import scalacache.guava.GuavaCache
-import scalacache.memoization._
 
 class UserService(casUtils: CasUtils,
-                  userDetailsService: KayttooikeusUserDetailsService,
                   kayttooikeusService: KayttooikeusService,
                   userRepository: UserRepository,
                   releaseRepository: ReleaseRepository)
   extends Configuration with LazyLogging {
 
-  implicit val scalaCache = ScalaCache(GuavaCache())
+  implicit val scalaCache: ScalaCache[InMemoryRepr] = ScalaCache(GuavaCache())
 
   private lazy val servicePart = s"${authenticationConfig.serviceId}/authenticate"
 
   lazy val loginUrl: String = urls.url("cas.login", servicePart)
 
-  val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
+  private val adminRole = "APP_VIRKAILIJANTYOPOYTA_CRUD_1.2.246.562.10.00000000001"
 
-  private val ticketUserMap: mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
+  private val ticketUserMap: mutable.Map[String, UserDetails] = new ConcurrentHashMap[String, UserDetails]().asScala
 
   private def oppijanumeroRekisteri = {
     casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
   }
 
-  private def userInitialsAndLang(userOid: String): (Option[String], Option[String]) = {
+  def userInitialsAndLang(userOid: String): (Option[String], Option[String]) = {
     val json = s"""["$userOid"]"""
     val url = s"${oppijanumeroRekisteriConfig.serviceAddress}/henkilo/henkiloPerustietosByHenkiloOidList"
     val response = oppijanumeroRekisteri.authenticatedJsonPost(url, json)
@@ -65,42 +64,34 @@ class UserService(casUtils: CasUtils,
     (callingNames.headOption, lang.headOption)
   }
 
-  private def createUser(koUser: KayttooikeusUserDetails): User = {
-    val isAdmin = koUser.roles.contains(adminRole)
-    val groups = kayttooikeusService.userGroupsForUser(koUser.oid, isAdmin)
+  private def createUser(userDetails: UserDetails): User = {
+    val isAdmin = userDetails.getRoles.contains(adminRole)
+    val oid = userDetails.getHenkiloOid
+    val groups = kayttooikeusService.userGroupsForUser(oid, isAdmin)
 
-    val (initials, langOpt) = userInitialsAndLang(koUser.oid)
+    val (initials, langOpt) = userInitialsAndLang(oid)
     val initialsToShow = if (isAdmin) {
       initials
     } else None
-    val user = User(koUser.oid, initialsToShow, langOpt.getOrElse("fi"), isAdmin, groups, koUser.roles)
+    val user = User(oid, initialsToShow, langOpt.getOrElse("fi"), isAdmin, groups, userDetails.getRoles.asScala.toList)
     user.copy(allowedCategories = releaseRepository.categories(user).map(_.id))
   }
 
-  private def fetchCacheableUserData(uid: String): Try[User] = {
+  private def fetchCacheableUserData(userDetails: UserDetails): User =
     memoizeSync(authenticationConfig.memoizeDuration) {
-      userDetailsService.getUserByUsername(uid, "virkailijan-tyopoyta", urls) match {
-        case Right(koUser) =>
-          Success(createUser(koUser))
-        case Left(error) =>
-          logger.error(s"User $uid role query error", error)
-          Failure(new IllegalStateException(s"User $uid role query error"))
-      }
+      createUser(userDetails)
     }
+
+  def findCachedUser(uid: String): Option[User] = {
+    findUserDetailsWithUsername(uid).map(findUser)
   }
 
-  def findUser(uid: String): Try[User] = {
-    val user = fetchCacheableUserData(uid)
+  def findUser(userDetails: UserDetails): User = {
+    val user = fetchCacheableUserData(userDetails)
 
-    user match {
-      case Success(u) =>
-        Success(u.copy(
-          profile = Some(userRepository.userProfile(u.userId)),
-          draft = userRepository.fetchDraft(u.userId)))
-      case Failure(e) =>
-        logger.debug(s"User call failed for uid $uid : ${e.getMessage}")
-        user
-    }
+    user.copy(
+      profile = Some(userRepository.userProfile(user.userId)),
+      draft = userRepository.fetchDraft(user.userId))
   }
 
   def setUserProfile(user: User, userProfile: UserProfileUpdate)(implicit au: AuditUser): UserProfile = {
@@ -139,47 +130,34 @@ class UserService(casUtils: CasUtils,
     userRepository.deleteDraft(user)
   }
 
-  def validateTicket(ticket: String): Try[String] = {
+  def validateTicket(ticket: String): Try[UserDetails] = {
     casUtils.validateTicket(ticket)
   }
 
-  def authenticate(ticket: String): Option[(String, User)] = {
-    val uid = casUtils.validateTicket(ticket)
-    val user = uid.flatMap(findUser)
-
-    (uid, user) match {
-      case (Success(id), Success(u)) =>
-        Some(id, u)
-      case (Failure(e), _) =>
-        logger.error(s"Ticket validation failed", e)
-        None
-      case (Success(u), Failure(t)) =>
-        logger.error(s"Failed to find user data for $u", t)
-        None
-      case _ =>
-        None
-    }
-  }
-
-  def getUserIdForTicket(ticket: String): Option[String] = {
+  def getUserDetailsForTicket(ticket: String): Option[UserDetails] = {
     ticketUserMap.get(ticket)
   }
 
   def findUserForTicket(ticket: String): Option[User] = {
-    getUserIdForTicket(ticket).flatMap(uid => findUser(uid).toOption)
+    getUserDetailsForTicket(ticket).map(details => findUser(details))
   }
 
-  def storeTicket(ticket: String, userId: String): Unit = {
-    ticketUserMap.update(ticket, userId)
+  def storeTicket(ticket: String, userDetails: UserDetails): Unit = {
+    ticketUserMap.update(ticket, userDetails)
+  }
+
+  private def findUserDetailsWithUsername(username: String): Option[UserDetails] = {
+    ticketUserMap.values.find(_.getUser == username)
   }
 
   def removeTicket(ticket: String): Unit = {
     ticketUserMap.remove(ticket) match {
-      case Some(user) =>
-        logger.info(s"Removed ticket $ticket for user $user")
-        val usersOtherTickets = ticketUserMap.filter(_._2 == user).keys
+      case Some(userDetails) =>
+        val username = userDetails.getUser
+        logger.info(s"Removed ticket $ticket for user $username")
+        val usersOtherTickets = ticketUserMap.filter(_._2.getUser == username).keys
         if (usersOtherTickets.nonEmpty) {
-          logger.warn(s"User $user still has the following tickets active: ${usersOtherTickets.mkString(" ")}")
+          logger.warn(s"User $username still has the following tickets active: ${usersOtherTickets.mkString(" ")}")
         }
       case None =>
         logger.warn(s"Tried to remove ticket but no such ticket found: $ticket")

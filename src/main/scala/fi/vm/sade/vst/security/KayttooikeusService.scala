@@ -1,6 +1,5 @@
 package fi.vm.sade.vst.security
 
-import fi.vm.sade.vst.AuthenticationConfig
 import fi.vm.sade.vst.model.{JsonSupport, Kayttooikeusryhma}
 import java.util.concurrent.atomic.AtomicReference
 
@@ -8,11 +7,9 @@ import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.properties.OphProperties
 import fi.vm.sade.vst.repository.ReleaseRepository
 
-import scala.collection.immutable.Seq
 import scala.util.{Failure, Success, Try}
 
 class KayttooikeusService(casUtils: CasUtils,
-                          config: AuthenticationConfig,
                           releaseRepository: ReleaseRepository,
                           urls: OphProperties)
   extends JsonSupport
@@ -63,7 +60,7 @@ class KayttooikeusService(casUtils: CasUtils,
       appGroups
     } else {
       val url: String = urls.url("kayttooikeus-service.userGroupsForUser", oid)
-      val groupsResponse = kayttooikeusClient.authenticatedRequest(url, RequestMethod.GET)
+      val groupsResponse = kayttooikeusClient.authenticatedGet(url)
 
       val groupsForUser = parseResponse(groupsResponse, url, forUser = true)
 
