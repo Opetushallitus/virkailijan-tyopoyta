@@ -8,7 +8,7 @@ Selaintestaus tehdään [Nightwatch.js](http://nightwatchjs.org/)-työkalulla.
 
 Tarvittavat riippuvuudet asennetaan kehitysympäristön pystytyksen mukana. 
 
-- aja `pnpm install` ja `pnpm run e2e-setup` juuressa
+- aja `npm install {-g} nightwatch` ja `npm run e2e-setup` juuressa
 
 - kopioi `docs/ui/tiedostot/nightwatch.json` juureen ja muuta 
  `test_settings.default.launch_url`:n arvoksi Scala-projektin konfiguraatiotiedostoon
@@ -17,7 +17,7 @@ Tarvittavat riippuvuudet asennetaan kehitysympäristön pystytyksen mukana.
 - kopioi `docs/ui/tiedostot/environments.json` `ui/app/resources/test/nightwatch`-kansioon
 ja muuta arvot oikeiksi
 
-- `pnpm run e2e-smoketests` ajaa kaikki `../nightwatch/smoketests`-kansiossa olevat testit
+- `npm run e2e-smoketests` ajaa kaikki `../nightwatch/smoketests`-kansiossa olevat testit
 
 - yksittäisiä testejä ajetaan komennolla
 `nightwatch -t ui/app/resources/test/nightwatch/{componentTests|smoketests}/{testin nimi}.js` 

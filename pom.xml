@@ -468,41 +468,40 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.15.4</version>
+                <version>1.0</version>
 
                 <!-- optional -->
                 <configuration>
-                    <workingDirectory>${project.basedir}</workingDirectory>
-                    <installDirectory>${project.build.directory}/frontend</installDirectory>
+                    <workingDirectory>target/frontend</workingDirectory>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>install node and corepack</id>
+                        <id>install node and npm</id>
                         <goals>
-                            <goal>install-node-and-corepack</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
                             <nodeVersion>v22.20.0</nodeVersion>
+                            <npmVersion>10.9.3</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pnpm install</id>
-                        <phase>generate-resources</phase>
+                        <id>npm install</id>
                         <goals>
-                            <goal>corepack</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>pnpm install --frozen-lockfile</arguments>
+                            <arguments>ci</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pnpm run build</id>
+                        <id>npm run dist</id>
                         <goals>
-                            <goal>corepack</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>pnpm run build</arguments>
+                            <arguments>run dist</arguments>
                         </configuration>
                     </execution>
                 </executions>
