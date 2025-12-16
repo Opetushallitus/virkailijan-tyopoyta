@@ -1,7 +1,7 @@
 const moment = require('moment')
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     browser.end()
@@ -9,7 +9,7 @@ module.exports = {
 
   'open editor': browser => require('../common/modal')['open modal'](browser, 'editor'),
 
-  'toggle timeline tab': browser => browser.page.pageObjects().editorCommands.toggleTab(browser, 'edit-timeline'),
+  'toggle timeline tab': browser => browser.page.pageObjects().toggleTab('edit-timeline'),
 
   'set text': (browser, text = require('crypto').randomBytes(4).toString('hex')) => {
     const editor = browser.page.pageObjects().section.editor
