@@ -1,7 +1,7 @@
 const title = require('crypto').randomBytes(4).toString('hex')
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     require('../componentTests/notifications/removeNotification')['remove notification'](browser)
@@ -12,12 +12,12 @@ module.exports = {
   'open editor': (browser, name) => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().editorCommands
+    const page = browser.page.pageObjects()
 
-    editor.createNotification(browser, { language: 'fi', title })
-    editor.targeting(browser)
-    editor.preview(browser)
-    editor.save(browser)
+    page.createNotification({ language: 'fi', title })
+    page.targeting()
+    page.preview()
+    page.save()
   },
 
   'draft is saved': browser => {
@@ -37,9 +37,9 @@ module.exports = {
     editNotification.expect.element('@title').value.to.equal(title).after(5000)
   },
 
-  'preview': browser => browser.page.pageObjects().editorCommands.preview(browser),
+  'preview': browser => browser.page.pageObjects().preview(),
 
-  'save': browser => browser.page.pageObjects().editorCommands.save(browser),
+  'save': browser => browser.page.pageObjects().save(),
 
   'draft is removed': browser => {
     const menu = browser.page.pageObjects().section.menu

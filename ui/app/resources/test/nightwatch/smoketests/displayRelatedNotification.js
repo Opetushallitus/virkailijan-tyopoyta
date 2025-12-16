@@ -1,7 +1,7 @@
 const last = require('ramda').last
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     const categories = browser.page.pageObjects().section.notifications.section.categories
@@ -26,13 +26,13 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().editorCommands
+    const page = browser.page.pageObjects()
 
-    editor.createNotification(browser, { language: 'fi' })
-    editor.createTimelineItem(browser, { language: 'fi' })
-    editor.targeting(browser)
-    editor.preview(browser)
-    editor.save(browser)
+    page.createNotification({ language: 'fi' })
+    page.createTimelineItem({ language: 'fi' })
+    page.targeting()
+    page.preview()
+    page.save()
   },
 
   'select category filter': browser => {
