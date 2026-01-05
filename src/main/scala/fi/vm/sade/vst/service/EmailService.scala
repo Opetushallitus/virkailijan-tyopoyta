@@ -7,6 +7,7 @@ import fi.vm.sade.auditlog.{User => AuditUser}
 import fi.vm.sade.vst.Configuration
 import fi.vm.sade.vst.model._
 import fi.vm.sade.vst.module.RepositoryModule
+import fi.vm.sade.vst.module.SharedHttpClient.instance
 import fi.vm.sade.vst.security.{CasUtils, KayttooikeusService, UserService}
 import fi.vm.sade.vst.util.IterableUtils
 import play.api.libs.json._
@@ -53,7 +54,7 @@ class EmailService(casUtils: CasUtils,
       .withPassword(config.getString("virkailijan-tyopoyta.cas.password"))
       .withCasEndpoint(config.getString("cas.url"))
       .withCallerId(this.callerId)
-      .build()
+      .buildWithHttpClient(instance)
 
   private def oppijanumeroRekisteri = casUtils.serviceClient(oppijanumeroRekisteriConfig.serviceAddress)
 

@@ -3,11 +3,10 @@ package fi.vm.sade.vst.security
 import com.typesafe.scalalogging.LazyLogging
 import fi.vm.sade.javautils.nio.cas.CasConfig.CasConfigBuilder
 import fi.vm.sade.javautils.nio.cas.{CasClient, CasClientBuilder, CasConfig, UserDetails}
+import fi.vm.sade.vst.module.SharedHttpClient
 import fi.vm.sade.vst.{AuthenticationConfig, Configuration}
-import org.asynchttpclient.Dsl.asyncHttpClient
-import org.asynchttpclient.{AsyncHttpClient, DefaultAsyncHttpClientConfig, Request, RequestBuilder}
+import org.asynchttpclient.{Request, RequestBuilder}
 
-import java.time.Duration
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
@@ -35,9 +34,6 @@ class CasUtils(ticketValidationClient: CasClient, config: AuthenticationConfig) 
       details.getRoles.map(_.replace("ROLE_", "")))
 
   class CasServiceClient(service: String) {
-    private lazy val httpConfig = new DefaultAsyncHttpClientConfig.Builder().setRequestTimeout(Duration.ofSeconds(60))
-    private lazy val httpClient: AsyncHttpClient = asyncHttpClient(httpConfig)
-
     private lazy val casConfig: CasConfig =
       new CasConfigBuilder(
         config.casUsername,
@@ -49,7 +45,7 @@ class CasUtils(ticketValidationClient: CasClient, config: AuthenticationConfig) 
         "/j_spring_cas_security_check"
       ).setJsessionName("JSESSIONID").build()
 
-    private lazy val serviceClient = CasClientBuilder.buildFromConfigAndHttpClient(casConfig, httpClient)
+    private lazy val serviceClient = CasClientBuilder.buildFromConfigAndHttpClient(casConfig, SharedHttpClient.instance)
 
     def authenticatedJsonPost(url: String, json: String): Try[String] = {
       {

@@ -1,7 +1,6 @@
 package fi.vm.sade.vst.server.routes
 
 import javax.ws.rs.Path
-
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.softwaremill.session.SessionDirectives.{invalidateSession, optionalSession, setSession}
@@ -12,6 +11,7 @@ import fi.vm.sade.vst.security.UserService
 import fi.vm.sade.vst.server.{ResponseUtils, SessionSupport}
 import io.swagger.annotations._
 
+import scala.compat.java8.OptionConverters._
 import scala.util.{Failure, Success, Try}
 
 
@@ -106,7 +106,8 @@ class LoginRoutes(val userService: UserService) extends SessionSupport with Json
       logger.info(s"Got CAS backchannel logout request, form: $formFields")
       val param = formFields.getOrElse("logoutRequest", throw new RuntimeException("Required parameter logoutRequest not found"))
       val ticket = casLogout.parseTicketFromLogoutRequest(param)
-        .orElse(throw new RuntimeException(s"Could not parse ticket from $param"))
+        .asScala
+        .getOrElse(throw new RuntimeException(s"Could not parse ticket from $param"))
       removeTicket(ticket)
       complete(StatusCodes.OK)
     }
