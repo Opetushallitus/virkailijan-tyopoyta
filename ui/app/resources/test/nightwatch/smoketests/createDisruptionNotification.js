@@ -1,5 +1,5 @@
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     require('../componentTests/notifications/removeNotification')['remove notification'](browser)
@@ -10,14 +10,14 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().editorCommands
+    const page = browser.page.pageObjects()
 
-    editor.createNotification(browser, { language: 'fi' })
+    page.createNotification({ language: 'fi' })
     require('../componentTests/editor/editNotification')['set as disruption notification'](browser)
 
-    editor.targeting(browser)
-    editor.preview(browser)
-    editor.save(browser)
+    page.targeting()
+    page.preview()
+    page.save()
   },
 
   'notification was saved and is a disruption notification': browser => {

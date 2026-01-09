@@ -4,7 +4,7 @@ const text = require('crypto').randomBytes(4).toString('hex')
 const editedText = 'edit'
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     browser.end()
@@ -13,12 +13,12 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create timeline item': browser => {
-    const editor = browser.page.pageObjects().editorCommands
+    const page = browser.page.pageObjects()
 
-    editor.createTimelineItem(browser, { text })
-    editor.targeting(browser)
-    editor.preview(browser)
-    editor.save(browser)
+    page.createTimelineItem({ text })
+    page.targeting()
+    page.preview()
+    page.save()
   },
 
   'timeline item was saved and has content': browser => {
@@ -40,9 +40,9 @@ module.exports = {
 
   'edit finnish text': browser => require('../componentTests/editor/editTimeline')['set text'](browser, editedText),
 
-  'preview edit': browser => browser.page.pageObjects().editorCommands.preview(browser),
+  'preview edit': browser => browser.page.pageObjects().preview(),
 
-  'save edit': browser => browser.page.pageObjects().editorCommands.save(browser),
+  'save edit': browser => browser.page.pageObjects().save(),
 
   'timeline item was edited': browser => {
     const timelineItem = browser.page.pageObjects().section.timeline.section.timelineItem
