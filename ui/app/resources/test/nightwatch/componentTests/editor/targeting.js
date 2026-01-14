@@ -1,5 +1,5 @@
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     browser.end()
@@ -9,7 +9,7 @@ module.exports = {
 
   'set title': browser => require('./editNotification')['set title'](browser),
 
-  'toggle targeting tab': browser => browser.page.pageObjects().editorCommands.toggleTab(browser, 'targeting'),
+  'toggle targeting tab': browser => browser.page.pageObjects().toggleTab('targeting'),
 
   'select category': browser => {
     const editor = browser.page.pageObjects().section.editor

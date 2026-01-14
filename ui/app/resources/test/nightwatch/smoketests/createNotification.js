@@ -5,7 +5,7 @@ const editedTitle = 'edit'
 const description = 'Kuvaus'
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     browser.end()
@@ -14,12 +14,12 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().editorCommands
+    const page = browser.page.pageObjects()
 
-    editor.createNotification(browser, { language: 'fi', title, description })
-    editor.targeting(browser)
-    editor.preview(browser)
-    editor.save(browser)
+    page.createNotification({ language: 'fi', title, description })
+    page.targeting()
+    page.preview()
+    page.save()
   },
 
   'notification was saved and has content': browser => {
@@ -51,9 +51,9 @@ module.exports = {
     require('../componentTests/editor/editNotification')['set title'](browser, 'fi', `${title}${editedTitle}`)
   },
 
-  'preview edit': browser => browser.page.pageObjects().editorCommands.preview(browser),
+  'preview edit': browser => browser.page.pageObjects().preview(),
 
-  'save edit': browser => browser.page.pageObjects().editorCommands.save(browser),
+  'save edit': browser => browser.page.pageObjects().save(),
 
   'notification was edited': browser => {
     const notification = browser.page.pageObjects().section.notifications.section.notification
