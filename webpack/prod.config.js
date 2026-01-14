@@ -10,7 +10,7 @@ module.exports = merge(baseConfig, {
     path: PATHS.build,
     filename: '[name].[contenthash].js',
     chunkFilename: '[name].[contenthash].js',
-    sourceMapFilename: 'bundle.map'
+    sourceMapFilename: '[file].map'
   },
 
   bail: true,

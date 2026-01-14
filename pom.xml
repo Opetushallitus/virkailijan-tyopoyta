@@ -485,12 +485,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pnpm run build</id>
+                        <id>pnpm run dist</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>corepack</goal>
                         </goals>
                         <configuration>
-                            <arguments>pnpm run build</arguments>
+                            <arguments>pnpm run dist</arguments>
                         </configuration>
                     </execution>
                 </executions>
