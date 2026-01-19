@@ -1,28 +1,23 @@
-const webpack = require('webpack')
-const merge = require('webpack-merge')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const { merge } = require('webpack-merge')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 const baseConfig = require('./base.config.js')
 const PATHS = require('./paths.js')
 
 module.exports = merge(baseConfig, {
+  mode: 'production',
   output: {
     path: PATHS.build,
-    sourceMapFilename: 'bundle.map'
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].js',
+    sourceMapFilename: '[file].map'
   },
 
   bail: true,
 
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      },
-      comments: false,
-      sourceMap: true
-    }),
-    new CleanWebpackPlugin([PATHS.build], {
-      root: process.cwd()
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: [PATHS.build]
     })
   ],
 

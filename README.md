@@ -9,7 +9,7 @@ Käyttöliittymän dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
 
 ### Vaatimukset
 
-- [Node.js & npm](https://nodejs.org/en/)
+- [Node.js & pnpm](https://pnpm.io/)
 - [Scala sbt](http://www.scala-sbt.org/)
 - [Git](https://git-scm.com/)
 - paikallinen konfiguraatiotiedosto `common.properties`
@@ -22,21 +22,21 @@ Asenna käyttöliittymän kehitystä varten selaimellesi React Developer Tools -
 ### Rakentaminen
 
 Ensimmäisellä kerralla:
-- `npm install` ja `npm run build` juuressa
+- `pnpm install` ja `pnpm run build` juuressa
 - Tee `common.properties.template` -tiedoston pohjalta jonnekin tiedosto `oph-properties/common.properties`
   ja syötä sinne sopivat arvot. Tai voit kopioida tiedoston pohjaksi palvelinympäristön palvelimelta.
 
 Jatkossa:
 - Käynnistä `fi.vm.sade.vst.Main` -luokka, ja laita JVM:n ajoparametriksi VST:n `oph-configuration` sisältämän
   hakemisto käyttäjän kotihakemistoksi, esim `-Duser.home=/home/thrantal/oph-confs/virkailijan-tyopoyta-hahtuva`
-- toisessa terminaalissa/välilehdellä `npm run start-dev` 
+- toisessa terminaalissa/välilehdellä `pnpm run start-dev` 
 - avaa selaimessa URL `localhost:{määritelty portti}/virkailijan-tyopoyta`
 
 Käyttöliittymä rakennetaan `target/scala-2.11/classes/ui`-kansioon, jota Webpack
 vahtii. Muutokset `ui`-kansion tiedostoihin käynnistävät käyttöliittymän rakentamisen.
 
 Ajettavan jarrin tuottaminen `mvn clean install`
-Frontin minifioitu versio `npm run dist'
+Frontin minifioitu versio `pnpm run dist`
 
 Swagger-dokumentaatio osoitteessa http://localhost:8081/virkailijan-tyopoyta/swagger
 

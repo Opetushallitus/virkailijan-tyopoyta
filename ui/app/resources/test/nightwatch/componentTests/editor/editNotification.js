@@ -1,7 +1,7 @@
 const moment = require('moment')
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     browser.end()

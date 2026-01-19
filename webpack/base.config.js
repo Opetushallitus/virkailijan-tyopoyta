@@ -1,91 +1,81 @@
+const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const validate = require('webpack-validator')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const esLintFriendlyFormatter = require('eslint-friendly-formatter')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const PATHS = require('./paths.js')
 
-const config = {
+module.exports = {
   entry: {
     app: PATHS.app,
     style: PATHS.style
   },
-
   output: {
-    filename: '[name].js',
-    chunkFilename: '[id].js',
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].js',
     publicPath: '/virkailijan-tyopoyta/'
   },
-
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx'],
+    fallback: {
+      stream: require.resolve('stream-browserify'),
+      util: require.resolve('util/')
+    }
   },
-
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015', 'react'],
-          plugins: ['transform-object-rest-spread']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react']
+          }
         }
       },
       {
-        test: /\.jsx?$/,
-        loader: 'eslint',
-        include: PATHS.app + '/components',
-        exclude: /(node_modules|bower_components)/
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
-      },
-      {
-        test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-        loader: 'file'
-      },
-      {
-        test: /\.(jpg|png|gif)$/,
-        loader: 'file',
-        include: PATHS.images
+        test: /\.(png|jpe?g|gif|svg|woff2?|eot|ttf)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'assets/[name][hash][ext][query]'
+        }
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style', 'css!postcss-loader')
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  require('postcss-import'),
+                  require('postcss-preset-env')({ stage: 0 })
+                ]
+              }
+            }
+          }
+        ]
       }
     ]
   },
-
-  postcss: function (webpack) {
-    return [
-      require('postcss-smart-import')({ addDependencyTo: webpack }),
-      require('postcss-cssnext')()
-    ]
-  },
-
-  eslint: {
-    formatter: esLintFriendlyFormatter,
-    failOnError: true
-  },
-
   plugins: [
-    new webpack.EnvironmentPlugin([
-      'NODE_ENV'
-    ]),
-    new ExtractTextPlugin('[name].css'),
-    new HtmlWebpackPlugin({
-      template: 'ui/app/index.html',
-      title: 'App',
-      appMountId: 'app',
-      inject: false
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: process.env.NODE_ENV || 'development'
     }),
-    new webpack.HotModuleReplacementPlugin({
-      multiStep: true
+    new MiniCssExtractPlugin({
+      filename: '[name].css'
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, '../ui/app/index.html'),
+      inject: 'body'
     })
   ]
 }
-
-module.exports = validate(config)

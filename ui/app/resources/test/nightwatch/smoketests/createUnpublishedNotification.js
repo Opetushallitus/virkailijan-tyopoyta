@@ -5,7 +5,7 @@ const startDate = moment().add(1, 'days').format('D.M.YYYY')
 const endDate = moment().add(2, 'days').format('D.M.YYYY')
 
 module.exports = {
-  before: browser => browser.page.pageObjects().login.luokka(browser),
+  before: browser => browser.page.pageObjects().loginLuokka(),
 
   after: browser => {
     browser.end()
@@ -14,12 +14,12 @@ module.exports = {
   'open editor': browser => require('../componentTests/common/modal')['open modal'](browser, 'editor'),
 
   'create notification': browser => {
-    const editor = browser.page.pageObjects().editorCommands
+    const page = browser.page.pageObjects()
 
-    editor.createNotification(browser, { language: 'fi', title, description: 'Kuvaus', startDate, endDate })
-    editor.targeting(browser)
-    editor.preview(browser)
-    editor.save(browser)
+    page.createNotification({ language: 'fi', title, description: 'Kuvaus', startDate, endDate })
+    page.targeting()
+    page.preview()
+    page.save()
   },
 
   'open unpublished notifications': browser =>
