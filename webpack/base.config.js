@@ -11,13 +11,14 @@ module.exports = {
     style: PATHS.style
   },
   output: {
-    filename: '[name].[contenthash].js',
-    chunkFilename: '[name].[contenthash].js',
+    filename: '[name].js',
+    chunkFilename: '[name].js',
     publicPath: '/virkailijan-tyopoyta/'
   },
   resolve: {
     extensions: ['.js', '.jsx'],
     fallback: {
+      process: require.resolve('process/browser'),
       stream: require.resolve('stream-browserify'),
       util: require.resolve('util/')
     }
@@ -67,6 +68,9 @@ module.exports = {
     ]
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser'
+    }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: process.env.NODE_ENV || 'development'
     }),
@@ -75,7 +79,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, '../ui/app/index.html'),
-      inject: 'body'
+      inject: false
     })
   ]
 }
