@@ -238,7 +238,7 @@
             <dependency>
                 <groupId>opiskelijavalinnat-utils.viestinvalitys</groupId>
                 <artifactId>kirjasto</artifactId>
-                <version>1.2.3-SNAPSHOT</version>
+                <version>1.2.5-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
