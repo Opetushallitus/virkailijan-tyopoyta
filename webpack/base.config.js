@@ -11,8 +11,8 @@ module.exports = {
     style: PATHS.style
   },
   output: {
-    filename: '[name].js',
-    chunkFilename: '[name].js',
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].js',
     publicPath: '/virkailijan-tyopoyta/'
   },
   resolve: {
@@ -71,15 +71,12 @@ module.exports = {
     new webpack.ProvidePlugin({
       process: 'process/browser'
     }),
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: process.env.NODE_ENV || 'development'
-    }),
     new MiniCssExtractPlugin({
       filename: '[name].css'
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, '../ui/app/index.html'),
-      inject: false
+      inject: 'body'
     })
   ]
 }

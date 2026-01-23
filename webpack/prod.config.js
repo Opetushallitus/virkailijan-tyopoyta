@@ -8,8 +8,8 @@ module.exports = merge(baseConfig, {
   mode: 'production',
   output: {
     path: PATHS.build,
-    filename: '[name].js',
-    chunkFilename: '[name].js',
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].js',
     sourceMapFilename: '[file].map'
   },
 
