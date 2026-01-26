@@ -18,6 +18,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx'],
     fallback: {
+      process: require.resolve('process/browser'),
       stream: require.resolve('stream-browserify'),
       util: require.resolve('util/')
     }
@@ -67,8 +68,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: process.env.NODE_ENV || 'development'
+    new webpack.ProvidePlugin({
+      process: 'process/browser'
     }),
     new MiniCssExtractPlugin({
       filename: '[name].css'
