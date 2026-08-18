@@ -10,7 +10,6 @@ Käyttöliittymän dokumentaatio löytyy [docs](docs/ui/index.md)-kansiosta.
 ### Vaatimukset
 
 - [Node.js & pnpm](https://pnpm.io/)
-- [Scala sbt](http://www.scala-sbt.org/)
 - [Git](https://git-scm.com/)
 - paikallinen konfiguraatiotiedosto `common.properties`
 
