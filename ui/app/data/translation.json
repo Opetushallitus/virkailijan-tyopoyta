@@ -1528,6 +1528,16 @@
   },
   {
     "locale": "fi",
+    "key": "aikuistenperusopetus",
+    "value": "Aikuisten perusopetus"
+  },
+  {
+    "locale": "fi",
+    "key": "perusopetukseenvalmistavaopetus",
+    "value": "Perusopetukseen valmistava opetus"
+  },
+  {
+    "locale": "fi",
     "key": "perus",
     "value": "Perusopetus ja toinen aste"
   },
