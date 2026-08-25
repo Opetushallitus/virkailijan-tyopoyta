@@ -2,6 +2,8 @@ package fi.vm.sade.vst.logging
 
 import java.time.LocalDate
 
+import scala.collection.JavaConverters._
+
 import fi.vm.sade.auditlog.Changes
 import fi.vm.sade.vst.model.{NotificationUpdate, ReleaseUpdate}
 import org.junit.runner.RunWith
@@ -33,7 +35,7 @@ class AuditLogTest extends Specification with AuditLogging {
         .added("userGroups", toJson(releaseUpdate.userGroups).toString)
         .build()
 
-      generatedChanges.asJson() must_== manualChanges.asJson()
+      changeSet(generatedChanges) must_== changeSet(manualChanges)
     }
 
 
@@ -68,7 +70,7 @@ class AuditLogTest extends Specification with AuditLogging {
         .updated("userGroups", "[4]", "[4,5]")
         .build()
 
-      generatedChanges.asJson() must_== manualChanges.asJson()
+      changeSet(generatedChanges) must_== changeSet(manualChanges)
     }
 
 
@@ -104,7 +106,7 @@ class AuditLogTest extends Specification with AuditLogging {
         .updated("userGroups", "[]", "[4,5]")
         .build()
 
-      generatedChanges.asJson() must_== manualChanges.asJson()
+      changeSet(generatedChanges) must_== changeSet(manualChanges)
     }
 
 
@@ -134,7 +136,12 @@ class AuditLogTest extends Specification with AuditLogging {
         .updated("notification", toJson(oldNotification).toString, toJson(newNotification).toString)
         .build()
 
-      generatedChanges.asJson() must_== manualChanges.asJson()
+      changeSet(generatedChanges) must_== changeSet(manualChanges)
     }
   }
+
+  // Changes.asJsonArray is order-sensitive, but the order of entries in an audit
+  // changes list is incidental (it follows play-json's field order), so compare as sets.
+  private def changeSet(changes: Changes): Set[String] =
+    changes.asJsonArray().iterator().asScala.map(_.toString).toSet
 }
