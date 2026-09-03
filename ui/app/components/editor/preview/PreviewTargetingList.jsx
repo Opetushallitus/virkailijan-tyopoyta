@@ -25,7 +25,7 @@ function PreviewTargetingList (props) {
 
       <ul className="list-reset">
         {items.map(item =>
-          <li key={`${title}${item.id}`} className="mb1">{item.name || item.description[locale]}</li>
+          <li key={`${title}${item.id}`} className="mb1">{item.name ? translate(item.name) : item.description[locale]}</li>
         )}
       </ul>
     </div>
